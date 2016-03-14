@@ -1,8 +1,13 @@
 package fr.opensagres.language.textmate.rule;
 
-public interface ICompiledRule {
+public class ICompiledRule {
 
-	/*OnigScanner*/ Object getScanner();
+	public /* OnigScanner */ Object scanner;
+
+	public Integer[] rules;
 	
-	int[] getRules();
+	public ICompiledRule(Object scanner, Integer[] rules) {
+		this.scanner = scanner;
+		this.rules = rules;
+	}
 }

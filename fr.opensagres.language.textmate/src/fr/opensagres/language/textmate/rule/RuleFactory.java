@@ -158,7 +158,7 @@ public class RuleFactory {
 					patternId = RuleFactory.getCompiledRuleId(pattern, helper, repository);
 				}
 
-				if (patternId !== -1) {
+				if (patternId != -1) {
 					rule = helper.getRule(patternId);
 
 					skipRule = false;
