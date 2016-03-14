@@ -10,6 +10,16 @@ import fr.opensagres.language.textmate.types.IRawRule;
 
 public class RuleFactory {
 
+	public static CaptureRule createCaptureRule(IRuleFactoryHelper helper, final String name, final String contentName,
+			final int retokenizeCapturedWithRuleId) {
+		return (CaptureRule) helper.registerRule(new IRuleFactory() {
+			@Override
+			public Rule create(int id) {
+				return new CaptureRule(id, name, contentName, retokenizeCapturedWithRuleId);
+			}
+		});
+	}
+
 	public static int getCompiledRuleId(final IRawRule desc, final IRuleFactoryHelper helper,
 			final IRawRepository repository) {
 		if (desc.getId() == null) {
@@ -53,13 +63,13 @@ public class RuleFactory {
 	}
 
 	private static Collection<CaptureRule> _compileCaptures(IRawCaptures captures, IRuleFactoryHelper helper, IRawRepository repository) {
-		let r: CaptureRule[] = [],
-			numericCaptureId: number,
-			maximumCaptureId: number,
-			i: number,
-			captureId: string;
+		Collection<CaptureRule> r = new ArrayList<CaptureRule>();
+		int numericCaptureId;
+			int maximumCaptureId;
+			int i;
+			String captureId;
 
-		if (captures) {
+		if (captures != null) {
 			// Find the maximum capture id
 			maximumCaptureId = 0;
 			for (captureId in captures) {
@@ -77,7 +87,7 @@ public class RuleFactory {
 			// Fill out result
 			for (captureId in captures) {
 				numericCaptureId = parseInt(captureId, 10);
-				let retokenizeCapturedWithRuleId = 0;
+				int retokenizeCapturedWithRuleId = 0;
 				if (captures[captureId].patterns) {
 					retokenizeCapturedWithRuleId = RuleFactory.getCompiledRuleId(captures[captureId], helper, repository);
 				}
@@ -154,11 +164,13 @@ public class RuleFactory {
 					skipRule = false;
 
 					if (rule instanceof IncludeOnlyRule) {
-						if (rule.hasMissingPatterns && rule.patterns.length === 0) {
+						IncludeOnlyRule ior = (IncludeOnlyRule) rule;
+						if (ior.hasMissingPatterns && ior.patterns.length == 0) {
 							skipRule = true;
 						}
 					} else if (rule instanceof BeginEndRule) {
-						if (rule.hasMissingPatterns && rule.patterns.length === 0) {
+						BeginEndRule br = (BeginEndRule) rule;
+						if (br.hasMissingPatterns && br.patterns.length == 0) {
 							skipRule = true;
 						}
 					}
@@ -168,15 +180,17 @@ public class RuleFactory {
 						continue;
 					}
 
-					r.push(patternId);
+					r.add(patternId);
 				}
 			}
 		}
 
-		return {
-			patterns: r,
-			hasMissingPatterns: ((patterns ? patterns.length : 0) !== r.length)
-		};
+		return new ICompilePatternsResult(
+			r,
+			((patterns == null && r.size() == 0) || (patterns.length != r.size()))
+			/*((patterns != null ? patterns.length : 0) !== r.length)*/
+			
+		);
 	}
 
 }

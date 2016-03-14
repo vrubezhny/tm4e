@@ -1,8 +1,15 @@
 package fr.opensagres.language.textmate.rule;
 
-public interface ICompilePatternsResult {
+import java.util.Collection;
 
-	int[] getPatterns();
+public class ICompilePatternsResult {
 
-	boolean hasMissingPatterns();
+	public ICompilePatternsResult(Collection<Integer> patterns, boolean hasMissingPatterns) {
+		this.hasMissingPatterns = hasMissingPatterns;
+		this.patterns = patterns.toArray(new Integer[0]);
+	}
+
+	public Integer[] patterns;
+
+	public boolean hasMissingPatterns;
 }

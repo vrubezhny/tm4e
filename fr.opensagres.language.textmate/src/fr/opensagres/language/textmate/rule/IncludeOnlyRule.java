@@ -2,14 +2,14 @@ package fr.opensagres.language.textmate.rule;
 
 public class IncludeOnlyRule extends Rule {
 
-	private boolean hasMissingPatterns;
-	public int[] patterns;
+	public boolean hasMissingPatterns;
+	public Integer[] patterns;
 	private RegExpSourceList _cachedCompiledPatterns;
 
 	public IncludeOnlyRule(int id, String name, String contentName, ICompilePatternsResult patterns) {
 		super(id, name, contentName);
-		this.patterns = patterns.getPatterns();
-		this.hasMissingPatterns = patterns.hasMissingPatterns();
+		this.patterns = patterns.patterns;
+		this.hasMissingPatterns = patterns.hasMissingPatterns;
 		this._cachedCompiledPatterns = null;
 	}
 
