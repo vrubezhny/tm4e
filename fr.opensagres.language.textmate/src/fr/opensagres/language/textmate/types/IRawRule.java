@@ -1,10 +1,16 @@
 package fr.opensagres.language.textmate.types;
 
+import java.util.Collection;
+
 public interface IRawRule {
 
 	Integer getId();
 
 	void setId(Integer id);
+
+	String getInclude();
+
+	void setInclude(String include);
 
 	String getName();
 
@@ -26,22 +32,27 @@ public interface IRawRule {
 
 	void setBegin(String begin);
 
-	// id?: number;
-	//
-	// include?: string;
-	//
-	// name?: string;
-	// contentName?: string;
-	//
-	// match?:string;
-	// captures?: IRawCaptures;
-	// begin?:string;
-	// beginCaptures?: IRawCaptures;
-	// end?:string;
-	// endCaptures?: IRawCaptures;
-	// patterns?: IRawRule[];
-	//
-	// repository?: IRawRepository;
-	//
-	// applyEndPatternLast?:boolean;
+	IRawCaptures getBeginCaptures();
+
+	void setBeginCaptures(IRawCaptures beginCaptures);
+
+	String getEnd();
+
+	void setEnd(String end);
+
+	IRawCaptures getEndCaptures();
+
+	void setEndCaptures(IRawCaptures endCaptures);
+
+	IRawRule[] getPatterns();
+
+	void setPatterns(IRawRule[] patterns);
+
+	IRawRepository getRepository();
+
+	void setRepository(IRawRepository repository);
+
+	Boolean getApplyEndPatternLast();
+
+	void setApplyEndPatternLast(Boolean applyEndPatternLast);
 }

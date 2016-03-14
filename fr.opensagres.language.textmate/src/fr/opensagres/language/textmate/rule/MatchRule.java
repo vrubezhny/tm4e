@@ -15,15 +15,15 @@ public class MatchRule extends Rule {
 		this._cachedCompiledPatterns = null;
 	}
 
-public void collectPatternsRecursive(IRuleRegistry grammar, RegExpSourceList out, boolean isFirst) {
-	out.push(this._match);
-}
-
-public ICompiledRule compile(grammar:IRuleRegistry, endRegexSource: string, allowA:boolean, allowG:boolean)  {
-	if (!this._cachedCompiledPatterns) {
-		this._cachedCompiledPatterns = new RegExpSourceList();
-		this.collectPatternsRecursive(grammar, this._cachedCompiledPatterns, true);
+	public void collectPatternsRecursive(IRuleRegistry grammar, RegExpSourceList out, boolean isFirst) {
+		out.push(this._match);
 	}
-	return this._cachedCompiledPatterns.compile(grammar, allowA, allowG);
-}
+
+	public ICompiledRule compile(IRuleRegistry grammar, String endRegexSource, boolean allowA, boolean allowG) {
+		if (this._cachedCompiledPatterns == null) {
+			this._cachedCompiledPatterns = new RegExpSourceList();
+			this.collectPatternsRecursive(grammar, this._cachedCompiledPatterns, true);
+		}
+		return this._cachedCompiledPatterns.compile(grammar, allowA, allowG);
+	}
 }
