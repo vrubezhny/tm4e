@@ -1,7 +1,5 @@
 package fr.opensagres.language.textmate.types;
 
-import java.util.Collection;
-
 public interface IRawRule {
 
 	Integer getId();

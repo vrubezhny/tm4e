@@ -24,6 +24,6 @@ public class PlistParser implements IGrammarParser {
 		PList result = new PList();
 		xmlReader.setContentHandler(result);
 		xmlReader.parse(new InputSource(contents));
-		return result;
+		return result.getResult();
 	}
 }

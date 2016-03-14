@@ -7,16 +7,13 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import fr.opensagres.language.textmate.grammar.parser.PListObject.Raw;
 import fr.opensagres.language.textmate.types.IRawGrammar;
-import fr.opensagres.language.textmate.types.IRawRepository;
-import fr.opensagres.language.textmate.types.IRawRule;
 
-public class PList extends DefaultHandler implements IRawGrammar {
+public class PList extends DefaultHandler {
 
 	private final List<String> errors;
 	private PListObject currObject;
-	private Object result;
+	private IRawGrammar result;
 	private String text;
 
 	public PList() {
@@ -90,7 +87,7 @@ public class PList extends DefaultHandler implements IRawGrammar {
 			return;
 		}
 		if (currObject == null) {
-			result = value;
+			result = (IRawGrammar) value;
 		} else if (currObject.isValueAsArray()) {
 			currObject.addValue(value);
 		} else {
@@ -108,38 +105,41 @@ public class PList extends DefaultHandler implements IRawGrammar {
 		super.characters(ch, start, length);
 	}
 
-	@Override
-	public IRawRepository getRepository() {
-		return (IRawRepository) ((Raw) this.result).get("repository");
-	}
+//	@Override
+//	public IRawRepository getRepository() {
+//		return (IRawRepository) ((Raw) this.result).get("repository");
+//	}
+//
+//	@Override
+//	public String getScopeName() {
+//		return (String) ((Raw) this.result).get("scopeName");
+//	}
+//
+//	@Override
+//	public IRawRule[] getPatterns() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public String[] getFileTypes() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public String getName() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public String getFirstLineMatch() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
-	@Override
-	public String getScopeName() {
-		return (String) ((Raw) this.result).get("scopeName");
+	public IRawGrammar getResult() {
+		return result;
 	}
-
-	@Override
-	public IRawRule[] getPatterns() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String[] getFileTypes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getFirstLineMatch() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
