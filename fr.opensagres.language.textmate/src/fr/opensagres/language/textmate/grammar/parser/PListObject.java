@@ -1,7 +1,6 @@
 package fr.opensagres.language.textmate.grammar.parser;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,13 +63,18 @@ public class PListObject {
 	class Raw extends HashMap<String, Object> implements IRawRepository, IRawRule {
 
 		@Override
+		public IRawRule getProp(String name) {
+			return (IRawRule) super.get(name);
+		}
+
+		@Override
 		public IRawRule getBase() {
-			return null;
+			return (IRawRule) super.get("$base");
 		}
 
 		@Override
 		public IRawRule getSelf() {
-			return null;
+			return (IRawRule) super.get("self");
 		}
 
 		@Override
@@ -152,7 +156,7 @@ public class PListObject {
 		@Override
 		public void setInclude(String include) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -164,7 +168,7 @@ public class PListObject {
 		@Override
 		public void setBeginCaptures(IRawCaptures beginCaptures) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -176,7 +180,7 @@ public class PListObject {
 		@Override
 		public void setEnd(String end) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -188,7 +192,7 @@ public class PListObject {
 		@Override
 		public void setEndCaptures(IRawCaptures endCaptures) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -200,7 +204,7 @@ public class PListObject {
 		@Override
 		public void setPatterns(IRawRule[] patterns) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -212,7 +216,7 @@ public class PListObject {
 		@Override
 		public void setRepository(IRawRepository repository) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -224,7 +228,7 @@ public class PListObject {
 		@Override
 		public void setApplyEndPatternLast(Boolean applyEndPatternLast) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 	}

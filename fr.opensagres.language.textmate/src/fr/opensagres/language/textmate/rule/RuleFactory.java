@@ -69,30 +69,31 @@ public class RuleFactory {
 			int i;
 			String captureId;
 
+			// TODO!!!!!!!!!!!!!!!!!!
 		if (captures != null) {
-			// Find the maximum capture id
-			maximumCaptureId = 0;
-			for (captureId in captures) {
-				numericCaptureId = parseInt(captureId, 10);
-				if (numericCaptureId > maximumCaptureId) {
-					maximumCaptureId = numericCaptureId;
-				}
-			}
-
-			// Initialize result
-			for (i = 0; i <= maximumCaptureId; i++) {
-				r[i] = null;
-			}
-
-			// Fill out result
-			for (captureId in captures) {
-				numericCaptureId = parseInt(captureId, 10);
-				int retokenizeCapturedWithRuleId = 0;
-				if (captures[captureId].patterns) {
-					retokenizeCapturedWithRuleId = RuleFactory.getCompiledRuleId(captures[captureId], helper, repository);
-				}
-				r[numericCaptureId] = RuleFactory.createCaptureRule(helper, captures[captureId].name, captures[captureId].contentName, retokenizeCapturedWithRuleId);
-			}
+//			// Find the maximum capture id
+//			maximumCaptureId = 0;
+//			for (captureId in captures) {
+//				numericCaptureId = parseInt(captureId, 10);
+//				if (numericCaptureId > maximumCaptureId) {
+//					maximumCaptureId = numericCaptureId;
+//				}
+//			}
+//
+//			// Initialize result
+//			for (i = 0; i <= maximumCaptureId; i++) {
+//				r[i] = null;
+//			}
+//
+//			// Fill out result
+//			for (captureId in captures) {
+//				numericCaptureId = parseInt(captureId, 10);
+//				int retokenizeCapturedWithRuleId = 0;
+//				if (captures[captureId].patterns) {
+//					retokenizeCapturedWithRuleId = RuleFactory.getCompiledRuleId(captures[captureId], helper, repository);
+//				}
+//				r[numericCaptureId] = RuleFactory.createCaptureRule(helper, captures[captureId].name, captures[captureId].contentName, retokenizeCapturedWithRuleId);
+//			}
 		}
 
 		return r;
@@ -113,41 +114,41 @@ public class RuleFactory {
 				pattern = patterns[i];
 				patternId = -1;
 
-				if (pattern.include) {
-					if (pattern.include.charAt(0) == '#') {
+				if (pattern.getInclude() != null) {
+					if (pattern.getInclude().charAt(0) == '#') {
 						// Local include found in `repository`
-						let localIncludedRule = repository[pattern.include.substr(1)];
-						if (localIncludedRule) {
+						IRawRule localIncludedRule = repository.getProp(pattern.getInclude().substring(1));
+						if (localIncludedRule != null) {
 							patternId = RuleFactory.getCompiledRuleId(localIncludedRule, helper, repository);
 						} else {
 							// console.warn('CANNOT find rule for scopeName: ' + pattern.include + ', I am: ', repository['$base'].name);
 						}
-					} else if (pattern.include == "$base" || pattern.include == "$self") {
+					} else if (pattern.getInclude().equals("$base") || pattern.getInclude().equals("$self")) {
 						// Special include also found in `repository`
-						patternId = RuleFactory.getCompiledRuleId(repository[pattern.include], helper, repository);
+						patternId = RuleFactory.getCompiledRuleId(repository.getProp(pattern.getInclude()), helper, repository);
 					} else {
-						let externalGrammarName: string = null,
-							externalGrammarInclude: string = null,
-							sharpIndex = pattern.include.indexOf('#');
+						String externalGrammarName = null,
+							externalGrammarInclude= null;
+						int sharpIndex = pattern.getInclude().indexOf('#');
 						if (sharpIndex >= 0) {
-							externalGrammarName = pattern.include.substring(0, sharpIndex);
-							externalGrammarInclude = pattern.include.substring(sharpIndex + 1);
+							externalGrammarName = pattern.getInclude().substring(0, sharpIndex);
+							externalGrammarInclude = pattern.getInclude().substring(sharpIndex + 1);
 						} else {
-							externalGrammarName = pattern.include;
+							externalGrammarName = pattern.getInclude();
 						}
 						// External include
 						externalGrammar = helper.getExternalGrammar(externalGrammarName, repository);
 
-						if (externalGrammar) {
-							if (externalGrammarInclude) {
-								let externalIncludedRule = externalGrammar.repository[externalGrammarInclude];
-								if (externalIncludedRule) {
-									patternId = RuleFactory.getCompiledRuleId(externalIncludedRule, helper, externalGrammar.repository);
+						if (externalGrammar != null) {
+							if (externalGrammarInclude != null) {
+								IRawRule externalIncludedRule = externalGrammar.getRepository().getProp(externalGrammarInclude);
+								if (externalIncludedRule != null) {
+									patternId = RuleFactory.getCompiledRuleId(externalIncludedRule, helper, externalGrammar.getRepository());
 								} else {
 									// console.warn('CANNOT find rule for scopeName: ' + pattern.include + ', I am: ', repository['$base'].name);
 								}
 							} else {
-								patternId = RuleFactory.getCompiledRuleId(externalGrammar.repository.$self, helper, externalGrammar.repository);
+								patternId = RuleFactory.getCompiledRuleId(externalGrammar.getRepository().getSelf(), helper, externalGrammar.getRepository());
 							}
 						} else {
 							// console.warn('CANNOT find grammar for scopeName: ' + pattern.include + ', I am: ', repository['$base'].name);
