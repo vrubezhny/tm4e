@@ -1,5 +1,7 @@
 package fr.opensagres.language.textmate.types;
 
+import java.util.Collection;
+
 public interface IRawRule {
 
 	Integer getId();
@@ -42,9 +44,9 @@ public interface IRawRule {
 
 	void setEndCaptures(IRawCaptures endCaptures);
 
-	IRawRule[] getPatterns();
+	Collection<IRawRule> getPatterns();
 
-	void setPatterns(IRawRule[] patterns);
+	void setPatterns(Collection<IRawRule> patterns);
 
 	IRawRepository getRepository();
 

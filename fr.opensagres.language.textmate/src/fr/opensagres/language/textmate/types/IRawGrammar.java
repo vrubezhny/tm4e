@@ -1,12 +1,14 @@
 package fr.opensagres.language.textmate.types;
 
+import java.util.Collection;
+
 public interface IRawGrammar {
 
 	IRawRepository getRepository();
 
 	String getScopeName();
 
-	IRawRule[] getPatterns();
+	Collection<IRawRule> getPatterns();
 
 	// injections?:{ [expression:string]: IRawRule };
 

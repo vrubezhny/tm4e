@@ -99,9 +99,8 @@ public class RuleFactory {
 		return r;
 	}
 
-	private static ICompilePatternsResult _compilePatterns(IRawRule[] patterns, IRuleFactoryHelper helper, IRawRepository repository) {
+	private static ICompilePatternsResult _compilePatterns(Collection<IRawRule> patterns, IRuleFactoryHelper helper, IRawRepository repository) {
 		Collection<Integer> r = new ArrayList<Integer>();
-				IRawRule pattern ;
 			int i;
 			int len;
 			int patternId;
@@ -110,8 +109,7 @@ public class RuleFactory {
 			boolean skipRule;
 
 		if (patterns != null) {
-			for (i = 0, len = patterns.length; i < len; i++) {
-				pattern = patterns[i];
+			for (IRawRule pattern : patterns) {			
 				patternId = -1;
 
 				if (pattern.getInclude() != null) {
@@ -188,7 +186,7 @@ public class RuleFactory {
 
 		return new ICompilePatternsResult(
 			r,
-			((patterns == null && r.size() == 0) || (patterns.length != r.size()))
+			((patterns == null && r.size() == 0) || (patterns.size() != r.size()))
 			/*((patterns != null ? patterns.length : 0) !== r.length)*/
 			
 		);

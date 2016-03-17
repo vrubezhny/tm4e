@@ -1,5 +1,6 @@
 package fr.opensagres.language.textmate.grammar.parser;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import fr.opensagres.language.textmate.types.IRawCaptures;
@@ -7,7 +8,7 @@ import fr.opensagres.language.textmate.types.IRawGrammar;
 import fr.opensagres.language.textmate.types.IRawRepository;
 import fr.opensagres.language.textmate.types.IRawRule;
 
-public class Raw extends HashMap<String, Object> implements IRawRepository, IRawRule, IRawGrammar {
+public class Raw extends HashMap<String, Object> implements IRawRepository, IRawRule, IRawGrammar, IRawCaptures {
 
 	@Override
 	public IRawRule getProp(String name) {
@@ -46,38 +47,32 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("name");
 	}
 
 	@Override
 	public void setName(String name) {
-		// TODO Auto-generated method stub
-
+		super.put("name", name);
 	}
 
 	@Override
 	public String getContentName() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("contentName");
 	}
 
 	@Override
 	public void setContentName(String name) {
-		// TODO Auto-generated method stub
-
+		super.put("contentName", name);
 	}
 
 	@Override
 	public String getMatch() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("match");
 	}
 
 	@Override
 	public void setMatch(String match) {
-		// TODO Auto-generated method stub
-
+		super.put("match", match);
 	}
 
 	@Override
@@ -94,74 +89,62 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public String getBegin() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("begin");
 	}
 
 	@Override
 	public void setBegin(String begin) {
-		// TODO Auto-generated method stub
-
+		super.put("begin", begin);
 	}
 
 	@Override
 	public String getInclude() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("include");
 	}
 
 	@Override
 	public void setInclude(String include) {
-		// TODO Auto-generated method stub
-
+		super.put("include", include);
 	}
 
 	@Override
 	public IRawCaptures getBeginCaptures() {
-		// TODO Auto-generated method stub
-		return null;
+		return (IRawCaptures) super.get("beginCaptures");
 	}
 
 	@Override
 	public void setBeginCaptures(IRawCaptures beginCaptures) {
-		// TODO Auto-generated method stub
-
+		super.put("beginCaptures", beginCaptures);
 	}
 
 	@Override
 	public String getEnd() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("end");
 	}
 
 	@Override
 	public void setEnd(String end) {
-		// TODO Auto-generated method stub
-
+		super.put("end", end);
 	}
 
 	@Override
 	public IRawCaptures getEndCaptures() {
-		// TODO Auto-generated method stub
-		return null;
+		return (IRawCaptures) super.get("endCaptures");
 	}
 
 	@Override
 	public void setEndCaptures(IRawCaptures endCaptures) {
-		// TODO Auto-generated method stub
-
+		super.put("endCaptures", endCaptures);
 	}
 
 	@Override
-	public IRawRule[] getPatterns() {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<IRawRule> getPatterns() {
+		return (Collection<IRawRule>) super.get("patterns");
 	}
 
 	@Override
-	public void setPatterns(IRawRule[] patterns) {
-		// TODO Auto-generated method stub
-
+	public void setPatterns(Collection<IRawRule> patterns) {
+		super.put("patterns", patterns);
 	}
 
 	@Override
@@ -188,8 +171,7 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public String getScopeName() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("scopeName");
 	}
 
 	@Override
