@@ -52,7 +52,7 @@ public interface IRawRule {
 
 	void setRepository(IRawRepository repository);
 
-	Boolean getApplyEndPatternLast();
+	boolean isApplyEndPatternLast();
 
-	void setApplyEndPatternLast(Boolean applyEndPatternLast);
+	void setApplyEndPatternLast(boolean applyEndPatternLast);
 }

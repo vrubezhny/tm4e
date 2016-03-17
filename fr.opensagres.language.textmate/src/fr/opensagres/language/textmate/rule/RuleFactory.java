@@ -53,7 +53,7 @@ public class RuleFactory {
 							RuleFactory._compileCaptures(
 									desc.getEndCaptures() != null ? desc.getEndCaptures() : desc.getCaptures(), helper,
 									repository),
-							desc.getApplyEndPatternLast(),
+							desc.isApplyEndPatternLast(),
 							RuleFactory._compilePatterns(desc.getPatterns(), helper, repository));
 				}
 			});

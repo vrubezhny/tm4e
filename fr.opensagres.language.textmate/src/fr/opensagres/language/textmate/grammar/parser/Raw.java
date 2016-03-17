@@ -77,14 +77,12 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public IRawCaptures getCaptures() {
-		// TODO Auto-generated method stub
-		return null;
+		return (IRawCaptures) super.get("captures");
 	}
 
 	@Override
 	public void setCaptures(IRawCaptures captures) {
-		// TODO Auto-generated method stub
-
+		super.put("captures", captures);
 	}
 
 	@Override
@@ -158,15 +156,14 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	}
 
 	@Override
-	public Boolean getApplyEndPatternLast() {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean isApplyEndPatternLast() {
+		Boolean applyEndPatternLast = (Boolean) super.get("applyEndPatternLast");
+		return applyEndPatternLast != null ? applyEndPatternLast : false;
 	}
 
 	@Override
-	public void setApplyEndPatternLast(Boolean applyEndPatternLast) {
-		// TODO Auto-generated method stub
-
+	public void setApplyEndPatternLast(boolean applyEndPatternLast) {
+		super.put("applyEndPatternLast", applyEndPatternLast);
 	}
 
 	@Override
@@ -175,15 +172,13 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	}
 
 	@Override
-	public String[] getFileTypes() {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<String> getFileTypes() {
+		return (Collection<String>) super.get("fileTypes");
 	}
 
 	@Override
 	public String getFirstLineMatch() {
-		// TODO Auto-generated method stub
-		return null;
+		return (String) super.get("firstLineMatch");
 	}
 
 }

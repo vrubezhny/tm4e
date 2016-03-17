@@ -12,7 +12,7 @@ public interface IRawGrammar {
 
 	// injections?:{ [expression:string]: IRawRule };
 
-	String[] getFileTypes();
+	Collection<String> getFileTypes();
 
 	String getName();
 
