@@ -265,7 +265,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		public final Grammar grammar;
 		public final /* OnigString */ String lineText;
 		public final boolean isFirstLine;
-		public final int linePos;
+		public int linePos;
 		public final List<StackElement> stack;
 		public final LineTokens lineTokens;
 		public int anchorPosition = -1;
@@ -281,7 +281,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		}
 	}
 
-	private IMatchResult matchRule(Grammar grammar, String lineText, boolean isFirstLine, int linePos,
+	private IMatchResult matchRule(Grammar grammar, String lineText, boolean isFirstLine, final int linePos,
 			List<StackElement> stack, int anchorPosition) {
 		StackElement stackElement = stack.get(stack.size() - 1);
 		final ICompiledRule ruleScanner = grammar.getRule(stackElement.getRuleId()).compile(grammar,
@@ -305,7 +305,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return null;
 	}
 
-	private IMatchResult matchRuleOrInjections(Grammar grammar, String lineText, boolean isFirstLine, int linePos,
+	private IMatchResult matchRuleOrInjections(Grammar grammar, String lineText, boolean isFirstLine, final int linePos,
 			List<StackElement> stack, int anchorPosition) {
 		// Look for normal grammar rule
 		IMatchResult matchResult = matchRule(grammar, lineText, isFirstLine, linePos, stack, anchorPosition);
@@ -407,7 +407,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		int lineLength = lineText.length(); // getString(lineText).length;
 
 		ScanContext ctx = new ScanContext(grammar, lineText, isFirstLine, linePos, stack, lineTokens);
-		while (linePos < lineLength) {
+		while (ctx.linePos < lineLength) {
 			scanNext(ctx); // potentially modifies linePos && anchorPosition
 		}
 	}
@@ -418,23 +418,22 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		Grammar grammar = ctx.grammar;
 		String lineText = ctx.lineText;
 		boolean isFirstLine = ctx.isFirstLine;
-		int linePos = ctx.linePos;
 		LineTokens lineTokens = ctx.lineTokens;
 		int lineLength = lineText.length(); // getString(lineText).length;
 
-		IMatchResult r = matchRuleOrInjections(grammar, lineText, isFirstLine, linePos, stack, ctx.anchorPosition);
+		IMatchResult r = matchRuleOrInjections(grammar, lineText, isFirstLine, ctx.linePos, stack, ctx.anchorPosition);
 
 		if (r == null) {
 			// No match
 			lineTokens.produce(stack, lineLength);
-			linePos = lineLength;
+			ctx.linePos = lineLength;
 			return true;
 		}
 
 		IOnigCaptureIndex[] captureIndices = r.getCaptureIndices();
 		int matchedRuleId = r.getMatchedRuleId();
 
-		boolean hasAdvanced = (captureIndices[0].getEnd() > linePos);
+		boolean hasAdvanced = (captureIndices[0].getEnd() > ctx.linePos);
 
 		if (matchedRuleId == -1) {
 			// We matched the `end` for this rule => pop it
@@ -448,11 +447,11 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			// pop
 			stack.remove(stack.size() - 1); // stack.pop();
 
-			if (!hasAdvanced && stackElement.getEnterPos() == linePos) {
+			if (!hasAdvanced && stackElement.getEnterPos() == ctx.linePos) {
 				// Grammar pushed & popped a rule without advancing
 				System.err.println("Grammar is in an endless loop - case 1");
 				lineTokens.produce(stack, lineLength);
-				linePos = lineLength;
+				ctx.linePos = lineLength;
 				return false;
 			}
 
@@ -463,7 +462,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			lineTokens.produce(stack, captureIndices[0].getStart());
 
 			// push it on the stack rule
-			stack.add(new StackElement(matchedRuleId, linePos, null, _rule.getName(getString(lineText), captureIndices),
+			stack.add(new StackElement(matchedRuleId, ctx.linePos, null, _rule.getName(getString(lineText), captureIndices),
 					null));
 
 			if (_rule instanceof BeginEndRule) {
@@ -486,7 +485,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 					System.err.println("Grammar is in an endless loop - case 2");
 					stack.remove(stack.size() - 1);
 					lineTokens.produce(stack, lineLength);
-					linePos = lineLength;
+					ctx.linePos = lineLength;
 					return false;
 				}
 			} else {
@@ -506,15 +505,15 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 						stack.remove(stack.size() - 1);
 					}
 					lineTokens.produce(stack, lineLength);
-					linePos = lineLength;
+					ctx.linePos = lineLength;
 					return false;
 				}
 			}
 		}
 
-		if (captureIndices[0].getEnd() > linePos) {
+		if (captureIndices[0].getEnd() > ctx.linePos) {
 			// Advance stream
-			linePos = captureIndices[0].getEnd();
+			ctx.linePos = captureIndices[0].getEnd();
 			isFirstLine = false;
 		}
 		return true;
