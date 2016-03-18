@@ -1,6 +1,7 @@
 package fr.opensagres.language.textmate.grammar;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,9 +10,11 @@ import fr.opensagres.language.textmate.grammar.parser.Raw;
 import fr.opensagres.language.textmate.oniguruma.IOnigCaptureIndex;
 import fr.opensagres.language.textmate.oniguruma.IOnigNextMatchResult;
 import fr.opensagres.language.textmate.rule.BeginEndRule;
+import fr.opensagres.language.textmate.rule.CaptureRule;
 import fr.opensagres.language.textmate.rule.ICompiledRule;
 import fr.opensagres.language.textmate.rule.IRuleFactory;
 import fr.opensagres.language.textmate.rule.IRuleFactoryHelper;
+import fr.opensagres.language.textmate.rule.MatchRule;
 import fr.opensagres.language.textmate.rule.Rule;
 import fr.opensagres.language.textmate.rule.RuleFactory;
 import fr.opensagres.language.textmate.types.IRawGrammar;
@@ -102,6 +105,70 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	private IRawGrammar clone(IRawGrammar grammar) {
 		return (IRawGrammar) ((Raw) grammar).clone();
+	}
+
+	private void handleCaptures(Grammar grammar, String lineText /*: OnigString*/, boolean isFirstLine, List<StackElement> stack, LineTokens lineTokens, Collection<CaptureRule> captures, IOnigCaptureIndex[] captureIndices){
+		if (captures.size() == 0) {
+			return;
+		}
+
+		let len = Math.min(captures.length, captureIndices.length),
+			localStack: LocalStackElement[] = [],
+			maxEnd = captureIndices[0].end,
+			i: number,
+			captureRule: CaptureRule,
+			captureIndex: IOnigCaptureIndex;
+
+		for (i = 0; i < len; i++) {
+			captureRule = captures[i];
+			if (captureRule === null) {
+				// Not interested
+				continue;
+			}
+
+			captureIndex = captureIndices[i];
+
+			if (captureIndex.length === 0) {
+				// Nothing really captured
+				continue;
+			}
+
+			if (captureIndex.start > maxEnd) {
+				// Capture going beyond consumed string
+				break;
+			}
+
+			// pop captures while needed
+			while (localStack.length > 0 && localStack[localStack.length - 1].endPos <= captureIndex.start) {
+				// pop!
+				lineTokens.produce(stack, localStack[localStack.length - 1].endPos, localStack);
+				localStack.pop();
+			}
+
+			lineTokens.produce(stack, captureIndex.start, localStack);
+
+			if (captureRule.retokenizeCapturedWithRuleId) {
+				// the capture requires additional matching
+				let stackClone = stack.map((el) => el.clone());
+				stackClone.push(new StackElement(captureRule.retokenizeCapturedWithRuleId, captureIndex.start, null, captureRule.getName(getString(lineText), captureIndices), captureRule.getContentName(getString(lineText), captureIndices)))
+				_tokenizeString(grammar,
+					createOnigString(
+						getString(lineText).substring(0, captureIndex.end)
+					),
+					(isFirstLine && captureIndex.start === 0), captureIndex.start, stackClone, lineTokens
+				);
+				continue;
+			}
+
+			// push
+			localStack.push(new LocalStackElement(captureRule.getName(getString(lineText), captureIndices), captureIndex.end));
+		}
+
+		while (localStack.length > 0) {
+			// pop!
+			lineTokens.produce(stack, localStack[localStack.length - 1].endPos, localStack);
+			localStack.pop();
+		}
 	}
 
 	private List<Injection> getGrammarInjections(IRawGrammar grammar, IRuleFactoryHelper ruleFactoryHelper) {
@@ -340,7 +407,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		int linePos = ctx.linePos;
 		LineTokens lineTokens = ctx.lineTokens;
 		int lineLength = lineText.length(); // getString(lineText).length;
-		
+
 		IMatchResult r = matchRuleOrInjections(grammar, lineText, isFirstLine, linePos, stack, ctx.anchorPosition);
 
 		if (r == null) {
@@ -357,7 +424,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 		if (matchedRuleId == -1) {
 			// We matched the `end` for this rule => pop it
-			BeginEndRule poppedRule = (BeginEndRule)grammar.getRule(stackElement.getRuleId());
+			BeginEndRule poppedRule = (BeginEndRule) grammar.getRule(stackElement.getRuleId());
 
 			lineTokens.produce(stack, captureIndices[0].getStart());
 			stackElement.setContentName(null);
@@ -365,7 +432,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			lineTokens.produce(stack, captureIndices[0].getEnd());
 
 			// pop
-			stack.remove(stack.size() - 1); //stack.pop();
+			stack.remove(stack.size() - 1); // stack.pop();
 
 			if (!hasAdvanced && stackElement.getEnterPos() == linePos) {
 				// Grammar pushed & popped a rule without advancing
@@ -382,42 +449,47 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			lineTokens.produce(stack, captureIndices[0].getStart());
 
 			// push it on the stack rule
-			stack.add(new StackElement(matchedRuleId, linePos, null, _rule.getName(getString(lineText), captureIndices), null));
+			stack.add(new StackElement(matchedRuleId, linePos, null, _rule.getName(getString(lineText), captureIndices),
+					null));
 
 			if (_rule instanceof BeginEndRule) {
-				BeginEndRule pushedRule = (BeginEndRule)_rule;
+				BeginEndRule pushedRule = (BeginEndRule) _rule;
 
-				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, pushedRule.beginCaptures, captureIndices);
+				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, pushedRule.beginCaptures,
+						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				ctx.anchorPosition = captureIndices[0].getEnd();
-				stack.get(stack.size()-1).setContentName(pushedRule.getContentName(getString(lineText), captureIndices));
+				stack.get(stack.size() - 1)
+						.setContentName(pushedRule.getContentName(getString(lineText), captureIndices));
 
 				if (pushedRule.endHasBackReferences) {
-					stack.get(stack.size()-1).setEndRule(pushedRule.getEndWithResolvedBackReferences(getString(lineText), captureIndices));
+					stack.get(stack.size() - 1).setEndRule(
+							pushedRule.getEndWithResolvedBackReferences(getString(lineText), captureIndices));
 				}
 
-				if (!hasAdvanced && stackElement.getRuleId() == stack[stack.length - 1].ruleId) {
+				if (!hasAdvanced && stackElement.getRuleId() == stack.get(stack.size() - 1).getRuleId()) {
 					// Grammar pushed the same rule without advancing
 					System.err.println("Grammar is in an endless loop - case 2");
-					stack.pop();
+					stack.remove(stack.size() - 1);
 					lineTokens.produce(stack, lineLength);
 					linePos = lineLength;
 					return false;
 				}
 			} else {
-				MatchRule matchingRule = (MatchRule)_rule;
+				MatchRule matchingRule = (MatchRule) _rule;
 
-				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, matchingRule.captures, captureIndices);
-				lineTokens.produce(stack, captureIndices[0].end);
+				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, matchingRule.captures,
+						captureIndices);
+				lineTokens.produce(stack, captureIndices[0].getEnd());
 
 				// pop rule immediately since it is a MatchRule
-				stack.pop();
+				stack.remove(stack.size() - 1);
 
 				if (!hasAdvanced) {
 					// Grammar is not advancing, nor is it pushing/popping
 					System.err.println("Grammar is in an endless loop - case 3");
-					if (stack.length > 1) {
-						stack.pop();
+					if (stack.size() > 1) {
+						stack.remove(stack.size() - 1);
 					}
 					lineTokens.produce(stack, lineLength);
 					linePos = lineLength;
@@ -426,9 +498,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			}
 		}
 
-		if (captureIndices[0].end > linePos) {
+		if (captureIndices[0].getEnd() > linePos) {
 			// Advance stream
-			linePos = captureIndices[0].end;
+			linePos = captureIndices[0].getEnd();
 			isFirstLine = false;
 		}
 		return true;
