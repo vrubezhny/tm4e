@@ -107,68 +107,82 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return (IRawGrammar) ((Raw) grammar).clone();
 	}
 
-	private void handleCaptures(Grammar grammar, String lineText /*: OnigString*/, boolean isFirstLine, List<StackElement> stack, LineTokens lineTokens, Collection<CaptureRule> captures, IOnigCaptureIndex[] captureIndices){
+	private void handleCaptures(Grammar grammar, String lineText /* : OnigString */, boolean isFirstLine,
+			List<StackElement> stack, LineTokens lineTokens, Collection<CaptureRule> captures,
+			IOnigCaptureIndex[] captureIndices) {
 		if (captures.size() == 0) {
 			return;
 		}
 
-		let len = Math.min(captures.length, captureIndices.length),
-			localStack: LocalStackElement[] = [],
-			maxEnd = captureIndices[0].end,
-			i: number,
-			captureRule: CaptureRule,
-			captureIndex: IOnigCaptureIndex;
+		int len = Math.min(captures.size(), captureIndices.length);
+		List<LocalStackElement> localStack = new ArrayList<LocalStackElement>();
+		int maxEnd = captureIndices[0].getEnd();
+		int i = 0;
+		IOnigCaptureIndex captureIndex;
 
-		for (i = 0; i < len; i++) {
-			captureRule = captures[i];
-			if (captureRule === null) {
+		for (CaptureRule captureRule : captures) {
+			if (captureRule == null) {
 				// Not interested
 				continue;
 			}
 
 			captureIndex = captureIndices[i];
+			i++;
 
-			if (captureIndex.length === 0) {
+			if (captureIndex.getLength() == 0) {
 				// Nothing really captured
 				continue;
 			}
 
-			if (captureIndex.start > maxEnd) {
+			if (captureIndex.getStart() > maxEnd) {
 				// Capture going beyond consumed string
 				break;
 			}
 
 			// pop captures while needed
-			while (localStack.length > 0 && localStack[localStack.length - 1].endPos <= captureIndex.start) {
+			while (localStack.size() > 0
+					&& localStack.get(localStack.size() - 1).getEndPos() <= captureIndex.getStart()) {
 				// pop!
-				lineTokens.produce(stack, localStack[localStack.length - 1].endPos, localStack);
-				localStack.pop();
+				lineTokens.produce(stack, localStack.get(localStack.size() - 1).getEndPos(), localStack);
+				localStack.remove(localStack.size() - 1);
 			}
 
-			lineTokens.produce(stack, captureIndex.start, localStack);
+			lineTokens.produce(stack, captureIndex.getStart(), localStack);
 
-			if (captureRule.retokenizeCapturedWithRuleId) {
+			if (captureRule.retokenizeCapturedWithRuleId != null) {
 				// the capture requires additional matching
-				let stackClone = stack.map((el) => el.clone());
-				stackClone.push(new StackElement(captureRule.retokenizeCapturedWithRuleId, captureIndex.start, null, captureRule.getName(getString(lineText), captureIndices), captureRule.getContentName(getString(lineText), captureIndices)))
-				_tokenizeString(grammar,
-					createOnigString(
-						getString(lineText).substring(0, captureIndex.end)
-					),
-					(isFirstLine && captureIndex.start === 0), captureIndex.start, stackClone, lineTokens
-				);
+				List<StackElement> stackClone = cloneStack(stack);
+				stackClone.add(new StackElement(captureRule.retokenizeCapturedWithRuleId, captureIndex.getStart(), null,
+						captureRule.getName(getString(lineText), captureIndices),
+						captureRule.getContentName(getString(lineText), captureIndices)));
+				_tokenizeString(grammar, createOnigString(getString(lineText).substring(0, captureIndex.getEnd())),
+						(isFirstLine && captureIndex.getStart() == 0), captureIndex.getStart(), stackClone, lineTokens);
 				continue;
 			}
 
 			// push
-			localStack.push(new LocalStackElement(captureRule.getName(getString(lineText), captureIndices), captureIndex.end));
+			localStack.add(new LocalStackElement(captureRule.getName(getString(lineText), captureIndices),
+					captureIndex.getEnd()));
 		}
 
-		while (localStack.length > 0) {
+		while (localStack.size() > 0) {
 			// pop!
-			lineTokens.produce(stack, localStack[localStack.length - 1].endPos, localStack);
-			localStack.pop();
+			lineTokens.produce(stack, localStack.get(localStack.size() - 1).getEndPos(), localStack);
+			localStack.remove(localStack.size() - 1);
 		}
+	}
+
+	private List<StackElement> cloneStack(List<StackElement> stack) {
+		List<StackElement> clonedStack = new ArrayList<StackElement>();
+		for (StackElement stackElement : stack) {
+			clonedStack.add(stackElement.clone());
+		}
+		return clonedStack;
+	}
+
+	private String createOnigString(String substring) {
+		// TODO Auto-generated method stub
+		return substring;
 	}
 
 	private List<Injection> getGrammarInjections(IRawGrammar grammar, IRuleFactoryHelper ruleFactoryHelper) {
