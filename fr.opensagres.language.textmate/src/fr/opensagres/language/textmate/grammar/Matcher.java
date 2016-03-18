@@ -9,7 +9,7 @@ public class Matcher<T> {
 	}
 
 	private static <T> Matcher<T> parseOperand()  {
-		if (token === '-') {
+		if (token == '-') {
 			token = tokenizer.next();
 			var expressionToNegate = parseOperand();
 			return matcherInput => expressionToNegate && !expressionToNegate(matcherInput);
@@ -67,7 +67,7 @@ public class Matcher<T> {
 		return token != null && token.matches("[\\w\\.:]+");
 	}
 
-	private newTokenizer(input: string) : { next: () => string } {
+	private static newTokenizer(String input) : { next: () => string } {
 		let regex = /([\w\.:]+|[\,\|\-\(\)])/g;
 		var match = regex.exec(input);
 		return {

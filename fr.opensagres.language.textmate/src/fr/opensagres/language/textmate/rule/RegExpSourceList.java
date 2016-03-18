@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import fr.opensagres.language.textmate.oniguruma.OnigScanner;
+
 public class RegExpSourceList {
 
 	private class IRegExpSourceListAnchorCache {
@@ -71,7 +73,11 @@ public class RegExpSourceList {
 				// scanner: createOnigScanner(this._items.map(e => e.source)),
 				// rules: this._items.map(e => e.ruleId)
 				// };
-				this._cached = new ICompiledRule(getScanner(), getRules());
+				List<String> regexps = new ArrayList<String>();
+				for (RegExpSource regExpSource : _items) {
+					regexps.add(regExpSource.source);
+				}
+				this._cached = new ICompiledRule(createOnigScanner(regexps.toArray(new String[0])), getRules());
 			}
 			return this._cached;
 		} else {
@@ -107,11 +113,16 @@ public class RegExpSourceList {
 		// e.resolveAnchors(allowA, allowG))),
 		// rules: this._items.map(e => e.ruleId)
 		// };
-		return new ICompiledRule(getScanner(), getRules());
+
+		List<String> regexps = new ArrayList<String>();
+		for (RegExpSource regExpSource : _items) {
+			regexps.add(regExpSource.resolveAnchors(allowA, allowG));
+		}
+		return new ICompiledRule(createOnigScanner(regexps.toArray(new String[0])), getRules());
 	}
 
-	private Object getScanner() {
-		return null;
+	private OnigScanner createOnigScanner(String[] regexps) {
+		return new OnigScanner(regexps);
 	}
 
 	private Integer[] getRules() {
