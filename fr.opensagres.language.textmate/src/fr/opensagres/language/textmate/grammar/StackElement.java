@@ -39,14 +39,29 @@ public class StackElement {
 	public int getEnterPos() {
 		return enterPos;
 	}
-	
+
 	public String getScopeName() {
 		return scopeName;
 	}
-	
+
 	public String getContentName() {
 		return contentName;
 	}
-	
-	
+
+	public int getRuleId() {
+		return ruleId;
+	}
+
+	public String getEndRule() {
+		return endRule;
+	}
+
+	public void setEndRule(String endRule) {
+		this.endRule = endRule;
+	}
+
+	public void setContentName(String contentName) {
+		this.contentName = contentName;
+	}
+
 }

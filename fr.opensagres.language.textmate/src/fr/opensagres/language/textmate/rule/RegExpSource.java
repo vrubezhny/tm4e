@@ -3,7 +3,7 @@ package fr.opensagres.language.textmate.rule;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import fr.opensagres.language.textmate._onig.IOnigCaptureIndex;
+import fr.opensagres.language.textmate.oniguruma.IOnigCaptureIndex;
 import fr.opensagres.language.textmate.utils.StringUtils;
 
 public class RegExpSource {

@@ -105,40 +105,6 @@ public class PList extends DefaultHandler {
 		super.characters(ch, start, length);
 	}
 
-//	@Override
-//	public IRawRepository getRepository() {
-//		return (IRawRepository) ((Raw) this.result).get("repository");
-//	}
-//
-//	@Override
-//	public String getScopeName() {
-//		return (String) ((Raw) this.result).get("scopeName");
-//	}
-//
-//	@Override
-//	public IRawRule[] getPatterns() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public String[] getFileTypes() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public String getName() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-//
-//	@Override
-//	public String getFirstLineMatch() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 	public IRawGrammar getResult() {
 		return result;
 	}

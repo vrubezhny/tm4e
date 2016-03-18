@@ -42,8 +42,4 @@ public class Rule {
 		throw new UnsupportedOperationException("Implement me!");
 	}
 
-//	public static let createOnigString(String lineText) {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 }

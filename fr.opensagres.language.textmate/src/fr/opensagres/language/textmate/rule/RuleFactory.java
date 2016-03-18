@@ -2,7 +2,12 @@ package fr.opensagres.language.textmate.rule;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import fr.opensagres.language.textmate.grammar.parser.Raw;
 import fr.opensagres.language.textmate.types.IRawCaptures;
 import fr.opensagres.language.textmate.types.IRawGrammar;
 import fr.opensagres.language.textmate.types.IRawRepository;
@@ -36,13 +41,12 @@ public class RuleFactory {
 					}
 
 					if (desc.getBegin() == null) {
-						/*
-						 * if (desc.getRepository() != null) { repository =
-						 * null; //mergeObjects({}, repository,
-						 * desc.repository); }
-						 */
+						IRawRepository r = repository;
+						if (desc.getRepository() != null) {
+							r = mergeObjects(repository, desc.getRepository());
+						}
 						return new IncludeOnlyRule(desc.getId(), desc.getName(), desc.getContentName(),
-								RuleFactory._compilePatterns(desc.getPatterns(), helper, repository));
+								RuleFactory._compilePatterns(desc.getPatterns(), helper, r));
 					}
 
 					return new BeginEndRule(desc.getId(), desc.getName(), desc.getContentName(), desc.getBegin(),
@@ -56,60 +60,83 @@ public class RuleFactory {
 							desc.isApplyEndPatternLast(),
 							RuleFactory._compilePatterns(desc.getPatterns(), helper, repository));
 				}
+
+				private IRawRepository mergeObjects(IRawRepository... sources) {
+					Raw target = new Raw();
+					for (IRawRepository source : sources) {
+						Set<Entry<String, Object>> entries = ((Map<String, Object>) source).entrySet();
+						for (Entry<String, Object> entry : entries) {
+							target.put(entry.getKey(), entry.getValue());
+						}
+					}
+					return target;
+				}
+
 			});
 		}
 
 		return desc.getId();
 	}
 
-	private static Collection<CaptureRule> _compileCaptures(IRawCaptures captures, IRuleFactoryHelper helper, IRawRepository repository) {
-		Collection<CaptureRule> r = new ArrayList<CaptureRule>();
+	private static Collection<CaptureRule> _compileCaptures(IRawCaptures captures, IRuleFactoryHelper helper,
+			IRawRepository repository) {
+		List<CaptureRule> r = new ArrayList<CaptureRule>();
 		int numericCaptureId;
-			int maximumCaptureId;
-			int i;
-			String captureId;
+		int maximumCaptureId;
+		int i;
 
-			// TODO!!!!!!!!!!!!!!!!!!
 		if (captures != null) {
-//			// Find the maximum capture id
-//			maximumCaptureId = 0;
-//			for (captureId in captures) {
-//				numericCaptureId = parseInt(captureId, 10);
-//				if (numericCaptureId > maximumCaptureId) {
-//					maximumCaptureId = numericCaptureId;
-//				}
-//			}
-//
-//			// Initialize result
-//			for (i = 0; i <= maximumCaptureId; i++) {
-//				r[i] = null;
-//			}
-//
-//			// Fill out result
-//			for (captureId in captures) {
-//				numericCaptureId = parseInt(captureId, 10);
-//				int retokenizeCapturedWithRuleId = 0;
-//				if (captures[captureId].patterns) {
-//					retokenizeCapturedWithRuleId = RuleFactory.getCompiledRuleId(captures[captureId], helper, repository);
-//				}
-//				r[numericCaptureId] = RuleFactory.createCaptureRule(helper, captures[captureId].name, captures[captureId].contentName, retokenizeCapturedWithRuleId);
-//			}
+			// Find the maximum capture id
+			maximumCaptureId = 0;
+			for (String captureId : captures) {
+				numericCaptureId = parseInt(captureId, 10);
+				if (numericCaptureId > maximumCaptureId) {
+					maximumCaptureId = numericCaptureId;
+				}
+			}
+
+			// Initialize result
+			for (i = 0; i <= maximumCaptureId; i++) {
+				r.add(null);
+			}
+
+			// Fill out result
+			for (String captureId : captures) {
+				numericCaptureId = parseInt(captureId, 10);
+				int retokenizeCapturedWithRuleId = 0;
+				IRawRule rule = captures.getCapture(captureId);
+				if (rule.getPatterns() != null) {
+					retokenizeCapturedWithRuleId = RuleFactory.getCompiledRuleId(captures.getCapture(captureId), helper,
+							repository);
+				}
+				r.set(numericCaptureId, RuleFactory.createCaptureRule(helper, rule.getName(), rule.getContentName(),
+						retokenizeCapturedWithRuleId));
+			}
 		}
 
 		return r;
 	}
 
-	private static ICompilePatternsResult _compilePatterns(Collection<IRawRule> patterns, IRuleFactoryHelper helper, IRawRepository repository) {
+	private static int parseInt(String string, int base) {
+		try {
+			return Integer.parseInt(string, base);
+		} catch (Throwable e) {
+			return 0;
+		}
+	}
+
+	private static ICompilePatternsResult _compilePatterns(Collection<IRawRule> patterns, IRuleFactoryHelper helper,
+			IRawRepository repository) {
 		Collection<Integer> r = new ArrayList<Integer>();
-			int i;
-			int len;
-			int patternId;
-			IRawGrammar externalGrammar;
-			Rule rule;
-			boolean skipRule;
+		int i;
+		int len;
+		int patternId;
+		IRawGrammar externalGrammar;
+		Rule rule;
+		boolean skipRule;
 
 		if (patterns != null) {
-			for (IRawRule pattern : patterns) {			
+			for (IRawRule pattern : patterns) {
 				patternId = -1;
 
 				if (pattern.getInclude() != null) {
@@ -119,14 +146,16 @@ public class RuleFactory {
 						if (localIncludedRule != null) {
 							patternId = RuleFactory.getCompiledRuleId(localIncludedRule, helper, repository);
 						} else {
-							// console.warn('CANNOT find rule for scopeName: ' + pattern.include + ', I am: ', repository['$base'].name);
+							// console.warn('CANNOT find rule for scopeName: ' +
+							// pattern.include + ', I am: ',
+							// repository['$base'].name);
 						}
 					} else if (pattern.getInclude().equals("$base") || pattern.getInclude().equals("$self")) {
 						// Special include also found in `repository`
-						patternId = RuleFactory.getCompiledRuleId(repository.getProp(pattern.getInclude()), helper, repository);
+						patternId = RuleFactory.getCompiledRuleId(repository.getProp(pattern.getInclude()), helper,
+								repository);
 					} else {
-						String externalGrammarName = null,
-							externalGrammarInclude= null;
+						String externalGrammarName = null, externalGrammarInclude = null;
 						int sharpIndex = pattern.getInclude().indexOf('#');
 						if (sharpIndex >= 0) {
 							externalGrammarName = pattern.getInclude().substring(0, sharpIndex);
@@ -139,17 +168,24 @@ public class RuleFactory {
 
 						if (externalGrammar != null) {
 							if (externalGrammarInclude != null) {
-								IRawRule externalIncludedRule = externalGrammar.getRepository().getProp(externalGrammarInclude);
+								IRawRule externalIncludedRule = externalGrammar.getRepository()
+										.getProp(externalGrammarInclude);
 								if (externalIncludedRule != null) {
-									patternId = RuleFactory.getCompiledRuleId(externalIncludedRule, helper, externalGrammar.getRepository());
+									patternId = RuleFactory.getCompiledRuleId(externalIncludedRule, helper,
+											externalGrammar.getRepository());
 								} else {
-									// console.warn('CANNOT find rule for scopeName: ' + pattern.include + ', I am: ', repository['$base'].name);
+									// console.warn('CANNOT find rule for
+									// scopeName: ' + pattern.include + ', I am:
+									// ', repository['$base'].name);
 								}
 							} else {
-								patternId = RuleFactory.getCompiledRuleId(externalGrammar.getRepository().getSelf(), helper, externalGrammar.getRepository());
+								patternId = RuleFactory.getCompiledRuleId(externalGrammar.getRepository().getSelf(),
+										helper, externalGrammar.getRepository());
 							}
 						} else {
-							// console.warn('CANNOT find grammar for scopeName: ' + pattern.include + ', I am: ', repository['$base'].name);
+							// console.warn('CANNOT find grammar for scopeName:
+							// ' + pattern.include + ', I am: ',
+							// repository['$base'].name);
 						}
 
 					}
@@ -175,7 +211,8 @@ public class RuleFactory {
 					}
 
 					if (skipRule) {
-						// console.log('REMOVING RULE ENTIRELY DUE TO EMPTY PATTERNS THAT ARE MISSING');
+						// console.log('REMOVING RULE ENTIRELY DUE TO EMPTY
+						// PATTERNS THAT ARE MISSING');
 						continue;
 					}
 
@@ -184,11 +221,9 @@ public class RuleFactory {
 			}
 		}
 
-		return new ICompilePatternsResult(
-			r,
-			((patterns == null && r.size() == 0) || (patterns.size() != r.size()))
-			/*((patterns != null ? patterns.length : 0) !== r.length)*/
-			
+		return new ICompilePatternsResult(r, ((patterns == null && r.size() == 0) || (patterns.size() != r.size()))
+		/* ((patterns != null ? patterns.length : 0) !== r.length) */
+
 		);
 	}
 

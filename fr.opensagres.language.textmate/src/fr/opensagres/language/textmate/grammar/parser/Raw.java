@@ -2,6 +2,7 @@ package fr.opensagres.language.textmate.grammar.parser;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import fr.opensagres.language.textmate.types.IRawCaptures;
 import fr.opensagres.language.textmate.types.IRawGrammar;
@@ -179,6 +180,16 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	@Override
 	public String getFirstLineMatch() {
 		return (String) super.get("firstLineMatch");
+	}
+
+	@Override
+	public IRawRule getCapture(String captureId) {
+		return getProp(captureId);
+	}
+
+	@Override
+	public Iterator<String> iterator() {
+		return super.keySet().iterator();
 	}
 
 }
