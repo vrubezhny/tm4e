@@ -12,7 +12,7 @@ public class BeginEndRule extends Rule {
 	public boolean endHasBackReferences;
 	public Collection<CaptureRule> endCaptures;
 	public boolean applyEndPatternLast;
-	public boolean hasMissingPatterns;
+	public final boolean hasMissingPatterns;
 	public Integer[] patterns;
 	private RegExpSourceList _cachedCompiledPatterns;
 

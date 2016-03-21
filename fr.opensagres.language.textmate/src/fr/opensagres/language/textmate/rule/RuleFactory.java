@@ -16,7 +16,7 @@ import fr.opensagres.language.textmate.types.IRawRule;
 public class RuleFactory {
 
 	public static CaptureRule createCaptureRule(IRuleFactoryHelper helper, final String name, final String contentName,
-			final int retokenizeCapturedWithRuleId) {
+			final Integer retokenizeCapturedWithRuleId) {
 		return (CaptureRule) helper.registerRule(new IRuleFactory() {
 			@Override
 			public Rule create(int id) {
@@ -103,7 +103,7 @@ public class RuleFactory {
 			// Fill out result
 			for (String captureId : captures) {
 				numericCaptureId = parseInt(captureId, 10);
-				int retokenizeCapturedWithRuleId = 0;
+				Integer retokenizeCapturedWithRuleId = null;
 				IRawRule rule = captures.getCapture(captureId);
 				if (rule.getPatterns() != null) {
 					retokenizeCapturedWithRuleId = RuleFactory.getCompiledRuleId(captures.getCapture(captureId), helper,
@@ -221,10 +221,7 @@ public class RuleFactory {
 			}
 		}
 
-		return new ICompilePatternsResult(r, ((patterns == null && r.size() == 0) || (patterns.size() != r.size()))
-		/* ((patterns != null ? patterns.length : 0) !== r.length) */
-
-		);
+		return new ICompilePatternsResult(r, ((patterns != null ? patterns.size() : 0) != r.size()));
 	}
 
 }

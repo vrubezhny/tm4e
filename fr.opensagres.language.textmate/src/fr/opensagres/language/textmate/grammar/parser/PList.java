@@ -14,7 +14,7 @@ public class PList extends DefaultHandler {
 	private final List<String> errors;
 	private PListObject currObject;
 	private IRawGrammar result;
-	private String text;
+	private StringBuilder text;
 
 	public PList() {
 		this.errors = new ArrayList<String>();
@@ -32,7 +32,7 @@ public class PList extends DefaultHandler {
 				currObject.setLastKey(null);
 			}
 		}
-		this.text = "";
+		this.text = new StringBuilder("");
 		super.startElement(uri, localName, qName, attributes);
 	}
 
@@ -44,6 +44,7 @@ public class PList extends DefaultHandler {
 
 	private void endElement(String tagName) {
 		Object value = null;
+		String text = this.text.toString();
 		if ("key".equals(tagName)) {
 			if (currObject == null || currObject.isValueAsArray()) {
 				errors.add("key can only be used inside an open dict element");
@@ -101,7 +102,7 @@ public class PList extends DefaultHandler {
 
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
-		this.text = String.valueOf(ch, start, length);
+		this.text.append(String.valueOf(ch, start, length));
 		super.characters(ch, start, length);
 	}
 
