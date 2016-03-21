@@ -1,14 +1,14 @@
 package fr.opensagres.language.textmate.rule;
 
-import java.util.Collection;
+import java.util.List;
 
 public class MatchRule extends Rule {
 
 	private RegExpSource _match;
-	public Collection<CaptureRule> captures;
+	public List<CaptureRule> captures;
 	private RegExpSourceList _cachedCompiledPatterns;
 
-	public MatchRule(int id, String name, String match, Collection<CaptureRule> captures) {
+	public MatchRule(int id, String name, String match, List<CaptureRule> captures) {
 		super(id, name, null);
 		this._match = new RegExpSource(match, this.id);
 		this.captures = captures;

@@ -108,7 +108,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	private void handleCaptures(Grammar grammar, String lineText /* : OnigString */, boolean isFirstLine,
-			List<StackElement> stack, LineTokens lineTokens, Collection<CaptureRule> captures,
+			List<StackElement> stack, LineTokens lineTokens, List<CaptureRule> captures,
 			IOnigCaptureIndex[] captureIndices) {
 		if (captures.size() == 0) {
 			return;
@@ -120,7 +120,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		int i = 0;
 		IOnigCaptureIndex captureIndex;
 
-		for (CaptureRule captureRule : captures) {
+		for (i = 0; i < len; i++) {
+			CaptureRule captureRule = captures.get(i);
 			if (captureRule == null) {
 				// Not interested
 				continue;
@@ -181,7 +182,6 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	private String createOnigString(String substring) {
-		// TODO Auto-generated method stub
 		return substring;
 	}
 
@@ -520,7 +520,6 @@ System.err.println(matchResult);
 	}
 
 	private String getString(String lineText) {
-		// TODO Auto-generated method stub
 		return lineText;
 	}
 }

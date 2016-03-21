@@ -78,7 +78,7 @@ public class RuleFactory {
 		return desc.getId();
 	}
 
-	private static Collection<CaptureRule> _compileCaptures(IRawCaptures captures, IRuleFactoryHelper helper,
+	private static List<CaptureRule> _compileCaptures(IRawCaptures captures, IRuleFactoryHelper helper,
 			IRawRepository repository) {
 		List<CaptureRule> r = new ArrayList<CaptureRule>();
 		int numericCaptureId;

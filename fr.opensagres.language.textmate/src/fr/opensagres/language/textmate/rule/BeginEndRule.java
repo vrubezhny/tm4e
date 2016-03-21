@@ -1,23 +1,24 @@
 package fr.opensagres.language.textmate.rule;
 
 import java.util.Collection;
+import java.util.List;
 
 import fr.opensagres.language.textmate.oniguruma.IOnigCaptureIndex;
 
 public class BeginEndRule extends Rule {
 
 	private RegExpSource _begin;
-	public Collection<CaptureRule> beginCaptures;
+	public List<CaptureRule> beginCaptures;
 	private RegExpSource _end;
 	public boolean endHasBackReferences;
-	public Collection<CaptureRule> endCaptures;
+	public List<CaptureRule> endCaptures;
 	public boolean applyEndPatternLast;
 	public final boolean hasMissingPatterns;
 	public Integer[] patterns;
 	private RegExpSourceList _cachedCompiledPatterns;
 
-	public BeginEndRule(int id, String name, String contentName, String begin, Collection<CaptureRule> beginCaptures,
-			String end, Collection<CaptureRule> endCaptures, boolean applyEndPatternLast,
+	public BeginEndRule(int id, String name, String contentName, String begin, List<CaptureRule> beginCaptures,
+			String end, List<CaptureRule> endCaptures, boolean applyEndPatternLast,
 			ICompilePatternsResult patterns) {
 		super(id, name, contentName);
 		this._begin = new RegExpSource(begin, this.id);
