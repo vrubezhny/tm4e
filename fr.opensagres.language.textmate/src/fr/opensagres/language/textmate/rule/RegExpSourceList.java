@@ -45,7 +45,7 @@ public class RegExpSourceList {
 	}
 
 	public void unshift(RegExpSource item) {
-		this._items.remove(item);
+		this._items.add(0, item);
 		this._hasAnchors = this._hasAnchors ? this._hasAnchors : item.hasAnchor;
 	}
 

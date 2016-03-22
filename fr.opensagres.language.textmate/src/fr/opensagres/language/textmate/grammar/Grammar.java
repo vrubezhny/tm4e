@@ -1,7 +1,6 @@
 package fr.opensagres.language.textmate.grammar;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -263,7 +262,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 		public final Grammar grammar;
 		public final /* OnigString */ String lineText;
-		public final boolean isFirstLine;
+		public boolean isFirstLine;
 		public int linePos;
 		public final List<StackElement> stack;
 		public final LineTokens lineTokens;
@@ -416,11 +415,11 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		StackElement stackElement = stack.get(stack.size() - 1);
 		Grammar grammar = ctx.grammar;
 		String lineText = ctx.lineText;
-		boolean isFirstLine = ctx.isFirstLine;
 		LineTokens lineTokens = ctx.lineTokens;
 		int lineLength = lineText.length(); // getString(lineText).length;
 
-		IMatchResult r = matchRuleOrInjections(grammar, lineText, isFirstLine, ctx.linePos, stack, ctx.anchorPosition);
+		IMatchResult r = matchRuleOrInjections(grammar, lineText, ctx.isFirstLine, ctx.linePos, stack,
+				ctx.anchorPosition);
 
 		if (r == null) {
 			// No match
@@ -440,7 +439,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 			lineTokens.produce(stack, captureIndices[0].getStart());
 			stackElement.setContentName(null);
-			handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, poppedRule.endCaptures, captureIndices);
+			handleCaptures(grammar, lineText, ctx.isFirstLine, stack, lineTokens, poppedRule.endCaptures,
+					captureIndices);
 			lineTokens.produce(stack, captureIndices[0].getEnd());
 
 			// pop
@@ -461,13 +461,13 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			lineTokens.produce(stack, captureIndices[0].getStart());
 
 			// push it on the stack rule
-			stack.add(new StackElement(matchedRuleId, ctx.linePos, null, _rule.getName(getString(lineText), captureIndices),
-					null));
+			stack.add(new StackElement(matchedRuleId, ctx.linePos, null,
+					_rule.getName(getString(lineText), captureIndices), null));
 
 			if (_rule instanceof BeginEndRule) {
 				BeginEndRule pushedRule = (BeginEndRule) _rule;
 
-				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, pushedRule.beginCaptures,
+				handleCaptures(grammar, lineText, ctx.isFirstLine, stack, lineTokens, pushedRule.beginCaptures,
 						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				ctx.anchorPosition = captureIndices[0].getEnd();
@@ -490,7 +490,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			} else {
 				MatchRule matchingRule = (MatchRule) _rule;
 
-				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, matchingRule.captures,
+				handleCaptures(grammar, lineText, ctx.isFirstLine, stack, lineTokens, matchingRule.captures,
 						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 
@@ -513,7 +513,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		if (captureIndices[0].getEnd() > ctx.linePos) {
 			// Advance stream
 			ctx.linePos = captureIndices[0].getEnd();
-			isFirstLine = false;
+			ctx.isFirstLine = false;
 		}
 		return true;
 	}
