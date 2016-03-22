@@ -128,7 +128,6 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			}
 
 			captureIndex = captureIndices[i];
-			i++;
 
 			if (captureIndex.getLength() == 0) {
 				// Nothing really captured
@@ -287,7 +286,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		final ICompiledRule ruleScanner = grammar.getRule(stackElement.getRuleId()).compile(grammar,
 				stackElement.getEndRule(), isFirstLine, linePos == anchorPosition);
 		final IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
-System.err.println(r);
+
 		if (r != null) {
 			return new IMatchResult() {
 
@@ -354,7 +353,7 @@ System.err.println(r);
 			ICompiledRule ruleScanner = grammar.getRule(injection.ruleId).compile(grammar, null, isFirstLine,
 					linePos == anchorPosition);
 			IOnigNextMatchResult matchResult = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
-System.err.println(matchResult);
+
 			if (matchResult == null) {
 				continue;
 			}
