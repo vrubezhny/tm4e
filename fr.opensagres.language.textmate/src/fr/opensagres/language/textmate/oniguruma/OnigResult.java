@@ -68,4 +68,15 @@ public class OnigResult implements IOnigNextMatchResult {
 		return result.toString();
 	}
 
+	public int LocationAt(int index) {
+		if (region.beg.length > 0) {
+			return region.beg[0] + index;
+		}
+		return 0;
+	}
+
+	public int count() {
+		return region.beg.length;
+	}
+
 }

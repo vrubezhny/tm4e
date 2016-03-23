@@ -1,5 +1,6 @@
 package fr.opensagres.language.textmate.rule;
 
+import fr.opensagres.language.textmate.oniguruma.IOnigCaptureIndex;
 import fr.opensagres.language.textmate.utils.RegexSource;
 
 public class Rule {
@@ -20,14 +21,14 @@ public class Rule {
 		this._contentNameIsCapturing = RegexSource.hasCaptures(this._contentName);
 	}
 
-	public String getName(String lineText, /*IOnigCaptureIndex[]*/ Object captureIndices) {
+	public String getName(String lineText, IOnigCaptureIndex[] captureIndices) {
 		if (!this._nameIsCapturing) {
 			return this._name;
 		}
 		return RegexSource.replaceCaptures(this._name, lineText, captureIndices);
 	}
 
-	public String getContentName(String lineText, /*IOnigCaptureIndex[]*/ Object captureIndices) {
+	public String getContentName(String lineText, IOnigCaptureIndex[] captureIndices) {
 		if (!this._contentNameIsCapturing) {
 			return this._contentName;
 		}

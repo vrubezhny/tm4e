@@ -8,6 +8,7 @@ import java.util.Map;
 import fr.opensagres.language.textmate.grammar.parser.Raw;
 import fr.opensagres.language.textmate.oniguruma.IOnigCaptureIndex;
 import fr.opensagres.language.textmate.oniguruma.IOnigNextMatchResult;
+import fr.opensagres.language.textmate.oniguruma.OnigString;
 import fr.opensagres.language.textmate.rule.BeginEndRule;
 import fr.opensagres.language.textmate.rule.CaptureRule;
 import fr.opensagres.language.textmate.rule.ICompiledRule;
@@ -106,7 +107,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return (IRawGrammar) ((Raw) grammar).clone();
 	}
 
-	private void handleCaptures(Grammar grammar, String lineText /* : OnigString */, boolean isFirstLine,
+	private void handleCaptures(Grammar grammar, OnigString lineText, boolean isFirstLine,
 			List<StackElement> stack, LineTokens lineTokens, List<CaptureRule> captures,
 			IOnigCaptureIndex[] captureIndices) {
 		if (captures.size() == 0) {
@@ -152,15 +153,15 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 				// the capture requires additional matching
 				List<StackElement> stackClone = cloneStack(stack);
 				stackClone.add(new StackElement(captureRule.retokenizeCapturedWithRuleId, captureIndex.getStart(), null,
-						captureRule.getName(getString(lineText), captureIndices),
-						captureRule.getContentName(getString(lineText), captureIndices)));
-				_tokenizeString(grammar, createOnigString(getString(lineText).substring(0, captureIndex.getEnd())),
+						captureRule.getName(lineText.getString(), captureIndices),
+						captureRule.getContentName(lineText.getString(), captureIndices)));
+				_tokenizeString(grammar, createOnigString(lineText.getString().substring(0, captureIndex.getEnd())),
 						(isFirstLine && captureIndex.getStart() == 0), captureIndex.getStart(), stackClone, lineTokens);
 				continue;
 			}
 
 			// push
-			localStack.add(new LocalStackElement(captureRule.getName(getString(lineText), captureIndices),
+			localStack.add(new LocalStackElement(captureRule.getName(lineText.getString(), captureIndices),
 					captureIndex.getEnd()));
 		}
 
@@ -179,8 +180,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return clonedStack;
 	}
 
-	private String createOnigString(String substring) {
-		return substring;
+	private OnigString createOnigString(String str) {
+		return new OnigString(str);
 	}
 
 	private List<Injection> getGrammarInjections(IRawGrammar grammar, IRuleFactoryHelper ruleFactoryHelper) {
@@ -245,13 +246,13 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		}
 
 		lineText = lineText + '\n';
-		// let onigLineText = Rule.createOnigString(lineText);
+		OnigString onigLineText = createOnigString(lineText);
 		// let lineLength = getString(onigLineText).length;
 		int lineLength = lineText.length();
 		LineTokens lineTokens = new LineTokens();
 		// _tokenizeString(this, onigLineText, isFirstLine, 0, prevState,
 		// lineTokens);
-		_tokenizeString(this, lineText, isFirstLine, 0, prevState, lineTokens);
+		_tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
 
 		IToken[] _produced = lineTokens.getResult(prevState, lineLength);
 
@@ -261,14 +262,14 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	private class ScanContext {
 
 		public final Grammar grammar;
-		public final /* OnigString */ String lineText;
+		public final OnigString lineText;
 		public boolean isFirstLine;
 		public int linePos;
 		public final List<StackElement> stack;
 		public final LineTokens lineTokens;
 		public int anchorPosition = -1;
 
-		public ScanContext(Grammar grammar, /* OnigString */ String lineText, boolean isFirstLine, int linePos,
+		public ScanContext(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
 				List<StackElement> stack, LineTokens lineTokens) {
 			this.grammar = grammar;
 			this.lineText = lineText;
@@ -279,7 +280,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		}
 	}
 
-	private IMatchResult matchRule(Grammar grammar, String lineText, boolean isFirstLine, final int linePos,
+	private IMatchResult matchRule(Grammar grammar, OnigString lineText, boolean isFirstLine, final int linePos,
 			List<StackElement> stack, int anchorPosition) {
 		StackElement stackElement = stack.get(stack.size() - 1);
 		final ICompiledRule ruleScanner = grammar.getRule(stackElement.getRuleId()).compile(grammar,
@@ -303,7 +304,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return null;
 	}
 
-	private IMatchResult matchRuleOrInjections(Grammar grammar, String lineText, boolean isFirstLine, final int linePos,
+	private IMatchResult matchRuleOrInjections(Grammar grammar, OnigString lineText, boolean isFirstLine, final int linePos,
 			List<StackElement> stack, int anchorPosition) {
 		// Look for normal grammar rule
 		IMatchResult matchResult = matchRule(grammar, lineText, isFirstLine, linePos, stack, anchorPosition);
@@ -340,7 +341,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return matchResult;
 	}
 
-	private IMatchInjectionsResult matchInjections(List<Injection> injections, Grammar grammar, String lineText,
+	private IMatchInjectionsResult matchInjections(List<Injection> injections, Grammar grammar, OnigString lineText,
 			boolean isFirstLine, int linePos, List<StackElement> stack, int anchorPosition) {
 		// The lower the better
 		int bestMatchRating = Integer.MAX_VALUE;
@@ -400,12 +401,13 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return null;
 	}
 
-	private void _tokenizeString(Grammar grammar, /* OnigString */ String lineText, boolean isFirstLine, int linePos,
+	private void _tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
 			List<StackElement> stack, LineTokens lineTokens) {
-		int lineLength = lineText.length(); // getString(lineText).length;
+		int lineLength = lineText.utf8_length();
 
 		ScanContext ctx = new ScanContext(grammar, lineText, isFirstLine, linePos, stack, lineTokens);
 		while (ctx.linePos < lineLength) {
+			// System.err.println(ctx.linePos + "/" + lineLength);
 			scanNext(ctx); // potentially modifies linePos && anchorPosition
 		}
 	}
@@ -414,9 +416,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		List<StackElement> stack = ctx.stack;
 		StackElement stackElement = stack.get(stack.size() - 1);
 		Grammar grammar = ctx.grammar;
-		String lineText = ctx.lineText;
+		OnigString lineText = ctx.lineText;
 		LineTokens lineTokens = ctx.lineTokens;
-		int lineLength = lineText.length(); // getString(lineText).length;
+		int lineLength = lineText.utf8_length(); // getString(lineText).length;
 
 		IMatchResult r = matchRuleOrInjections(grammar, lineText, ctx.isFirstLine, ctx.linePos, stack,
 				ctx.anchorPosition);
@@ -462,7 +464,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 			// push it on the stack rule
 			stack.add(new StackElement(matchedRuleId, ctx.linePos, null,
-					_rule.getName(getString(lineText), captureIndices), null));
+					_rule.getName(lineText.getString(), captureIndices), null));
 
 			if (_rule instanceof BeginEndRule) {
 				BeginEndRule pushedRule = (BeginEndRule) _rule;
@@ -472,11 +474,11 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				ctx.anchorPosition = captureIndices[0].getEnd();
 				stack.get(stack.size() - 1)
-						.setContentName(pushedRule.getContentName(getString(lineText), captureIndices));
+						.setContentName(pushedRule.getContentName(lineText.getString(), captureIndices));
 
 				if (pushedRule.endHasBackReferences) {
 					stack.get(stack.size() - 1).setEndRule(
-							pushedRule.getEndWithResolvedBackReferences(getString(lineText), captureIndices));
+							pushedRule.getEndWithResolvedBackReferences(lineText.getString(), captureIndices));
 				}
 
 				if (!hasAdvanced && stackElement.getRuleId() == stack.get(stack.size() - 1).getRuleId()) {
@@ -518,7 +520,4 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return true;
 	}
 
-	private String getString(String lineText) {
-		return lineText;
-	}
 }

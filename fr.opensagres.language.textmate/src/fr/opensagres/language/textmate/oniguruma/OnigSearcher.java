@@ -3,59 +3,39 @@ package fr.opensagres.language.textmate.oniguruma;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jcodings.specific.UTF8Encoding;
-import org.joni.Matcher;
-import org.joni.Option;
-import org.joni.Regex;
-import org.joni.Region;
-import org.joni.Syntax;
-import org.joni.WarnCallback;
-
 public class OnigSearcher {
 
-	private final List<Regex> regExps;
+	private final List<OnigRegExp> regExps;
 
 	public OnigSearcher(String[] regexps) {
-		this.regExps = new ArrayList<Regex>();
+		this.regExps = new ArrayList<OnigRegExp>();
 		for (int i = 0; i < regexps.length; i++) {
-			byte[] pattern = regexps[i].getBytes();
-			this.regExps.add(new Regex(pattern, 0, pattern.length, Option.DEFAULT, UTF8Encoding.INSTANCE,
-					Syntax.DEFAULT, WarnCallback.DEFAULT));
+			this.regExps.add(new OnigRegExp(regexps[i]));
 		}
 	}
 
-	public OnigResult search(String lin, int pos) {
-		byte[] source = lin.getBytes();
-		return search(source, pos);
-	}
-
-	public OnigResult search(byte[] source, int pos) {
+	public OnigResult search(OnigString source, int pos) {
 		int byteOffset = pos;
 
 		int bestLocation = 0;
 		OnigResult bestResult = null;
 		int index = 0;
 
-		for (Regex regExp : regExps) {
-			Matcher matcher = regExp.matcher(source);
-			int result = matcher.search(byteOffset, source.length, Option.DEFAULT);
-			if (result != -1) {
-				int location = matcher.getBegin();
+		for (OnigRegExp regExp : regExps) {
+			OnigResult result = regExp.Search(source, pos);
+			if (result != null && result.count() > 0) {
+				int location = result.LocationAt(0);
+				
 				if (bestResult == null || location < bestLocation) {
 					bestLocation = location;
-					Region region = matcher.getEagerRegion();
-					if (bestResult == null) {
-						bestResult = new OnigResult(index, region);
-					} else {
-						bestResult.update(index, region);
-					}
+					bestResult = result;
+					bestResult.setIndex(index);
 				}
 
 				if (location == byteOffset) {
 					break;
 				}
 			}
-
 			index++;
 		}
 		return bestResult;
