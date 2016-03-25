@@ -1,5 +1,6 @@
 package fr.opensagres.language.textmate.oniguruma;
 
+import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 public class OnigString {
@@ -10,7 +11,12 @@ public class OnigString {
 
 	public OnigString(String str) {
 		this.str = str;
-		this.value = str.getBytes();
+		try {
+			this.value = str.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.uniqueId = UUID.randomUUID();
 	}
 
@@ -23,7 +29,7 @@ public class OnigString {
 	}
 
 	public int utf8_length() {
-		return value.length;
+		return str.length();
 	}
 
 	public String getString() {

@@ -247,11 +247,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 		lineText = lineText + '\n';
 		OnigString onigLineText = createOnigString(lineText);
-		// let lineLength = getString(onigLineText).length;
 		int lineLength = lineText.length();
 		LineTokens lineTokens = new LineTokens();
-		// _tokenizeString(this, onigLineText, isFirstLine, 0, prevState,
-		// lineTokens);
 		_tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
 
 		IToken[] _produced = lineTokens.getResult(prevState, lineLength);
@@ -407,7 +404,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 		ScanContext ctx = new ScanContext(grammar, lineText, isFirstLine, linePos, stack, lineTokens);
 		while (ctx.linePos < lineLength) {
-			// System.err.println(ctx.linePos + "/" + lineLength);
+			//System.err.println(ctx.linePos + "/" + lineLength);
 			scanNext(ctx); // potentially modifies linePos && anchorPosition
 		}
 	}

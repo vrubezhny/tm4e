@@ -13,4 +13,6 @@ Export-Package: .,
  fr.opensagres.language.textmate.rule,
  fr.opensagres.language.textmate.types,
  fr.opensagres.language.textmate.utils
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ jcodings-1.0.13.jar,
+ joni-2.1.10.jar

@@ -16,8 +16,9 @@ public class OnigRegExp {
 	private int lastSearchPosition;
 	private OnigResult lastSearchResult;
 	private Regex regex;
-
+	private String s;
 	public OnigRegExp(String source) {
+		s = source;
 		lastSearchStrUniqueId = null;
 		lastSearchPosition = -1;
 		lastSearchResult = null;
