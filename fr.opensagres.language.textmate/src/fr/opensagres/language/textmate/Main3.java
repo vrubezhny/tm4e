@@ -21,8 +21,8 @@ public class Main3 {
 		ITokenizeLineResult lineTokens = grammar.tokenizeLine(t);
 		for (int i = 0; i < lineTokens.getTokens().length; i++) {
 			IToken token = lineTokens.getTokens()[i];
-			System.out.println("Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-					+ token.getScopes());
+			//System.out.println("Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
+			//		+ token.getScopes());
 		}
 	}
 

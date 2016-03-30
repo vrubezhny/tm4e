@@ -1,5 +1,8 @@
 package _editor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -9,6 +12,7 @@ import org.eclipse.jface.text.rules.Token;
 
 import fr.opensagres.language.textmate.grammar.IGrammar;
 import fr.opensagres.language.textmate.grammar.ITokenizeLineResult;
+import fr.opensagres.language.textmate.grammar.StackElement;
 import fr.opensagres.language.textmate.registry.Registry;
 
 public class TextMateTokenScanner implements ITokenScanner {
@@ -27,10 +31,11 @@ public class TextMateTokenScanner implements ITokenScanner {
 	protected int fTokenOffset;
 	/** The cached column of the current scanner position */
 	protected int fColumn;
-	private IGrammar grammar;
+	private static IGrammar grammar;
 	private ITokenizeLineResult lineTokens;
 	private int i = 0;
 	private int fTokenLength;
+	private List<MyToken> tokens;
 
 	/** Internal setting for the un-initialized column cache. */
 	protected static final int UNDEFINED = -1;
@@ -38,8 +43,12 @@ public class TextMateTokenScanner implements ITokenScanner {
 	public TextMateTokenScanner() {
 		Registry registry = new Registry();
 		try {
-			grammar = registry.loadGrammarFromPathSync("JavaScript.tmLanguage",
-					Main.class.getResourceAsStream("JavaScript.tmLanguage"));
+			if (grammar == null) {
+			long start = System.currentTimeMillis();
+			grammar = registry.loadGrammarFromPathSync("Angular2TypeScript.tmLanguage",
+					Main.class.getResourceAsStream("Angular2TypeScript.tmLanguage"));
+			System.err.println("Grammar loaded with " + (System.currentTimeMillis() - start) + "ms");
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,19 +70,31 @@ public class TextMateTokenScanner implements ITokenScanner {
 
 	@Override
 	public IToken nextToken() {
-		fr.opensagres.language.textmate.grammar.IToken[] t = lineTokens.getTokens();
-		if (t.length > i) {
-			fr.opensagres.language.textmate.grammar.IToken tt = t[i];
-			fTokenOffset = fOffset + tt.getStartIndex();
-			int end = fOffset + tt.getEndIndex();
-			if (end > fDocument.getLength()) {
-				fTokenLength = (fDocument.getLength() - fOffset) - tt.getStartIndex();
-			} else {
-				fTokenLength = tt.getEndIndex() - tt.getStartIndex();
-			}
+		if (tokens.size() > i) {
+			MyToken t = tokens.get(i);
+			fTokenOffset = t.getOffset();
+			fTokenLength = t.getLength();
 			i++;
-			return createToken(tt);
+			return createToken(t.getT());
+
 		}
+
+		// fr.opensagres.language.textmate.grammar.IToken[] t =
+		// tokens.toArray(new
+		// fr.opensagres.language.textmate.grammar.IToken[0]);//lineTokens.getTokens();
+		// if (t.length > i) {
+		// fr.opensagres.language.textmate.grammar.IToken tt = t[i];
+		// fTokenOffset = fOffset + tt.getStartIndex();
+		// int end = fOffset + tt.getEndIndex();
+		// if (end > fDocument.getLength()) {
+		// fTokenLength = (fDocument.getLength() - fOffset) -
+		// tt.getStartIndex();
+		// } else {
+		// fTokenLength = tt.getEndIndex() - tt.getStartIndex();
+		// }
+		// i++;
+		// return createToken(tt);
+		// }
 		return Token.EOF;
 	}
 
@@ -95,6 +116,39 @@ public class TextMateTokenScanner implements ITokenScanner {
 		fDefaultReturnToken = defaultReturnToken;
 	}
 
+	private class MyToken {
+
+		private final fr.opensagres.language.textmate.grammar.IToken t;
+		private final int offset;
+		private final int tokenLength;
+
+		public MyToken(fr.opensagres.language.textmate.grammar.IToken t, int startOffset) {
+			this.t = t;
+			this.offset = startOffset + t.getStartIndex();
+			int end = startOffset + t.getEndIndex();
+			if (end > fDocument.getLength()) {
+				tokenLength = (fDocument.getLength() - startOffset) - t.getStartIndex();
+			} else {
+				tokenLength = t.getEndIndex() - t.getStartIndex();
+			}
+			//System.err.println(tokenLength);
+		}
+
+		public int getLength() {
+			// TODO Auto-generated method stub
+			return tokenLength;
+		}
+
+		public int getOffset() {
+			// TODO Auto-generated method stub
+			return offset;
+		}
+
+		public fr.opensagres.language.textmate.grammar.IToken getT() {
+			return t;
+		}
+	}
+
 	@Override
 	public void setRange(final IDocument document, int offset, int length) {
 		Assert.isLegal(document != null);
@@ -114,8 +168,39 @@ public class TextMateTokenScanner implements ITokenScanner {
 		if (fDefaultReturnToken == null) {
 			fDefaultReturnToken = new Token(null);
 		}
+
 		try {
-			lineTokens = grammar.tokenizeLine(document.get(offset, length));
+			long start = System.currentTimeMillis();
+			// lineTokens = grammar.tokenizeLine(content);
+			// System.err.println(System.currentTimeMillis() - start);
+
+			tokens = new ArrayList<MyToken>();
+			
+			int startLine = document.getLineOfOffset(offset);
+			int l = document.getNumberOfLines(offset, length);
+
+			start = System.currentTimeMillis();
+			List<StackElement> prevState = null;
+			int s = document.getNumberOfLines();
+			int lastLineDelim = 0;
+			for (int i = startLine; i < startLine + l; i++) {
+				int lo = document.getLineOffset(i);
+				String delim = document.getLineDelimiter(i);
+				int ll = document.getLineLength(i) - (delim != null ? delim.length() : 0);
+				String lc = document.get(lo, ll);
+				// System.err.println(lc);
+
+				ITokenizeLineResult tr = grammar.tokenizeLine(lc, prevState);
+				prevState = tr.getRuleStack();
+
+				fr.opensagres.language.textmate.grammar.IToken[] t = tr.getTokens();
+				for (int j = 0; j < t.length; j++) {
+					tokens.add(new MyToken(t[j], lo + lastLineDelim));
+				}
+				// tokens.addAll(Arrays.asList(tr.getTokens()));
+			}
+			System.err.println(System.currentTimeMillis() - start + "ms");
+
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

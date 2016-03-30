@@ -1,5 +1,6 @@
 package fr.opensagres.language.textmate.grammar.parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -30,8 +31,8 @@ public class PlistParser implements IGrammarParser {
 			
 			@Override
 			public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-				Reader i = new StringReader("<a></a>");
-				return new InputSource(i);
+				return new InputSource(
+						new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
 			}
 		});
 		PList result = new PList();
