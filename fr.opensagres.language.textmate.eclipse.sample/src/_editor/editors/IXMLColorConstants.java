@@ -10,6 +10,7 @@ public interface IXMLColorConstants {
 	RGB TAG = new RGB(63, 127, 127);
 	
 	RGB KEY_WORD = new RGB(255, 0, 0);
+	RGB KEY_COMMENTS = new RGB(255, 0, 255);
 }
 
 /**

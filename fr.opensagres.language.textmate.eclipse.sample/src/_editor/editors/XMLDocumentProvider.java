@@ -1,10 +1,12 @@
 package _editor.editors;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.jface.text.ILineTracker;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
+
+import _editor.TMModel;
 
 public class XMLDocumentProvider extends FileDocumentProvider {
 
@@ -22,4 +24,14 @@ public class XMLDocumentProvider extends FileDocumentProvider {
 		}
 		return document;
 	}
+	
+//	@Override
+//	protected IDocument createEmptyDocument() {
+//		Document document = new Document() {
+//			protected void setLineTracker(ILineTracker tracker) {
+//				super.setLineTracker(new TMModel(tracker));
+//			};
+//		};
+//		return document;
+//	}
 }

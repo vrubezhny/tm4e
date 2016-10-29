@@ -58,7 +58,7 @@ public class XMLConfiguration extends SourceViewerConfiguration {
 //	}
 
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-		PresentationReconciler reconciler = new PresentationReconciler();
+		MyPresentationReconciler reconciler = new MyPresentationReconciler();
 
 //		DefaultDamagerRepairer dr =
 //			new DefaultDamagerRepairer(getXMLTagScanner());

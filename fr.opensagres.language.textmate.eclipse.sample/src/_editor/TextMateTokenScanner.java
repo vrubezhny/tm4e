@@ -44,10 +44,10 @@ public class TextMateTokenScanner implements ITokenScanner {
 		Registry registry = new Registry();
 		try {
 			if (grammar == null) {
-			long start = System.currentTimeMillis();
-			grammar = registry.loadGrammarFromPathSync("Angular2TypeScript.tmLanguage",
-					Main.class.getResourceAsStream("Angular2TypeScript.tmLanguage"));
-			System.err.println("Grammar loaded with " + (System.currentTimeMillis() - start) + "ms");
+				long start = System.currentTimeMillis();
+				grammar = registry.loadGrammarFromPathSync("Angular2TypeScript.tmLanguage",
+						Main.class.getResourceAsStream("Angular2TypeScript.tmLanguage"));
+				System.err.println("Grammar loaded with " + (System.currentTimeMillis() - start) + "ms");
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -68,14 +68,24 @@ public class TextMateTokenScanner implements ITokenScanner {
 		// return fRangeEnd - getTokenOffset();
 	}
 
+	private IToken lastToken;
+
 	@Override
 	public IToken nextToken() {
 		if (tokens.size() > i) {
 			MyToken t = tokens.get(i);
-			fTokenOffset = t.getOffset();
-			fTokenLength = t.getLength();
+			IToken token = createToken(t.getT());
+			if (token.equals(lastToken)) {
+				fTokenLength = t.getLength()
+						+ (t.getOffset() - tokens.get(i - 1).getLength() - tokens.get(i - 1).getOffset());
+				fTokenOffset = t.getOffset();
+			} else {
+				fTokenOffset = t.getOffset();
+				fTokenLength = t.getLength();
+			}
+			lastToken = token;
 			i++;
-			return createToken(t.getT());
+			return token;
 
 		}
 
@@ -131,7 +141,7 @@ public class TextMateTokenScanner implements ITokenScanner {
 			} else {
 				tokenLength = t.getEndIndex() - t.getStartIndex();
 			}
-			//System.err.println(tokenLength);
+			// System.err.println(tokenLength);
 		}
 
 		public int getLength() {
@@ -149,6 +159,8 @@ public class TextMateTokenScanner implements ITokenScanner {
 		}
 	}
 
+	private TMModel tmModel;
+
 	@Override
 	public void setRange(final IDocument document, int offset, int length) {
 		Assert.isLegal(document != null);
@@ -156,10 +168,15 @@ public class TextMateTokenScanner implements ITokenScanner {
 		checkRange(offset, length, documentLength);
 
 		fDocument = document;
+		if (tmModel == null) {
+			tmModel = new TMModel();
+			fDocument.addDocumentListener(tmModel);
+		}
+
 		fOffset = offset;
 		fColumn = UNDEFINED;
 		fRangeEnd = offset + length;
-
+		lastToken = null;
 		String[] delimiters = fDocument.getLegalLineDelimiters();
 		fDelimiters = new char[delimiters.length][];
 		for (int i = 0; i < delimiters.length; i++) {
@@ -173,15 +190,16 @@ public class TextMateTokenScanner implements ITokenScanner {
 			long start = System.currentTimeMillis();
 			// lineTokens = grammar.tokenizeLine(content);
 			// System.err.println(System.currentTimeMillis() - start);
+			if (tokens != null) {
 
+			}
 			tokens = new ArrayList<MyToken>();
-			
+
 			int startLine = document.getLineOfOffset(offset);
 			int l = document.getNumberOfLines(offset, length);
 
 			start = System.currentTimeMillis();
-			List<StackElement> prevState = null;
-			int s = document.getNumberOfLines();
+			List<StackElement> prevState = startLine > 0 ? tmModel.getLineContext(startLine - 1) : null;
 			int lastLineDelim = 0;
 			for (int i = startLine; i < startLine + l; i++) {
 				int lo = document.getLineOffset(i);
@@ -189,15 +207,15 @@ public class TextMateTokenScanner implements ITokenScanner {
 				int ll = document.getLineLength(i) - (delim != null ? delim.length() : 0);
 				String lc = document.get(lo, ll);
 				// System.err.println(lc);
-
+				
 				ITokenizeLineResult tr = grammar.tokenizeLine(lc, prevState);
 				prevState = tr.getRuleStack();
-
+				tmModel.setLineContext(i, new ArrayList(prevState));
+				
 				fr.opensagres.language.textmate.grammar.IToken[] t = tr.getTokens();
 				for (int j = 0; j < t.length; j++) {
 					tokens.add(new MyToken(t[j], lo + lastLineDelim));
 				}
-				// tokens.addAll(Arrays.asList(tr.getTokens()));
 			}
 			System.err.println(System.currentTimeMillis() - start + "ms");
 
