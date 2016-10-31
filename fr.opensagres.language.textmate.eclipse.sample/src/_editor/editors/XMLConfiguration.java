@@ -12,6 +12,7 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
 import _editor.MyTextMateTokenScanner;
 import _editor.TextMateTokenScanner;
+import _editor.editors.tm.TMPresentationReconciler;
 
 public class XMLConfiguration extends SourceViewerConfiguration {
 	private XMLDoubleClickStrategy doubleClickStrategy;
@@ -58,16 +59,16 @@ public class XMLConfiguration extends SourceViewerConfiguration {
 //	}
 
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-		MyPresentationReconciler reconciler = new MyPresentationReconciler();
+		//MyPresentationReconciler reconciler = new MyPresentationReconciler();
 
 //		DefaultDamagerRepairer dr =
 //			new DefaultDamagerRepairer(getXMLTagScanner());
 //		reconciler.setDamager(dr, XMLPartitionScanner.XML_TAG);
 //		reconciler.setRepairer(dr, XMLPartitionScanner.XML_TAG);
 //
-		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(getTextMateScanner());
-		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
-		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+//		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(getTextMateScanner());
+//		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+//		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
 
 //		NonRuleBasedDamagerRepairer ndr =
 //			new NonRuleBasedDamagerRepairer(
@@ -76,6 +77,7 @@ public class XMLConfiguration extends SourceViewerConfiguration {
 //		reconciler.setDamager(ndr, XMLPartitionScanner.XML_COMMENT);
 //		reconciler.setRepairer(ndr, XMLPartitionScanner.XML_COMMENT);
 
+		TMPresentationReconciler reconciler = new TMPresentationReconciler(colorManager);
 		return reconciler;
 	}
 

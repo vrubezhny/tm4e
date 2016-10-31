@@ -169,8 +169,8 @@ public class TextMateTokenScanner implements ITokenScanner {
 
 		fDocument = document;
 		if (tmModel == null) {
-			tmModel = new TMModel();
-			fDocument.addDocumentListener(tmModel);
+			tmModel = new TMModel(document);
+			//fDocument.addDocumentListener(tmModel);
 		}
 
 		fOffset = offset;
