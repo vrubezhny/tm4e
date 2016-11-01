@@ -210,7 +210,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (fViewer instanceof ITextViewerExtension5) {
 				ITextViewerExtension5 extension = (ITextViewerExtension5) fViewer;
 				return extension.widgetRange2ModelRange(new Region(e.getOffset(), length));
-			}
+			} 
 
 			IRegion visible = fViewer.getVisibleRegion();
 			IRegion region = new Region(e.getOffset() + visible.getOffset(), length);
