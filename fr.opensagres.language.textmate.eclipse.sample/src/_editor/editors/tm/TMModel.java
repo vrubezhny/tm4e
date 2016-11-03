@@ -2,11 +2,14 @@ package _editor.editors.tm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
@@ -27,6 +30,148 @@ public class TMModel {
 	private DecodeMap _decodeMap;
 
 	private final List<IModelTokensChangedListener> listeners;
+	/** Queue to manage the changes applied to the text viewer. */
+	private DirtyRegionQueue fDirtyRegionQueue;
+
+	enum Changed {
+		Insert, Delete, Update;
+	}
+
+	private class InternalListener implements IDocumentListener {
+
+		private final List<Changed> changes = new ArrayList<>();
+
+		private class LineChanged {
+			public final int line;
+			public final Changed changed;
+
+			public LineChanged(int line, Changed changed) {
+				this.line = line;
+				this.changed = changed;
+			}
+		}
+
+		@Override
+		public void documentAboutToBeChanged(DocumentEvent e) {
+			try {
+				if (e.getLength() == 0 && e.getText() != null) {
+					// Insert
+					//System.err.println("Insert");
+				} else if (e.getText() == null || e.getText().length() == 0) {
+					// Remove
+					//System.err.println("Remove");
+					removeLine(e);
+				} else {
+					// Replace (Remove + Insert)
+					removeLine(e);
+					//System.err.println("Insert+Remove");
+				}
+			} catch (BadLocationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			// fireTextChanging();
+		}
+
+		private void removeLine(DocumentEvent e) throws BadLocationException {
+			int startLine = document.getLineOfOffset(e.getOffset());
+			int endLine = document.getLineOfOffset(e.getOffset() + e.getLength());
+			int nbLignes = endLine - startLine;
+			for (int i = endLine; i > startLine; i--) {
+				_lines.remove(i);
+			}
+		}
+
+		@Override
+		public void documentChanged(DocumentEvent event) {
+			documentChangedOLD(event);
+		}
+
+		// @Override
+		public void documentChangedOLD(DocumentEvent event) {
+			createDirtyRegion(event);
+			DirtyRegion r = null;
+			synchronized (fDirtyRegionQueue) {
+				r = fDirtyRegionQueue.removeNextDirtyRegion();
+			}
+
+			// fIsActive= true;
+
+			// fProgressMonitor.setCanceled(false);
+
+			// r.getType().eq
+			IDocument document = event.getDocument();
+			try {
+				int startLine = document.getLineOfOffset(r.getOffset());
+				if (_lines.size() != document.getNumberOfLines()) {
+					// Update lines
+					if (r.getType().equals(DirtyRegion.INSERT)) {
+						// Add new lines
+						int endLine = document.getLineOfOffset(r.getOffset() + r.getLength());
+						int nbLignes = endLine - startLine;
+						for (int i = 0; i < nbLignes; i++) {
+							int line = i + startLine + 1;
+							_lines.add(line, new ModelLine(getLineText(line)));
+						}
+						//startLine--;
+						// for (int line = startLine; line < (endLine -
+						// startLine); line++) {
+						// _lines.add(i + startLine, new
+						// ModelLine(getLineText(i)));
+						// }
+
+					} else {
+						// remove lines
+//						int endLine = document.getLineOfOffset(r.getOffset() + r.getLength());
+//						int nbLignes = endLine - startLine;
+//						for (int i = 0; i < nbLignes; i++) {
+//							int line = i + startLine;
+//							_lines.remove(line);
+//						}
+					}
+				} else {
+					_lines.get(startLine).text = document.get(document.getLineOffset(startLine), document.getLineLength(startLine));
+				}
+				_invalidateLine(startLine);
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	/**
+	 * Creates a dirty region for a document event and adds it to the queue.
+	 *
+	 * @param e
+	 *            the document event for which to create a dirty region
+	 */
+	private void createDirtyRegion(DocumentEvent e) {
+		synchronized (fDirtyRegionQueue) {
+			if (e.getLength() == 0 && e.getText() != null) {
+				// Insert
+				fDirtyRegionQueue.addDirtyRegion(
+						new DirtyRegion(e.getOffset(), e.getText().length(), DirtyRegion.INSERT, e.getText()));
+
+			} else if (e.getText() == null || e.getText().length() == 0) {
+				// Remove
+				fDirtyRegionQueue
+						.addDirtyRegion(new DirtyRegion(e.getOffset(), e.getLength(), DirtyRegion.REMOVE, null));
+
+			} else {
+				// Replace (Remove + Insert)
+				fDirtyRegionQueue
+						.addDirtyRegion(new DirtyRegion(e.getOffset(), e.getLength(), DirtyRegion.REMOVE, null));
+				fDirtyRegionQueue.addDirtyRegion(
+						new DirtyRegion(e.getOffset(), e.getText().length(), DirtyRegion.INSERT, e.getText()));
+			}
+		}
+	}
+
+	private InternalListener listener = new InternalListener();
+
+	private BackgroundThread fThread;
 
 	private class ModelLine {
 
@@ -96,12 +241,15 @@ public class TMModel {
 
 	public TMModel(IDocument document, boolean lazyLoad) {
 		this.document = document;
+		this.document.addDocumentListener(listener);
 		this._decodeMap = new DecodeMap();
 		this.listeners = new ArrayList<>();
 		_lines = new ArrayList<>();
 		if (lazyLoad) {
 			load();
 		}
+		fDirtyRegionQueue = new DirtyRegionQueue();
+		new BackgroundThread(getClass().getName());
 	}
 
 	public void load() {
@@ -122,6 +270,7 @@ public class TMModel {
 	}
 
 	protected void _invalidateLine(int lineIndex) {
+		print();
 		this._lines.get(lineIndex).isInvalid = true;
 		if (lineIndex < this._invalidLineStartIndex) {
 			if (this._invalidLineStartIndex < this._lines.size()) {
@@ -130,6 +279,13 @@ public class TMModel {
 			this._invalidLineStartIndex = lineIndex;
 			this._beginBackgroundTokenization();
 		}
+	}
+
+	private void print() {
+		for (ModelLine modelLine : _lines) {
+			//System.err.print(modelLine.text);
+		}
+		
 	}
 
 	private void _resetTokenizationState() {
@@ -141,9 +297,28 @@ public class TMModel {
 		this._beginBackgroundTokenization();
 	}
 
+	/**
+	 * Background thread for the reconciling activity.
+	 */
+	class BackgroundThread extends Thread {
+
+		/**
+		 * Creates a new background thread. The thread runs with minimal
+		 * priority.
+		 *
+		 * @param name
+		 *            the thread's name
+		 */
+		public BackgroundThread(String name) {
+			super(name);
+			setPriority(Thread.MIN_PRIORITY);
+			setDaemon(true);
+		}
+	}
+
 	private void _beginBackgroundTokenization() {
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				_revalidateTokensNow(null);
@@ -165,7 +340,7 @@ public class TMModel {
 		long startTime = System.currentTimeMillis();
 		// Tokenize at most 1000 lines. Estimate the tokenization speed per
 		// character and stop when:
-		// - MAX_ALLOWED_TIME is reached
+		// - MAX_ALLOWED_TIME is reachedt
 		// - tokenizing the next line would go above MAX_ALLOWED_TIME
 
 		for (int lineNumber = fromLineNumber; lineNumber <= toLineNumber; lineNumber++) {
@@ -328,6 +503,13 @@ public class TMModel {
 		return document.get(lo, ll);
 	}
 
+	private String getLineText2(int line) throws BadLocationException {
+		int lo = document.getLineOffset(line);
+		String delim = document.getLineDelimiter(line);
+		int ll = document.getLineLength(line) - (delim != null ? delim.length() : 0);
+		return document.get(lo, ll);
+	}
+	
 	// TMSyntax
 
 	private LineTokens tokenize(String line, TMState state, int offsetDelta, int stopLineTokenizationAfter) {
@@ -356,7 +538,7 @@ public class TMModel {
 
 			// do not push a new token if the type is exactly the same (also
 			// helps with ligatures)
-			if (tokenType != lastTokenType) {
+			if (!tokenType.equals(lastTokenType)) {
 				tokens.add(new Token(tokenStartIndex + offsetDelta, tokenType));
 				lastTokenType = tokenType;
 			}
@@ -369,8 +551,8 @@ public class TMModel {
 		int prevTokenScopesLength = prevTokenScopes.length;
 		Map<Integer, Map<Integer, Boolean>> prevTokenScopeTokensMaps = decodeMap.prevToken.scopeTokensMaps;
 
-		Map<Integer, Map<Integer, Boolean>> scopeTokensMaps = new HashMap<>();
-		Map<Integer, Boolean> prevScopeTokensMaps = new HashMap<>();
+		Map<Integer, Map<Integer, Boolean>> scopeTokensMaps = new LinkedHashMap<>();
+		Map<Integer, Boolean> prevScopeTokensMaps = new LinkedHashMap<>();
 		boolean sameAsPrev = true;
 		for (int level = 1/* deliberately skip scope 0 */; level < scopes.length; level++) {
 			String scope = scopes[level];
@@ -385,7 +567,7 @@ public class TMModel {
 			}
 
 			int[] tokens = decodeMap.getTokenIds(scope);
-			prevScopeTokensMaps = new HashMap<>(prevScopeTokensMaps);
+			prevScopeTokensMaps = new LinkedHashMap<>(prevScopeTokensMaps);
 			for (int i = 0; i < tokens.length; i++) {
 				prevScopeTokensMaps.put(tokens[i], true);
 			}
@@ -414,6 +596,10 @@ public class TMModel {
 		return _lines.get(lineNumber).tokens;
 	}
 
+	public boolean isLineInvalid(int lineNumber) {
+		return _lines.get(lineNumber).isInvalid;
+	}
+
 	public IRegion getRegion(int fromLine, int toLine) throws BadLocationException {
 		int startOffset = document.getLineOffset(fromLine);
 		int endOffset = document.getLineOffset(toLine) + document.getLineLength(toLine);
@@ -423,5 +609,16 @@ public class TMModel {
 	public IDocument getDocument() {
 		// TODO Auto-generated method stub
 		return document;
+	}
+
+	public void dispose() {
+		document.removeDocumentListener(listener);
+
+		synchronized (this) {
+			// http://dev.eclipse.org/bugs/show_bug.cgi?id=19135
+			BackgroundThread bt = fThread;
+			fThread = null;
+			// bt.cancel();
+		}
 	}
 }

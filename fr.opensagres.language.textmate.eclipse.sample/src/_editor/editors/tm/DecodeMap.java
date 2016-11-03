@@ -1,6 +1,7 @@
 package _editor.editors.tm;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DecodeMap {
@@ -13,10 +14,10 @@ public class DecodeMap {
 
 	public DecodeMap() {
 		this.lastAssignedId = 0;
-		this.scopeToTokenIds = new HashMap<>();
-		this.tokenToTokenId = new HashMap<>();
-		this.tokenIdToToken = new HashMap<>();
-		this.prevToken = new TMTokenDecodeData(new String[0], new HashMap<Integer, Map<Integer, Boolean>>());
+		this.scopeToTokenIds = new LinkedHashMap<>();
+		this.tokenToTokenId = new LinkedHashMap<>();
+		this.tokenIdToToken = new LinkedHashMap<>();
+		this.prevToken = new TMTokenDecodeData(new String[0], new LinkedHashMap<Integer, Map<Integer, Boolean>>());
 	}
 
 	public int[] getTokenIds(String scope) {

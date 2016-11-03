@@ -1,5 +1,6 @@
 package _editor.editors.tm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.opensagres.language.textmate.grammar.StackElement;
@@ -21,6 +22,29 @@ public class TMState {
 	}
 
 	public TMState clone() {
-		return new TMState(ruleStack);
+		return new TMState(ruleStack != null ? new ArrayList<StackElement>(ruleStack) : null);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == null || !(other instanceof TMState)) {
+			return false;
+		}
+		TMState otherState = (TMState) other;
+
+		// Equals on `_parentEmbedderState`
+		// if (!AbstractState.safeEquals(this._parentEmbedderState,
+		// otherState._parentEmbedderState)) {
+		// return false;
+		// }
+
+		// Equals on `_ruleStack`
+		if (this.ruleStack == null && otherState.ruleStack == null) {
+			return true;
+		}
+		if (this.ruleStack == null || otherState.ruleStack == null) {
+			return false;
+		}
+		return this.ruleStack.equals(otherState.ruleStack);
 	}
 }

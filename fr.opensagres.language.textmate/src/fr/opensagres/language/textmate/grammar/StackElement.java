@@ -64,4 +64,35 @@ public class StackElement {
 		this.contentName = contentName;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof StackElement)) {
+			return false;
+		}
+		StackElement other = (StackElement) obj;
+		if (!this._shallowEquals(other)) {
+			return false;
+		}
+		// TODO : parent
+		// if (!this._parent && !other._parent) {
+		// return true;
+		// }
+		// if (!this._parent || !other._parent) {
+		// return false;
+		// }
+		// return this._parent.equals(other._parent);
+		return true;
+	}
+
+	private boolean _shallowEquals(StackElement other) {
+		return (this.ruleId == other.ruleId && this.endRule == other.endRule
+				&& isEquals(this.scopeName, other.scopeName) && isEquals(this.contentName, other.contentName));
+	}
+
+	private boolean isEquals(String s1, String s2) {
+		if (s1 == null) {
+			return s2 == null;
+		}
+		return s1.equals(s2);
+	}
 }

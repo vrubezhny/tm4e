@@ -210,7 +210,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (fViewer instanceof ITextViewerExtension5) {
 				ITextViewerExtension5 extension = (ITextViewerExtension5) fViewer;
 				return extension.widgetRange2ModelRange(new Region(e.getOffset(), length));
-			} 
+			}
 
 			IRegion visible = fViewer.getVisibleRegion();
 			IRegion region = new Region(e.getOffset() + visible.getOffset(), length);
@@ -301,17 +301,48 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		}
 
 		private IToken toToken(_editor.editors.tm.Token token) {
-			if ("comment.block.documentation.ts".equals(token.type)) {
-				return docToken;
+			// if ("comment.block.documentation.ts".equals(token.type) ) {
+			// return commentsToken;
+			// }
+			// if ("comment.block.ts".equals(token.type)) {
+			// return commentsToken;
+			// }
+
+			if (token.type != null) {
+				if (token.type.startsWith("comment.")) {
+					return commentsToken;
+				}
+				if (token.type.contains("meta") && token.type.contains("type") && token.type.contains("parameter") && token.type.contains("variable")) {
+					return metaParameterTypeVariableToken;
+				}
+				if (token.type.contains("meta") && token.type.contains("type") && token.type.contains("annotation")) {
+					return metaTypeAnnotationToken;
+				}
+				if (token.type.contains("keyword") && token.type.contains("control")) {
+					return keywordControlToken;
+				}
+				if (token.type.contains("function") && token.type.contains("entity") && token.type.contains("name")) {
+					return entityNameFunctionToken;
+				}
+				if (token.type.contains("string")) {
+					return stringToken;
+				}
+				if (token.type.contains("numeric")) {
+					return numericToken;
+				}
+				if (token.type.contains("storage")) {
+					return wordToken;
+				}
+				
+//				if ("meta.function.ts.storage.type".equals(token.type)
+//						|| "ts.meta.function.storage.type".equals(token.type)
+//						|| "meta.ts.storage.type.function".equals(token.type)
+//						|| "meta.ts.storage.type.function.decl.block".equals(token.type)) {
+//					return wordToken;
+//				}
+
 			}
-			if ("comment.block.ts".equals(token.type)) {
-				return docToken;
-			}
-			if ("meta.function.ts.storage.type".equals(token.type) || "ts.meta.function.storage.type".equals(token.type)
-					|| "meta.ts.storage.type.function".equals(token.type)
-					|| "meta.ts.storage.type.function.decl.block".equals(token.type)) {
-				return wordToken;
-			}
+			//uSystem.err.println("Not found:" + token.type);
 			return defaultToken;
 		}
 	}
@@ -375,9 +406,15 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/** The positions representing the damage regions. */
 	private TypedPosition fRememberedPosition;
 
-	private Token docToken;
+	private Token commentsToken;
 	private Token wordToken;
 	private Token defaultToken;
+	private Token entityNameFunctionToken;
+	private Token stringToken;
+	private Token numericToken;
+	private Token metaTypeAnnotationToken;
+	private Token metaParameterTypeVariableToken;
+	private Token keywordControlToken;
 
 	/**
 	 * Creates a new presentation reconciler. There are no damagers or repairers
@@ -389,8 +426,14 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		fPositionCategory = TRACKED_PARTITION + hashCode();
 		fPositionUpdater = new DefaultPositionUpdater(fPositionCategory);
 
-		docToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.KEY_COMMENTS)));
+		commentsToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.KEY_COMMENTS)));
 		wordToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.KEY_WORD)));
+		stringToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.STRING)));
+		numericToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.NUMERIC)));
+		entityNameFunctionToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.NAME_FUNCTION)));
+		metaTypeAnnotationToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.META_TYPE_ANNOTATION)));
+		metaParameterTypeVariableToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.META_PARAMETER_TYPE_VARIABLE)));
+		keywordControlToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.KEYWORD_CONTROL)));
 		defaultToken = new Token(new TextAttribute(manager.getColor(IXMLColorConstants.DEFAULT)));
 	}
 

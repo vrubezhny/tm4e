@@ -31,6 +31,9 @@ public class TMModelManager {
 	}
 
 	public void disconnect(IDocument document) {
-		models.remove(document);
+		TMModel model = models.remove(document);
+		if (model != null) {
+			model.dispose();
+		}
 	}
 }
