@@ -2,7 +2,8 @@ package fr.opensagres.language.textmate.core.internal.grammar.reader;
 
 import java.io.InputStream;
 
-import fr.opensagres.language.textmate.core.internal.grammar.parser.PlistParser;
+import fr.opensagres.language.textmate.core.internal.grammar.parser.json.JSONPListParser;
+import fr.opensagres.language.textmate.core.internal.grammar.parser.xml.XMLPListParser;
 import fr.opensagres.language.textmate.core.internal.types.IRawGrammar;
 
 public class GrammarReader {
@@ -13,6 +14,9 @@ public class GrammarReader {
 	}
 
 	private static IGrammarParser getGrammarParser(String filePath) {
-		return PlistParser.INSTANCE;
+		if (filePath.endsWith(".json")) {
+			return JSONPListParser.INSTANCE;
+		}
+		return XMLPListParser.INSTANCE;
 	}
 }

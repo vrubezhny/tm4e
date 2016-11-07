@@ -19,7 +19,7 @@ import fr.opensagres.language.textmate.core.grammar.IToken;
 import fr.opensagres.language.textmate.core.grammar.ITokenizeLineResult;
 import fr.opensagres.language.textmate.core.registry.Registry;
 
-public class TMModel {
+public class TMModel2 {
 
 	private final List<ModelLine> _lines;
 
@@ -232,14 +232,14 @@ public class TMModel {
 	static {
 		try {
 			Registry registry = new Registry();
-			grammar = registry.loadGrammarFromPathSync("csharp.json",
-					Main.class.getResourceAsStream("csharp.json"));
+			grammar = registry.loadGrammarFromPathSync("Angular2TypeScript.tmLanguage",
+					Main.class.getResourceAsStream("Angular2TypeScript.tmLanguage"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public TMModel(IDocument document, boolean lazyLoad) {
+	public TMModel2(IDocument document, boolean lazyLoad) {
 		this.document = document;
 		this.document.addDocumentListener(listener);
 		this._decodeMap = new DecodeMap();
@@ -388,7 +388,7 @@ public class TMModel {
 
 	private void emitModelTokensChangedEvent(int fromLineNumber, Integer toLineNumber) {
 		for (IModelTokensChangedListener listener : listeners) {
-			listener.modelTokensChanged(fromLineNumber - 1, toLineNumber - 1, this);
+			//listener.modelTokensChanged(fromLineNumber - 1, toLineNumber - 1, this);
 		}
 	}
 
