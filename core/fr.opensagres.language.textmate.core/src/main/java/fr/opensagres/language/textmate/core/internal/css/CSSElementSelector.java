@@ -19,7 +19,12 @@ public class CSSElementSelector extends AbstractElementSelector {
 	}
 
 	@Override
-	public boolean match(List<String> names) {		
-		return getLocalName() == null;
+	public int nbMatch(List<String> names) {		
+		return 0;
+	}
+	
+	@Override
+	public int nbClass() {
+		return 0;
 	}
 }

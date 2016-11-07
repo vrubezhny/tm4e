@@ -48,9 +48,15 @@ public class CSSConditionalSelector implements ConditionalSelector, ExtendedSele
 	}
 
 	@Override
-	public boolean match(List<String> names) {
-		return ((ExtendedSelector)getSimpleSelector()).match(names) &&
-	               ((ExtendedCondition)getCondition()).match(names);
+	public int nbMatch(List<String> names) {
+		return ((ExtendedSelector)getSimpleSelector()).nbMatch(names) +
+	               ((ExtendedCondition)getCondition()).nbMatch(names);
+	}
+	
+	@Override
+	public int nbClass() {
+		return ((ExtendedSelector) getSimpleSelector()).nbClass()
+				+ ((ExtendedCondition) getCondition()).nbClass();
 	}
 
 }

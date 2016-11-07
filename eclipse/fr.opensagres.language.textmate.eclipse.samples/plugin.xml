@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="TypeScript Editor"
+            extensions="ts"
+            icon="icons/ts.png"
+            class="fr.opensagres.language.textmate.eclipse.samples.typescript.TypeScriptEditor"
+            id="fr.opensagres.language.textmate.eclipse.samples.typescript.TypeScriptEditor">
+      </editor>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="JSX Editor"
+            extensions="jsx,tsx"
+            icon="icons/jsx.png"
+            class="fr.opensagres.language.textmate.eclipse.samples.typescript.JSXEditor"
+            id="fr.opensagres.language.textmate.eclipse.samples.typescript.JSXEditor">
+      </editor>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="C# Editor"
+            extensions="cs"
+            icon="icons/sample.gif"
+            class="fr.opensagres.language.textmate.eclipse.samples.csharp.CSharpEditor"
+            id="fr.opensagres.language.textmate.eclipse.samples.csharp.CSharpEditor">
+      </editor>
+   </extension>
+   
+</plugin>

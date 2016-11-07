@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-SymbolicName: fr.opensagres.language.textmate.eclipse.samples;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: fr.opensagres.language.textmate.core,
+ org.eclipse.jface.text,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.ui.editors,
+ fr.opensagres.language.textmate.eclipse
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+

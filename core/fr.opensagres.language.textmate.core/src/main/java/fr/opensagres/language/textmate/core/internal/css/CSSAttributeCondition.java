@@ -47,12 +47,17 @@ public class CSSAttributeCondition extends AbstractAttributeCondition {
 	}
 
 	@Override
-	public boolean match(List<String> names) {
+	public int nbMatch(List<String> names) {
 //		String val = getValue();
 //		if (val == null) {
 //			return !e.getAttribute(getLocalName()).equals("");
 //		}
 //		return e.getAttribute(getLocalName()).equals(val);
-		return true;
+		return 0;
+	}
+	
+	@Override
+	public int nbClass() {
+		return 0;
 	}
 }

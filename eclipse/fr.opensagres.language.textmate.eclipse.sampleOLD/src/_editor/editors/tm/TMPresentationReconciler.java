@@ -227,12 +227,16 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void modelTokensChanged(final int fromLineNumber, final Integer toLineNumber, final TMModel model) {
+			
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
+					fViewer.setEditable(false);
 					colorize(fromLineNumber, toLineNumber, model);
+					fViewer.setEditable(true);
 				}
 			});
+			
 			// colorize(fromLineNumber, toLineNumber, model);
 			// Job j = new Job("Syntax color") {
 			//

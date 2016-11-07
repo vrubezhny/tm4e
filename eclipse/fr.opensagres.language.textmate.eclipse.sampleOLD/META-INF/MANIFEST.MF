@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: _editor
-Bundle-SymbolicName: fr.opensagres.language.textmate.eclipse.sample;singleton:=true
+Bundle-SymbolicName: fr.opensagres.language.textmate.eclipse.sampleOLD;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: _editor.Activator
 Require-Bundle: org.eclipse.ui,

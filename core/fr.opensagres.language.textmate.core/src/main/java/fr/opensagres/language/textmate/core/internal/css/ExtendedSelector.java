@@ -11,5 +11,7 @@ public interface ExtendedSelector extends Selector {
 	 */
 	int getSpecificity();
 
-	boolean match(List<String> names);
+	int nbMatch(List<String> names);
+	
+	int nbClass();
 }

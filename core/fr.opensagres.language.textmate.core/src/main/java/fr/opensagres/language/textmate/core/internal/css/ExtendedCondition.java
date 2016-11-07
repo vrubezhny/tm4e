@@ -9,5 +9,7 @@ public interface ExtendedCondition {
      */
     int getSpecificity();
 
-	boolean match(List<String> names);
+    int nbClass();
+    
+	int nbMatch(List<String> names);
 }

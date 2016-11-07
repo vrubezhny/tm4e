@@ -9,8 +9,13 @@ public class CSSClassCondition extends CSSAttributeCondition {
 	}
 	
 	@Override
-	public boolean match(List<String> names) {
-		return names.contains(getValue());
+	public int nbMatch(List<String> names) {
+		return names.contains(getValue()) ? 1 : 0;
+	}
+	
+	@Override
+	public int nbClass() {
+		return 1;
 	}
 
 }

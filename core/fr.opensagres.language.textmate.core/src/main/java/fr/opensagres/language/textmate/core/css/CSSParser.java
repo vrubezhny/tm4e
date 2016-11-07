@@ -69,21 +69,16 @@ public class CSSParser {
 				Selector selector = list.item(i);
 				if (selector instanceof ExtendedSelector) {
 					ExtendedSelector s = ((ExtendedSelector) selector);
-					if (s.match(names)) {
-						int specificity = s.getSpecificity();
-						if (bestStyle == null || (specificity > bestSpecificity)) {
+					int nbMatch = s.nbMatch(names);
+					if (nbMatch > 0 && nbMatch == s.nbClass()) {
+						if (bestStyle == null || (nbMatch > bestSpecificity)) {
 							bestStyle = style;
-							bestSpecificity = specificity;
+							bestSpecificity = nbMatch;
 						}
 					}
-
-				} else {
-					System.err.println("argh");
 				}
 			}
-
 		}
-
 		return bestStyle;
 	}
 

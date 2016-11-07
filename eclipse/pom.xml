@@ -8,7 +8,8 @@
 	<artifactId>eclipse</artifactId>
 	<packaging>pom</packaging>
 	<modules>
-		<module>fr.opensagres.language.textmate.eclipse</module>
+        <module>fr.opensagres.language.textmate.eclipse</module>
+		<module>fr.opensagres.language.textmate.eclipse.samples</module>
 	</modules>
 	<groupId>fr.opensagres.language.textmate</groupId>
 </project>

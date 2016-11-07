@@ -19,8 +19,14 @@ public class CSSAndCondition extends AbstractCombinatorCondition {
 	}
 
 	@Override
-	public boolean match(List<String> names) {
-		return ((ExtendedCondition) getFirstCondition()).match(names)
-				&& ((ExtendedCondition) getSecondCondition()).match(names);
+	public int nbMatch(List<String> names) {
+		return ((ExtendedCondition) getFirstCondition()).nbMatch(names)
+				+ ((ExtendedCondition) getSecondCondition()).nbMatch(names);
+	}
+	
+	 @Override
+	public int nbClass() {
+		 return ((ExtendedCondition) getFirstCondition()).nbClass()
+					+ ((ExtendedCondition) getSecondCondition()).nbClass();
 	}
 }

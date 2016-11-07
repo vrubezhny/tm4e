@@ -74,11 +74,16 @@ public class CSSDocumentHandler implements DocumentHandler {
 	}
 
 	@Override
-	public void property(String name, LexicalUnit lexicalUnit, boolean arg2) throws CSSException {
-		if (currentStyle != null && "color".equals(name)) {
-			currentStyle.setColor(new RGBColorImpl(lexicalUnit));
+	public void property(String name, LexicalUnit value, boolean arg2) throws CSSException {
+		if (currentStyle != null) {
+			if ("color".equals(name)) {
+				currentStyle.setColor(new RGBColorImpl(value));
+			} else if ("font-weight".equals(name)) {
+				currentStyle.setBold(value.getStringValue().toUpperCase().contains("BOLD"));
+			} else if ("font-style".equals(name)) {
+				currentStyle.setItalic(value.getStringValue().toUpperCase().contains("ITALIC"));
+			}
 		}
-
 	}
 
 	@Override
