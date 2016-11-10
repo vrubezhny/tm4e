@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import fr.opensagres.language.textmate.core.TMException;
 import fr.opensagres.language.textmate.core.grammar.IGrammar;
 import fr.opensagres.language.textmate.core.grammar.IToken;
 import fr.opensagres.language.textmate.core.grammar.ITokenizeLineResult;
@@ -337,7 +338,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		}
 	}
 
-	private void initializeIfNeeded() {
+	protected void initializeIfNeeded() {
 		if (!initialized) {
 			initialize();
 			initialized = true;
@@ -538,7 +539,6 @@ public abstract class AbstractTMModel implements ITMModel {
 			}
 
 			if (r == null) {
-				// TODO
 				r = nullTokenize(text, modeLine.getState());
 			}
 			// if (!r.modeTransitions) {
@@ -615,6 +615,10 @@ public abstract class AbstractTMModel implements ITMModel {
 		// state
 		// );
 		// }
+		
+		if (grammar == null) {
+			throw new TMException("No TextMate grammar defined");
+		}
 		TMState freshState = state.clone();
 		ITokenizeLineResult textMateResult = grammar.tokenizeLine(line, freshState.getRuleStack());
 		freshState.setRuleStack(textMateResult.getRuleStack());
@@ -682,4 +686,8 @@ public abstract class AbstractTMModel implements ITMModel {
 	protected abstract String getLineText(int line) throws Exception;
 
 	protected abstract int getLineLength(int line) throws Exception;
+	
+	public void join() throws InterruptedException {
+		fThread.join();
+	}
 }
