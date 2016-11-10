@@ -27,8 +27,8 @@ public class TypeScriptViewerConfiguration extends SourceViewerConfiguration {
 		// TODO: cache the grammar
 		Registry registry = new Registry();
 		try {
-			return registry.loadGrammarFromPathSync("TypeScript.tmLanguage.json",
-					TypeScriptViewerConfiguration.class.getResourceAsStream("TypeScript.tmLanguage.json"));
+			return registry.loadGrammarFromPathSync("TypeScript.tmLanguage",
+					TypeScriptViewerConfiguration.class.getResourceAsStream("TypeScript.tmLanguage"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
