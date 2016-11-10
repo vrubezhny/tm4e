@@ -35,6 +35,8 @@ public class TMModel extends AbstractTMModel {
 
 		@Override
 		public void documentAboutToBeChanged(DocumentEvent event) {
+			// Initialize lines if needed
+			TMModel.this.initializeIfNeeded();
 			try {
 				if (!DocumentHelper.isInsert(event)) {
 					// Remove or Replace (Remove + Insert)
