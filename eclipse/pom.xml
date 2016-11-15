@@ -10,6 +10,7 @@
 	<modules>
         <module>fr.opensagres.language.textmate.eclipse</module>
 		<module>fr.opensagres.language.textmate.eclipse.samples</module>
+		<module>fr.opensagres.language.textmate.repository</module>
 	</modules>
 	<groupId>fr.opensagres.language.textmate</groupId>
 </project>
