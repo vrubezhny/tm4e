@@ -237,7 +237,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			List<TMToken> tokens = null;
 			for (int line = fromLineNumber; line <= toLineNumber; line++) {
 				if (line == toLineNumber) {
-					lastLineStyleRanges = new ArrayList<>();
+					//lastLineStyleRanges = new ArrayList<>();
 				}
 				tokens = model.getLineTokens(line);
 				int i = 0;
@@ -264,12 +264,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 			addRange(presentation, lastStart, length, lastAttribute, lastLineStyleRanges);
 
-			// viewer.getTextWidget().getStyleRanges()
 			if (lastLineStyleRanges != null) {
 				StyleRange[] oldStyleRange = viewer.getTextWidget().getStyleRanges(document.getLineOffset(toLineNumber),
 						document.getLineLength(toLineNumber));
 				if (isEquals(oldStyleRange, lastLineStyleRanges)) {
-					System.err.println("dede");
 					return;
 				}
 			}
