@@ -24,7 +24,7 @@ public class TestModel2 {
 
 	@Test
 	public void test() throws InterruptedException {
-		Document document = new Document();
+		final Document document = new Document();
 		document.set("var a;");
 		TMModel model = new TMModel(document);
 		model.setGrammar(grammar);
