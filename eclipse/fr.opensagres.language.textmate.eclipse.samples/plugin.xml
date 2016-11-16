@@ -2,6 +2,57 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+   <!-- C#, JSON, CSS GenericEditor uses TextMate presentation reconcilier -->
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.languageserver.languages.csharp.CSharpPresentationReconclier"
+            contentType="org.eclipse.languageserver.languages.csharp">
+      </presentationReconciler>
+      <presentationReconciler
+            class="org.eclipse.languageserver.languages.json.JSONPresentationReconcilier"
+            contentType="org.eclipse.languageserver.languages.json">
+      </presentationReconciler>
+      <presentationReconciler
+            class="org.eclipse.languageserver.languages.css.CSSPresentationReconcilier"
+            contentType="org.eclipse.languageserver.languages.css">
+      </presentationReconciler>      
+   </extension>
+   
+   <!-- C#, JSON, CSS TextMate grammar-->
+   <extension
+         point="fr.opensagres.language.textmate.eclipse.grammars">
+      <grammar
+      		scopeName="source.cs"
+            path="./syntaxes/csharp.json" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.csharp"
+            scopeName="source.cs">
+      </scopeNameContentTypeBinding>
+
+      <grammar
+      		scopeName="source.json"
+            path="./syntaxes/JSON.tmLanguage" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.json"
+            scopeName="source.json">
+      </scopeNameContentTypeBinding>
+      
+      <grammar
+      		scopeName="source.css"
+            path="./syntaxes/css.plist" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.css"
+            scopeName="source.css">
+      </scopeNameContentTypeBinding>
+                  
+   </extension>
+   
+
+   <!-- TypeScript Editor -->
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -13,6 +64,7 @@
       </editor>
    </extension>
 
+	<!-- JSX Editor -->   
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -21,17 +73,6 @@
             icon="icons/jsx.png"
             class="fr.opensagres.language.textmate.eclipse.samples.typescript.JSXEditor"
             id="fr.opensagres.language.textmate.eclipse.samples.typescript.JSXEditor">
-      </editor>
-   </extension>
-   
-   <extension
-         point="org.eclipse.ui.editors">
-      <editor
-            name="C# Editor"
-            extensions="cs"
-            icon="icons/sample.gif"
-            class="fr.opensagres.language.textmate.eclipse.samples.csharp.CSharpEditor"
-            id="fr.opensagres.language.textmate.eclipse.samples.csharp.CSharpEditor">
       </editor>
    </extension>
    

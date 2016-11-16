@@ -10,9 +10,17 @@
  */
 package fr.opensagres.language.textmate.eclipse.text;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -57,7 +65,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * token
 	 */
 	protected Token defaultToken = new Token(null);
-	
+
 	/** The target viewer. */
 	private ITextViewer viewer;
 	/** The internal listener. */
@@ -104,8 +112,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (newDocument != null) {
 
 				ITMModel model = getTMModelManager().connect(newDocument);
-				model.setGrammar(TMPresentationReconciler.this.grammar);
-				model.addModelTokensChangedListener(this);
+				try {
+					model.setGrammar(TMPresentationReconciler.this.getGrammar(newDocument));
+					model.addModelTokensChangedListener(this);
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				//
 				// newDocument.addPositionCategory(fPositionCategory);
 				// newDocument.addPositionUpdater(fPositionUpdater);
@@ -123,21 +136,45 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void modelTokensChanged(final int fromLineNumber, final int toLineNumber, final ITMModel model) {
-
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					// viewer.setEditable(false);
 					colorize(fromLineNumber, toLineNumber, model);
-					// fViewer.setEditable(true);
 				}
 			});
-
 		}
 	}
 
-	public IGrammar getGrammar() {
+	public IGrammar getGrammar(IDocument document) throws CoreException {
+		if (grammar == null) {
+			// Discover the well grammar
+			IFile file = getFile(document);
+			this.grammar = TMPlugin.getGrammarRegistryManager().getGrammarFor(file);
+		}
 		return grammar;
+	}
+
+//	private IFile getFile(IDocument document) {
+//		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+//		ITextFileBuffer fileBuffer = bufferManager.getTextFileBuffer(document);
+//		return ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(fileBuffer.getLocation());
+//	}
+//	
+	/**
+	 * Returns the file from the given {@link IDocument}.
+	 */
+	public static IFile getFile(IDocument document) {
+		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager(); // get
+																						// the
+																						// buffer
+																						// manager
+		ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
+		IPath location = buffer == null ? null : buffer.getLocation();
+		if (location == null) {
+			return null;
+		}
+
+		return ResourcesPlugin.getWorkspace().getRoot().getFile(location);
 	}
 
 	public void setGrammar(IGrammar grammar) {
@@ -185,7 +222,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	private ITMModelManager getTMModelManager() {
-		return TMPlugin.getDefault().getTMModelManager();
+		return TMPlugin.getTMModelManager();
 	}
 
 	private void colorize(int fromLineNumber, Integer toLineNumber, ITMModel model) {
@@ -202,8 +239,12 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			IToken lastToken = Token.UNDEFINED;
 			TextAttribute lastAttribute = getTokenTextAttribute(lastToken);
 
+			List<StyleRange> lastLineStyleRanges = null;
 			List<TMToken> tokens = null;
 			for (int line = fromLineNumber; line <= toLineNumber; line++) {
+				if (line == toLineNumber) {
+					lastLineStyleRanges = new ArrayList<>();
+				}
 				tokens = model.getLineTokens(line);
 				int i = 0;
 				int startLineOffset = document.getLineOffset(line);
@@ -215,23 +256,49 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						firstToken = false;
 					} else {
 						if (!firstToken)
-							addRange(presentation, lastStart, length, lastAttribute);
+							addRange(presentation, lastStart, length, lastAttribute,
+									(fromLineNumber == toLineNumber || (i > 0)) ? lastLineStyleRanges : null);
 						firstToken = false;
 						lastToken = token;
 						lastAttribute = attribute;
-						lastStart = t.startIndex + startLineOffset; // fScanner.getTokenOffset();
+						lastStart = t.startIndex + startLineOffset;
 						length = getTokenLengh(t.startIndex, tokens, i, line, document);
 					}
 					i++;
 				}
 			}
 
-			addRange(presentation, lastStart, length, lastAttribute);
+			addRange(presentation, lastStart, length, lastAttribute, lastLineStyleRanges);
+
+			// viewer.getTextWidget().getStyleRanges()
+			if (lastLineStyleRanges != null) {
+				StyleRange[] oldStyleRange = viewer.getTextWidget().getStyleRanges(document.getLineOffset(toLineNumber),
+						document.getLineLength(toLineNumber));
+				if (isEquals(oldStyleRange, lastLineStyleRanges)) {
+					System.err.println("dede");
+					return;
+				}
+			}
+
 			applyTextRegionCollection(presentation);
 		} catch (Throwable e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private boolean isEquals(StyleRange[] oldStyleRange, List<StyleRange> newStyleRange) {
+		if (oldStyleRange.length != newStyleRange.size()) {
+			return false;
+		}
+		for (int i = 0; i < oldStyleRange.length; i++) {
+			StyleRange oldStyle = oldStyleRange[i];
+			StyleRange newStyle = newStyleRange.get(i);
+			if (!oldStyle.equals(newStyle)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private IToken toToken(TMToken t) {
@@ -242,8 +309,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return defaultToken;
 	}
 
-	private int getTokenLengh(int startOffset, List<TMToken> tokens, int i, int line,
-			IDocument document) throws BadLocationException {
+	private int getTokenLengh(int startOffset, List<TMToken> tokens, int i, int line, IDocument document)
+			throws BadLocationException {
 		TMToken next = (i + 1 < tokens.size()) ? tokens.get(i + 1) : null;
 		if (next != null) {
 			return next.startIndex - startOffset;
@@ -266,7 +333,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		Object data = token.getData();
 		if (data instanceof TextAttribute)
 			return (TextAttribute) data;
-		return fDefaultTextAttribute ;
+		return fDefaultTextAttribute;
 	}
 
 	/**
@@ -280,8 +347,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 *            the length of the range to be styled
 	 * @param attr
 	 *            the attribute describing the style of the range to be styled
+	 * @param lastLineStyleRanges
 	 */
-	protected void addRange(TextPresentation presentation, int offset, int length, TextAttribute attr) {
+	protected void addRange(TextPresentation presentation, int offset, int length, TextAttribute attr,
+			List<StyleRange> lastLineStyleRanges) {
 		if (attr != null) {
 			int style = attr.getStyle();
 			int fontStyle = style & (SWT.ITALIC | SWT.BOLD | SWT.NORMAL);
@@ -291,6 +360,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			styleRange.underline = (style & TextAttribute.UNDERLINE) != 0;
 			styleRange.font = attr.getFont();
 			presentation.addStyleRange(styleRange);
+			if (lastLineStyleRanges != null) {
+				lastLineStyleRanges.add(styleRange);
+			}
 		}
 	}
 
