@@ -154,12 +154,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return grammar;
 	}
 
-//	private IFile getFile(IDocument document) {
-//		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
-//		ITextFileBuffer fileBuffer = bufferManager.getTextFileBuffer(document);
-//		return ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(fileBuffer.getLocation());
-//	}
-//	
 	/**
 	 * Returns the file from the given {@link IDocument}.
 	 */
