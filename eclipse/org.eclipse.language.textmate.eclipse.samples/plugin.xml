@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <!-- C#, JSON, CSS GenericEditor uses TextMate presentation reconcilier -->
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.languageserver.languages.csharp.CSharpPresentationReconclier"
+            contentType="org.eclipse.languageserver.languages.csharp">
+      </presentationReconciler>
+      <presentationReconciler
+            class="org.eclipse.languageserver.languages.json.JSONPresentationReconcilier"
+            contentType="org.eclipse.languageserver.languages.json">
+      </presentationReconciler>
+      <presentationReconciler
+            class="org.eclipse.languageserver.languages.css.CSSPresentationReconcilier"
+            contentType="org.eclipse.languageserver.languages.css">
+      </presentationReconciler>      
+   </extension>
+   
+   <!-- C#, JSON, CSS TextMate grammar-->
+   <extension
+         point="org.eclipse.language.textmate.eclipse.grammars">
+      <grammar
+      		scopeName="source.cs"
+            path="./syntaxes/csharp.json" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.csharp"
+            scopeName="source.cs">
+      </scopeNameContentTypeBinding>
+
+      <grammar
+      		scopeName="source.json"
+            path="./syntaxes/JSON.tmLanguage" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.json"
+            scopeName="source.json">
+      </scopeNameContentTypeBinding>
+      
+      <grammar
+      		scopeName="source.css"
+            path="./syntaxes/css.plist" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.css"
+            scopeName="source.css">
+      </scopeNameContentTypeBinding>
+                  
+   </extension>
+   
+
+   <!-- TypeScript Editor -->
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="TypeScript Editor"
+            extensions="ts"
+            icon="icons/ts.png"
+            class="org.eclipse.language.textmate.eclipse.samples.typescript.TypeScriptEditor"
+            id="org.eclipse.language.textmate.eclipse.samples.typescript.TypeScriptEditor">
+      </editor>
+   </extension>
+
+	<!-- JSX Editor -->   
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="JSX Editor"
+            extensions="jsx,tsx"
+            icon="icons/jsx.png"
+            class="org.eclipse.language.textmate.eclipse.samples.typescript.JSXEditor"
+            id="org.eclipse.language.textmate.eclipse.samples.typescript.JSXEditor">
+      </editor>
+   </extension>
+   
+</plugin>

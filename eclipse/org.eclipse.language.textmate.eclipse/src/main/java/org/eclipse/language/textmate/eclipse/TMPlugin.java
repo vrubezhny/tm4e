@@ -1,0 +1,85 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
+package org.eclipse.language.textmate.eclipse;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.language.textmate.eclipse.grammars.IGrammarRegistryManager;
+import org.eclipse.language.textmate.eclipse.internal.grammars.GrammarRegistryManager;
+import org.eclipse.language.textmate.eclipse.internal.model.TMModelManager;
+import org.eclipse.language.textmate.eclipse.model.ITMModelManager;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+
+/**
+ * The activator class controls the plug-in life cycle
+ */
+public class TMPlugin extends AbstractUIPlugin {
+
+	// The plug-in ID
+	public static final String PLUGIN_ID = "org.eclipse.language.textmate.eclipse"; //$NON-NLS-1$
+
+	// The shared instance
+	private static TMPlugin plugin;
+
+	/**
+	 * The constructor
+	 */
+	public TMPlugin() {
+	}
+
+	@Override
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
+		GrammarRegistryManager.getInstance().initialize();
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		GrammarRegistryManager.getInstance().destroy();
+		plugin = null;
+		super.stop(context);
+	}
+
+	/**
+	 * Returns the shared instance
+	 *
+	 * @return the shared instance
+	 */
+	public static TMPlugin getDefault() {
+		return plugin;
+	}
+
+	/**
+	 * Returns an image descriptor for the image file at the given plug-in
+	 * relative path
+	 *
+	 * @param path
+	 *            the path
+	 * @return the image descriptor
+	 */
+	public static ImageDescriptor getImageDescriptor(String path) {
+		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	/**
+	 * Returns the TextMate model manager.
+	 * 
+	 * @return the TextMate model manager.
+	 */
+	public static ITMModelManager getTMModelManager() {
+		return TMModelManager.getInstance();
+	}
+
+	public static IGrammarRegistryManager getGrammarRegistryManager() {
+		return GrammarRegistryManager.getInstance();
+	}
+}

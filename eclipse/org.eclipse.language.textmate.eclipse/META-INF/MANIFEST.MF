@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Bundle-SymbolicName: org.eclipse.language.textmate.eclipse;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.language.textmate.core,
+ org.eclipse.jface.text,
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.language.textmate.eclipse,
+ org.eclipse.language.textmate.eclipse.grammars,
+ org.eclipse.language.textmate.eclipse.model,
+ org.eclipse.language.textmate.eclipse.text,
+ org.eclipse.language.textmate.eclipse.text.styles
+Bundle-Activator: org.eclipse.language.textmate.eclipse.TMPlugin
+Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.core.filebuffers
+
