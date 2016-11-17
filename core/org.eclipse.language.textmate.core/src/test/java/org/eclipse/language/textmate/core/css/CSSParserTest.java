@@ -1,4 +1,4 @@
-package fr.opensagres.language.textmate.core.css;
+package org.eclipse.language.textmate.core.css;
 
 import java.util.Arrays;
 import java.util.List;

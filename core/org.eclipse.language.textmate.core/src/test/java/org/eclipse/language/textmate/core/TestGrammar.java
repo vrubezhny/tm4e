@@ -1,9 +1,9 @@
-package fr.opensagres.language.textmate.core;
+package org.eclipse.language.textmate.core;
 
-import fr.opensagres.language.textmate.core.Main;
-import fr.opensagres.language.textmate.core.grammar.IGrammar;
-import fr.opensagres.language.textmate.core.grammar.ITokenizeLineResult;
-import fr.opensagres.language.textmate.core.registry.Registry;
+import org.eclipse.language.textmate.core.Main;
+import org.eclipse.language.textmate.core.grammar.IGrammar;
+import org.eclipse.language.textmate.core.grammar.ITokenizeLineResult;
+import org.eclipse.language.textmate.core.registry.Registry;
 
 public class TestGrammar {
 

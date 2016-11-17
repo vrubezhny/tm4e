@@ -1,4 +1,4 @@
-package fr.opensagres.language.textmate.core;
+package org.eclipse.language.textmate.core;
 import java.util.Iterator;
 
 import org.jcodings.specific.UTF8Encoding;

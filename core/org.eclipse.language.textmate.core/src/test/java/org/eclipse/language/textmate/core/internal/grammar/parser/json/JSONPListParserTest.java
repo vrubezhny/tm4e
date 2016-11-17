@@ -1,9 +1,8 @@
-package fr.opensagres.language.textmate.core.internal.grammar.parser.json;
+package org.eclipse.language.textmate.core.internal.grammar.parser.json;
 
+import org.eclipse.language.textmate.core.internal.grammar.reader.IGrammarParser;
+import org.eclipse.language.textmate.core.internal.types.IRawGrammar;
 import org.junit.Test;
-
-import fr.opensagres.language.textmate.core.internal.grammar.reader.IGrammarParser;
-import fr.opensagres.language.textmate.core.internal.types.IRawGrammar;
 
 public class JSONPListParserTest {
 

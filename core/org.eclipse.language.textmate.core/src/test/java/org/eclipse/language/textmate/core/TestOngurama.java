@@ -1,6 +1,6 @@
-package fr.opensagres.language.textmate.core;
-import fr.opensagres.language.textmate.core.internal.oniguruma.IOnigNextMatchResult;
-import fr.opensagres.language.textmate.core.internal.oniguruma.OnigScanner;
+package org.eclipse.language.textmate.core;
+import org.eclipse.language.textmate.core.internal.oniguruma.IOnigNextMatchResult;
+import org.eclipse.language.textmate.core.internal.oniguruma.OnigScanner;
 
 public class TestOngurama {
 

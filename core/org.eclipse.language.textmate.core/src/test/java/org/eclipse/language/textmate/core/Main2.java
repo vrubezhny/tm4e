@@ -1,29 +1,29 @@
-package fr.opensagres.language.textmate.core;
+package org.eclipse.language.textmate.core;
 
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import fr.opensagres.language.textmate.core.grammar.IGrammar;
-import fr.opensagres.language.textmate.core.grammar.IToken;
-import fr.opensagres.language.textmate.core.grammar.ITokenizeLineResult;
-import fr.opensagres.language.textmate.core.registry.Registry;
+import org.eclipse.language.textmate.core.grammar.IGrammar;
+import org.eclipse.language.textmate.core.grammar.IToken;
+import org.eclipse.language.textmate.core.grammar.ITokenizeLineResult;
+import org.eclipse.language.textmate.core.registry.Registry;
 
-public class Main3 {
+public class Main2 {
 
 	public static void main(String[] args) throws Exception {
 		Registry registry = new Registry();
 		IGrammar grammar = registry.loadGrammarFromPathSync("JavaScript.tmLanguage",
-				Main3.class.getResourceAsStream("JavaScript.tmLanguage"));
+				Main2.class.getResourceAsStream("JavaScript.tmLanguage"));
 
-		String t = readFile("angular.js");
+		String t = readFile("jquery.js");
 
 		ITokenizeLineResult lineTokens = grammar.tokenizeLine(t);
 		for (int i = 0; i < lineTokens.getTokens().length; i++) {
 			IToken token = lineTokens.getTokens()[i];
-			//System.out.println("Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
-			//		+ token.getScopes());
+			System.out.println("Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
+					+ token.getScopes());
 		}
 	}
 

@@ -1,15 +1,15 @@
+package org.eclipse.language.textmate.eclipse;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.language.textmate.core.grammar.IGrammar;
+import org.eclipse.language.textmate.core.model.IModelTokensChangedListener;
+import org.eclipse.language.textmate.core.model.ITMModel;
+import org.eclipse.language.textmate.core.model.TMToken;
+import org.eclipse.language.textmate.core.registry.Registry;
+import org.eclipse.language.textmate.eclipse.internal.model.TMModel;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import fr.opensagres.language.textmate.core.grammar.IGrammar;
-import fr.opensagres.language.textmate.core.model.IModelTokensChangedListener;
-import fr.opensagres.language.textmate.core.model.ITMModel;
-import fr.opensagres.language.textmate.core.model.TMToken;
-import fr.opensagres.language.textmate.core.registry.Registry;
-import fr.opensagres.language.textmate.eclipse.internal.model.TMModel;
 
 public class TestModel3 {
 
