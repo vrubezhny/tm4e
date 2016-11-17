@@ -1,4 +1,4 @@
-package org.eclipse.language.textmate.eclipse.text.styles;
+package org.eclipse.language.textmate.eclipse.themes.css;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -10,6 +10,8 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.language.textmate.core.css.CSSParser;
 import org.eclipse.language.textmate.core.css.CSSStyle;
+import org.eclipse.language.textmate.eclipse.themes.AbstractTokenProvider;
+import org.eclipse.language.textmate.eclipse.themes.ColorManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.w3c.dom.css.CSSPrimitiveValue;

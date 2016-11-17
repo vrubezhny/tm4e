@@ -1,4 +1,4 @@
-package org.eclipse.language.textmate.eclipse.text.styles;
+package org.eclipse.language.textmate.eclipse.themes;
 
 import java.util.HashMap;
 import java.util.Iterator;

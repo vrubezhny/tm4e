@@ -10,7 +10,6 @@
  */
 package org.eclipse.language.textmate.eclipse.text;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -41,7 +40,7 @@ import org.eclipse.language.textmate.eclipse.TMPlugin;
 import org.eclipse.language.textmate.eclipse.internal.model.DocumentHelper;
 import org.eclipse.language.textmate.eclipse.internal.model.TMModel;
 import org.eclipse.language.textmate.eclipse.model.ITMModelManager;
-import org.eclipse.language.textmate.eclipse.text.styles.ITokenProvider;
+import org.eclipse.language.textmate.eclipse.themes.ITokenProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
@@ -175,6 +174,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	public ITokenProvider getTokenProvider() {
+		if (tokenProvider == null) {
+			String contentTypeId = null;
+			tokenProvider = TMPlugin.getThemeManager().getThemeFor(contentTypeId);
+		}
 		return tokenProvider;
 	}
 
@@ -236,7 +239,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			List<TMToken> tokens = null;
 			for (int line = fromLineNumber; line <= toLineNumber; line++) {
 				if (line == toLineNumber) {
-					//lastLineStyleRanges = new ArrayList<>();
+					// lastLineStyleRanges = new ArrayList<>();
 				}
 				tokens = model.getLineTokens(line);
 				int i = 0;
@@ -293,7 +296,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	private IToken toToken(TMToken t) {
-		IToken token = tokenProvider.getToken(t.type);
+		IToken token = getTokenProvider().getToken(t.type);
 		if (token != null) {
 			return token;
 		}

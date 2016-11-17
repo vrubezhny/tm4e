@@ -14,8 +14,10 @@
  -->
 <plugin>
 
+   <extension-point id="themes" 
+   					name="%themes.name"
+					schema="schema/themes.exsd" />
    <extension-point id="grammars" 
    					name="%grammars.name"
 					schema="schema/grammars.exsd" />
-  
 </plugin>

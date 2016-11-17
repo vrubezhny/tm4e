@@ -6,8 +6,8 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.language.textmate.core.grammar.IGrammar;
 import org.eclipse.language.textmate.core.registry.Registry;
 import org.eclipse.language.textmate.eclipse.text.TMPresentationReconciler;
-import org.eclipse.language.textmate.eclipse.text.styles.CSSTokenProvider;
-import org.eclipse.language.textmate.eclipse.text.styles.ITokenProvider;
+import org.eclipse.language.textmate.eclipse.themes.ITokenProvider;
+import org.eclipse.language.textmate.eclipse.themes.css.CSSTokenProvider;
 
 public class TypeScriptViewerConfiguration extends SourceViewerConfiguration {
 

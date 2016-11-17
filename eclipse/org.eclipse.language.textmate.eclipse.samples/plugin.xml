@@ -2,24 +2,29 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <!-- C#, JSON, CSS GenericEditor uses TextMate presentation reconcilier -->
+   <!-- Register TextMate Themes -->
    <extension
-         point="org.eclipse.ui.genericeditor.presentationReconcilers">
-      <presentationReconciler
-            class="org.eclipse.languageserver.languages.csharp.CSharpPresentationReconclier"
-            contentType="org.eclipse.languageserver.languages.csharp">
-      </presentationReconciler>
-      <presentationReconciler
-            class="org.eclipse.languageserver.languages.json.JSONPresentationReconcilier"
-            contentType="org.eclipse.languageserver.languages.json">
-      </presentationReconciler>
-      <presentationReconciler
-            class="org.eclipse.languageserver.languages.css.CSSPresentationReconcilier"
-            contentType="org.eclipse.languageserver.languages.css">
-      </presentationReconciler>      
+         point="org.eclipse.language.textmate.eclipse.themes">
+      <theme
+            id="org.eclipse.language.textmate.eclipse.themes.Light"
+      		name="Light"
+            path="./themes/Light.css" >
+      </theme>
+      <theme
+            id="org.eclipse.language.textmate.eclipse.themes.SolarizedLight"
+      		name="Solarized Light"
+            path="./themes/Solarized-light.css" >
+      </theme>
+      
+      <!-- Use SolarizedLight theme for CSS -->
+      <themeContentTypeBinding
+            contentTypeId="org.eclipse.languageserver.languages.css"
+            themeId="org.eclipse.language.textmate.eclipse.themes.SolarizedLight">
+      </themeContentTypeBinding>
+            
    </extension>
-   
-   <!-- C#, JSON, CSS TextMate grammar-->
+  
+   <!-- Register C#, JSON, CSS TextMate grammars -->
    <extension
          point="org.eclipse.language.textmate.eclipse.grammars">
       <grammar
@@ -50,8 +55,24 @@
       </scopeNameContentTypeBinding>
                   
    </extension>
-   
-
+    	   
+   <!-- C#, JSON, CSS GenericEditor uses TextMate presentation reconcilier -->
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.language.textmate.eclipse.text.TMPresentationReconciler"
+            contentType="org.eclipse.languageserver.languages.csharp">
+      </presentationReconciler>
+      <presentationReconciler
+            class="org.eclipse.language.textmate.eclipse.text.TMPresentationReconciler"
+            contentType="org.eclipse.languageserver.languages.json">
+      </presentationReconciler>
+      <presentationReconciler
+            class="org.eclipse.language.textmate.eclipse.text.TMPresentationReconciler"
+            contentType="org.eclipse.languageserver.languages.css">
+      </presentationReconciler>      
+   </extension>
+  
    <!-- TypeScript Editor -->
    <extension
          point="org.eclipse.ui.editors">

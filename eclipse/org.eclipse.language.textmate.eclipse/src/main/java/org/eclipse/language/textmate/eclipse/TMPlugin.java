@@ -10,11 +10,12 @@
  */
 package org.eclipse.language.textmate.eclipse;
 
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.language.textmate.eclipse.grammars.IGrammarRegistryManager;
 import org.eclipse.language.textmate.eclipse.internal.grammars.GrammarRegistryManager;
 import org.eclipse.language.textmate.eclipse.internal.model.TMModelManager;
+import org.eclipse.language.textmate.eclipse.internal.themes.ThemeManager;
 import org.eclipse.language.textmate.eclipse.model.ITMModelManager;
+import org.eclipse.language.textmate.eclipse.themes.IThemeManager;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -39,11 +40,13 @@ public class TMPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		ThemeManager.getInstance().initialize();
 		GrammarRegistryManager.getInstance().initialize();
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		ThemeManager.getInstance().destroy();
 		GrammarRegistryManager.getInstance().destroy();
 		plugin = null;
 		super.stop(context);
@@ -59,18 +62,6 @@ public class TMPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given plug-in
-	 * relative path
-	 *
-	 * @param path
-	 *            the path
-	 * @return the image descriptor
-	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
-	}
-
-	/**
 	 * Returns the TextMate model manager.
 	 * 
 	 * @return the TextMate model manager.
@@ -79,6 +70,20 @@ public class TMPlugin extends AbstractUIPlugin {
 		return TMModelManager.getInstance();
 	}
 
+	/**
+	 * Returns the TextMate themes manager.
+	 * 
+	 * @return the TextMate themes manager.
+	 */
+	public static IThemeManager getThemeManager() {
+		return ThemeManager.getInstance();
+	}
+	
+	/**
+	 * Returns the TextMate grammar manager.
+	 * 
+	 * @return the TextMate grammar manager.
+	 */
 	public static IGrammarRegistryManager getGrammarRegistryManager() {
 		return GrammarRegistryManager.getInstance();
 	}

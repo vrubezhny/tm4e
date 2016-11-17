@@ -43,7 +43,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 	@Override
 	public IGrammar getGrammarFor(IFile file) throws CoreException {
-		loadGrammars();
+		loadGrammarsIfNeeded();
 		if (providers != null) {
 			IGrammar grammar = null;
 			for (IGrammarProvider provider : providers) {
@@ -85,15 +85,6 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		return null;
 	}
 
-	private void addRegistryListenerIfNeeded() {
-		if (registryListenerIntialized)
-			return;
-
-		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		registry.addRegistryChangeListener(this, TMPlugin.PLUGIN_ID);
-		registryListenerIntialized = true;
-	}
-
 	public void initialize() {
 
 	}
@@ -105,37 +96,46 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	/**
 	 * Load the grammar.
 	 */
+	private void loadGrammarsIfNeeded() {
+		if (registry != null) {
+			return;
+		}
+		loadGrammars();
+	}
+
 	private synchronized void loadGrammars() {
-		if (registry != null)
+		if (registry != null) {
+			return;
+		}
+		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMPlugin.PLUGIN_ID,
+				EXTENSION_GRAMMARS);
+		GrammarRegistry registry = new GrammarRegistry();
+		loadGrammars(cf, registry);
+		addRegistryListener();
+		this.registry = registry;
+	}
+
+	private void addRegistryListener() {
+		if (registryListenerIntialized)
 			return;
 
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		IConfigurationElement[] cf = registry.getConfigurationElementsFor(TMPlugin.PLUGIN_ID, EXTENSION_GRAMMARS);
-		GrammarRegistry cache = new GrammarRegistry();
-		addNodejsInstalls(cf, cache);
-		addRegistryListenerIfNeeded();
-		this.registry = cache;
+		registry.addRegistryChangeListener(this, TMPlugin.PLUGIN_ID);
+		registryListenerIntialized = true;
 	}
 
 	/**
-	 * Load the Nodejs installs.
+	 * Load TextMate grammars declared from th extension point.
 	 */
-	private synchronized void addNodejsInstalls(IConfigurationElement[] cf, GrammarRegistry cache) {
+	private void loadGrammars(IConfigurationElement[] cf, GrammarRegistry cache) {
 		for (IConfigurationElement ce : cf) {
-			try {
-				String name = ce.getName();
-				if ("grammar".equals(name)) {
+			String name = ce.getName();
+			if ("grammar".equals(name)) {
 				cache.register(new GrammarInfo(ce));
-				} else if ("scopeNameContentTypeBinding".equals(name)) {
-					String contentTypeId = ce.getAttribute("contentTypeId");
-					String scopeName = ce.getAttribute("scopeName");
-					scopeNameBindings.put(contentTypeId, scopeName);
-				}
-				// TMPlugin.log(Trace.EXTENSION_POINT, " Loaded nodeJSInstall: "
-				// + ce.getAttribute("id"));
-			} catch (Throwable t) {
-				// TMPlugin.log(Trace.SEVERE, " Could not load nodeJSInstall: "
-				// + ce.getAttribute("id"), t);
+			} else if ("scopeNameContentTypeBinding".equals(name)) {
+				String contentTypeId = ce.getAttribute("contentTypeId");
+				String scopeName = ce.getAttribute("scopeName");
+				scopeNameBindings.put(contentTypeId, scopeName);
 			}
 		}
 	}

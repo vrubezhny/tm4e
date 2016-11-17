@@ -3,10 +3,10 @@
 <schema targetNamespace="org.eclipse.language.textmate.eclipse" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.eclipse.language.textmate.eclipse" id="grammars" name="TextMate grammars"/>
+         <meta.schema plugin="org.eclipse.language.textmate.eclipse" id="themes" name="TextMate themes"/>
       </appinfo>
       <documentation>
-         Extension point to register TextMate grammars *.tmLanguage, *.json (VSCode format).
+         Extension point to register TextMate, CSS, Eclipse Preferences themes
       </documentation>
    </annotation>
 
@@ -18,8 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="grammar" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="scopeNameContentTypeBinding" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="theme" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -45,14 +44,14 @@
       </complexType>
    </element>
 
-   <element name="grammar">
+   <element name="theme">
       <annotation>
          <documentation>
-            This extension point allows developers to register TextMate grammars.
+            This extension point allows developers to register TextMate theme.
          </documentation>
       </annotation>
       <complexType>
-         <attribute name="scopeName" type="string" use="required">
+         <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
                   TextMate scope name.
@@ -66,23 +65,14 @@
                </documentation>
             </annotation>
          </attribute>
-      </complexType>
-   </element>
-
-   <element name="scopeNameContentTypeBinding">
-      <complexType>
-         <attribute name="scopeName" type="string" use="required">
+         <attribute name="class" type="string">
             <annotation>
                <documentation>
-                  
+                  Provides a way to programmatically specify themes like Eclipse Preferences.
                </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="contentTypeId" type="string">
-            <annotation>
-               <documentation>
-                  the id of a content type as defined by the &lt;code&gt;org.eclipse.core.runtime.contentTypes&lt;/code&gt; extension point for which this TextMate scope name should be used.
-               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.language.textmate.eclipse.text.styles.ITokenProvider"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>

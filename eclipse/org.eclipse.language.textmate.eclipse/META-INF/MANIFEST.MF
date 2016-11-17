@@ -15,7 +15,8 @@ Export-Package: org.eclipse.language.textmate.eclipse,
  org.eclipse.language.textmate.eclipse.grammars,
  org.eclipse.language.textmate.eclipse.model,
  org.eclipse.language.textmate.eclipse.text,
- org.eclipse.language.textmate.eclipse.text.styles
+ org.eclipse.language.textmate.eclipse.themes,
+ org.eclipse.language.textmate.eclipse.themes.css
 Bundle-Activator: org.eclipse.language.textmate.eclipse.TMPlugin
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.core.filebuffers

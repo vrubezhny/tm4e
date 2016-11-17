@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.language.textmate.eclipse.text.styles;
+package org.eclipse.language.textmate.eclipse.themes;
 
 import org.eclipse.jface.text.rules.IToken;
 
