@@ -9,3 +9,5 @@ which provides samples of syntax coloration with:
 
  * GenericEditor for Language Server (C#, CSS, JSON)
  * a TypeScript Editor
+ 
+![TypeScript Editor](https://github.com/angelozerr/textmate.java/wiki/images/TypeScriptEditor.png)
