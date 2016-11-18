@@ -10,7 +10,7 @@ import org.osgi.framework.BundleContext;
 public class TMSamplesPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "fr.opensagres.language.textmate.eclipse.samples"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.eclipse.language.textmate.eclipse.samples"; //$NON-NLS-1$
 
 	// The shared instance
 	private static TMSamplesPlugin plugin;

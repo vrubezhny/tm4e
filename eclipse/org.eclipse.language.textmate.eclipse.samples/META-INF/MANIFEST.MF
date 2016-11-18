@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-SymbolicName: fr.opensagres.language.textmate.eclipse.samples;singleton:=true
+Bundle-SymbolicName: org.eclipse.language.textmate.eclipse.samples;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.language.textmate.core,
  org.eclipse.jface.text,
