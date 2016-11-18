@@ -10,6 +10,11 @@
  */
 package org.eclipse.language.textmate.eclipse.internal.model;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -22,6 +27,14 @@ import org.eclipse.jface.text.Region;
  */
 public class DocumentHelper {
 
+	/**
+	 * Returns the number of lines in this document.
+	 * <p>
+	 * Note that a document always has at least one line.
+	 * </p>
+	 * 
+	 * @return the number of lines in this document.
+	 */
 	public static int getNumberOfLines(IDocument document) {
 		return document.getNumberOfLines();
 	}
@@ -61,5 +74,16 @@ public class DocumentHelper {
 		int startOffset = document.getLineOffset(fromLine);
 		int endOffset = document.getLineOffset(toLine) + document.getLineLength(toLine);
 		return new Region(startOffset, endOffset - startOffset);
+	}
+
+	/**
+	 * Returns the content type from the given {@link IDocument}.
+	 * 
+	 * @throws CoreException
+	 */
+	public static IContentType getContentType(IDocument document) throws CoreException {
+		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
+		ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
+		return buffer.getContentType();
 	}
 }

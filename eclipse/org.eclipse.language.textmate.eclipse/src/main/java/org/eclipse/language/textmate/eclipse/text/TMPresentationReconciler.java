@@ -12,14 +12,9 @@ package org.eclipse.language.textmate.eclipse.text;
 
 import java.util.List;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.filebuffers.ITextFileBufferManager;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -87,18 +82,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		public void inputDocumentAboutToBeChanged(IDocument oldDocument, IDocument newDocument) {
 			if (oldDocument != null) {
 				getTMModelManager().disconnect(oldDocument);
-				// try {
-
-				// viewer.removeTextListener(this);
-				// oldDocument.removeDocumentListener(this);
-				// oldDocument.removeDocumentPartitioningListener(this);
-
-				// oldDocument.removePositionUpdater(fPositionUpdater);
-				// oldDocument.removePositionCategory(fPositionCategory);
-
-				// } catch (BadPositionCategoryException x) {
-				// // should not happened for former input documents;
-				// }
 			}
 		}
 
@@ -108,27 +91,30 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		@Override
 		public void inputDocumentChanged(IDocument oldDocument, IDocument newDocument) {
 			if (newDocument != null) {
-
 				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
-					model.setGrammar(TMPresentationReconciler.this.getGrammar(newDocument));
+					updateTokenProvider(newDocument);
+					model.setGrammar(getGrammar(newDocument));
 					model.addModelTokensChangedListener(this);
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//
-				// newDocument.addPositionCategory(fPositionCategory);
-				// newDocument.addPositionUpdater(fPositionUpdater);
+			}
+		}
 
-				// newDocument.addDocumentPartitioningListener(this);
-				// newDocument.addDocumentListener(this);
-				// viewer.addTextListener(this);
+		private IGrammar getGrammar(IDocument document) throws CoreException {
+			if (grammar != null) {
+				return grammar;
+			}
+			// Discover the well grammar from the contentType
+			IContentType contentType = DocumentHelper.getContentType(document);
+			return TMPlugin.getGrammarRegistryManager().getGrammarFor(contentType);
+		}
 
-				// setDocumentToDamagers(newDocument);
-				// setDocumentToRepairers(newDocument);
-				// processDamage(new Region(0, newDocument.getLength()),
-				// newDocument);
+		private void updateTokenProvider(IDocument document) throws CoreException {
+			if (tokenProvider == null) {
+				IContentType contentType = DocumentHelper.getContentType(document);
+				tokenProvider = TMPlugin.getThemeManager().getThemeFor(contentType);
 			}
 		}
 
@@ -143,41 +129,15 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		}
 	}
 
-	public IGrammar getGrammar(IDocument document) throws CoreException {
-		if (grammar == null) {
-			// Discover the well grammar
-			IFile file = getFile(document);
-			this.grammar = TMPlugin.getGrammarRegistryManager().getGrammarFor(file);
-		}
-		return grammar;
-	}
-
-	/**
-	 * Returns the file from the given {@link IDocument}.
-	 */
-	public static IFile getFile(IDocument document) {
-		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager(); // get
-																						// the
-																						// buffer
-																						// manager
-		ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
-		IPath location = buffer == null ? null : buffer.getLocation();
-		if (location == null) {
-			return null;
-		}
-
-		return ResourcesPlugin.getWorkspace().getRoot().getFile(location);
-	}
-
 	public void setGrammar(IGrammar grammar) {
 		this.grammar = grammar;
 	}
 
+	public IGrammar getGrammar() {
+		return grammar;
+	}
+
 	public ITokenProvider getTokenProvider() {
-		if (tokenProvider == null) {
-			String contentTypeId = null;
-			tokenProvider = TMPlugin.getThemeManager().getThemeFor(contentTypeId);
-		}
 		return tokenProvider;
 	}
 

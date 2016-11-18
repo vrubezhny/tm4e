@@ -51,17 +51,24 @@
          </documentation>
       </annotation>
       <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The theme id.
+               </documentation>
+            </annotation>
+         </attribute>
          <attribute name="name" type="string" use="required">
             <annotation>
                <documentation>
-                  TextMate scope name.
+                  The theme name.
                </documentation>
             </annotation>
          </attribute>
          <attribute name="path" type="string">
             <annotation>
                <documentation>
-                  The file path for this Nodejs install.
+                  The file path of the CSS, TextMate theme.
                </documentation>
             </annotation>
          </attribute>

@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.language.textmate.eclipse.internal.themes;
 
 import java.io.File;
@@ -8,10 +18,16 @@ import java.io.InputStream;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.language.textmate.eclipse.themes.ITheme;
 import org.eclipse.language.textmate.eclipse.themes.ITokenProvider;
 import org.eclipse.language.textmate.eclipse.themes.css.CSSTokenProvider;
 
-public class Theme {
+/**
+ * {@link ITheme} implementation.
+ *
+ */
+public class Theme implements ITheme {
 
 	private final IConfigurationElement ce;
 	private String id;
@@ -27,15 +43,22 @@ public class Theme {
 		this.path = ce.getAttribute("path");
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
-	public ITokenProvider getTokenProvider() {
+	@Override
+	public IToken getToken(String type) {
+		return getTokenProvider().getToken(type);
+	}
+
+	private ITokenProvider getTokenProvider() {
 		if (tokenProvider == null) {
 			if (path != null && path.length() > 0) {
 				String pluginId = ce.getNamespaceIdentifier();
@@ -44,7 +67,6 @@ public class Theme {
 					InputStream in = new FileInputStream(new File(bundleDir, path));
 					tokenProvider = new CSSTokenProvider(in);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 

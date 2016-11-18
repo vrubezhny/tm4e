@@ -1,12 +1,19 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.language.textmate.eclipse.internal.grammars;
 
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionDelta;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -14,11 +21,16 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.language.textmate.core.grammar.IGrammar;
 import org.eclipse.language.textmate.eclipse.TMPlugin;
-import org.eclipse.language.textmate.eclipse.grammars.IGrammarProvider;
 import org.eclipse.language.textmate.eclipse.grammars.IGrammarRegistryManager;
 
+/**
+ * 
+ * TextMate Grammar registry manager implementation.
+ *
+ */
 public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistryChangeListener {
 
 	private static final String EXTENSION_GRAMMARS = "grammars";
@@ -31,8 +43,6 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 	private boolean registryListenerIntialized;
 
-	private List<IGrammarProvider> providers;
-
 	private GrammarRegistry registry;
 	private Map<String, String> scopeNameBindings;
 
@@ -42,25 +52,15 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	}
 
 	@Override
-	public IGrammar getGrammarFor(IFile file) throws CoreException {
+	public IGrammar getGrammarFor(IContentType contentType) {
 		loadGrammarsIfNeeded();
-		if (providers != null) {
-			IGrammar grammar = null;
-			for (IGrammarProvider provider : providers) {
-				// grammar = provider.getGrammarFor(resource);
-				// if (grammar != null) {
-				// return grammar;
-				// }
-			}
-		}
 		// Find grammar by content type
-		String scopeName = getScopeName(file);
+		String scopeName = getScopeName(contentType);
 		return registry.grammarForScopeName(scopeName);
 	}
 
-	private String getScopeName(IFile file) throws CoreException {
-		String contentType = file.getContentDescription().getContentType().getId();
-		return scopeNameBindings.get(contentType);
+	private String getScopeName(IContentType contentType) {
+		return scopeNameBindings.get(contentType.getId());
 	}
 
 	@Override

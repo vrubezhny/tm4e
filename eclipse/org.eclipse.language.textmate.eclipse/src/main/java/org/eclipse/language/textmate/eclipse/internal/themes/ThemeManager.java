@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.language.textmate.eclipse.internal.themes;
 
 import java.util.HashMap;
@@ -8,53 +18,71 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.language.textmate.eclipse.TMPlugin;
+import org.eclipse.language.textmate.eclipse.themes.ITheme;
 import org.eclipse.language.textmate.eclipse.themes.IThemeManager;
-import org.eclipse.language.textmate.eclipse.themes.ITokenProvider;
 
+/**
+ * TextMate theme manager implementation.
+ *
+ */
 public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
-	private static final ThemeManager INSTANCE = new ThemeManager();
+	// "themes" extension point
 	private static final String EXTENSION_THEMES = "themes";
+
+	// "theme" declaration
+	private static final String THEME_ELT_NAME = "theme";
+
+	// "themeContentTypeBinding" declaration
+	private static final String THEME_CONTENT_TYPE_BINDING_ELT_NAME = "themeContentTypeBinding";
+	private static final String THEME_ID_ATTR_NAME = "themeId";
+	private static final String CONTENT_TYPE_ID_ATTR_NAME = "contentTypeId";
+
+	private static final ThemeManager INSTANCE = new ThemeManager();
 
 	public static ThemeManager getInstance() {
 		return INSTANCE;
 	}
 
-	private boolean registryListenerIntialized;
-	private Map<String, Theme> themes;
-	private Map<String, String> themeContentTypeBindings;
+	private Map<String /* theme id */ , Theme> themes;
+	private Map<String /* content type id */, String /* theme id */> themeContentTypeBindings;
 
-	public ThemeManager() {
-
+	private ThemeManager() {
 	}
 
 	@Override
-	public ITokenProvider getThemeFor(String contentTypeId) {
+	public ITheme getDefaultTheme() {
 		loadThemesIfNeeded();
-		String themeId = themeContentTypeBindings.get(contentTypeId);
-		if (themeId != null) {
-			ITokenProvider tokenProvider = getThemeById(themeId);
-			if (tokenProvider != null) {
-				return tokenProvider;
-			}
-		}
 		for (Theme theme : themes.values()) {
-			return theme.getTokenProvider();
+			return theme;
 		}
 		return null;
 	}
 
 	@Override
-	public ITokenProvider getThemeById(String themeId) {
+	public ITheme getThemeFor(IContentType contentType) {
 		loadThemesIfNeeded();
-		Theme theme = themes.get(themeId);
-		return theme != null ? theme.getTokenProvider() : null;
+		String themeId = themeContentTypeBindings.get(contentType.getId());
+		if (themeId != null) {
+			ITheme theme = getThemeById(themeId);
+			if (theme != null) {
+				return theme;
+			}
+		}
+		return getDefaultTheme();
+	}
+
+	@Override
+	public ITheme getThemeById(String themeId) {
+		loadThemesIfNeeded();
+		return themes.get(themeId);
 	}
 
 	@Override
 	public void registryChanged(IRegistryChangeEvent event) {
-
+		// TODO : implement that.
 	}
 
 	public void initialize() {
@@ -66,12 +94,14 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	}
 
 	/**
-	 * Load the theme.
+	 * Load the themes.
 	 */
 	private void loadThemesIfNeeded() {
 		if (themes != null) {
+			// Themes are already loaded from plugin extension.
 			return;
 		}
+		// Load themes from plugin extension.
 		loadThemes();
 	}
 
@@ -90,12 +120,8 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	}
 
 	private void addRegistryListener() {
-		if (registryListenerIntialized)
-			return;
-
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
 		registry.addRegistryChangeListener(this, TMPlugin.PLUGIN_ID);
-		registryListenerIntialized = true;
 	}
 
 	/**
@@ -105,15 +131,16 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 			Map<String, String> themeContentTypeBindings) {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
-			if ("theme".equals(name)) {
+			if (THEME_ELT_NAME.equals(name)) {
+				// theme
 				Theme theme = new Theme(ce);
 				themes.put(theme.getId(), theme);
-			} else if ("themeContentTypeBinding".equals(name)) {
-				String contentTypeId = ce.getAttribute("contentTypeId");
-				String themeId = ce.getAttribute("themeId");
+			} else if (THEME_CONTENT_TYPE_BINDING_ELT_NAME.equals(name)) {
+				// themeContentTypeBinding
+				String contentTypeId = ce.getAttribute(CONTENT_TYPE_ID_ATTR_NAME);
+				String themeId = ce.getAttribute(THEME_ID_ATTR_NAME);
 				themeContentTypeBindings.put(contentTypeId, themeId);
 			}
-
 		}
 	}
 
