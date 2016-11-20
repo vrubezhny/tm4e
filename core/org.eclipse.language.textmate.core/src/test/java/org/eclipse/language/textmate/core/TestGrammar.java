@@ -1,8 +1,8 @@
 package org.eclipse.language.textmate.core;
 
-import org.eclipse.language.textmate.core.Main;
 import org.eclipse.language.textmate.core.grammar.IGrammar;
 import org.eclipse.language.textmate.core.grammar.ITokenizeLineResult;
+import org.eclipse.language.textmate.core.grammar.GrammarTest;
 import org.eclipse.language.textmate.core.registry.Registry;
 
 public class TestGrammar {
