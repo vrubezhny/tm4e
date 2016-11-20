@@ -2,20 +2,9 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <!-- Register TextMate Themes -->
+   <!-- TextMate Themes -->
    <extension
          point="org.eclipse.language.textmate.eclipse.themes">
-      <theme
-            id="org.eclipse.language.textmate.eclipse.themes.Light"
-      		name="Light"
-            path="./themes/Light.css" >
-      </theme>
-      <theme
-            id="org.eclipse.language.textmate.eclipse.themes.SolarizedLight"
-      		name="Solarized Light"
-            path="./themes/Solarized-light.css" >
-      </theme>
-      
       <!-- Use SolarizedLight theme for CSS -->
       <themeContentTypeBinding
             contentTypeId="org.eclipse.languageserver.languages.css"

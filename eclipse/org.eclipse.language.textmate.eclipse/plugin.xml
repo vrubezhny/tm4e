@@ -20,4 +20,20 @@
    <extension-point id="grammars" 
    					name="%grammars.name"
 					schema="schema/grammars.exsd" />
+					
+   <!-- Register default TextMate Themes -->
+   <extension
+         point="org.eclipse.language.textmate.eclipse.themes">
+      <theme
+            id="org.eclipse.language.textmate.eclipse.themes.Light"
+      		name="Light"
+            path="./themes/Light.css" >
+      </theme>
+      <theme
+            id="org.eclipse.language.textmate.eclipse.themes.SolarizedLight"
+      		name="Solarized Light"
+            path="./themes/Solarized-light.css" >
+      </theme>         
+   </extension>
+   					
 </plugin>
