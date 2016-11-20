@@ -11,10 +11,11 @@ Require-Bundle: org.apache.batik.css;bundle-version="1.7.0";resolution:=optional
 Import-Package: org.w3c.css.sac;resolution:=optional,
  org.w3c.css.sac.helpers;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.eclipse.language.textmate.core.css,
- org.eclipse.language.textmate.core.grammar,
+Export-Package: org.eclipse.language.textmate.core.grammar,
  org.eclipse.language.textmate.core.model,
- org.eclipse.language.textmate.core.registry
+ org.eclipse.language.textmate.core.registry,
+ org.eclipse.language.textmate.core.theme,
+ org.eclipse.language.textmate.core.theme.css
 Bundle-ClassPath: lib/jcodings-1.0.13.jar,
  lib/joni-2.1.11.jar,
  .

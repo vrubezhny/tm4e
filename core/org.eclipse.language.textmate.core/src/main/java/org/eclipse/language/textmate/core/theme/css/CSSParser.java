@@ -8,7 +8,7 @@
  * Contributors:
  *     Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  *******************************************************************************/
-package org.eclipse.language.textmate.core.css;
+package org.eclipse.language.textmate.core.theme.css;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +19,7 @@ import org.eclipse.language.textmate.core.internal.css.CSSConditionFactory;
 import org.eclipse.language.textmate.core.internal.css.CSSDocumentHandler;
 import org.eclipse.language.textmate.core.internal.css.CSSSelectorFactory;
 import org.eclipse.language.textmate.core.internal.css.ExtendedSelector;
+import org.eclipse.language.textmate.core.theme.IStyle;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.Parser;
@@ -59,11 +60,11 @@ public class CSSParser {
 		parser.parseStyleSheet(source);
 	}
 
-	public CSSStyle getBestStyle(List<String> names) {
+	public IStyle getBestStyle(List<String> names) {
 		int bestSpecificity = 0;
-		CSSStyle bestStyle = null;
-		for (CSSStyle style : handler.getList()) {
-			SelectorList list = style.getSelectorList();
+		IStyle bestStyle = null;
+		for (IStyle style : handler.getList()) {
+			SelectorList list = ((CSSStyle) style).getSelectorList();
 			for (int i = 0; i < list.getLength(); i++) {
 				Selector selector = list.item(i);
 				if (selector instanceof ExtendedSelector) {
@@ -81,7 +82,7 @@ public class CSSParser {
 		return bestStyle;
 	}
 
-	public List<CSSStyle> getStyles() {
+	public List<IStyle> getStyles() {
 		return handler.getList();
 	}
 

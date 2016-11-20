@@ -13,8 +13,8 @@ package org.eclipse.language.textmate.core.internal.css;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.language.textmate.core.css.SACConstants;
-import org.eclipse.language.textmate.core.css.SACParserFactory;
+import org.eclipse.language.textmate.core.theme.css.SACConstants;
+import org.eclipse.language.textmate.core.theme.css.SACParserFactory;
 import org.w3c.css.sac.Parser;
 
 /**

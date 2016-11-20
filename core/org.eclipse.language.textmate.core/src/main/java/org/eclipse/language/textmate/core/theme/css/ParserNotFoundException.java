@@ -9,7 +9,7 @@
  *     Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  *     IBM Corporation - ongoing development
  *******************************************************************************/
-package org.eclipse.language.textmate.core.css;
+package org.eclipse.language.textmate.core.theme.css;
 
 /**
  * Exception used when SAC parser is not retrieved.

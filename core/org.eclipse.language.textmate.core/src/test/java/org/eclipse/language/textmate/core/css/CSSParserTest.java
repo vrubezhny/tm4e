@@ -3,6 +3,9 @@ package org.eclipse.language.textmate.core.css;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.language.textmate.core.theme.IStyle;
+import org.eclipse.language.textmate.core.theme.css.CSSParser;
+
 public class CSSParserTest {
 
 	public static void main(String[] args) throws Exception {
@@ -12,8 +15,8 @@ public class CSSParserTest {
 		
 		
 		names = Arrays.asList("comment.ts".split("[.]"));
-		CSSStyle style = parser.getBestStyle(names);
+		IStyle style = parser.getBestStyle(names);
 		
-		System.err.println(style.getColor().getRed());
+		System.err.println(style.getColor().red);
 	}
 }

@@ -73,11 +73,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 */
 	class InternalListener implements ITextInputListener, IModelTokensChangedListener {
 
-		// @Override
-		// public void textChanged(TextEvent event) {
-		// System.err.println(event);
-		// }
-
 		@Override
 		public void inputDocumentAboutToBeChanged(IDocument oldDocument, IDocument newDocument) {
 			if (oldDocument != null) {
@@ -85,16 +80,16 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			}
 		}
 
-		/*
-		 * @see ITextInputListener#inputDocumenChanged(IDocument, IDocument)
-		 */
 		@Override
 		public void inputDocumentChanged(IDocument oldDocument, IDocument newDocument) {
 			if (newDocument != null) {
+				// Connect a TextModel to the new document.
 				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
+					// Update theme + grammar
 					updateTokenProvider(newDocument);
 					model.setGrammar(getGrammar(newDocument));
+					// Add model listener
 					model.addModelTokensChangedListener(this);
 				} catch (CoreException e) {
 					e.printStackTrace();

@@ -8,7 +8,7 @@
  * Contributors:
  *     Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  *******************************************************************************/
-package org.eclipse.language.textmate.core.css;
+package org.eclipse.language.textmate.core.theme.css;
 
 import org.eclipse.language.textmate.core.internal.css.SACParserFactoryImpl;
 import org.w3c.css.sac.Parser;

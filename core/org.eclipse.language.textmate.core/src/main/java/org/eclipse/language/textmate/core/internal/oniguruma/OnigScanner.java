@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
 package org.eclipse.language.textmate.core.internal.oniguruma;
 
 public class OnigScanner {
@@ -6,13 +16,10 @@ public class OnigScanner {
 
 	public OnigScanner(String[] regexps) {
 		this.searcher = new OnigSearcher(regexps);
-
 	}
 
 	public IOnigNextMatchResult _findNextMatchSync(OnigString lin, int pos) {
-		//long start = System.currentTimeMillis();
 		OnigResult bestResult = searcher.search(lin, pos);
-		//System.err.println("_findNextMatchSync in " + (System.currentTimeMillis() - start) + "ms");
 		return bestResult;
 	}
 

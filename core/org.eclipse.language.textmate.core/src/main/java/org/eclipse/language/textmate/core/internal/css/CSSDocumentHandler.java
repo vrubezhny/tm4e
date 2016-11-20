@@ -3,17 +3,21 @@ package org.eclipse.language.textmate.core.internal.css;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.language.textmate.core.css.CSSStyle;
+import org.eclipse.language.textmate.core.theme.IStyle;
+import org.eclipse.language.textmate.core.theme.RGB;
+import org.eclipse.language.textmate.core.theme.css.CSSStyle;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.DocumentHandler;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.css.sac.SACMediaList;
 import org.w3c.css.sac.SelectorList;
+import org.w3c.dom.css.CSSPrimitiveValue;
+import org.w3c.dom.css.RGBColor;
 
 public class CSSDocumentHandler implements DocumentHandler {
 
-	private final List<CSSStyle> list;
+	private final List<IStyle> list;
 	private CSSStyle currentStyle;
 
 	public CSSDocumentHandler() {
@@ -76,7 +80,11 @@ public class CSSDocumentHandler implements DocumentHandler {
 	public void property(String name, LexicalUnit value, boolean arg2) throws CSSException {
 		if (currentStyle != null) {
 			if ("color".equals(name)) {
-				currentStyle.setColor(new RGBColorImpl(value));
+				RGBColor rgbColor = new RGBColorImpl(value);
+				int green = ((int) rgbColor.getGreen().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
+				int red = ((int) rgbColor.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
+				int blue = ((int) rgbColor.getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
+				currentStyle.setColor(new RGB(red, green, blue));
 			} else if ("font-weight".equals(name)) {
 				currentStyle.setBold(value.getStringValue().toUpperCase().contains("BOLD"));
 			} else if ("font-style".equals(name)) {
@@ -115,7 +123,7 @@ public class CSSDocumentHandler implements DocumentHandler {
 		list.add(currentStyle);
 	}
 
-	public List<CSSStyle> getList() {
+	public List<IStyle> getList() {
 		return list;
 	}
 }

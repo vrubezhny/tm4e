@@ -1,12 +1,13 @@
-package org.eclipse.language.textmate.core.css;
+package org.eclipse.language.textmate.core.theme.css;
 
+import org.eclipse.language.textmate.core.theme.IStyle;
+import org.eclipse.language.textmate.core.theme.RGB;
 import org.w3c.css.sac.SelectorList;
-import org.w3c.dom.css.RGBColor;
 
-public class CSSStyle {
+public class CSSStyle implements IStyle {
 
 	private final SelectorList selector;
-	private RGBColor color;
+	private RGB color;
 	private boolean bold;
 	private boolean italic;
 
@@ -14,11 +15,12 @@ public class CSSStyle {
 		this.selector = selector;
 	}
 
-	public void setColor(RGBColor color) {
+	public void setColor(RGB color) {
 		this.color = color;
 	}
 
-	public RGBColor getColor() {
+	@Override
+	public RGB getColor() {
 		return color;
 	}
 
@@ -26,14 +28,11 @@ public class CSSStyle {
 		return selector;
 	}
 
-	public String getName() {
-		return "a";
-	}
-
 	public void setBold(boolean bold) {
 		this.bold = bold;
 	}
 
+	@Override
 	public boolean isBold() {
 		return bold;
 	}
@@ -42,6 +41,7 @@ public class CSSStyle {
 		this.italic = italic;
 	}
 
+	@Override
 	public boolean isItalic() {
 		return italic;
 	}
