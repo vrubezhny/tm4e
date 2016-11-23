@@ -6,7 +6,8 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	<groupId>org.eclipse.language.textmate</groupId>
+	<groupId>org.eclipse</groupId>
+    <artifactId>org.eclipse.textmate4e</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<properties>
@@ -27,8 +28,10 @@
 		</license>
 	</licenses>
 	<modules>
-		<module>core</module>
-		<module>eclipse</module>
+		<module>org.eclipse.textmate4e.core</module>
+		<module>org.eclipse.textmate4e.ui</module>
+        <module>org.eclipse.textmate4e.samples</module>
+        <module>org.eclipse.textmate4e.repository</module>
 	</modules>
 	<build>
 		<defaultGoal>clean install</defaultGoal>
@@ -224,5 +227,4 @@
 			</build>
 		</profile>
 	</profiles>
-	<artifactId>textmate.java</artifactId>
 </project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="org.eclipse.textmate4e.core" version="1.0.0.qualifier">
+      <category name="TextMate"/>
+   </bundle>
+   <bundle id="org.eclipse.textmate4e.ui" version="1.0.0.qualifier">
+      <category name="TextMate"/>
+   </bundle>
+   <bundle id="org.eclipse.textmate4e.samples" version="1.0.0.qualifier">
+      <category name="Samples"/>
+   </bundle>
+   <category-def name="TextMate" label="TextMate"/>
+   <category-def name="Samples" label="Samples"/>
+</site>
