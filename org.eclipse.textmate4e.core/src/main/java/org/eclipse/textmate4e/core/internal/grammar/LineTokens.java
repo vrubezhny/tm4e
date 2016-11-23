@@ -1,7 +1,10 @@
-package org.eclipse.textmate4e.core.grammar;
+package org.eclipse.textmate4e.core.internal.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.eclipse.textmate4e.core.grammar.IToken;
+import org.eclipse.textmate4e.core.grammar.StackElement;
 
 class LineTokens {
 
@@ -13,28 +16,19 @@ class LineTokens {
 		this._lastTokenEndIndex = 0;
 	}
 
-	public void produce(List<StackElement> stack, int endIndex) {
+	public void produce(StackElement stack, int endIndex) {
 		produce(stack, endIndex, null);
 	}
 
-	public void produce(List<StackElement> stack, int endIndex, List<LocalStackElement> extraScopes) {
+	public void produce(StackElement stack, int endIndex, List<LocalStackElement> extraScopes) {
 		// console.log('PRODUCE TOKEN: lastTokenEndIndex: ' + lastTokenEndIndex
 		// + ', endIndex: ' + endIndex);
 		if (this._lastTokenEndIndex >= endIndex) {
 			return;
 		}
 
-		List<String> scopes = new ArrayList<String>();
-		for (StackElement el : stack) {
-
-			if (el.getScopeName() != null) {
-				scopes.add(el.getScopeName());
-			}
-
-			if (el.getContentName() != null) {
-				scopes.add(el.getContentName());
-			}
-		}
+		List<String> scopes = stack.generateScopes();
+		int outIndex = scopes.size();
 
 		if (extraScopes != null) {
 			for (LocalStackElement extraScope : extraScopes) {
@@ -46,7 +40,7 @@ class LineTokens {
 		this._lastTokenEndIndex = endIndex;
 	}
 
-	public IToken[] getResult(List<StackElement> stack, int lineLength) {
+	public IToken[] getResult(StackElement stack, int lineLength) {
 		if (this._tokens.size() > 0 && this._tokens.get(this._tokens.size() - 1).getStartIndex() == lineLength - 1) {
 			// pop produced token for newline
 			this._tokens.remove(this._tokens.size() - 1);

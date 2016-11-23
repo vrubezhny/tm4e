@@ -1,15 +1,37 @@
-package org.eclipse.textmate4e.core.grammar;
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ *
+ * Contributors:
+ *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
+package org.eclipse.textmate4e.core.internal.grammar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.textmate4e.core.grammar.IGrammar;
+import org.eclipse.textmate4e.core.grammar.IGrammarRepository;
+import org.eclipse.textmate4e.core.grammar.IMatchInjectionsResult;
+import org.eclipse.textmate4e.core.grammar.IMatchResult;
+import org.eclipse.textmate4e.core.grammar.IToken;
+import org.eclipse.textmate4e.core.grammar.ITokenizeLineResult;
+import org.eclipse.textmate4e.core.grammar.Injection;
+import org.eclipse.textmate4e.core.grammar.StackElement;
 import org.eclipse.textmate4e.core.internal.grammar.parser.Raw;
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigCaptureIndex;
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigNextMatchResult;
 import org.eclipse.textmate4e.core.internal.oniguruma.OnigString;
 import org.eclipse.textmate4e.core.internal.rule.BeginEndRule;
+import org.eclipse.textmate4e.core.internal.rule.BeginWhileRule;
 import org.eclipse.textmate4e.core.internal.rule.CaptureRule;
 import org.eclipse.textmate4e.core.internal.rule.ICompiledRule;
 import org.eclipse.textmate4e.core.internal.rule.IRuleFactory;
@@ -21,6 +43,12 @@ import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 import org.eclipse.textmate4e.core.internal.types.IRawRepository;
 import org.eclipse.textmate4e.core.internal.types.IRawRule;
 
+/**
+ * TextMate grammar implementation.
+ * 
+ * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/grammar.ts
+ *
+ */
 public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	private int _rootId;
@@ -41,7 +69,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		this._injections = new ArrayList<Injection>();
 	}
 
-	public List<Injection> getInjections(List<StackElement> states) {
+	public List<Injection> getInjections(StackElement states) {
 		if (this._injections == null) {
 			this._injections = getGrammarInjections(this._grammar, this);
 			// optional: bring in injections from external repositories
@@ -52,7 +80,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return filter(this._injections, states);
 	}
 
-	private List<Injection> filter(List<Injection> injections, List<StackElement> states) {
+	private List<Injection> filter(List<Injection> injections, StackElement states) {
 		List<Injection> filtered = new ArrayList<Injection>();
 		for (Injection injection : injections) {
 			if (injection.match(states)) {
@@ -107,9 +135,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return (IRawGrammar) ((Raw) grammar).clone();
 	}
 
-	private void handleCaptures(Grammar grammar, OnigString lineText, boolean isFirstLine,
-			List<StackElement> stack, LineTokens lineTokens, List<CaptureRule> captures,
-			IOnigCaptureIndex[] captureIndices) {
+	private void handleCaptures(Grammar grammar, OnigString lineText, boolean isFirstLine, StackElement stack,
+			LineTokens lineTokens, List<CaptureRule> captures, IOnigCaptureIndex[] captureIndices) {
 		if (captures.size() == 0) {
 			return;
 		}
@@ -117,10 +144,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		int len = Math.min(captures.size(), captureIndices.length);
 		List<LocalStackElement> localStack = new ArrayList<LocalStackElement>();
 		int maxEnd = captureIndices[0].getEnd();
-		int i = 0;
 		IOnigCaptureIndex captureIndex;
 
-		for (i = 0; i < len; i++) {
+		for (int i = 0; i < len; i++) {
 			CaptureRule captureRule = captures.get(i);
 			if (captureRule == null) {
 				// Not interested
@@ -151,10 +177,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 			if (captureRule.retokenizeCapturedWithRuleId != null) {
 				// the capture requires additional matching
-				List<StackElement> stackClone = cloneStack(stack);
-				stackClone.add(new StackElement(captureRule.retokenizeCapturedWithRuleId, captureIndex.getStart(), null,
-						captureRule.getName(lineText.getString(), captureIndices),
-						captureRule.getContentName(lineText.getString(), captureIndices)));
+				StackElement stackClone = stack.push(captureRule.retokenizeCapturedWithRuleId, captureIndex.getStart(),
+						null, captureRule.getName(lineText.getString(), captureIndices),
+						captureRule.getContentName(lineText.getString(), captureIndices));
 				_tokenizeString(grammar, createOnigString(lineText.getString().substring(0, captureIndex.getEnd())),
 						(isFirstLine && captureIndex.getStart() == 0), captureIndex.getStart(), stackClone, lineTokens);
 				continue;
@@ -170,14 +195,6 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			lineTokens.produce(stack, localStack.get(localStack.size() - 1).getEndPos(), localStack);
 			localStack.remove(localStack.size() - 1);
 		}
-	}
-
-	private List<StackElement> cloneStack(List<StackElement> stack) {
-		List<StackElement> clonedStack = new ArrayList<StackElement>();
-		for (StackElement stackElement : stack) {
-			clonedStack.add(stackElement.clone());
-		}
-		return clonedStack;
 	}
 
 	private OnigString createOnigString(String str) {
@@ -226,7 +243,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	@Override
-	public ITokenizeLineResult tokenizeLine(String lineText, List<StackElement> prevState) {
+	public ITokenizeLineResult tokenizeLine(String lineText, StackElement prevState) {
 		if (this._rootId == -1) {
 			this._rootId = RuleFactory.getCompiledRuleId(this._grammar.getRepository().getSelf(), this,
 					this._grammar.getRepository());
@@ -235,25 +252,22 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		boolean isFirstLine;
 		if (prevState == null) {
 			isFirstLine = true;
-			prevState = new ArrayList<StackElement>();
-			prevState.add(
-					new StackElement(this._rootId, -1, null, this.getRule(this._rootId).getName(null, null), null));
+			prevState = new StackElement(null, this._rootId, -1, null, this.getRule(this._rootId).getName(null, null),
+					null);
 		} else {
 			isFirstLine = false;
-			for (StackElement state : prevState) {
-				state.setEnterPos(-1);
-			}
+			prevState.reset();
 		}
 
 		lineText = lineText + '\n';
 		OnigString onigLineText = createOnigString(lineText);
 		int lineLength = lineText.length();
 		LineTokens lineTokens = new LineTokens();
-		_tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
+		StackElement nextState = _tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
 
-		IToken[] _produced = lineTokens.getResult(prevState, lineLength);
+		IToken[] _produced = lineTokens.getResult(nextState, lineLength);
 
-		return new TokenizeLineResult(_produced, prevState);
+		return new TokenizeLineResult(_produced, nextState);
 	}
 
 	private class ScanContext {
@@ -262,12 +276,12 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		public final OnigString lineText;
 		public boolean isFirstLine;
 		public int linePos;
-		public final List<StackElement> stack;
+		public StackElement stack;
 		public final LineTokens lineTokens;
 		public int anchorPosition = -1;
 
-		public ScanContext(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
-				List<StackElement> stack, LineTokens lineTokens) {
+		public ScanContext(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos, StackElement stack,
+				LineTokens lineTokens) {
 			this.grammar = grammar;
 			this.lineText = lineText;
 			this.isFirstLine = isFirstLine;
@@ -278,10 +292,10 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	private IMatchResult matchRule(Grammar grammar, OnigString lineText, boolean isFirstLine, final int linePos,
-			List<StackElement> stack, int anchorPosition) {
-		StackElement stackElement = stack.get(stack.size() - 1);
-		final ICompiledRule ruleScanner = grammar.getRule(stackElement.getRuleId()).compile(grammar,
-				stackElement.getEndRule(), isFirstLine, linePos == anchorPosition);
+			StackElement stack, int anchorPosition) {
+		Rule rule = stack.getRule(grammar);
+		final ICompiledRule ruleScanner = rule.compile(grammar, stack.getEndRule(), isFirstLine,
+				linePos == anchorPosition);
 		final IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
 
 		if (r != null) {
@@ -301,8 +315,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return null;
 	}
 
-	private IMatchResult matchRuleOrInjections(Grammar grammar, OnigString lineText, boolean isFirstLine, final int linePos,
-			List<StackElement> stack, int anchorPosition) {
+	private IMatchResult matchRuleOrInjections(Grammar grammar, OnigString lineText, boolean isFirstLine,
+			final int linePos, StackElement stack, int anchorPosition) {
 		// Look for normal grammar rule
 		IMatchResult matchResult = matchRule(grammar, lineText, isFirstLine, linePos, stack, anchorPosition);
 
@@ -339,7 +353,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	private IMatchInjectionsResult matchInjections(List<Injection> injections, Grammar grammar, OnigString lineText,
-			boolean isFirstLine, int linePos, List<StackElement> stack, int anchorPosition) {
+			boolean isFirstLine, int linePos, StackElement stack, int anchorPosition) {
 		// The lower the better
 		int bestMatchRating = Integer.MAX_VALUE;
 		IOnigCaptureIndex[] bestMatchCaptureIndices = null;
@@ -398,20 +412,19 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return null;
 	}
 
-	private void _tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
-			List<StackElement> stack, LineTokens lineTokens) {
+	private StackElement _tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
+			StackElement stack, LineTokens lineTokens) {
 		int lineLength = lineText.utf8_length();
-
 		ScanContext ctx = new ScanContext(grammar, lineText, isFirstLine, linePos, stack, lineTokens);
 		while (ctx.linePos < lineLength) {
-			//System.err.println(ctx.linePos + "/" + lineLength);
+			// System.err.println(ctx.linePos + "/" + lineLength);
 			scanNext(ctx); // potentially modifies linePos && anchorPosition
 		}
+		return ctx.stack;
 	}
 
 	private boolean scanNext(ScanContext ctx) {
-		List<StackElement> stack = ctx.stack;
-		StackElement stackElement = stack.get(stack.size() - 1);
+		StackElement stack = ctx.stack;
 		Grammar grammar = ctx.grammar;
 		OnigString lineText = ctx.lineText;
 		LineTokens lineTokens = ctx.lineTokens;
@@ -434,22 +447,30 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 		if (matchedRuleId == -1) {
 			// We matched the `end` for this rule => pop it
-			BeginEndRule poppedRule = (BeginEndRule) grammar.getRule(stackElement.getRuleId());
+			BeginEndRule poppedRule = (BeginEndRule) stack.getRule(grammar);
 
 			lineTokens.produce(stack, captureIndices[0].getStart());
-			stackElement.setContentName(null);
+			stack = stack.withContentName(null);
 			handleCaptures(grammar, lineText, ctx.isFirstLine, stack, lineTokens, poppedRule.endCaptures,
 					captureIndices);
 			lineTokens.produce(stack, captureIndices[0].getEnd());
 
 			// pop
-			stack.remove(stack.size() - 1); // stack.pop();
+			StackElement popped = stack;
+			stack = stack.pop();
 
-			if (!hasAdvanced && stackElement.getEnterPos() == ctx.linePos) {
+			if (!hasAdvanced && popped.getEnterPos() == ctx.linePos) {
 				// Grammar pushed & popped a rule without advancing
 				System.err.println("Grammar is in an endless loop - case 1");
+
+				// See https://github.com/Microsoft/vscode-textmate/issues/12
+				// Let's assume this was a mistake by the grammar author and the
+				// intent was to continue in this state
+				stack = stack.pushElement(popped);
+
 				lineTokens.produce(stack, lineLength);
 				ctx.linePos = lineLength;
+				ctx.stack = stack;
 				return false;
 			}
 
@@ -459,9 +480,10 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 			lineTokens.produce(stack, captureIndices[0].getStart());
 
+			StackElement beforePush = stack;
 			// push it on the stack rule
-			stack.add(new StackElement(matchedRuleId, ctx.linePos, null,
-					_rule.getName(lineText.getString(), captureIndices), null));
+			stack = stack.push(matchedRuleId, ctx.linePos, null, _rule.getName(lineText.getString(), captureIndices),
+					null);
 
 			if (_rule instanceof BeginEndRule) {
 				BeginEndRule pushedRule = (BeginEndRule) _rule;
@@ -470,20 +492,48 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				ctx.anchorPosition = captureIndices[0].getEnd();
-				stack.get(stack.size() - 1)
-						.setContentName(pushedRule.getContentName(lineText.getString(), captureIndices));
+				stack = stack.withContentName(pushedRule.getContentName(lineText.getString(), captureIndices));
 
 				if (pushedRule.endHasBackReferences) {
-					stack.get(stack.size() - 1).setEndRule(
+					stack = stack.withEndRule(
 							pushedRule.getEndWithResolvedBackReferences(lineText.getString(), captureIndices));
 				}
 
-				if (!hasAdvanced && stackElement.getRuleId() == stack.get(stack.size() - 1).getRuleId()) {
+				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
 					// Grammar pushed the same rule without advancing
 					System.err.println("Grammar is in an endless loop - case 2");
-					stack.remove(stack.size() - 1);
+					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
 					ctx.linePos = lineLength;
+					ctx.stack = stack;
+					return false;
+				}
+			} else if (_rule instanceof BeginWhileRule) {
+				BeginWhileRule pushedRule = (BeginWhileRule) _rule;
+				// if (IN_DEBUG_MODE) {
+				// console.log(' pushing ' + pushedRule.debugName);
+				// }
+
+				handleCaptures(grammar, lineText, ctx.isFirstLine, stack, lineTokens, pushedRule.beginCaptures,
+						captureIndices);
+				lineTokens.produce(stack, captureIndices[0].getEnd());
+				ctx.anchorPosition = captureIndices[0].getEnd();
+				stack = stack.withContentName(pushedRule.getContentName(lineText.getString(), captureIndices));
+
+				if (pushedRule.whileHasBackReferences) {
+					stack = stack.withEndRule(
+							pushedRule.getWhileWithResolvedBackReferences(lineText.getString(), captureIndices));
+				}
+
+				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
+					// Grammar pushed the same rule without advancing
+					System.err.println(
+							"[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
+					stack = stack.pop();
+					lineTokens.produce(stack, lineLength);
+					// //STOP = true;
+					ctx.linePos = lineLength;
+					ctx.stack = stack;
 					return false;
 				}
 			} else {
@@ -494,21 +544,20 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 
 				// pop rule immediately since it is a MatchRule
-				stack.remove(stack.size() - 1);
+				stack = stack.pop();
 
 				if (!hasAdvanced) {
 					// Grammar is not advancing, nor is it pushing/popping
 					System.err.println("Grammar is in an endless loop - case 3");
-					if (stack.size() > 1) {
-						stack.remove(stack.size() - 1);
-					}
+					stack = stack.safePop();
 					lineTokens.produce(stack, lineLength);
 					ctx.linePos = lineLength;
+					ctx.stack = stack;
 					return false;
 				}
 			}
 		}
-
+		ctx.stack = stack;
 		if (captureIndices[0].getEnd() > ctx.linePos) {
 			// Advance stream
 			ctx.linePos = captureIndices[0].getEnd();

@@ -1,28 +1,28 @@
 package org.eclipse.textmate4e.core.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.textmate4e.core.grammar.StackElement;
 
 public class TMState {
 
-	private List<StackElement> ruleStack;
+	private TMState _parentEmbedderState;
+	private StackElement ruleStack;
 
-	public TMState(List<StackElement> ruleStatck) {
+	public TMState(TMState parentEmbedderState, StackElement ruleStatck) {
+		this._parentEmbedderState = parentEmbedderState;
 		this.ruleStack = ruleStatck;
 	}
 
-	public void setRuleStack(List<StackElement> ruleStack) {
+	public void setRuleStack(StackElement ruleStack) {
 		this.ruleStack = ruleStack;
 	}
 
-	public List<StackElement> getRuleStack() {
+	public StackElement getRuleStack() {
 		return ruleStack;
 	}
 
 	public TMState clone() {
-		return new TMState(ruleStack != null ? new ArrayList<StackElement>(ruleStack) : null);
+		TMState parentEmbedderStateClone = this._parentEmbedderState != null ? this._parentEmbedderState.clone() : null;
+		return new TMState(parentEmbedderStateClone, this.ruleStack);
 	}
 
 	@Override
@@ -33,10 +33,9 @@ public class TMState {
 		TMState otherState = (TMState) other;
 
 		// Equals on `_parentEmbedderState`
-		// if (!AbstractState.safeEquals(this._parentEmbedderState,
-		// otherState._parentEmbedderState)) {
-		// return false;
-		// }
+		if (!safeEquals(this._parentEmbedderState, otherState._parentEmbedderState)) {
+			return false;
+		}
 
 		// Equals on `_ruleStack`
 		if (this.ruleStack == null && otherState.ruleStack == null) {
@@ -47,4 +46,15 @@ public class TMState {
 		}
 		return this.ruleStack.equals(otherState.ruleStack);
 	}
+
+	public static boolean safeEquals(TMState a, TMState b) {
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		return a.equals(b);
+	}
+
 }

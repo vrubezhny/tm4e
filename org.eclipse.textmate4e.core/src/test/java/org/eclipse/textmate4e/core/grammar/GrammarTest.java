@@ -11,9 +11,6 @@
 package org.eclipse.textmate4e.core.grammar;
 
 import org.eclipse.textmate4e.core.Data;
-import org.eclipse.textmate4e.core.grammar.IGrammar;
-import org.eclipse.textmate4e.core.grammar.IToken;
-import org.eclipse.textmate4e.core.grammar.ITokenizeLineResult;
 import org.eclipse.textmate4e.core.registry.Registry;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,7 +21,7 @@ import org.junit.Test;
  */
 public class GrammarTest {
 
-	private static final String[] JS_TOKENS = {
+	private static final String[] EXPECTED_TOKENS = {
 			"Token from 0 to 8 with scopes [source.js, meta.function.js, storage.type.function.js]",
 			"Token from 8 to 9 with scopes [source.js, meta.function.js]",
 			"Token from 9 to 12 with scopes [source.js, meta.function.js, entity.name.function.js]",
@@ -42,6 +39,23 @@ public class GrammarTest {
 			"Token from 29 to 32 with scopes [source.js, meta.function.js, meta.decl.block.js]",
 			"Token from 32 to 33 with scopes [source.js, meta.function.js, meta.decl.block.js, meta.brace.curly.js]" };
 
+	private static final String[] EXPECTED_MULTI_LINE_TOKENS = {
+			"Token from 0 to 8 with scopes [source.js, meta.function.js, storage.type.function.js]",
+			"Token from 8 to 9 with scopes [source.js, meta.function.js]",
+			"Token from 9 to 12 with scopes [source.js, meta.function.js, entity.name.function.js]",
+			"Token from 12 to 13 with scopes [source.js, meta.function.js, meta.function.type.parameter.js, meta.brace.round.js]",
+			"Token from 13 to 14 with scopes [source.js, meta.function.js, meta.function.type.parameter.js, parameter.name.js, variable.parameter.js]",
+			"Token from 14 to 15 with scopes [source.js, meta.function.js, meta.function.type.parameter.js]",
+			"Token from 15 to 16 with scopes [source.js, meta.function.js, meta.function.type.parameter.js, parameter.name.js, variable.parameter.js]",
+			"Token from 16 to 17 with scopes [source.js, meta.function.js, meta.function.type.parameter.js, meta.brace.round.js]",
+			"Token from 0 to 1 with scopes [source.js, meta.function.js, meta.decl.block.js, meta.brace.curly.js]",
+			"Token from 1 to 2 with scopes [source.js, meta.function.js, meta.decl.block.js]",
+			"Token from 2 to 8 with scopes [source.js, meta.function.js, meta.decl.block.js, keyword.control.js]",
+			"Token from 8 to 10 with scopes [source.js, meta.function.js, meta.decl.block.js]",
+			"Token from 10 to 11 with scopes [source.js, meta.function.js, meta.decl.block.js, keyword.operator.arithmetic.js]",
+			"Token from 11 to 14 with scopes [source.js, meta.function.js, meta.decl.block.js]",
+			"Token from 14 to 15 with scopes [source.js, meta.function.js, meta.decl.block.js, meta.brace.curly.js]" };
+
 	@Test
 	public void tokenizeLine() throws Exception {
 		Registry registry = new Registry();
@@ -52,8 +66,31 @@ public class GrammarTest {
 			IToken token = lineTokens.getTokens()[i];
 			String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
 					+ token.getScopes();
-			Assert.assertEquals(JS_TOKENS[i], s);
+			Assert.assertEquals(EXPECTED_TOKENS[i], s);
 		}
 	}
 
+	@Test
+	public void tokenizeLines() throws Exception {
+		Registry registry = new Registry();
+		String path = "JavaScript.tmLanguage";
+		IGrammar grammar = registry.loadGrammarFromPathSync(path, Data.class.getResourceAsStream(path));
+
+		StackElement ruleStack = null;
+		int i = 0;
+		int j = 0;
+		String[] lines = { "function add(a,b)", "{ return a+b; }" };
+		for (int l = 0; l < lines.length; l++) {
+			ITokenizeLineResult lineTokens = grammar.tokenizeLine(lines[l], ruleStack);
+			ruleStack = lineTokens.getRuleStack();
+			for (i = 0; i < lineTokens.getTokens().length; i++) {
+				IToken token = lineTokens.getTokens()[i];
+				String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
+						+ token.getScopes();
+				Assert.assertEquals(EXPECTED_MULTI_LINE_TOKENS[i + j], s);
+			}
+			j = i;
+		}
+
+	}
 }

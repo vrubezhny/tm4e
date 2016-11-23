@@ -1,6 +1,5 @@
 package org.eclipse.textmate4e.core.internal.rule;
 
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigCaptureIndex;
@@ -18,8 +17,7 @@ public class BeginEndRule extends Rule {
 	private RegExpSourceList _cachedCompiledPatterns;
 
 	public BeginEndRule(int id, String name, String contentName, String begin, List<CaptureRule> beginCaptures,
-			String end, List<CaptureRule> endCaptures, boolean applyEndPatternLast,
-			ICompilePatternsResult patterns) {
+			String end, List<CaptureRule> endCaptures, boolean applyEndPatternLast, ICompilePatternsResult patterns) {
 		super(id, name, contentName);
 		this._begin = new RegExpSource(begin, this.id);
 		this.beginCaptures = beginCaptures;

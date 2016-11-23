@@ -1,6 +1,8 @@
-package org.eclipse.textmate4e.core.grammar;
+package org.eclipse.textmate4e.core.internal.grammar;
 
 import java.util.List;
+
+import org.eclipse.textmate4e.core.grammar.IToken;
 
 class Token implements IToken {
 

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.textmate4e.core.internal.grammar.Grammar;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 import org.eclipse.textmate4e.core.internal.types.IRawRepository;
 import org.eclipse.textmate4e.core.internal.types.IRawRule;

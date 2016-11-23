@@ -1,11 +1,44 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ *
+ * Contributors:
+ *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
 package org.eclipse.textmate4e.core.grammar;
 
-import java.util.List;
-
+/**
+ * TextMate grammar API.
+ * 
+ * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/main.ts
+ *
+ */
 public interface IGrammar {
 
+	/**
+	 * Tokenize `lineText`.
+	 * 
+	 * @param lineText
+	 *            the line text to tokenize.
+	 * @return the result of the tokenization.
+	 */
 	ITokenizeLineResult tokenizeLine(String lineText);
 
-	ITokenizeLineResult tokenizeLine(String lineText, List<StackElement> prevState);
+	/**
+	 * Tokenize `lineText` using previous line state `prevState`.
+	 * 
+	 * @param lineText
+	 *            the line text to tokenize.
+	 * @param prevState
+	 *            previous line state.
+	 * @return the result of the tokenization.
+	 */
+	ITokenizeLineResult tokenizeLine(String lineText, StackElement prevState);
 
 }

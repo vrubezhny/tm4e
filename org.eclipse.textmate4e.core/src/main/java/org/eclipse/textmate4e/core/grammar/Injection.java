@@ -18,7 +18,7 @@ public class Injection {
 		this.priorityMatch = priorityMatch;
 	}
 
-	public boolean match(List<StackElement> states) {
+	public boolean match(StackElement states) {
 		// TODO Auto-generated method stub
 		return false;
 	}

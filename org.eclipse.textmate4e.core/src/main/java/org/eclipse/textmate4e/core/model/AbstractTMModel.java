@@ -423,7 +423,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		for (ModelLine line : this.lines) {
 			line.resetTokenizationState();
 		}
-		lines.get(0).setState(new TMState(null));
+		lines.get(0).setState(new TMState(null, null));
 		this._invalidLineStartIndex = 0;
 		this._beginBackgroundTokenization();
 	}
@@ -615,7 +615,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		// state
 		// );
 		// }
-		
+
 		if (grammar == null) {
 			throw new TMException("No TextMate grammar defined");
 		}
@@ -686,7 +686,7 @@ public abstract class AbstractTMModel implements ITMModel {
 	protected abstract String getLineText(int line) throws Exception;
 
 	protected abstract int getLineLength(int line) throws Exception;
-	
+
 	public void join() throws InterruptedException {
 		fThread.join();
 	}
