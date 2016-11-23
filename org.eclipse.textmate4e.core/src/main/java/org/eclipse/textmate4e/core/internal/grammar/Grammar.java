@@ -114,6 +114,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			self.setPatterns(grammar.getPatterns());
 			self.setName(grammar.getScopeName());
 			grammar.getRepository().setSelf(self);
+		} else {
+			((Raw)grammar).setRepository(new Raw());
 		}
 		if (base != null) {
 			grammar.getRepository().setBase(base);
