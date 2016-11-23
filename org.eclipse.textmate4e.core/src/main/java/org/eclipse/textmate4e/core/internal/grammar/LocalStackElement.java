@@ -1,6 +1,6 @@
 package org.eclipse.textmate4e.core.internal.grammar;
 
-public class LocalStackElement {
+class LocalStackElement {
 
 	private String scopeName;
 	private int endPos;

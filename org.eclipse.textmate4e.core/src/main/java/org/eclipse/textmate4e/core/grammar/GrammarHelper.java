@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.textmate4e.core.internal.grammar.Grammar;
+import org.eclipse.textmate4e.core.internal.oniguruma.OnigString;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 import org.eclipse.textmate4e.core.internal.types.IRawRepository;
 import org.eclipse.textmate4e.core.internal.types.IRawRule;
@@ -25,29 +26,29 @@ public class GrammarHelper {
 			if (p != null) {
 				_extractIncludedScopesInPatterns(result, p);
 			}
-			
+
 			String include = pattern.getInclude();
 			if (include == null) {
 				continue;
 			}
-			
+
 			if (include.equals("$base") || include.equals("$self")) {
 				// Special includes that can be resolved locally in this grammar
 				continue;
 			}
-			
+
 			if (include.charAt(0) == '#') {
 				// Local include from this grammar
 				continue;
 			}
-			
+
 			int sharpIndex = include.indexOf('#');
 			if (sharpIndex >= 0) {
-				//result[include.substring(0, sharpIndex)] = true;
+				// result[include.substring(0, sharpIndex)] = true;
 				result.add(include.substring(0, sharpIndex));
 			} else {
 				result.add(include);
-				//result[include] = true;
+				// result[include] = true;
 			}
 		}
 	}
@@ -66,19 +67,19 @@ public class GrammarHelper {
 				_extractIncludedScopesInRepository(result, rule.getRepository());
 			}
 		}
-//		for (let name in repository) {
-//			let rule = repository[name];
-//
-//			if (rule.patterns && Array.isArray(rule.patterns)) {
-//				_extractIncludedScopesInPatterns(result, rule.patterns);
-//			}
-//
-//			if (rule.repository) {
-//				_extractIncludedScopesInRepository(result, rule.repository);
-//			}
-//		}
+		// for (let name in repository) {
+		// let rule = repository[name];
+		//
+		// if (rule.patterns && Array.isArray(rule.patterns)) {
+		// _extractIncludedScopesInPatterns(result, rule.patterns);
+		// }
+		//
+		// if (rule.repository) {
+		// _extractIncludedScopesInRepository(result, rule.repository);
+		// }
+		// }
 	}
-	
+
 	/**
 	 * Return a list of all external included scopes in `grammar`.
 	 */
@@ -100,6 +101,10 @@ public class GrammarHelper {
 
 		// return Object.keys(result);
 		return result.toArray(new String[0]);
+	}
+
+	public static OnigString createOnigString(String str) {
+		return new OnigString(str);
 	}
 
 }
