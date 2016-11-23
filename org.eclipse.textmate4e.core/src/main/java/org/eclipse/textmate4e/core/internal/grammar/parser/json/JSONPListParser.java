@@ -20,61 +20,54 @@ public class JSONPListParser implements IGrammarParser {
 		PList pList = new PList();
 		JsonReader reader = new JsonReader(new InputStreamReader(contents, Charset.forName("UTF-8")));
 		// reader.setLenient(true);
-		String lastName = null;
 		boolean parsing = true;
 		while (parsing) {
 			JsonToken nextToken = reader.peek();
 			switch (nextToken) {
-			case END_DOCUMENT:
-				parsing = false;
-			}
-			if (JsonToken.BEGIN_OBJECT.equals(nextToken)) {
-				pList.startElement(null, "dict", null, null);
-//				if (lastName != null) {
-//					pList.startElement(null, "key", null, null);
-//					pList.characters(lastName.toCharArray(), 0, lastName.length());
-//					pList.endElement(null, "key", null);
-//				}
-				reader.beginObject();
-			} else if (JsonToken.END_OBJECT.equals(nextToken)) {
-				pList.endElement(null, "dict", null);
-				reader.endObject();
-			} else if (JsonToken.BEGIN_ARRAY.equals(nextToken)) {
-//				pList.startElement(null, "key", null, null);
-//				pList.characters(lastName.toCharArray(), 0, lastName.length());
-//				pList.endElement(null, "key", null);
+			case BEGIN_ARRAY:
 				pList.startElement(null, "array", null, null);
-				//pList.startElement(null, "dict", null, null);
 				reader.beginArray();
-			} else if (JsonToken.END_ARRAY.equals(nextToken)) {
-				//pList.endElement(null, "dict", null);
+				break;
+			case END_ARRAY:
 				pList.endElement(null, "array", null);
 				reader.endArray();
-			} else if (JsonToken.NAME.equals(nextToken)) {
-				lastName = reader.nextName();
+				break;
+			case BEGIN_OBJECT:
+				pList.startElement(null, "dict", null, null);
+				reader.beginObject();
+				break;
+			case END_OBJECT:
+				pList.endElement(null, "dict", null);
+				reader.endObject();
+				break;
+			case NAME:
+				String lastName = reader.nextName();
 				pList.startElement(null, "key", null, null);
 				pList.characters(lastName.toCharArray(), 0, lastName.length());
 				pList.endElement(null, "key", null);
-				// String name = reader.nextName();
-				// pList.startElement(null, name, null, null);
-				//System.out.println(lastName);
-
-			} else if (JsonToken.STRING.equals(nextToken)) {
+				break;
+			case NULL:
+				reader.nextNull();
+				break;
+			case BOOLEAN:
+				reader.nextBoolean();
+				break;
+			case NUMBER:
+				reader.nextLong();
+				break;
+			case STRING:
 				String value = reader.nextString();
 				pList.startElement(null, "string", null, null);
 				pList.characters(value.toCharArray(), 0, value.length());
 				pList.endElement(null, "string", null);
-
-				//System.out.println(value);
-
-			} else if (JsonToken.NUMBER.equals(nextToken)) {
-
-				long value = reader.nextLong();
-				System.out.println(value);
-
+				break;
+			case END_DOCUMENT:
+				parsing = false;
+				break;
+			default:
+				break;
 			}
 		}
-		// reader.endObject();
 		reader.close();
 		return pList.getResult();
 	}
