@@ -1,13 +1,18 @@
 package org.eclipse.textmate4e.core.internal.rule;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigCaptureIndex;
 
 public class RegExpSource {
 
 	private static final Pattern HAS_BACK_REFERENCES = Pattern.compile("\\\\(\\d+)");
-
+	private static final Pattern BACK_REFERENCING_END = Pattern.compile("\\\\(\\d+)");
+	
 	public int ruleId;
 	public boolean hasAnchor;
 	public boolean hasBackReferences;
@@ -32,7 +37,7 @@ public class RegExpSource {
 
 		this.ruleId = ruleId;
 		this.hasBackReferences = HAS_BACK_REFERENCES.matcher(this.source).find();
-		
+
 		// console.log('input: ' + regExpSource + ' => ' + this.source + ', ' +
 		// this.hasAnchor);
 	}
@@ -78,7 +83,6 @@ public class RegExpSource {
 					}
 				}
 			}
-			
 
 			this.hasAnchor = hasAnchor;
 			if (lastPushedPos == 0) {
@@ -95,15 +99,21 @@ public class RegExpSource {
 	}
 
 	public String resolveBackReferences(String lineText, IOnigCaptureIndex[] captureIndices) {
-		/*
-		 * let capturedValues = captureIndices.map((capture) => { return
-		 * lineText.substring(capture.start, capture.end); });
-		 * BACK_REFERENCING_END.lastIndex = 0; return
-		 * this.source.replace(BACK_REFERENCING_END, (match, g1) => { return
-		 * escapeRegExpCharacters(capturedValues[parseInt(g1, 10)] || ''); });
-		 */
-		// TODO!!!!!!!!!!!!!!!!!
-		return "";
+		List<String> capturedValues = Arrays.stream(captureIndices)
+				.map(capture -> lineText.substring(capture.getStart(), capture.getEnd())).collect(Collectors.toList());
+		
+		Matcher m = BACK_REFERENCING_END.matcher(this.source);
+		while (m.find()) {
+			String g1 = m.group();
+			int index = Integer.parseInt(g1.replaceAll("[\\\\]", ""));
+			String s = capturedValues.get(index);
+			return escapeRegExpCharacters(s);
+		}
+		return null;
+	}
+	
+	private String escapeRegExpCharacters(String value) {
+		return value.replace("/[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\,\\[\\]\\(\\)\\#\\s]/g", "\\\\$&");
 	}
 
 	private IRegExpSourceAnchorCache _buildAnchorCache() {
