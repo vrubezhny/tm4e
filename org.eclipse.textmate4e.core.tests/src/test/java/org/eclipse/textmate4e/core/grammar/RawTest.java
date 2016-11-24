@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.eclipse.textmate4e.core.registry.IGrammarLocator;
 import org.eclipse.textmate4e.core.registry.Registry;
+import org.junit.Assert;
 import org.junit.runner.Describable;
 import org.junit.runner.Description;
 
-import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestResult;
 
@@ -129,13 +129,23 @@ public class RawTest implements Test, Describable {
 		// assert.deepEqual(actualTokens, testCase.tokens, 'Tokenizing line ' +
 		// testCase.line);
 
-		deepEqual(actualTokens, testCase.getTokens(), "Tokenizing line " + testCase.getLine());
+		deepEqual(actualTokens, testCase.getTokens(), "Tokenizing line '" + testCase.getLine() + "'");
 
 		return actual.getRuleStack();
 	}
 
 	private static void deepEqual(List<RawToken> actualTokens, List<RawToken> expextedTokens, String message) {
-		Assert.assertEquals(message, expextedTokens, actualTokens);
+		// compare collection size
+		Assert.assertEquals(message + " (collection size problem)", expextedTokens.size(), actualTokens.size());
+		// compare item
+		for (int i = 0; i < expextedTokens.size(); i++) {
+			RawToken expected = expextedTokens.get(i);
+			RawToken actual = actualTokens.get(i);
+			Assert.assertEquals(message + " (value of item '" + i + "' problem)", expected.getValue(),
+					actual.getValue());
+			Assert.assertEquals(message + " (tokens of item '" + i + "' problem)", expected.getScopes(),
+					actual.getScopes());
+		}
 
 	}
 
