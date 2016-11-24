@@ -97,6 +97,11 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	}
 
 	@Override
+	public String getWhile() {
+		return (String) super.get("while");
+	}
+
+	@Override
 	public String getInclude() {
 		return (String) super.get("include");
 	}
@@ -134,6 +139,11 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	@Override
 	public void setEndCaptures(IRawCaptures endCaptures) {
 		super.put("endCaptures", endCaptures);
+	}
+
+	@Override
+	public IRawCaptures getWhileCaptures() {
+		return (IRawCaptures) super.get("whileCaptures");
 	}
 
 	@Override

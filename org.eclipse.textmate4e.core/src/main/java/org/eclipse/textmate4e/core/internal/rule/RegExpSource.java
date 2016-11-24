@@ -1,10 +1,12 @@
 package org.eclipse.textmate4e.core.internal.rule;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigCaptureIndex;
 
 public class RegExpSource {
 
-	// private static final String HAS_BACK_REFERENCES = "/\\(\d+)/";
+	private static final Pattern HAS_BACK_REFERENCES = Pattern.compile("\\\\(\\d+)");
 
 	public int ruleId;
 	public boolean hasAnchor;
@@ -29,10 +31,8 @@ public class RegExpSource {
 		}
 
 		this.ruleId = ruleId;
-
-		// TODO !!!!!!!!!!!!!!
-		this.hasBackReferences = false; // HAS_BACK_REFERENCES.test(this.source);
-
+		this.hasBackReferences = HAS_BACK_REFERENCES.matcher(this.source).find();
+		
 		// console.log('input: ' + regExpSource + ' => ' + this.source + ', ' +
 		// this.hasAnchor);
 	}
@@ -54,15 +54,14 @@ public class RegExpSource {
 
 	private void _handleAnchors(String regExpSource) {
 		if (regExpSource != null) {
-			int pos;
-			int len;
+			int len = regExpSource.length();
 			char ch;
 			char nextCh;
 			int lastPushedPos = 0;
 			StringBuilder output = new StringBuilder();
 
 			boolean hasAnchor = false;
-			for (pos = 0, len = regExpSource.length(); pos < len; pos++) {
+			for (int pos = 0; pos < len; pos++) {
 				ch = regExpSource.charAt(pos);
 
 				if (ch == '\\') {
@@ -79,6 +78,7 @@ public class RegExpSource {
 					}
 				}
 			}
+			
 
 			this.hasAnchor = hasAnchor;
 			if (lastPushedPos == 0) {

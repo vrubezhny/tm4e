@@ -5,14 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.textmate4e.core.internal.grammar.parser.Raw;
 import org.eclipse.textmate4e.core.internal.types.IRawCaptures;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 import org.eclipse.textmate4e.core.internal.types.IRawRepository;
 import org.eclipse.textmate4e.core.internal.types.IRawRule;
-
-import java.util.Set;
 
 public class RuleFactory {
 
@@ -48,6 +47,21 @@ public class RuleFactory {
 						}
 						return new IncludeOnlyRule(desc.getId(), desc.getName(), desc.getContentName(),
 								RuleFactory._compilePatterns(desc.getPatterns(), helper, r));
+					}
+
+					String ruleWhile = desc.getWhile();
+					if (ruleWhile != null) {
+						return new BeginWhileRule(
+								/* desc.$vscodeTextmateLocation, */
+								desc.getId(), desc.getName(), desc.getContentName(), desc.getBegin(),
+								RuleFactory._compileCaptures(
+										desc.getBeginCaptures() != null ? desc.getBeginCaptures() : desc.getCaptures(),
+										helper, repository),
+								ruleWhile,
+								RuleFactory._compileCaptures(
+										desc.getWhileCaptures() != null ? desc.getWhileCaptures() : desc.getCaptures(),
+										helper, repository),
+								RuleFactory._compilePatterns(desc.getPatterns(), helper, repository));
 					}
 
 					return new BeginEndRule(desc.getId(), desc.getName(), desc.getContentName(), desc.getBegin(),
@@ -206,6 +220,11 @@ public class RuleFactory {
 						}
 					} else if (rule instanceof BeginEndRule) {
 						BeginEndRule br = (BeginEndRule) rule;
+						if (br.hasMissingPatterns && br.patterns.length == 0) {
+							skipRule = true;
+						}
+					} else if (rule instanceof BeginWhileRule) {
+						BeginWhileRule br = (BeginWhileRule) rule;
 						if (br.hasMissingPatterns && br.patterns.length == 0) {
 							skipRule = true;
 						}

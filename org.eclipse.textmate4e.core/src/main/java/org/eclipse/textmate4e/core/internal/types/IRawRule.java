@@ -40,9 +40,13 @@ public interface IRawRule {
 
 	void setEnd(String end);
 
+	String getWhile();
+	
 	IRawCaptures getEndCaptures();
 
 	void setEndCaptures(IRawCaptures endCaptures);
+
+	IRawCaptures getWhileCaptures();
 
 	Collection<IRawRule> getPatterns();
 

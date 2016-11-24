@@ -109,14 +109,13 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	private IRawGrammar initGrammar(IRawGrammar grammar, IRawRule base) {
 		grammar = clone(grammar);
-		if (grammar.getRepository() != null) {
-			Raw self = new Raw();
-			self.setPatterns(grammar.getPatterns());
-			self.setName(grammar.getScopeName());
-			grammar.getRepository().setSelf(self);
-		} else {
-			((Raw)grammar).setRepository(new Raw());
+		if (grammar.getRepository() == null) {
+			((Raw) grammar).setRepository(new Raw());
 		}
+		Raw self = new Raw();
+		self.setPatterns(grammar.getPatterns());
+		self.setName(grammar.getScopeName());
+		grammar.getRepository().setSelf(self);
 		if (base != null) {
 			grammar.getRepository().setBase(base);
 		} else {
