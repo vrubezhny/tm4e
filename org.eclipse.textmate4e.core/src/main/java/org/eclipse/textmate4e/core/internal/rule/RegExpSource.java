@@ -102,18 +102,20 @@ public class RegExpSource {
 		List<String> capturedValues = Arrays.stream(captureIndices)
 				.map(capture -> lineText.substring(capture.getStart(), capture.getEnd())).collect(Collectors.toList());
 		
+		String result = this.source;
 		Matcher m = BACK_REFERENCING_END.matcher(this.source);
 		while (m.find()) {
 			String g1 = m.group();
 			int index = Integer.parseInt(g1.replaceAll("[\\\\]", ""));
-			String s = capturedValues.get(index);
-			return escapeRegExpCharacters(s);
+			String replacement = capturedValues.get(index);
+			replacement = escapeRegExpCharacters(replacement);			
+			result = result.replaceAll("\\" + g1 + "", replacement);
 		}
-		return null;
+		return result;
 	}
 	
 	private String escapeRegExpCharacters(String value) {
-		return value.replace("/[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\,\\[\\]\\(\\)\\#\\s]/g", "\\\\$&");
+		return value.replaceAll("[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\,\\[\\]\\(\\)\\#\\s]", "\\\\$&");
 	}
 
 	private IRegExpSourceAnchorCache _buildAnchorCache() {

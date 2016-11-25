@@ -153,7 +153,9 @@ public class RawTest implements Test, Describable {
 		List<RawToken> actualTokens = new ArrayList<>();
 		for (int i = 0; i < tokens.length; i++) {
 			IToken token = tokens[i];
-			String value = testCase.getLine().substring(token.getStartIndex(), token.getEndIndex());
+			String value = testCase.getLine().substring(token.getStartIndex(),
+					token.getEndIndex() < testCase.getLine().length() ? token.getEndIndex()
+							: testCase.getLine().length());
 			actualTokens.add(new RawToken(value, token.getScopes()));
 		}
 		return actualTokens;
