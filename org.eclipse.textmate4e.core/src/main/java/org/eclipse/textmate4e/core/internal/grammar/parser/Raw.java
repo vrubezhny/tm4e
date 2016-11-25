@@ -168,8 +168,17 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public boolean isApplyEndPatternLast() {
-		Boolean applyEndPatternLast = (Boolean) super.get("applyEndPatternLast");
-		return applyEndPatternLast != null ? applyEndPatternLast : false;
+		Object applyEndPatternLast = super.get("applyEndPatternLast");
+		if (applyEndPatternLast == null) {
+			return false;
+		}
+		if (applyEndPatternLast instanceof Boolean) {
+			return (Boolean) applyEndPatternLast;
+		}
+		if (applyEndPatternLast instanceof Integer) {
+			return ((Integer) applyEndPatternLast).equals(1);
+		}
+		return false;
 	}
 
 	@Override
