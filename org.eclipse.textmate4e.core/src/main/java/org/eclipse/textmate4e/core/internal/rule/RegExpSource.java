@@ -12,7 +12,9 @@ public class RegExpSource {
 
 	private static final Pattern HAS_BACK_REFERENCES = Pattern.compile("\\\\(\\d+)");
 	private static final Pattern BACK_REFERENCING_END = Pattern.compile("\\\\(\\d+)");
-	
+	private static final Pattern REGEXP_CHARACTERS = Pattern
+			.compile("[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\,\\[\\]\\(\\)\\#\\s]");
+
 	public int ruleId;
 	public boolean hasAnchor;
 	public boolean hasBackReferences;
@@ -101,21 +103,26 @@ public class RegExpSource {
 	public String resolveBackReferences(String lineText, IOnigCaptureIndex[] captureIndices) {
 		List<String> capturedValues = Arrays.stream(captureIndices)
 				.map(capture -> lineText.substring(capture.getStart(), capture.getEnd())).collect(Collectors.toList());
-		
+
 		String result = this.source;
 		Matcher m = BACK_REFERENCING_END.matcher(this.source);
 		while (m.find()) {
 			String g1 = m.group();
-			int index = Integer.parseInt(g1.replaceAll("[\\\\]", ""));
-			String replacement = capturedValues.get(index);
-			replacement = escapeRegExpCharacters(replacement);			
+			int index = Integer.parseInt(g1.substring(1,  g1.length()));
+			String replacement = escapeRegExpCharacters(capturedValues.get(index));			
 			result = result.replaceAll("\\" + g1 + "", replacement);
 		}
 		return result;
 	}
-	
+
 	private String escapeRegExpCharacters(String value) {
-		return value.replaceAll("[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\,\\[\\]\\(\\)\\#\\s]", "\\\\$&");
+		Matcher m = REGEXP_CHARACTERS.matcher(value);
+		StringBuffer sb = new StringBuffer();
+		while (m.find()) {
+			m.appendReplacement(sb, "\\\\\\\\" + m.group());
+		}
+		m.appendTail(sb);
+		return sb.toString();
 	}
 
 	private IRegExpSourceAnchorCache _buildAnchorCache() {
