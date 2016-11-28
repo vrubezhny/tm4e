@@ -3,6 +3,7 @@ package org.eclipse.textmate4e.core.grammar;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.textmate4e.core.registry.IGrammarLocator;
 import org.eclipse.textmate4e.core.registry.Registry;
@@ -111,25 +112,14 @@ public class RawTest implements Test, Describable {
 
 		List<RawToken> actualTokens = getActualTokens(actual.getTokens(), testCase);
 
-		// let actualTokens:IRawToken[] = actual.tokens.map((token) => {
-		// return {
-		// value: testCase.line.substring(token.startIndex, token.endIndex),
-		// scopes: token.scopes
-		// };
-		// });
-		//
+		List<RawToken> expectedTokens = testCase.getTokens();
 		// // TODO@Alex: fix tests instead of working around
-		// if (testCase.line.length > 0) {
-		// // Remove empty tokens...
-		// testCase.tokens = testCase.tokens.filter((token) => {
-		// return (token.value.length > 0);
-		// });
-		// }
-		//
-		// assert.deepEqual(actualTokens, testCase.tokens, 'Tokenizing line ' +
-		// testCase.line);
-
-		deepEqual(actualTokens, testCase.getTokens(), "Tokenizing line '" + testCase.getLine() + "'");
+		if (testCase.getLine().length() > 0) {
+			// Remove empty tokens...
+			expectedTokens = testCase.getTokens().stream().filter(token -> token.getValue().length() > 0)
+					.collect(Collectors.toList());
+		}
+		deepEqual(actualTokens, expectedTokens, "Tokenizing line '" + testCase.getLine() + "'");
 
 		return actual.getRuleStack();
 	}

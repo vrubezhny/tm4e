@@ -20,6 +20,32 @@ import org.eclipse.textmate4e.core.internal.rule.Rule;
 
 class Tokenizer {
 
+	class WhileStack {
+
+		public final StackElement stack;
+		public final BeginWhileRule rule;
+
+		public WhileStack(StackElement stack, BeginWhileRule rule) {
+			this.stack = stack;
+			this.rule = rule;
+		}
+	}
+
+	class WhileCheckResult {
+
+		public final StackElement stack;
+		public final int linePos;
+		public final int anchorPosition;
+		public final boolean isFirstLine;
+
+		public WhileCheckResult(StackElement stack, int linePos, int anchorPosition, boolean isFirstLine) {
+			this.stack = stack;
+			this.linePos = linePos;
+			this.anchorPosition = anchorPosition;
+			this.isFirstLine = isFirstLine;
+		}
+	}
+
 	private final Grammar grammar;
 	private final OnigString lineText;
 	private boolean isFirstLine;
@@ -44,13 +70,13 @@ class Tokenizer {
 	public StackElement scan() {
 		STOP = false;
 
-		// IWhileCheckResult whileCheckResult = _checkWhileConditions(grammar,
-		// lineText, isFirstLine, linePos, stack, lineTokens);
-		// stack = whileCheckResult.stack;
-		// linePos = whileCheckResult.linePos;
-		// isFirstLine = whileCheckResult.isFirstLine;
-		// let anchorPosition = whileCheckResult.anchorPosition;
-		//
+		WhileCheckResult whileCheckResult = _checkWhileConditions(grammar, lineText, isFirstLine, linePos, stack,
+				lineTokens);
+		stack = whileCheckResult.stack;
+		linePos = whileCheckResult.linePos;
+		isFirstLine = whileCheckResult.isFirstLine;
+		anchorPosition = whileCheckResult.anchorPosition;
+
 		while (!STOP) {
 			scanNext(); // potentially modifies linePos && anchorPosition
 		}
@@ -122,15 +148,15 @@ class Tokenizer {
 
 			StackElement beforePush = stack;
 			// push it on the stack rule
-			stack = stack.push(matchedRuleId, linePos, null, _rule.getName(lineText.getString(), captureIndices),
-					null);
+			stack = stack.push(matchedRuleId, linePos, null, _rule.getName(lineText.getString(), captureIndices), null);
 
 			if (_rule instanceof BeginEndRule) {
 				BeginEndRule pushedRule = (BeginEndRule) _rule;
-//				if (IN_DEBUG_MODE) {
-//					console.log('  pushing ' + pushedRule.debugName + ' - ' + pushedRule.debugBeginRegExp);
-//				}
-				
+				// if (IN_DEBUG_MODE) {
+				// console.log(' pushing ' + pushedRule.debugName + ' - ' +
+				// pushedRule.debugBeginRegExp);
+				// }
+
 				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, pushedRule.beginCaptures,
 						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
@@ -144,50 +170,57 @@ class Tokenizer {
 
 				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
 					// Grammar pushed the same rule without advancing
-					System.err.println("[2] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
+					System.err.println(
+							"[2] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
 					STOP = true;
 					return;
 				}
 			} else if (_rule instanceof BeginWhileRule) {
-				BeginWhileRule pushedRule = (BeginWhileRule)_rule;
-//				if (IN_DEBUG_MODE) {
-//					console.log('  pushing ' + pushedRule.debugName);
-//				}
+				BeginWhileRule pushedRule = (BeginWhileRule) _rule;
+				// if (IN_DEBUG_MODE) {
+				// console.log(' pushing ' + pushedRule.debugName);
+				// }
 
-				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, pushedRule.beginCaptures, captureIndices);
+				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, pushedRule.beginCaptures,
+						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				anchorPosition = captureIndices[0].getEnd();
 				stack = stack.withContentName(pushedRule.getContentName(lineText.getString(), captureIndices));
 
 				if (pushedRule.whileHasBackReferences) {
-					stack = stack.withEndRule(pushedRule.getWhileWithResolvedBackReferences(lineText.getString(), captureIndices));
+					stack = stack.withEndRule(
+							pushedRule.getWhileWithResolvedBackReferences(lineText.getString(), captureIndices));
 				}
 
 				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
 					// Grammar pushed the same rule without advancing
-					System.err.println("[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
+					System.err.println(
+							"[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
 					STOP = true;
 					return;
 				}
 			} else {
-				MatchRule matchingRule = (MatchRule)_rule;
-//				if (IN_DEBUG_MODE) {
-//					console.log('  matched ' + matchingRule.debugName + ' - ' + matchingRule.debugMatchRegExp);
-//				}
-				
-				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, matchingRule.captures, captureIndices);
+				MatchRule matchingRule = (MatchRule) _rule;
+				// if (IN_DEBUG_MODE) {
+				// console.log(' matched ' + matchingRule.debugName + ' - ' +
+				// matchingRule.debugMatchRegExp);
+				// }
+
+				handleCaptures(grammar, lineText, isFirstLine, stack, lineTokens, matchingRule.captures,
+						captureIndices);
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 
 				// pop rule immediately since it is a MatchRule
 				stack = stack.pop();
-				
+
 				if (!hasAdvanced) {
 					// Grammar is not advancing, nor is it pushing/popping
-					System.err.println("[4] - Grammar is in an endless loop - Grammar is not advancing, nor is it pushing/popping");
+					System.err.println(
+							"[4] - Grammar is in an endless loop - Grammar is not advancing, nor is it pushing/popping");
 					stack = stack.safePop();
 					lineTokens.produce(stack, lineLength);
 					STOP = true;
@@ -195,8 +228,8 @@ class Tokenizer {
 				}
 			}
 		}
-		
-		if (captureIndices[0].getEnd()> linePos) {
+
+		if (captureIndices[0].getEnd() > linePos) {
 			// Advance stream
 			linePos = captureIndices[0].getEnd();
 			isFirstLine = false;
@@ -392,58 +425,52 @@ class Tokenizer {
 	 * order. If any fails, cut off the entire stack above the failed while
 	 * condition. While conditions may also advance the linePosition.
 	 */
-	// private IWhileCheckResult _checkWhileConditions(grammar: Grammar,
-	// lineText: OnigString, isFirstLine: boolean, linePos: number, stack:
-	// StackElement, lineTokens: LineTokens) {
-	// let anchorPosition = -1;
-	// let whileRules: IWhileStack[] = [];
-	// for (let node = stack; node; node = node.pop()) {
-	// let nodeRule = node.getRule(grammar);
-	// if (nodeRule instanceof BeginWhileRule) {
-	// whileRules.push({
-	// rule: nodeRule,
-	// stack: node
-	// });
-	// }
-	// }
-	//
-	// for (let whileRule = whileRules.pop(); whileRule; whileRule =
-	// whileRules.pop()) {
-	// let ruleScanner = whileRule.rule.compileWhile(grammar,
-	// whileRule.stack.getEndRule(), isFirstLine, anchorPosition === linePos);
-	// let r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
-	// if (IN_DEBUG_MODE) {
-	// console.log(' scanning for while rule');
-	// console.log(debugCompiledRuleToString(ruleScanner));
-	// }
-	//
-	// if (r) {
-	// let matchedRuleId = ruleScanner.rules[r.index];
-	// if (matchedRuleId != -2) {
-	// // we shouldn't end up here
-	// stack = whileRule.stack.pop();
-	// break;
-	// }
-	// if (r.captureIndices && r.captureIndices.length) {
-	// lineTokens.produce(whileRule.stack, r.captureIndices[0].start);
-	// handleCaptures(grammar, lineText, isFirstLine, whileRule.stack,
-	// lineTokens, whileRule.rule.whileCaptures, r.captureIndices);
-	// lineTokens.produce(whileRule.stack, r.captureIndices[0].end);
-	// anchorPosition = r.captureIndices[0].end;
-	// if (r.captureIndices[0].end > linePos) {
-	// linePos = r.captureIndices[0].end;
-	// isFirstLine = false;
-	// }
-	// }
-	// } else {
-	// stack = whileRule.stack.pop();
-	// break;
-	// }
-	// }
-	//
-	// return { stack: stack, linePos: linePos, anchorPosition: anchorPosition,
-	// isFirstLine: isFirstLine };
-	// }
+	private WhileCheckResult _checkWhileConditions(Grammar grammar, OnigString lineText, boolean isFirstLine,
+			int linePos, StackElement stack, LineTokens lineTokens) {
+		int anchorPosition = -1;
+		List<WhileStack> whileRules = new ArrayList<>();
+		for (StackElement node = stack; node != null; node = node.pop()) {
+			Rule nodeRule = node.getRule(grammar);
+			if (nodeRule instanceof BeginWhileRule) {
+				whileRules.add(new WhileStack(node, (BeginWhileRule) nodeRule));
+			}
+		}
+		for (int i = whileRules.size() - 1; i >= 0; i--) {
+			WhileStack whileRule = whileRules.get(i);		
+			ICompiledRule ruleScanner = whileRule.rule.compileWhile(grammar, whileRule.stack.getEndRule(), isFirstLine,
+					anchorPosition == linePos);
+			IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
+			// if (IN_DEBUG_MODE) {
+			// console.log(' scanning for while rule');
+			// console.log(debugCompiledRuleToString(ruleScanner));
+			// }
+
+			if (r != null) {
+				Integer matchedRuleId = ruleScanner.rules[r.getIndex()];
+				if (matchedRuleId != -2) {
+					// we shouldn't end up here
+					stack = whileRule.stack.pop();
+					break;
+				}
+				if (r.getCaptureIndices() != null && r.getCaptureIndices().length >= 0) {
+					lineTokens.produce(whileRule.stack, r.getCaptureIndices()[0].getStart());
+					handleCaptures(grammar, lineText, isFirstLine, whileRule.stack, lineTokens,
+							whileRule.rule.whileCaptures, r.getCaptureIndices());
+					lineTokens.produce(whileRule.stack, r.getCaptureIndices()[0].getEnd());
+					anchorPosition = r.getCaptureIndices()[0].getEnd();
+					if (r.getCaptureIndices()[0].getEnd() > linePos) {
+						linePos = r.getCaptureIndices()[0].getEnd();
+						isFirstLine = false;
+					}
+				}
+			} else {
+				stack = whileRule.stack.pop();
+				break;
+			}
+		}
+
+		return new WhileCheckResult(stack, linePos, anchorPosition, isFirstLine);
+	}
 
 	public static StackElement _tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
 			StackElement stack, LineTokens lineTokens) {
