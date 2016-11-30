@@ -14,10 +14,10 @@ import org.eclipse.textmate4e.core.internal.rule.Rule;
 public class StackElement {
 
 	public final StackElement _parent;
-	private int ruleId;
+	private final int ruleId;
 	private int enterPos;
 	private String endRule;
-	private String scopeName;
+	private final String scopeName;
 	private String contentName;
 
 	public StackElement(StackElement parent, int ruleId, int enterPos, String endRule, String scopeName,

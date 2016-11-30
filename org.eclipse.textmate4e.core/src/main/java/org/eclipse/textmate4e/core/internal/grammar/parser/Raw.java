@@ -246,8 +246,12 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 			return list;
 		} else if (value instanceof String) {
 			return new String((String) value);
+		} else if (value instanceof Integer) {
+			return value;
+		} else if (value instanceof Boolean) {
+			return value;
 		}
-		return null;
+		return value;
 	}
 
 }
