@@ -10,7 +10,19 @@
             contentTypeId="org.eclipse.languageserver.languages.css"
             themeId="org.eclipse.textmate4e.ui.themes.SolarizedLight">
       </themeContentTypeBinding>
-            
+      <!-- Use SolarizedLight theme for PHP, HTML -->
+      <themeContentTypeBinding
+            contentTypeId="org.eclipse.textmate4e.samples.php"
+            themeId="org.eclipse.textmate4e.ui.themes.SolarizedLight">
+      </themeContentTypeBinding>
+      <themeContentTypeBinding
+            contentTypeId="org.eclipse.textmate4e.samples.html"
+            themeId="org.eclipse.textmate4e.ui.themes.SolarizedLight">
+      </themeContentTypeBinding>
+      <themeContentTypeBinding
+            contentTypeId="org.eclipse.textmate4e.samples.freemarker"
+            themeId="org.eclipse.textmate4e.ui.themes.SolarizedLight">
+      </themeContentTypeBinding>                              
    </extension>
   
    <!-- Register C#, JSON, CSS TextMate grammars -->
@@ -104,7 +116,11 @@
       <grammar
       		scopeName="text.html.basic"
             path="./syntaxes/html.json" >
-      </grammar>      
+      </grammar>
+      <grammar
+      		scopeName="source.js"
+            path="./syntaxes/JavaScript.tmLanguage.json" >
+      </grammar>            
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.textmate4e.samples.html"
             scopeName="text.html.basic">

@@ -1,8 +1,10 @@
 package org.eclipse.textmate4e.core.internal.grammar.parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.textmate4e.core.internal.types.IRawCaptures;
@@ -220,6 +222,32 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	@Override
 	public Iterator<String> iterator() {
 		return super.keySet().iterator();
+	}
+
+	@Override
+	public Object clone() {
+		return clone(this);
+	}
+
+	private Object clone(Object value) {
+		if (value instanceof Raw) {
+			Raw rowToClone = (Raw) value;
+			Raw raw = new Raw();
+			for (Entry<String, Object> entry : rowToClone.entrySet()) {
+				raw.put(entry.getKey(), clone(entry.getValue()));
+			}
+			return raw;
+		} else if (value instanceof List) {
+			List listToClone = (List) value;
+			List list = new ArrayList<>();
+			for (Object item : listToClone) {
+				list.add(clone(item));
+			}
+			return list;
+		} else if (value instanceof String) {
+			return new String((String) value);
+		}
+		return null;
 	}
 
 }

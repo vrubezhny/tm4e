@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.eclipse.textmate4e.core.grammar.GrammarHelper;
@@ -164,6 +166,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	private IRawGrammar clone(IRawGrammar grammar) {
 		return (IRawGrammar) ((Raw) grammar).clone();
 	}
+
+	
 
 	@Override
 	public ITokenizeLineResult tokenizeLine(String lineText) {

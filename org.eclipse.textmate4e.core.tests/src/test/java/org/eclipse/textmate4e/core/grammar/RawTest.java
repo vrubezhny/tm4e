@@ -1,6 +1,8 @@
 package org.eclipse.textmate4e.core.grammar;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,6 +77,11 @@ public class RawTest implements Test, Describable {
 			}
 
 			@Override
+			public InputStream getInputStream(String scopeName) throws IOException {
+				return null;
+			}
+
+			@Override
 			public Collection<String> getInjections(String scopeName) {
 				if (scopeName.equals(test.getGrammarScopeName())) {
 					return test.getGrammarInjections();
@@ -82,7 +89,7 @@ public class RawTest implements Test, Describable {
 				return null;
 			}
 		};
-		
+
 		Registry registry = new Registry(locator);
 		IGrammar grammar = getGrammar(test, registry, testLocation.getParentFile());
 

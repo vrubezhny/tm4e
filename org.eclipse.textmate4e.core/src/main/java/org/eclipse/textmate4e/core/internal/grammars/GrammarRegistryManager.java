@@ -10,8 +10,11 @@
  */
 package org.eclipse.textmate4e.core.internal.grammars;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -25,6 +28,7 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.textmate4e.core.TMCorePlugin;
 import org.eclipse.textmate4e.core.grammar.IGrammar;
 import org.eclipse.textmate4e.core.grammars.IGrammarRegistryManager;
+import org.eclipse.textmate4e.core.registry.IGrammarLocator;
 
 /**
  * 
@@ -44,11 +48,14 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	private boolean registryListenerIntialized;
 
 	private GrammarRegistry registry;
+	private Map<String, List<String>> injections;
+
 	private Map<String, String> scopeNameBindings;
 
 	public GrammarRegistryManager() {
 		this.registryListenerIntialized = false;
 		this.scopeNameBindings = new HashMap<>();
+		injections = new HashMap<>();
 	}
 
 	@Override
@@ -58,7 +65,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		for (IContentType contentType : contentTypes) {
 			String scopeName = getScopeName(contentType);
 			if (scopeName != null) {
-				IGrammar grammar = registry.grammarForScopeName(scopeName);
+				IGrammar grammar = registry.getGrammar(scopeName);
 				if (grammar != null) {
 					return grammar;
 				}
@@ -117,7 +124,26 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		}
 		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMCorePlugin.PLUGIN_ID,
 				EXTENSION_GRAMMARS);
-		GrammarRegistry registry = new GrammarRegistry();
+		GrammarRegistry registry = new GrammarRegistry(new IGrammarLocator() {
+
+			@Override
+			public Collection<String> getInjections(String scopeName) {
+				return injections.get(scopeName);
+			}
+
+			@Override
+			public String getFilePath(String scopeName) {
+				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
+				return info != null ? info.getPath() : null;
+			}
+			
+			@Override
+			public InputStream getInputStream(String scopeName) throws IOException {
+				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
+				return info != null ? info.getInputStream() : null;
+			}
+			
+		});
 		loadGrammars(cf, registry);
 		addRegistryListener();
 		this.registry = registry;
@@ -139,7 +165,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
 			if ("grammar".equals(name)) {
-				cache.register(new GrammarInfo(ce));
+				cache.register(new GrammarDefinition(ce));
 			} else if ("scopeNameContentTypeBinding".equals(name)) {
 				String contentTypeId = ce.getAttribute("contentTypeId");
 				String scopeName = ce.getAttribute("scopeName");

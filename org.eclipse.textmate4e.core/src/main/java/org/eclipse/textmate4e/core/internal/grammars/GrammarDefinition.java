@@ -9,13 +9,13 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 
-public class GrammarInfo {
+public class GrammarDefinition {
 
 	private String path;
 	private String scopeName;
 	private String pluginId;
 
-	public GrammarInfo(IConfigurationElement element) {
+	public GrammarDefinition(IConfigurationElement element) {
 		this.path = element.getAttribute("path");
 		this.scopeName = element.getAttribute("scopeName");
 		this.pluginId = element.getNamespaceIdentifier();
