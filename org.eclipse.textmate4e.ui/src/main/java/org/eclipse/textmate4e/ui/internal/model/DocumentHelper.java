@@ -10,10 +10,18 @@
  */
 package org.eclipse.textmate4e.ui.internal.model;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -81,9 +89,59 @@ public class DocumentHelper {
 	 * 
 	 * @throws CoreException
 	 */
-	public static IContentType getContentType(IDocument document) throws CoreException {
+	public static IContentType[] getContentTypes(IDocument document) throws CoreException {
 		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
 		ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
-		return buffer.getContentType();
+		return getContentTypes(buffer);
+	}
+
+	private static IContentType[] getContentTypes(ITextFileBuffer buffer) throws CoreException {
+		try {
+			String fileName = buffer.getFileStore().getName();
+			if (buffer.isDirty()) {
+				InputStream input = null;
+				try {
+					input = new DocumentInputStream(buffer.getDocument());
+					IContentType[] contentTypes = Platform.getContentTypeManager().findContentTypesFor(input,
+							fileName);
+					if (contentTypes != null)
+						return contentTypes;
+				} finally {
+					try {
+						if (input != null)
+							input.close();
+					} catch (IOException x) {
+					}
+				}
+			}
+
+			InputStream contents = null;
+			try  {
+				contents = getContents(buffer);
+				return Platform.getContentTypeManager().findContentTypesFor(contents, fileName);
+			} catch (Throwable e) {
+				if (contents != null) {
+					contents.close();
+				}
+				e.printStackTrace();
+				return null;
+			}
+		} catch (IOException x) {
+//			throw new CoreException(new Status(IStatus.ERROR, FileBuffersPlugin.PLUGIN_ID, IStatus.OK,
+//					NLSUtility.format(FileBuffersMessages.FileBuffer_error_queryContentDescription,
+//							fFile.getFullPath().toOSString()),
+//					x));
+			x.printStackTrace();
+			return null;
+		}
+	}
+
+	private static InputStream getContents(ITextFileBuffer buffer) throws CoreException {
+		IWorkspaceRoot workspaceRoot= ResourcesPlugin.getWorkspace().getRoot();
+		IFile file= workspaceRoot.getFile(buffer.getLocation());
+		if (file.exists()) {
+			return file.getContents();
+		}
+		return buffer.getFileStore().openInputStream(EFS.NONE, null);
 	}
 }

@@ -29,12 +29,12 @@ public interface IThemeManager {
 	 * Returns the {@link ITheme} for the given content type and the default
 	 * theme otherwise.
 	 * 
-	 * @param contentType
+	 * @param contentTypes
 	 *            the content type.
 	 * @return the {@link ITheme} for the given content type and the default
 	 *         theme otherwise.
 	 */
-	ITheme getThemeFor(IContentType contentType);
+	ITheme getThemeFor(IContentType[] contentTypes);
 
 	/**
 	 * Returns the {@link ITheme} by the theme id.

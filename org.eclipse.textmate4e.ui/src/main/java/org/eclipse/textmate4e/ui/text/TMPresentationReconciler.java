@@ -88,8 +88,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
 					// Update theme + grammar
-					updateTokenProvider(newDocument);
-					model.setGrammar(getGrammar(newDocument));
+					IContentType[] contentTypes = DocumentHelper.getContentTypes(newDocument);
+					updateTokenProvider(contentTypes);
+					model.setGrammar(getGrammar(contentTypes));
 					// Add model listener
 					model.addModelTokensChangedListener(this);
 				} catch (CoreException e) {
@@ -98,19 +99,17 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			}
 		}
 
-		private IGrammar getGrammar(IDocument document) throws CoreException {
+		private IGrammar getGrammar(IContentType[] contentTypes) throws CoreException {
 			if (grammar != null) {
 				return grammar;
 			}
-			// Discover the well grammar from the contentType
-			IContentType contentType = DocumentHelper.getContentType(document);
-			return TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentType);
+			// Discover the well grammar from the contentTypes
+			return TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
 		}
 
-		private void updateTokenProvider(IDocument document) throws CoreException {
+		private void updateTokenProvider(IContentType[] contentTypes) throws CoreException {
 			if (tokenProvider == null) {
-				IContentType contentType = DocumentHelper.getContentType(document);
-				tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentType);
+				tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentTypes);
 			}
 		}
 

@@ -3,6 +3,7 @@ package org.eclipse.textmate4e.core.internal.grammar.parser;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.eclipse.textmate4e.core.internal.types.IRawCaptures;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
@@ -154,6 +155,16 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 	@Override
 	public void setPatterns(Collection<IRawRule> patterns) {
 		super.put("patterns", patterns);
+	}
+
+	@Override
+	public Map<String, IRawRule> getInjections() {
+		return (Map<String, IRawRule>) super.get("injections");
+	}
+
+	@Override
+	public String getInjectionSelector() {
+		return (String) super.get("injectionSelector");
 	}
 
 	@Override

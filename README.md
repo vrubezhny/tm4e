@@ -18,3 +18,4 @@ which provides samples of syntax coloration with:
  * GenericEditor for Language Server (C#, CSS, JSON)
  * a TypeScript Editor.
  
+Proposal https://projects.eclipse.org/proposals/textmate-support-eclipse-ide-textmate4e

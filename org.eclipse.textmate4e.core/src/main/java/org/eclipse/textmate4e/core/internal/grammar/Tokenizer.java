@@ -1,13 +1,26 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ *
+ * Contributors:
+ *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
 package org.eclipse.textmate4e.core.internal.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.textmate4e.core.grammar.GrammarHelper;
-import org.eclipse.textmate4e.core.grammar.IMatchInjectionsResult;
-import org.eclipse.textmate4e.core.grammar.IMatchResult;
 import org.eclipse.textmate4e.core.grammar.Injection;
 import org.eclipse.textmate4e.core.grammar.StackElement;
+import org.eclipse.textmate4e.core.internal.matcher.IMatchInjectionsResult;
+import org.eclipse.textmate4e.core.internal.matcher.IMatchResult;
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigCaptureIndex;
 import org.eclipse.textmate4e.core.internal.oniguruma.IOnigNextMatchResult;
 import org.eclipse.textmate4e.core.internal.oniguruma.OnigString;

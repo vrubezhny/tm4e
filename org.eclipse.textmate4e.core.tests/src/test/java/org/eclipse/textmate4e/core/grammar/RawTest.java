@@ -2,6 +2,7 @@ package org.eclipse.textmate4e.core.grammar;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,13 +74,15 @@ public class RawTest implements Test, Describable {
 				return null;
 			}
 
-			/*
-			 * getInjections: (scopeName:string) => { if (scopeName ===
-			 * test.grammarScopeName) { return test.grammarInjections; } return
-			 * void 0; }
-			 */
-
+			@Override
+			public Collection<String> getInjections(String scopeName) {
+				if (scopeName.equals(test.getGrammarScopeName())) {
+					return test.getGrammarInjections();
+				}
+				return null;
+			}
 		};
+		
 		Registry registry = new Registry(locator);
 		IGrammar grammar = getGrammar(test, registry, testLocation.getParentFile());
 

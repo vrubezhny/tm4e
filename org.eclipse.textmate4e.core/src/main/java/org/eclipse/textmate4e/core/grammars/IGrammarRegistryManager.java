@@ -23,9 +23,9 @@ public interface IGrammarRegistryManager {
 	/**
 	 * Returns the {@link IGrammar} for the given content type.
 	 * 
-	 * @param contentType
+	 * @param contentTypes
 	 *            the content type.
 	 * @return the {@link IGrammar} for the given content type.
 	 */
-	IGrammar getGrammarFor(IContentType contentType);
+	IGrammar getGrammarFor(IContentType[] contentTypes);
 }

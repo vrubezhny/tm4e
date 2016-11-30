@@ -14,9 +14,13 @@
 package org.eclipse.textmate4e.core.internal.grammar;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.eclipse.textmate4e.core.grammar.GrammarHelper;
 import org.eclipse.textmate4e.core.grammar.IGrammar;
@@ -26,6 +30,7 @@ import org.eclipse.textmate4e.core.grammar.ITokenizeLineResult;
 import org.eclipse.textmate4e.core.grammar.Injection;
 import org.eclipse.textmate4e.core.grammar.StackElement;
 import org.eclipse.textmate4e.core.internal.grammar.parser.Raw;
+import org.eclipse.textmate4e.core.internal.matcher.Matcher;
 import org.eclipse.textmate4e.core.internal.oniguruma.OnigString;
 import org.eclipse.textmate4e.core.internal.rule.IRuleFactory;
 import org.eclipse.textmate4e.core.internal.rule.IRuleFactoryHelper;
@@ -58,28 +63,55 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		this._grammarRepository = grammarRepository;
 		this._grammar = initGrammar(grammar, null);
 		this._ruleId2desc = new HashMap<Integer, Rule>();
-		this._injections = new ArrayList<Injection>();
+		this._injections = null;
 	}
 
 	public List<Injection> getInjections(StackElement states) {
 		if (this._injections == null) {
-			this._injections = getGrammarInjections(this._grammar, this);
-			// optional: bring in injections from external repositories
+			this._injections = new ArrayList<Injection>();
+			// add injections from the current grammar
+			Map<String, IRawRule> rawInjections = this._grammar.getInjections();
+			if (rawInjections != null) {
+				for (Entry<String, IRawRule> injection : rawInjections.entrySet()) {
+					String expression = injection.getKey();
+					IRawRule rule = injection.getValue();
+					collectInjections(this._injections, expression, rule, this, this._grammar);
+				}
+			}
+
+			// add injection grammars contributed for the current scope
+			if (this._grammarRepository != null) {
+				Collection<String> injectionScopeNames = this._grammarRepository
+						.injections(this._grammar.getScopeName());
+				if (injectionScopeNames != null) {
+					injectionScopeNames.forEach(injectionScopeName -> {
+						IRawGrammar injectionGrammar = this.getExternalGrammar(injectionScopeName);
+						if (injectionGrammar != null) {
+							String selector = injectionGrammar.getInjectionSelector();
+							if (selector != null) {
+								collectInjections(this._injections, selector, (IRawRule) injectionGrammar, this,
+										injectionGrammar);
+							}
+						}
+					});
+				}
+			}
 		}
 		if (this._injections.size() == 0) {
 			return this._injections;
 		}
-		return filter(this._injections, states);
+		return this._injections.stream().filter(injection -> injection.match(states)).collect(Collectors.toList());
 	}
 
-	private List<Injection> filter(List<Injection> injections, StackElement states) {
-		List<Injection> filtered = new ArrayList<Injection>();
-		for (Injection injection : injections) {
-			if (injection.match(states)) {
-				filtered.add(injection);
-			}
-		}
-		return filtered;
+	private void collectInjections(List<Injection> result, String selector, IRawRule rule,
+			IRuleFactoryHelper ruleFactoryHelper, IRawGrammar grammar) {
+		String[] subExpressions = selector.split(",");
+		Arrays.stream(subExpressions).forEach(subExpression -> {
+			String expressionString = subExpression.replaceAll("L:", "");
+			result.add(new Injection(Matcher.createMatcher(expressionString),
+					RuleFactory.getCompiledRuleId(rule, ruleFactoryHelper, grammar.getRepository()), grammar,
+					expressionString.length() < subExpression.length()));
+		});
 	}
 
 	public Rule registerRule(IRuleFactory factory) {
@@ -93,6 +125,10 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return this._ruleId2desc.get(patternId);
 	}
 
+	public IRawGrammar getExternalGrammar(String scopeName) {
+		return getExternalGrammar(scopeName, null);
+	}
+
 	@Override
 	public IRawGrammar getExternalGrammar(String scopeName, IRawRepository repository) {
 		if (this._includedGrammars.containsKey(scopeName)) {
@@ -100,7 +136,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		} else if (this._grammarRepository != null) {
 			IRawGrammar rawIncludedGrammar = this._grammarRepository.lookup(scopeName);
 			if (rawIncludedGrammar != null) {
-				this._includedGrammars.put(scopeName, initGrammar(rawIncludedGrammar, repository.getBase()));
+				this._includedGrammars.put(scopeName,
+						initGrammar(rawIncludedGrammar, repository != null ? repository.getBase() : null));
 				return this._includedGrammars.get(scopeName);
 			}
 		}
@@ -126,42 +163,6 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	private IRawGrammar clone(IRawGrammar grammar) {
 		return (IRawGrammar) ((Raw) grammar).clone();
-	}
-
-	private List<Injection> getGrammarInjections(IRawGrammar grammar, IRuleFactoryHelper ruleFactoryHelper) {
-		List<Injection> injections = new ArrayList<Injection>();
-		// var rawInjections = grammar.injections;
-		// if (rawInjections) {
-		// var nameMatcher = (identifers: string[], stackElements:
-		// StackElement[]) => {
-		// var lastIndex = 0;
-		// return identifers.every(identifier => {
-		// for (var i = lastIndex; i < stackElements.length; i++) {
-		// if (stackElements[i].matches(identifier)) {
-		// lastIndex = i;
-		// return true;
-		// }
-		// }
-		// return false;
-		// });
-		// };
-		//
-		// for (var expression in rawInjections) {
-		// var subExpressions = (<string> expression).split(',');
-		// subExpressions.forEach(subExpression => {
-		// var expressionString = subExpression.replace(/L:/g, '')
-		//
-		// injections.push({
-		// matcher: createMatcher(expressionString, nameMatcher),
-		// ruleId: RuleFactory.getCompiledRuleId(rawInjections[expression],
-		// ruleFactoryHelper, grammar.repository),
-		// grammar: grammar,
-		// priorityMatch: expressionString.length < subExpression.length
-		// });
-		// });
-		// }
-		// }
-		return injections;
 	}
 
 	@Override

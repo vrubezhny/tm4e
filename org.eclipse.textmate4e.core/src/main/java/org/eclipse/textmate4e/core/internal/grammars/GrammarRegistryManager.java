@@ -52,11 +52,19 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	}
 
 	@Override
-	public IGrammar getGrammarFor(IContentType contentType) {
+	public IGrammar getGrammarFor(IContentType[] contentTypes) {
 		loadGrammarsIfNeeded();
 		// Find grammar by content type
-		String scopeName = getScopeName(contentType);
-		return registry.grammarForScopeName(scopeName);
+		for (IContentType contentType : contentTypes) {
+			String scopeName = getScopeName(contentType);
+			if (scopeName != null) {
+				IGrammar grammar = registry.grammarForScopeName(scopeName);
+				if (grammar != null) {
+					return grammar;
+				}
+			}
+		}
+		return null;
 	}
 
 	private String getScopeName(IContentType contentType) {

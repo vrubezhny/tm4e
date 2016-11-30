@@ -1,17 +1,16 @@
 package org.eclipse.textmate4e.core.grammar;
 
-import java.util.List;
-
+import org.eclipse.textmate4e.core.internal.matcher.IMatcher;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 
 public class Injection {
 
-	private final Matcher<List<StackElement>> matcher;
+	private final IMatcher<StackElement> matcher;
 	public final boolean priorityMatch;
 	public final int ruleId;
 	public final IRawGrammar grammar;
 
-	public Injection(Matcher<List<StackElement>> matcher, int ruleId, IRawGrammar grammar, boolean priorityMatch) {
+	public Injection(IMatcher<StackElement> matcher, int ruleId, IRawGrammar grammar, boolean priorityMatch) {
 		this.matcher = matcher;
 		this.ruleId = ruleId;
 		this.grammar = grammar;
@@ -19,7 +18,6 @@ public class Injection {
 	}
 
 	public boolean match(StackElement states) {
-		// TODO Auto-generated method stub
-		return false;
+		return matcher.match(states);
 	}
 }

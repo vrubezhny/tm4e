@@ -85,5 +85,119 @@
             id="org.eclipse.textmate4e.samples.typescript.JSXEditor">
       </editor>
    </extension>
-   
+
+	<!-- HTML Editor -->
+	
+	<extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="html"
+            id="org.eclipse.textmate4e.samples.html"
+            name="HTML"
+            priority="normal">
+      </content-type>
+	</extension>  
+
+   <extension
+         point="org.eclipse.textmate4e.core.grammars">
+      <grammar
+      		scopeName="text.html.basic"
+            path="./syntaxes/html.json" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.textmate4e.samples.html"
+            scopeName="text.html.basic">
+      </scopeNameContentTypeBinding>
+   </extension>
+   	
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="HTML Editor"
+            icon="icons/html.png"
+            class="org.eclipse.textmate4e.samples.html.HTMLEditor"
+            id="org.eclipse.textmate4e.samples.html.HTMLEditor">
+            <contentTypeBinding
+                  contentTypeId="org.eclipse.textmate4e.samples.html">
+            </contentTypeBinding>
+      </editor>
+   </extension>
+
+	<!-- Freemarker Editor -->
+	
+	<extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="ftl"
+            id="org.eclipse.textmate4e.samples.freemarker"
+            name="Freemarker"
+            priority="normal">
+      </content-type>
+	</extension>  
+
+   <extension
+         point="org.eclipse.textmate4e.core.grammars">
+      <grammar
+      		scopeName="text.html.ftl"
+            path="./syntaxes/ftl.tmLanguage" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.textmate4e.samples.freemarker"
+            scopeName="text.html.ftl">
+      </scopeNameContentTypeBinding>
+   </extension>
+   	
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Freemarker Editor"
+            icon="icons/freemarker.png"
+            class="org.eclipse.textmate4e.samples.freemarker.FreemarkerEditor"
+            id="org.eclipse.textmate4e.samples.freemarker.FreemarkerEditor">
+            <contentTypeBinding
+                  contentTypeId="org.eclipse.textmate4e.samples.freemarker">
+            </contentTypeBinding>
+      </editor>
+   </extension>
+
+	<!-- PHP Editor -->
+	
+	<extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="php"
+            id="org.eclipse.textmate4e.samples.php"
+            name="PHP"
+            priority="normal">
+      </content-type>
+	</extension>  
+
+   <extension
+         point="org.eclipse.textmate4e.core.grammars">
+      <grammar
+      		scopeName="text.html.php"
+            path="./syntaxes/php.tmLanguage.json" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.textmate4e.samples.php"
+            scopeName="text.html.php">
+      </scopeNameContentTypeBinding>
+   </extension>
+   	
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="PHP Editor"
+            icon="icons/php.png"
+            class="org.eclipse.textmate4e.samples.php.PHPEditor"
+            id="org.eclipse.textmate4e.samples.php.PHPEditor">
+            <contentTypeBinding
+                  contentTypeId="org.eclipse.textmate4e.samples.php">
+            </contentTypeBinding>
+      </editor>
+   </extension>
+         
 </plugin>

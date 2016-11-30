@@ -61,9 +61,9 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	}
 
 	@Override
-	public ITheme getThemeFor(IContentType contentType) {
+	public ITheme getThemeFor(IContentType[] contentTypes) {
 		loadThemesIfNeeded();
-		String themeId = themeContentTypeBindings.get(contentType.getId());
+		String themeId = getThemeIdFor(contentTypes);
 		if (themeId != null) {
 			ITheme theme = getThemeById(themeId);
 			if (theme != null) {
@@ -71,6 +71,17 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 			}
 		}
 		return getDefaultTheme();
+	}
+
+	private String getThemeIdFor(IContentType[] contentTypes) {
+		String themeId = null;
+		for (IContentType contentType : contentTypes) {
+			themeId = themeContentTypeBindings.get(contentType.getId());
+			if (themeId != null) {
+				return themeId;
+			}
+		}
+		return null;
 	}
 
 	@Override
