@@ -103,16 +103,16 @@ public class RegExpSource {
 	public String resolveBackReferences(String lineText, IOnigCaptureIndex[] captureIndices) {
 		List<String> capturedValues = Arrays.stream(captureIndices)
 				.map(capture -> lineText.substring(capture.getStart(), capture.getEnd())).collect(Collectors.toList());
-
-		String result = this.source;
 		Matcher m = BACK_REFERENCING_END.matcher(this.source);
+		StringBuffer sb = new StringBuffer();
 		while (m.find()) {
 			String g1 = m.group();
-			int index = Integer.parseInt(g1.substring(1,  g1.length()));
-			String replacement = escapeRegExpCharacters(capturedValues.get(index));			
-			result = result.replaceAll("\\" + g1 + "", replacement);
+			int index = Integer.parseInt(g1.substring(1, g1.length()));
+			String replacement = escapeRegExpCharacters(capturedValues.size() > index ? capturedValues.get(index) : "");
+			m.appendReplacement(sb, replacement);
 		}
-		return result;
+		m.appendTail(sb);
+		return sb.toString();
 	}
 
 	private String escapeRegExpCharacters(String value) {

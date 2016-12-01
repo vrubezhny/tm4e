@@ -28,8 +28,6 @@ class LineTokens {
 		}
 
 		List<String> scopes = stack.generateScopes();
-		int outIndex = scopes.size();
-
 		if (extraScopes != null) {
 			for (LocalStackElement extraScope : extraScopes) {
 				scopes.add(extraScope.getScopeName());

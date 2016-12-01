@@ -422,8 +422,11 @@ class Tokenizer {
 			}
 
 			// push
-			localStack.add(new LocalStackElement(captureRule.getName(lineText.getString(), captureIndices),
-					captureIndex.getEnd()));
+			String captureRuleScopeName = captureRule.getName(lineText.getString(), captureIndices);
+			if (captureRuleScopeName != null) {
+				// push
+				localStack.add(new LocalStackElement(captureRuleScopeName, captureIndex.getEnd()));
+			}
 		}
 
 		while (localStack.size() > 0) {
@@ -449,7 +452,7 @@ class Tokenizer {
 			}
 		}
 		for (int i = whileRules.size() - 1; i >= 0; i--) {
-			WhileStack whileRule = whileRules.get(i);		
+			WhileStack whileRule = whileRules.get(i);
 			ICompiledRule ruleScanner = whileRule.rule.compileWhile(grammar, whileRule.stack.getEndRule(), isFirstLine,
 					anchorPosition == linePos);
 			IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
