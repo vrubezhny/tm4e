@@ -1,3 +1,16 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ *
+ * Contributors:
+ *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
 package org.eclipse.textmate4e.core.internal.matcher;
 
 import java.util.ArrayList;
@@ -7,7 +20,15 @@ import java.util.regex.Pattern;
 
 import org.eclipse.textmate4e.core.grammar.StackElement;
 
+/**
+ * Matcher utilities.
+ * 
+ * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/matcher.ts
+ *
+ */
 public class Matcher<T> implements IMatcher<T> {
+
+	private static final Pattern IDENTIFIER_REGEXP = Pattern.compile("[\\w\\.:]+");
 
 	public static IMatcher<StackElement> createMatcher(String expression) {
 		return createMatcher(expression, IMatchesName.NAME_MATCHER);
@@ -87,8 +108,6 @@ public class Matcher<T> implements IMatcher<T> {
 		if ("-".equals(token)) {
 			token = tokenizer.next();
 			IMatcher<T> expressionToNegate = parseOperand();
-			// return matcherInput => expressionToNegate &&
-			// !expressionToNegate(matcherInput);
 			return new IMatcher<T>() {
 				@Override
 				public boolean match(T matcherInput) {
@@ -113,7 +132,6 @@ public class Matcher<T> implements IMatcher<T> {
 				identifiers.add(token);
 				token = tokenizer.next();
 			} while (isIdentifier(token));
-			// return matcherInput => matchesName(identifiers, matcherInput);
 			return new IMatcher<T>() {
 				@Override
 				public boolean match(T matcherInput) {
@@ -125,7 +143,7 @@ public class Matcher<T> implements IMatcher<T> {
 	}
 
 	private boolean isIdentifier(String token) {
-		return token != null && token.matches("[\\w\\.:]+");
+		return token != null && IDENTIFIER_REGEXP.matcher(token).matches();
 	}
 
 	@Override
@@ -152,7 +170,6 @@ public class Matcher<T> implements IMatcher<T> {
 			}
 			return null;
 		}
-
 	}
 
 	private static Tokenizer newTokenizer(String input) {

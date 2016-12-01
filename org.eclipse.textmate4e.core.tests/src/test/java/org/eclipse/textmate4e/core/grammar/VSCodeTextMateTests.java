@@ -31,6 +31,10 @@ public class VSCodeTextMateTests {
 		createVSCodeTestSuite("test-cases/suite1/tests.json", suite1TestSuite);
 		createVSCodeTestSuite("test-cases/suite1/whileTests.json", suite1TestSuite);
 
+		// Matcher
+		TestSuite matcherTestSuite = createTestSuite("Matcher", rootTestSuite);
+		createMatcherTestSuite(matcherTestSuite);
+
 		return rootTestSuite;
 	}
 
@@ -56,4 +60,15 @@ public class VSCodeTextMateTests {
 		}
 	}
 
+	private static void createMatcherTestSuite(TestSuite suite) throws Exception {
+		Type listType = new TypeToken<ArrayList<MatcherTest>>() {
+		}.getType();
+		List<MatcherTest> tests = new GsonBuilder().create()
+				.fromJson(new FileReader(new File(REPO_ROOT, "matcher-tests.json")), listType);
+		int i = 0;
+		for (MatcherTest test : tests) {
+			test.setDesc("Test #" + (i++));
+			suite.addTest(test);
+		}
+	}
 }

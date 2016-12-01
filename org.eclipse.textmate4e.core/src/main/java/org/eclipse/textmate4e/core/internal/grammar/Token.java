@@ -37,4 +37,17 @@ class Token implements IToken {
 	public List<String> getScopes() {
 		return scopes;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		s.append("{startIndex: ");
+		s.append(startIndex);
+		s.append(", endIndex: ");
+		s.append(endIndex);
+		s.append(", scopes: ");
+		s.append(scopes);
+		s.append("}");
+		return s.toString();
+	}
 }

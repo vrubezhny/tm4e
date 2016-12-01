@@ -15,6 +15,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.textmate4e.core,
  org.eclipse.textmate4e.core.grammar,
  org.eclipse.textmate4e.core.grammars,
+ org.eclipse.textmate4e.core.internal.matcher;x-friends:="org.eclipse.textmate4e.core.tests",
  org.eclipse.textmate4e.core.model,
  org.eclipse.textmate4e.core.registry,
  org.eclipse.textmate4e.core.theme,
