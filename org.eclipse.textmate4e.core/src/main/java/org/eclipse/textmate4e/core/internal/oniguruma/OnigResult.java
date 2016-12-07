@@ -21,9 +21,9 @@ public class OnigResult implements IOnigNextMatchResult {
 	private Region region;
 	private List<IOnigCaptureIndex> captureIndices;
 
-	public OnigResult(int index, Region region) {
+	public OnigResult(Region region, int indexInScanner) {
 		this.captureIndices = new ArrayList<IOnigCaptureIndex>();
-		this.update(index, region);
+		this.update(indexInScanner, region);
 	}
 
 	@Override

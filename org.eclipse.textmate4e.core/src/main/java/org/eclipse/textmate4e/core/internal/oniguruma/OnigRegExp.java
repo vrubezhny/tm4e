@@ -20,16 +20,19 @@ import org.joni.Region;
 import org.joni.Syntax;
 import org.joni.WarnCallback;
 
+/**
+ * 
+ * @see https://github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc
+ *
+ */
 public class OnigRegExp {
 
 	private UUID lastSearchStrUniqueId;
 	private int lastSearchPosition;
 	private OnigResult lastSearchResult;
 	private Regex regex;
-	private String s;
 
 	public OnigRegExp(String source) {
-		s = source;
 		lastSearchStrUniqueId = null;
 		lastSearchPosition = -1;
 		lastSearchResult = null;
@@ -53,10 +56,10 @@ public class OnigRegExp {
 
 	private OnigResult Search(byte[] data, int position, int end) {
 		Matcher matcher = regex.matcher(data);
-		int result = matcher.search(position, end, Option.DEFAULT);
-		if (result != -1) {
+		int status = matcher.search(position, end, Option.DEFAULT);
+		if (status != Matcher.FAILED) {
 			Region region = matcher.getEagerRegion();
-			return new OnigResult(-1, region);
+			return new OnigResult(region, -1);
 		}
 		return null;
 	}

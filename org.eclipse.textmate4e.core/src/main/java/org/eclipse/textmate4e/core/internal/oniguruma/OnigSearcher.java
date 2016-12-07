@@ -24,15 +24,15 @@ public class OnigSearcher {
 		}
 	}
 
-	public OnigResult search(OnigString source, int pos) {
-		int byteOffset = pos;
+	public OnigResult search(OnigString source, int charOffset) {
+		int byteOffset = charOffset;
 
 		int bestLocation = 0;
 		OnigResult bestResult = null;
 		int index = 0;
 
 		for (OnigRegExp regExp : regExps) {
-			OnigResult result = regExp.Search(source, pos);
+			OnigResult result = regExp.Search(source, byteOffset);
 			if (result != null && result.count() > 0) {
 				int location = result.LocationAt(0);
 				
