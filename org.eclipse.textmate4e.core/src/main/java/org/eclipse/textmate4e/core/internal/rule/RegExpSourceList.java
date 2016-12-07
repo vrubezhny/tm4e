@@ -1,3 +1,16 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ *
+ * Contributors:
+ *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
 package org.eclipse.textmate4e.core.internal.rule;
 
 import java.util.ArrayList;
@@ -6,6 +19,11 @@ import java.util.List;
 
 import org.eclipse.textmate4e.core.internal.oniguruma.OnigScanner;
 
+/**
+ * 
+ * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/rule.ts
+ *
+ */
 public class RegExpSourceList {
 
 	private class IRegExpSourceListAnchorCache {
@@ -29,13 +47,11 @@ public class RegExpSourceList {
 	private boolean _hasAnchors;
 	private ICompiledRule _cached;
 	private IRegExpSourceListAnchorCache _anchorCache;
-	// private _cachedSources: string[];
 
 	public RegExpSourceList() {
 		this._items = new ArrayList<RegExpSource>();
 		this._hasAnchors = false;
 		this._cached = null;
-		// this._cachedSources = null;
 		this._anchorCache = new IRegExpSourceListAnchorCache(null, null, null, null);
 	}
 
@@ -69,10 +85,6 @@ public class RegExpSourceList {
 	public ICompiledRule compile(IRuleRegistry grammar, boolean allowA, boolean allowG) {
 		if (!this._hasAnchors) {
 			if (this._cached == null) {
-				// this._cached = {
-				// scanner: createOnigScanner(this._items.map(e => e.source)),
-				// rules: this._items.map(e => e.ruleId)
-				// };
 				List<String> regexps = new ArrayList<String>();
 				for (RegExpSource regExpSource : _items) {
 					regexps.add(regExpSource.source);
@@ -108,12 +120,6 @@ public class RegExpSourceList {
 	}
 
 	private ICompiledRule _resolveAnchors(boolean allowA, boolean allowG) {
-		// return {
-		// scanner: createOnigScanner(this._items.map(e =>
-		// e.resolveAnchors(allowA, allowG))),
-		// rules: this._items.map(e => e.ruleId)
-		// };
-
 		List<String> regexps = new ArrayList<String>();
 		for (RegExpSource regExpSource : _items) {
 			regexps.add(regExpSource.resolveAnchors(allowA, allowG));
