@@ -40,7 +40,7 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	private static final String THEME_ID_ATTR_NAME = "themeId";
 	private static final String CONTENT_TYPE_ID_ATTR_NAME = "contentTypeId";
 
-	private static final String DEFAULT_THEME_ID = "org.eclipse.textmate4e.ui.themes.Light";
+	private static final String DEFAULT_THEME_ID = "org.eclipse.textmate4e.ui.themes.SolarizedLight";
 
 	private static final ThemeManager INSTANCE = new ThemeManager();
 
