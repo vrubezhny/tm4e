@@ -75,7 +75,6 @@ public class TMModel extends AbstractTMModel {
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
-			System.err.println(getLines().getSize() + " = " + document.getNumberOfLines());
 		}
 	}
 
