@@ -1,6 +1,15 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.textmate4e.core.internal.grammar.parser;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +20,12 @@ import org.eclipse.textmate4e.core.internal.types.IRawCaptures;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 import org.eclipse.textmate4e.core.internal.types.IRawRepository;
 import org.eclipse.textmate4e.core.internal.types.IRawRule;
+import org.eclipse.textmate4e.core.internal.utils.CloneUtils;
 
+/**
+ * Raw
+ *
+ */
 public class Raw extends HashMap<String, Object> implements IRawRepository, IRawRule, IRawGrammar, IRawCaptures {
 
 	@Override
@@ -81,7 +95,21 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public IRawCaptures getCaptures() {
+		updateCaptures("captures");
 		return (IRawCaptures) super.get("captures");
+	}
+
+	private void updateCaptures(String name) {
+		Object captures = super.get(name);
+		if (captures instanceof List) {
+			Raw rawCaptures = new Raw();
+			int i = 0;
+			for (Object capture : (List) captures) {
+				i++;
+				rawCaptures.put(i + "", capture);
+			}
+			super.put(name, rawCaptures);
+		}
 	}
 
 	@Override
@@ -116,6 +144,7 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public IRawCaptures getBeginCaptures() {
+		updateCaptures("beginCaptures");
 		return (IRawCaptures) super.get("beginCaptures");
 	}
 
@@ -136,6 +165,7 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public IRawCaptures getEndCaptures() {
+		updateCaptures("endCaptures");
 		return (IRawCaptures) super.get("endCaptures");
 	}
 
@@ -146,6 +176,7 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public IRawCaptures getWhileCaptures() {
+		updateCaptures("whileCaptures");
 		return (IRawCaptures) super.get("whileCaptures");
 	}
 
@@ -226,32 +257,7 @@ public class Raw extends HashMap<String, Object> implements IRawRepository, IRaw
 
 	@Override
 	public Object clone() {
-		return clone(this);
-	}
-
-	private Object clone(Object value) {
-		if (value instanceof Raw) {
-			Raw rowToClone = (Raw) value;
-			Raw raw = new Raw();
-			for (Entry<String, Object> entry : rowToClone.entrySet()) {
-				raw.put(entry.getKey(), clone(entry.getValue()));
-			}
-			return raw;
-		} else if (value instanceof List) {
-			List listToClone = (List) value;
-			List list = new ArrayList<>();
-			for (Object item : listToClone) {
-				list.add(clone(item));
-			}
-			return list;
-		} else if (value instanceof String) {
-			return new String((String) value);
-		} else if (value instanceof Integer) {
-			return value;
-		} else if (value instanceof Boolean) {
-			return value;
-		}
-		return value;
+		return CloneUtils.clone(this);
 	}
 
 }

@@ -1,18 +1,33 @@
+/**
+ *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ *
+ * Contributors:
+ *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ */
 package org.eclipse.textmate4e.core.internal.rule;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import org.eclipse.textmate4e.core.internal.grammar.parser.Raw;
 import org.eclipse.textmate4e.core.internal.types.IRawCaptures;
 import org.eclipse.textmate4e.core.internal.types.IRawGrammar;
 import org.eclipse.textmate4e.core.internal.types.IRawRepository;
 import org.eclipse.textmate4e.core.internal.types.IRawRule;
+import org.eclipse.textmate4e.core.internal.utils.CloneUtils;
 
+/**
+ * 
+ * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/rule.ts
+ *
+ */
 public class RuleFactory {
 
 	public static CaptureRule createCaptureRule(IRuleFactoryHelper helper, final String name, final String contentName,
@@ -43,7 +58,7 @@ public class RuleFactory {
 					if (desc.getBegin() == null) {
 						IRawRepository r = repository;
 						if (desc.getRepository() != null) {
-							r = mergeObjects(repository, desc.getRepository());
+							r = CloneUtils.mergeObjects(repository, desc.getRepository());
 						}
 						return new IncludeOnlyRule(desc.getId(), desc.getName(), desc.getContentName(),
 								RuleFactory._compilePatterns(desc.getPatterns(), helper, r));
@@ -75,18 +90,6 @@ public class RuleFactory {
 							desc.isApplyEndPatternLast(),
 							RuleFactory._compilePatterns(desc.getPatterns(), helper, repository));
 				}
-
-				private IRawRepository mergeObjects(IRawRepository... sources) {
-					Raw target = new Raw();
-					for (IRawRepository source : sources) {
-						Set<Entry<String, Object>> entries = ((Map<String, Object>) source).entrySet();
-						for (Entry<String, Object> entry : entries) {
-							target.put(entry.getKey(), entry.getValue());
-						}
-					}
-					return target;
-				}
-
 			});
 		}
 
