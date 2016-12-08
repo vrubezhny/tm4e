@@ -15,7 +15,7 @@
 <plugin>
 
    <extension-point id="grammars" 
-   					name="%grammars.name"
+   					name="%Grammars.extension.name"
 					schema="schema/grammars.exsd" />
 					   					
 </plugin>
