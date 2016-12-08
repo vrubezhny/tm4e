@@ -1,10 +1,11 @@
 package org.eclipse.textmate4e.ui;
+
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.textmate4e.core.grammar.IGrammar;
+import org.eclipse.textmate4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.textmate4e.core.model.IModelTokensChangedListener;
-import org.eclipse.textmate4e.core.model.ITMModel;
 import org.eclipse.textmate4e.core.model.TMToken;
 import org.eclipse.textmate4e.core.registry.Registry;
 import org.eclipse.textmate4e.ui.internal.model.TMModel;
@@ -31,31 +32,44 @@ public class TestModel3 {
 		model.addModelTokensChangedListener(new IModelTokensChangedListener() {
 
 			@Override
-			public void modelTokensChanged(int i, int j, ITMModel model) {
-				System.err.println(j);
-				List<TMToken> tokens = model.getLineTokens(j);
-				for (TMToken token : tokens) {
-					System.err.println("start=" + token.startIndex + ", type=" + token.type);
-				}				
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		//		synchronized (model) {
-//					model.notifyAll();
+			public void modelTokensChanged(ModelTokensChangedEvent e) {
+//				List<TMToken> tokens = model.getLineTokens(j);
+//				for (TMToken token : tokens) {
+//					System.err.println("start=" + token.startIndex + ", type=" + token.type);
 //				}
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				document.set("");
 			}
+			// @Override
+			// public void modelTokensChanged(int i, int j, ITMModel model) {
+			// System.err.println(j);
+			// List<TMToken> tokens = model.getLineTokens(j);
+			// for (TMToken token : tokens) {
+			// System.err.println("start=" + token.startIndex + ", type=" +
+			// token.type);
+			// }
+			// try {
+			// Thread.sleep(100);
+			// } catch (InterruptedException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// // synchronized (model) {
+			//// model.notifyAll();
+			//// }
+			// }
 		});
-		
+
 		document.set("");
 
-		
 		synchronized (model) {
 			model.wait(5000);
 		}
-		
-		
+
 	}
 }

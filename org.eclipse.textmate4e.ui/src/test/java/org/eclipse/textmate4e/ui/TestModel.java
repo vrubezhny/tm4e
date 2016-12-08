@@ -3,8 +3,9 @@ package org.eclipse.textmate4e.ui;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
+import org.eclipse.textmate4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.textmate4e.core.model.IModelTokensChangedListener;
-import org.eclipse.textmate4e.core.model.ITMModel;
+import org.eclipse.textmate4e.core.model.Range;
 import org.eclipse.textmate4e.core.model.TMToken;
 import org.eclipse.textmate4e.ui.internal.model.TMModel;
 import org.junit.Test;
@@ -19,8 +20,12 @@ public class TestModel {
 		model.addModelTokensChangedListener(new IModelTokensChangedListener() {
 
 			@Override
-			public void modelTokensChanged(int i, int j, ITMModel model) {
-				System.err.println(i);
+			public void modelTokensChanged(ModelTokensChangedEvent e) {
+				List<Range> ranges = e.getRanges();
+				for (Range range : ranges) {
+					System.err
+							.println("fromLineNumber=" + range.fromLineNumber + ", toLineNumber=" + range.toLineNumber);
+				}
 			}
 		});
 		document.set("");
