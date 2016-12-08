@@ -10,49 +10,40 @@
  */
 package org.eclipse.textmate4e.core.internal.oniguruma;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.joni.Region;
 
 public class OnigResult implements IOnigNextMatchResult {
 
-	private int index;
-	private Region region;
-	private List<IOnigCaptureIndex> captureIndices;
+	private int indexInScanner;
+	private final Region region;
+	private IOnigCaptureIndex[] captureIndices;
 
 	public OnigResult(Region region, int indexInScanner) {
-		this.captureIndices = new ArrayList<IOnigCaptureIndex>();
-		this.update(indexInScanner, region);
+		this.region = region;
+		this.indexInScanner = indexInScanner;
 	}
 
 	@Override
 	public int getIndex() {
-		return index;
+		return indexInScanner;
 	}
 
 	public void setIndex(int index) {
-		this.index = index;
-	}
-
-	public void update(int index, Region region) {
-		this.index = index;
-		this.region = region;
-		this.captureIndices.clear();
+		this.indexInScanner = index;
 	}
 
 	@Override
 	public IOnigCaptureIndex[] getCaptureIndices() {
-		if (region.beg.length != captureIndices.size()) {
-			captureIndices.clear();
+		if (captureIndices == null) {
+			captureIndices = new IOnigCaptureIndex[region.beg.length];
 			int captureStart = -1, captureEnd = -1;
 			for (int i = 0; i < region.beg.length; i++) {
 				captureStart = region.beg[i];
 				captureEnd = region.end[i];
-				captureIndices.add(new OnigCaptureIndex(i, captureStart, captureEnd));
+				captureIndices[i] = new OnigCaptureIndex(i, captureStart, captureEnd);
 			}
 		}
-		return captureIndices.toArray(new IOnigCaptureIndex[0]);
+		return captureIndices;
 	}
 
 	@Override
