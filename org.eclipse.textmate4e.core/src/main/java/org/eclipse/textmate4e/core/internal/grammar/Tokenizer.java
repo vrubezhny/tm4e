@@ -329,7 +329,9 @@ class Tokenizer {
 
 			int matchRating = matchResult.getCaptureIndices()[0].getStart();
 
-			if (matchRating >= bestMatchRating) {
+			if (matchRating > bestMatchRating) {
+				continue;
+			} else if (matchRating == bestMatchRating && (!injection.priorityMatch || bestMatchResultPriority)) {
 				continue;
 			}
 

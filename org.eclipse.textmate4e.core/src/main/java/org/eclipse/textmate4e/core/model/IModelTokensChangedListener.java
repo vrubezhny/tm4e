@@ -12,6 +12,6 @@ package org.eclipse.textmate4e.core.model;
 
 public interface IModelTokensChangedListener {
 
-	void modelTokensChanged(int i, int j, ITMModel model);
+	void modelTokensChanged(ModelTokensChangedEvent e);
 
 }

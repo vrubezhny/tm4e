@@ -32,8 +32,8 @@ import org.eclipse.textmate4e.ui.themes.IThemeManager;
 public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
 	// Theme for E4 CSS Engine
-	private static final String E4_CSS_PREFERENCE_ID = "org.eclipse.e4.ui.css.swt.theme"; //$NON-NLS-1$
-	private static final String E4_CSS_THEME_ID = "themeid"; //$NON-NLS-1$
+	private static final String E4_CSS_THEME_PREFERENCE_ID = "org.eclipse.e4.ui.css.swt.theme"; //$NON-NLS-1$
+	public static final String E4_THEME_ID = "themeid"; //$NON-NLS-1$
 
 	// "themes" extension point
 	private static final String EXTENSION_THEMES = "themes"; //$NON-NLS-1$
@@ -63,11 +63,15 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
 	@Override
 	public ITheme getDefaultTheme() {
+		String themeIdForE4Theme = getPreferenceE4CSSThemeId();
+		return getThemeForE4Theme(themeIdForE4Theme);
+	}
+
+	public ITheme getThemeForE4Theme(String e4ThemeId) {
 		loadThemesIfNeeded();
 		Theme themeForE4Theme = null;
-		String themeIdForE4Theme = getPreferenceE4ThemeId();
-		if (themeIdForE4Theme != null) {
-			themeForE4Theme = defaultThemes.get(themeIdForE4Theme);
+		if (e4ThemeId != null) {
+			themeForE4Theme = defaultThemes.get(e4ThemeId);
 		}
 		return themeForE4Theme != null ? themeForE4Theme : defaultThemes.get(DEFAULT_E4_THEME_ID);
 	}
@@ -173,8 +177,12 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		}
 	}
 
-	private static String getPreferenceE4ThemeId() {
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(E4_CSS_PREFERENCE_ID);
-		return preferences != null ? preferences.get(E4_CSS_THEME_ID, null) : null;
+	private String getPreferenceE4CSSThemeId() {
+		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
+		return preferences != null ? preferences.get(E4_THEME_ID, null) : null;
+	}
+
+	public IEclipsePreferences getPreferenceE4CSSTheme() {
+		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
 	}
 }

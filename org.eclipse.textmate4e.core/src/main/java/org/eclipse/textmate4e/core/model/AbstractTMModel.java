@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.eclipse.textmate4e.core.TMException;
 import org.eclipse.textmate4e.core.grammar.IGrammar;
@@ -51,11 +52,14 @@ public abstract class AbstractTMModel implements ITMModel {
 
 	private DecodeMap _decodeMap;
 
+	private boolean _isDisposing;
+
 	public AbstractTMModel() {
 		this._decodeMap = new DecodeMap();
 		this.listeners = new ArrayList<>();
 		this.lines = new LineList();
 		fDirtyRegionQueue = lines;
+		_isDisposing = false;
 		fThread = new BackgroundThread(getClass().getName());
 	}
 
@@ -107,18 +111,6 @@ public abstract class AbstractTMModel implements ITMModel {
 		public int getSize() {
 			return size();
 		}
-	}
-
-	protected class DirtyRegionQueue {
-
-		public int getSize() {
-			return 0;
-		}
-
-	}
-
-	protected class DirtyLine {
-
 	}
 
 	class BackgroundThread extends Thread {
@@ -428,63 +420,78 @@ public abstract class AbstractTMModel implements ITMModel {
 		this._beginBackgroundTokenization();
 	}
 
-	private void _revalidateTokensNow(Integer toLineNumber) {
-		if (toLineNumber == null) {
-			toLineNumber = this._invalidLineStartIndex + 1000000;
-		}
-		toLineNumber = Math.min(this.lines.size(), toLineNumber);
+	private void _withModelTokensChangedEventBuilder(Consumer<ModelTokensChangedEventBuilder> callback) {
+		ModelTokensChangedEventBuilder eventBuilder = new ModelTokensChangedEventBuilder(this);
 
-		int fromLineNumber = this._invalidLineStartIndex + 1;
+		callback.accept(eventBuilder);
 
-		// sw = StopWatch.create(false),
-		long MAX_ALLOWED_TIME = 20, tokenizedChars = 0, currentCharsToTokenize = 0, currentEstimatedTimeToTokenize = 0,
-				elapsedTime;
-		long startTime = System.currentTimeMillis();
-		// Tokenize at most 1000 lines. Estimate the tokenization speed per
-		// character and stop when:
-		// - MAX_ALLOWED_TIME is reachedt
-		// - tokenizing the next line would go above MAX_ALLOWED_TIME
-
-		for (int lineNumber = fromLineNumber; lineNumber <= toLineNumber; lineNumber++) {
-			elapsedTime = System.currentTimeMillis() - startTime;// sw.elapsed();
-			if (elapsedTime > MAX_ALLOWED_TIME) {
-				// Stop if MAX_ALLOWED_TIME is reached
-				toLineNumber = lineNumber - 1;
-				break;
+		if (!this._isDisposing) {
+			ModelTokensChangedEvent e = eventBuilder.build();
+			if (e != null) {
+				this.emit(e);
 			}
+		}
 
-			// Compute how many characters will be tokenized for this line
-			try {
-				currentCharsToTokenize = getLineLength(lineNumber - 1);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} // this.lines.get(lineNumber - 1).getLength();
+		// return result;
+	}
 
-			if (tokenizedChars > 0) {
-				// If we have enough history, estimate how long tokenizing this
-				// line would take
-				currentEstimatedTimeToTokenize = (elapsedTime / tokenizedChars) * currentCharsToTokenize;
-				if (elapsedTime + currentEstimatedTimeToTokenize > MAX_ALLOWED_TIME) {
-					// Tokenizing this line will go above MAX_ALLOWED_TIME
+	private void _revalidateTokensNow(Integer toLineNumberOrNull) {
+		_withModelTokensChangedEventBuilder((eventBuilder) -> {
+			Integer toLineNumber = toLineNumberOrNull;
+			if (toLineNumber == null) {
+				toLineNumber = this._invalidLineStartIndex + 1000000;
+			}
+			toLineNumber = Math.min(this.lines.size(), toLineNumber);
+
+			int fromLineNumber = this._invalidLineStartIndex + 1;
+
+			// sw = StopWatch.create(false),
+			long MAX_ALLOWED_TIME = 20, tokenizedChars = 0, currentCharsToTokenize = 0,
+					currentEstimatedTimeToTokenize = 0, elapsedTime;
+			long startTime = System.currentTimeMillis();
+			// Tokenize at most 1000 lines. Estimate the tokenization speed per
+			// character and stop when:
+			// - MAX_ALLOWED_TIME is reachedt
+			// - tokenizing the next line would go above MAX_ALLOWED_TIME
+
+			for (int lineNumber = fromLineNumber; lineNumber <= toLineNumber; lineNumber++) {
+				elapsedTime = System.currentTimeMillis() - startTime;// sw.elapsed();
+				if (elapsedTime > MAX_ALLOWED_TIME) {
+					// Stop if MAX_ALLOWED_TIME is reached
 					toLineNumber = lineNumber - 1;
 					break;
 				}
+
+				// Compute how many characters will be tokenized for this line
+				try {
+					currentCharsToTokenize = getLineLength(lineNumber - 1);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} // this.lines.get(lineNumber - 1).getLength();
+
+				if (tokenizedChars > 0) {
+					// If we have enough history, estimate how long tokenizing
+					// this
+					// line would take
+					currentEstimatedTimeToTokenize = (elapsedTime / tokenizedChars) * currentCharsToTokenize;
+					if (elapsedTime + currentEstimatedTimeToTokenize > MAX_ALLOWED_TIME) {
+						// Tokenizing this line will go above MAX_ALLOWED_TIME
+						toLineNumber = lineNumber - 1;
+						break;
+					}
+				}
+
+				this._updateTokensUntilLine(eventBuilder, lineNumber, false);
+				tokenizedChars += currentCharsToTokenize;
 			}
 
-			this._updateTokensUntilLine(lineNumber, false);
-			tokenizedChars += currentCharsToTokenize;
-		}
+			elapsedTime = System.currentTimeMillis() - startTime;// sw.elapsed();
 
-		elapsedTime = System.currentTimeMillis() - startTime;// sw.elapsed();
-
-		if (fromLineNumber <= toLineNumber) {
-			this.emitModelTokensChangedEvent(fromLineNumber, toLineNumber);
-		}
-
-		if (this._invalidLineStartIndex < this.lines.size()) {
-			this._beginBackgroundTokenization();
-		}
+			if (this._invalidLineStartIndex < this.lines.size()) {
+				this._beginBackgroundTokenization();
+			}
+		});
 
 	}
 
@@ -492,21 +499,19 @@ public abstract class AbstractTMModel implements ITMModel {
 		// fThread.reset();
 	}
 
-	private void emitModelTokensChangedEvent(int fromLineNumber, Integer toLineNumber) {
+	private void emit(ModelTokensChangedEvent e) {
 		for (IModelTokensChangedListener listener : listeners) {
-			listener.modelTokensChanged(fromLineNumber - 1, toLineNumber - 1, this);
+			listener.modelTokensChanged(e);
 		}
 	}
 
-	private void _updateTokensUntilLine(int lineNumber, boolean emitEvents) {
+	private void _updateTokensUntilLine(ModelTokensChangedEventBuilder eventBuilder, int lineNumber,
+			boolean emitEvents) {
 		int linesLength = this.lines.size();
 		int endLineIndex = lineNumber - 1;
 		int stopLineTokenizationAfter = 1000000000; // 1 billion, if a line is
 													// so long, you have other
 													// trouble :).
-
-		int fromLineNumber = this._invalidLineStartIndex + 1, toLineNumber = lineNumber;
-
 		// Validate all states up to and including endLineIndex
 		for (int lineIndex = this._invalidLineStartIndex; lineIndex <= endLineIndex; lineIndex++) {
 			int endStateIndex = lineIndex + 1;
@@ -552,6 +557,7 @@ public abstract class AbstractTMModel implements ITMModel {
 			// modeLine.setTokens(this._tokensInflatorMap, r.tokens,
 			// r.modeTransitions);
 			modeLine.setTokens(r.tokens);
+			eventBuilder.registerChangedTokens(lineIndex + 1);
 			modeLine.isInvalid = false;
 
 			if (endStateIndex < linesLength) {
@@ -586,11 +592,6 @@ public abstract class AbstractTMModel implements ITMModel {
 			}
 		}
 		this._invalidLineStartIndex = Math.max(this._invalidLineStartIndex, endLineIndex + 1);
-
-		if (emitEvents && fromLineNumber <= toLineNumber) {
-			this.emitModelTokensChangedEvent(fromLineNumber, toLineNumber);
-		}
-
 	}
 
 	private LineTokens nullTokenize(String buffer, TMState state) {
@@ -674,6 +675,7 @@ public abstract class AbstractTMModel implements ITMModel {
 	}
 
 	public List<TMToken> getLineTokens(int lineNumber) {
+		// _updateTokensUntilLine(lineNumber, true);
 		return lines.get(lineNumber).tokens;
 	}
 

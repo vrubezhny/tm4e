@@ -21,7 +21,7 @@ import org.eclipse.textmate4e.core.grammar.IGrammar;
 public interface IGrammarRegistryManager {
 
 	/**
-	 * Returns the {@link IGrammar} for the given content type.
+	 * Returns the {@link IGrammar} for the given content types.
 	 * 
 	 * @param contentTypes
 	 *            the content type.

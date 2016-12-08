@@ -15,6 +15,9 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -34,10 +37,13 @@ import org.eclipse.textmate4e.core.TMCorePlugin;
 import org.eclipse.textmate4e.core.grammar.IGrammar;
 import org.eclipse.textmate4e.core.model.IModelTokensChangedListener;
 import org.eclipse.textmate4e.core.model.ITMModel;
+import org.eclipse.textmate4e.core.model.ModelTokensChangedEvent;
+import org.eclipse.textmate4e.core.model.Range;
 import org.eclipse.textmate4e.core.model.TMToken;
 import org.eclipse.textmate4e.ui.TMUIPlugin;
 import org.eclipse.textmate4e.ui.internal.model.DocumentHelper;
 import org.eclipse.textmate4e.ui.internal.model.TMModel;
+import org.eclipse.textmate4e.ui.internal.themes.ThemeManager;
 import org.eclipse.textmate4e.ui.model.ITMModelManager;
 import org.eclipse.textmate4e.ui.themes.ITokenProvider;
 
@@ -68,6 +74,36 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private ITokenProvider tokenProvider;
 
 	private TextAttribute fDefaultTextAttribute = new TextAttribute(null);
+
+	private IPreferenceChangeListener e4CSSThemeChangeListener;
+
+	/**
+	 * Listener to recolorize editors when E4 Theme from General / Appearance
+	 * preferences changed.
+	 *
+	 */
+	private class E4CSSThemeChangeListener implements IPreferenceChangeListener {
+
+		@Override
+		public void preferenceChange(PreferenceChangeEvent event) {
+			if (ThemeManager.E4_THEME_ID.equals(event.getKey())) {
+				IDocument document = viewer.getDocument();
+				if (document == null) {
+					return;
+				}
+				ITokenProvider oldTheme = tokenProvider;
+				// Select the well TextMate theme from the given E4 theme id.
+				ITokenProvider newTheme = ThemeManager.getInstance()
+						.getThemeForE4Theme(event.getNewValue() != null ? event.getNewValue().toString() : null);
+				if (!newTheme.equals(oldTheme)) {
+					// Theme has changed, recolorize
+					tokenProvider = newTheme;
+					ITMModel model = getTMModelManager().connect(document);
+					colorize(new ModelTokensChangedEvent(new Range(1, document.getNumberOfLines()), model));
+				}
+			}
+		}
+	};
 
 	/**
 	 * Internal listener class.
@@ -114,11 +150,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		}
 
 		@Override
-		public void modelTokensChanged(final int fromLineNumber, final int toLineNumber, final ITMModel model) {
+		public void modelTokensChanged(ModelTokensChangedEvent e) {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					colorize(fromLineNumber, toLineNumber, model);
+					colorize(e);
 				}
 			});
 		}
@@ -151,15 +187,24 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (document != null) {
 			internalListener.inputDocumentChanged(null, document);
 		}
+		IEclipsePreferences preferences = ThemeManager.getInstance().getPreferenceE4CSSTheme();
+		if (preferences != null) {
+			e4CSSThemeChangeListener = new E4CSSThemeChangeListener();
+			preferences.addPreferenceChangeListener(e4CSSThemeChangeListener);
+		}
 	}
 
 	@Override
 	public void uninstall() {
 		viewer.removeTextInputListener(internalListener);
-
 		// Ensure we uninstall all listeners
 		internalListener.inputDocumentAboutToBeChanged(viewer.getDocument(), null);
 		getTMModelManager().disconnect(viewer.getDocument());
+		if (e4CSSThemeChangeListener != null) {
+			ThemeManager.getInstance().getPreferenceE4CSSTheme()
+					.removePreferenceChangeListener(e4CSSThemeChangeListener);
+		}
+		e4CSSThemeChangeListener = null;
 	}
 
 	@Override
@@ -176,11 +221,17 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return TMUIPlugin.getTMModelManager();
 	}
 
-	private void colorize(int fromLineNumber, Integer toLineNumber, ITMModel model) {
+	private void colorize(ModelTokensChangedEvent e) {
+		for (Range range : e.getRanges()) {
+			colorize(range.fromLineNumber - 1, range.toLineNumber - 1, ((TMModel) e.getModel()));
+		}
+	}
+
+	private void colorize(int fromLineNumber, int toLineNumber, TMModel model) {
 		// Refresh the UI Presentation
 		System.err.println("Render from: " + fromLineNumber + " to: " + toLineNumber);
 		try {
-			IDocument document = ((TMModel) model).getDocument();
+			IDocument document = model.getDocument();
 			IRegion damage = DocumentHelper.getRegion(document, fromLineNumber, toLineNumber);
 			TextPresentation presentation = new TextPresentation(damage, 1000);
 
@@ -190,12 +241,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			IToken lastToken = Token.UNDEFINED;
 			TextAttribute lastAttribute = getTokenTextAttribute(lastToken);
 
-			List<StyleRange> lastLineStyleRanges = null;
 			List<TMToken> tokens = null;
 			for (int line = fromLineNumber; line <= toLineNumber; line++) {
-				if (line == toLineNumber) {
-					// lastLineStyleRanges = new ArrayList<>();
-				}
 				tokens = model.getLineTokens(line);
 				int i = 0;
 				int startLineOffset = document.getLineOffset(line);
@@ -207,8 +254,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						firstToken = false;
 					} else {
 						if (!firstToken)
-							addRange(presentation, lastStart, length, lastAttribute,
-									(fromLineNumber == toLineNumber || (i > 0)) ? lastLineStyleRanges : null);
+							addRange(presentation, lastStart, length, lastAttribute);
 						firstToken = false;
 						lastToken = token;
 						lastAttribute = attribute;
@@ -219,35 +265,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				}
 			}
 
-			addRange(presentation, lastStart, length, lastAttribute, lastLineStyleRanges);
-
-			if (lastLineStyleRanges != null) {
-				StyleRange[] oldStyleRange = viewer.getTextWidget().getStyleRanges(document.getLineOffset(toLineNumber),
-						document.getLineLength(toLineNumber));
-				if (isEquals(oldStyleRange, lastLineStyleRanges)) {
-					return;
-				}
-			}
-
+			addRange(presentation, lastStart, length, lastAttribute);
 			applyTextRegionCollection(presentation);
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	private boolean isEquals(StyleRange[] oldStyleRange, List<StyleRange> newStyleRange) {
-		if (oldStyleRange.length != newStyleRange.size()) {
-			return false;
-		}
-		for (int i = 0; i < oldStyleRange.length; i++) {
-			StyleRange oldStyle = oldStyleRange[i];
-			StyleRange newStyle = newStyleRange.get(i);
-			if (!oldStyle.equals(newStyle)) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	private IToken toToken(TMToken t) {
@@ -264,8 +286,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (next != null) {
 			return next.startIndex - startOffset;
 		}
-		String delim = document.getLineDelimiter(line);
-		return document.getLineLength(line) /*- (delim != null ? delim.length() : 0)*/ - startOffset;
+		return document.getLineLength(line) - startOffset;
 	}
 
 	/**
@@ -298,8 +319,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 *            the attribute describing the style of the range to be styled
 	 * @param lastLineStyleRanges
 	 */
-	protected void addRange(TextPresentation presentation, int offset, int length, TextAttribute attr,
-			List<StyleRange> lastLineStyleRanges) {
+	protected void addRange(TextPresentation presentation, int offset, int length, TextAttribute attr) {
 		if (attr != null) {
 			int style = attr.getStyle();
 			int fontStyle = style & (SWT.ITALIC | SWT.BOLD | SWT.NORMAL);
@@ -309,9 +329,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			styleRange.underline = (style & TextAttribute.UNDERLINE) != 0;
 			styleRange.font = attr.getFont();
 			presentation.addStyleRange(styleRange);
-			if (lastLineStyleRanges != null) {
-				lastLineStyleRanges.add(styleRange);
-			}
 		}
 	}
 
