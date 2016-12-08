@@ -29,12 +29,14 @@
       <theme
             id="org.eclipse.textmate4e.ui.themes.SolarizedLight"
       		name="Solarized Light"
-            path="./themes/Solarized-light.css" >
+            path="./themes/Solarized-light.css"
+            defaultForE4ThemeId="*" >
       </theme>
       <theme
             id="org.eclipse.textmate4e.ui.themes.Dark"
       		name="Dark"
-            path="./themes/Dark.css" >
+            path="./themes/Dark.css"
+            defaultForE4ThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >            
       </theme>         
    </extension>
    					

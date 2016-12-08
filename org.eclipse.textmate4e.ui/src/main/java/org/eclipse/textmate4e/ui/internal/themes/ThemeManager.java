@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.textmate4e.ui.TMUIPlugin;
 import org.eclipse.textmate4e.ui.themes.ITheme;
 import org.eclipse.textmate4e.ui.themes.IThemeManager;
@@ -29,18 +31,22 @@ import org.eclipse.textmate4e.ui.themes.IThemeManager;
  */
 public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
+	// Theme for E4 CSS Engine
+	private static final String E4_CSS_PREFERENCE_ID = "org.eclipse.e4.ui.css.swt.theme"; //$NON-NLS-1$
+	private static final String E4_CSS_THEME_ID = "themeid"; //$NON-NLS-1$
+
 	// "themes" extension point
-	private static final String EXTENSION_THEMES = "themes";
+	private static final String EXTENSION_THEMES = "themes"; //$NON-NLS-1$
 
 	// "theme" declaration
-	private static final String THEME_ELT_NAME = "theme";
+	private static final String THEME_ELT_NAME = "theme"; //$NON-NLS-1$
+	private static final String DEFAULT_FOR_E4_THEME_ID = "defaultForE4ThemeId"; //$NON-NLS-1$
+	private static final String DEFAULT_E4_THEME_ID = "*";
 
 	// "themeContentTypeBinding" declaration
-	private static final String THEME_CONTENT_TYPE_BINDING_ELT_NAME = "themeContentTypeBinding";
-	private static final String THEME_ID_ATTR_NAME = "themeId";
-	private static final String CONTENT_TYPE_ID_ATTR_NAME = "contentTypeId";
-
-	private static final String DEFAULT_THEME_ID = "org.eclipse.textmate4e.ui.themes.SolarizedLight";
+	private static final String THEME_CONTENT_TYPE_BINDING_ELT_NAME = "themeContentTypeBinding"; //$NON-NLS-1$
+	private static final String THEME_ID_ATTR_NAME = "themeId"; //$NON-NLS-1$
+	private static final String CONTENT_TYPE_ID_ATTR_NAME = "contentTypeId"; //$NON-NLS-1$
 
 	private static final ThemeManager INSTANCE = new ThemeManager();
 
@@ -50,6 +56,7 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
 	private Map<String /* theme id */ , Theme> themes;
 	private Map<String /* content type id */, String /* theme id */> themeContentTypeBindings;
+	private Map<String /* E4 theme id */ , Theme> defaultThemes;
 
 	private ThemeManager() {
 	}
@@ -57,7 +64,12 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	@Override
 	public ITheme getDefaultTheme() {
 		loadThemesIfNeeded();
-		return themes.get(DEFAULT_THEME_ID);
+		Theme themeForE4Theme = null;
+		String themeIdForE4Theme = getPreferenceE4ThemeId();
+		if (themeIdForE4Theme != null) {
+			themeForE4Theme = defaultThemes.get(themeIdForE4Theme);
+		}
+		return themeForE4Theme != null ? themeForE4Theme : defaultThemes.get(DEFAULT_E4_THEME_ID);
 	}
 
 	@Override
@@ -123,10 +135,12 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 				EXTENSION_THEMES);
 		Map<String, Theme> themes = new HashMap<>();
 		Map<String, String> themeContentTypeBindings = new HashMap<>();
-		loadThemes(cf, themes, themeContentTypeBindings);
+		Map<String, Theme> defaultThemes = new HashMap<>();
+		loadThemes(cf, themes, themeContentTypeBindings, defaultThemes);
 		addRegistryListener();
 		this.themeContentTypeBindings = themeContentTypeBindings;
 		this.themes = themes;
+		this.defaultThemes = defaultThemes;
 	}
 
 	private void addRegistryListener() {
@@ -138,13 +152,18 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	 * Load TextMate themes declared from the extension point.
 	 */
 	private void loadThemes(IConfigurationElement[] cf, Map<String, Theme> themes,
-			Map<String, String> themeContentTypeBindings) {
+			Map<String, String> themeContentTypeBindings, Map<String, Theme> defaultThemes) {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
 			if (THEME_ELT_NAME.equals(name)) {
 				// theme
 				Theme theme = new Theme(ce);
 				themes.put(theme.getId(), theme);
+				// Default theme for E4 theme
+				String defaultForE4ThemeId = ce.getAttribute(DEFAULT_FOR_E4_THEME_ID);
+				if (defaultForE4ThemeId != null && defaultForE4ThemeId.length() > 0) {
+					defaultThemes.put(defaultForE4ThemeId, theme);
+				}
 			} else if (THEME_CONTENT_TYPE_BINDING_ELT_NAME.equals(name)) {
 				// themeContentTypeBinding
 				String contentTypeId = ce.getAttribute(CONTENT_TYPE_ID_ATTR_NAME);
@@ -154,4 +173,8 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		}
 	}
 
+	private static String getPreferenceE4ThemeId() {
+		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(E4_CSS_PREFERENCE_ID);
+		return preferences != null ? preferences.get(E4_CSS_THEME_ID, null) : null;
+	}
 }
