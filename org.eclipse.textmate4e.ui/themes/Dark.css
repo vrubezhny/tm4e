@@ -37,7 +37,6 @@
 .string.regexp { color: rgba(209, 105, 105, 1); }
 .support.type.property-name { color: rgba(156, 220, 254, 1); }
 .keyword { color: rgba(86, 156, 214, 1); }
-.keyword.control { color: rgba(86, 156, 214, 1); }
 .keyword.control.less { color: rgba(215, 186, 125, 1); }
 .keyword.operator { color: rgba(212, 212, 212, 1); }
 .keyword.operator.new { color: rgba(86, 156, 214, 1); }
