@@ -108,13 +108,14 @@ public class RawTest implements Test, Describable {
 	}
 
 	private static IGrammar getGrammar(RawTest test, Registry registry, File testLocation) throws Exception {
+		IGrammar grammar = null;
 		for (String grammarPath : test.getGrammars()) {
 			IGrammar tmpGrammar = registry.loadGrammarFromPathSync(new File(testLocation, grammarPath));
 			if (grammarPath.equals(test.getGrammarPath())) {
-				return tmpGrammar;
+				grammar = tmpGrammar;
 			}
 		}
-		return null;
+		return grammar;
 	}
 
 	private static StackElement assertLineTokenization(IGrammar grammar, RawTestLine testCase, StackElement prevState) {

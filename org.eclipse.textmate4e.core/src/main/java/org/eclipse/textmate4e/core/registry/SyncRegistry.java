@@ -36,7 +36,7 @@ public class SyncRegistry implements IGrammarRepository {
 		if (injectionScopeNames != null) {
 			this._injectionGrammars.put(grammar.getScopeName(), injectionScopeNames);
 			injectionScopeNames.forEach(scopeName -> {
-				includedScopes.add(scopeName);
+				addIncludedScope(scopeName, includedScopes);
 			});
 		}
 		return includedScopes;
@@ -84,12 +84,16 @@ public class SyncRegistry implements IGrammarRepository {
 
 			int sharpIndex = include.indexOf('#');
 			if (sharpIndex >= 0) {
-				// result[include.substring(0, sharpIndex)] = true;
-				result.add(include.substring(0, sharpIndex));
+				addIncludedScope(include.substring(0, sharpIndex), result);
 			} else {
-				result.add(include);
-				// result[include] = true;
+				addIncludedScope(include, result);
 			}
+		}
+	}
+
+	private static void addIncludedScope(String scopeName, Collection<String> includedScopes) {
+		if (!includedScopes.contains(scopeName)) {
+			includedScopes.add(scopeName);
 		}
 	}
 
@@ -107,17 +111,6 @@ public class SyncRegistry implements IGrammarRepository {
 				_extractIncludedScopesInRepository(result, rule.getRepository());
 			}
 		}
-		// for (let name in repository) {
-		// let rule = repository[name];
-		//
-		// if (rule.patterns && Array.isArray(rule.patterns)) {
-		// _extractIncludedScopesInPatterns(result, rule.patterns);
-		// }
-		//
-		// if (rule.repository) {
-		// _extractIncludedScopesInRepository(result, rule.repository);
-		// }
-		// }
 	}
 
 	@Override
