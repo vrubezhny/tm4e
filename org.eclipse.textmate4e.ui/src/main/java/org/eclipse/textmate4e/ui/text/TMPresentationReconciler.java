@@ -19,11 +19,16 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextInputListener;
+import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.ITextViewerExtension5;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.text.presentation.IPresentationDamager;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -99,7 +104,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// Theme has changed, recolorize
 					tokenProvider = newTheme;
 					ITMModel model = getTMModelManager().connect(document);
-					colorize(new ModelTokensChangedEvent(new Range(1, document.getNumberOfLines()), model));
+					colorize(0, document.getNumberOfLines() - 1, (TMModel) model);
 				}
 			}
 		}
@@ -108,11 +113,12 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Internal listener class.
 	 */
-	class InternalListener implements ITextInputListener, IModelTokensChangedListener {
+	class InternalListener implements ITextInputListener, IModelTokensChangedListener, ITextListener {
 
 		@Override
 		public void inputDocumentAboutToBeChanged(IDocument oldDocument, IDocument newDocument) {
 			if (oldDocument != null) {
+				viewer.removeTextListener(this);
 				getTMModelManager().disconnect(oldDocument);
 			}
 		}
@@ -123,6 +129,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				// Connect a TextModel to the new document.
 				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
+					viewer.addTextListener(this);
 					// Update theme + grammar
 					IContentType[] contentTypes = DocumentHelper.getContentTypes(newDocument);
 					updateTokenProvider(contentTypes);
@@ -133,6 +140,69 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		@Override
+		public void textChanged(TextEvent e) {
+			IDocument document = viewer.getDocument();
+			int fromLineNumber = -1;
+			int toLineNumber = -1;
+			if (e.getDocumentEvent() == null) {
+				if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
+					// redraw state change, damage the whole document
+					fromLineNumber = 0;
+					toLineNumber = document.getNumberOfLines() - 1;
+				} else {
+					IRegion region = widgetRegion2ModelRegion(e);
+					if (region != null) {
+						try {
+							String text = document.get(region.getOffset(), region.getLength());
+							DocumentEvent de = new DocumentEvent(document, region.getOffset(), region.getLength(),
+									text);
+							fromLineNumber = DocumentHelper.getStartLine(de);
+							toLineNumber = DocumentHelper.getEndLine(de, false);
+						} catch (BadLocationException x) {
+						}
+					}
+				}
+
+			} else {
+				DocumentEvent de = e.getDocumentEvent();
+				document = de.getDocument();
+				try {
+					fromLineNumber = DocumentHelper.getStartLine(de);
+					toLineNumber = DocumentHelper.getEndLine(de, false);
+				} catch (BadLocationException x) {
+				}
+			}
+
+			ITMModel model = getTMModelManager().connect(document);
+			colorize(fromLineNumber, toLineNumber, (TMModel) model);
+		}
+
+		/**
+		 * Translates the given text event into the corresponding range of the
+		 * viewer's document.
+		 * 
+		 * @param e
+		 *            the text event
+		 * @return the widget region corresponding the region of the given event
+		 *         or <code>null</code> if none
+		 * @since 2.1
+		 */
+		private IRegion widgetRegion2ModelRegion(TextEvent e) {
+
+			String text = e.getText();
+			int length = text == null ? 0 : text.length();
+
+			if (viewer instanceof ITextViewerExtension5) {
+				ITextViewerExtension5 extension = (ITextViewerExtension5) viewer;
+				return extension.widgetRange2ModelRange(new Region(e.getOffset(), length));
+			}
+
+			IRegion visible = viewer.getVisibleRegion();
+			IRegion region = new Region(e.getOffset() + visible.getOffset(), length);
+			return region;
 		}
 
 		private IGrammar getGrammar(IContentType[] contentTypes) throws CoreException {
@@ -151,6 +221,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void modelTokensChanged(ModelTokensChangedEvent e) {
+			/// events.add(e);
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {

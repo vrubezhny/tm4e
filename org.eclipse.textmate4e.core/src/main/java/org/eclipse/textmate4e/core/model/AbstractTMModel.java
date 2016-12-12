@@ -184,16 +184,18 @@ public abstract class AbstractTMModel implements ITMModel {
 
 		@Override
 		public void run() {
-			synchronized (fDirtyRegionQueue) {
+			/*synchronized (fDirtyRegionQueue) {
 				try {
 					fDirtyRegionQueue.wait(fDelay);
 				} catch (InterruptedException x) {
 				}
-			}
+			}*/
 
 			if (fCanceled)
 				return;
 
+			initializeIfNeeded();
+			_revalidateTokensNow(null);
 			// initialProcess();
 
 			while (!fCanceled) {
@@ -231,7 +233,7 @@ public abstract class AbstractTMModel implements ITMModel {
 
 				while (_invalidLineStartIndex < fDirtyRegionQueue.getSize()) {
 					synchronized (this) {
-						if (fReset) {
+						if (fReset || fCanceled) {
 							break;
 						}
 					}
@@ -337,7 +339,10 @@ public abstract class AbstractTMModel implements ITMModel {
 		}
 	}
 
-	protected void initialize() {
+	protected synchronized void initialize() {
+		if (initialized) {
+			return;
+		}
 		int linesLength = getNumberOfLines();
 		synchronized (lines) {
 			for (int line = 0; line < linesLength; line++) {
@@ -675,7 +680,9 @@ public abstract class AbstractTMModel implements ITMModel {
 	}
 
 	public List<TMToken> getLineTokens(int lineNumber) {
-		// _updateTokensUntilLine(lineNumber, true);
+		_withModelTokensChangedEventBuilder((eventBuilder) -> {
+			_updateTokensUntilLine(eventBuilder, lineNumber, true);
+		});
 		return lines.get(lineNumber).tokens;
 	}
 
