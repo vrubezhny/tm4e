@@ -37,7 +37,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.textmate4e.core.TMCorePlugin;
 import org.eclipse.textmate4e.core.grammar.IGrammar;
 import org.eclipse.textmate4e.core.model.IModelTokensChangedListener;
@@ -144,10 +144,14 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void textChanged(TextEvent e) {
-			IDocument document = viewer.getDocument();
+			if (!e.getViewerRedrawState())
+				return;
+			
+			IDocument document = null;
 			int fromLineNumber = -1;
 			int toLineNumber = -1;
 			if (e.getDocumentEvent() == null) {
+				document = viewer.getDocument();
 				if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
 					// redraw state change, damage the whole document
 					fromLineNumber = 0;
@@ -176,8 +180,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				}
 			}
 
-			ITMModel model = getTMModelManager().connect(document);
-			colorize(fromLineNumber, toLineNumber, (TMModel) model);
+			if (document != null) {
+				ITMModel model = getTMModelManager().connect(document);
+				colorize(fromLineNumber, toLineNumber, (TMModel) model);
+			}
 		}
 
 		/**
@@ -221,13 +227,16 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void modelTokensChanged(ModelTokensChangedEvent e) {
-			/// events.add(e);
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					colorize(e);
-				}
-			});
+			Control control= viewer.getTextWidget();
+			if (control != null) {
+				control.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						if (viewer != null)
+							colorize(e);
+					}
+				});
+			}			
 		}
 	}
 
