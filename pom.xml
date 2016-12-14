@@ -32,6 +32,7 @@
         <module>org.eclipse.textmate4e.core.tests</module>
 		<module>org.eclipse.textmate4e.ui</module>
         <module>org.eclipse.textmate4e.samples</module>
+        <module>tm-feature</module>
         <module>org.eclipse.textmate4e.repository</module>
 	</modules>
 	<build>
