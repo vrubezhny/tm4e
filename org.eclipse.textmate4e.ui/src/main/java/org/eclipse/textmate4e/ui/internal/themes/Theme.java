@@ -10,14 +10,9 @@
  */
 package org.eclipse.textmate4e.ui.internal.themes;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.textmate4e.ui.themes.ITheme;
 import org.eclipse.textmate4e.ui.themes.ITokenProvider;
@@ -29,6 +24,8 @@ import org.eclipse.textmate4e.ui.themes.css.CSSTokenProvider;
  */
 public class Theme implements ITheme {
 
+	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
+	
 	private final IConfigurationElement ce;
 	private String id;
 	private String name;
@@ -63,10 +60,10 @@ public class Theme implements ITheme {
 			if (path != null && path.length() > 0) {
 				String pluginId = ce.getNamespaceIdentifier();
 				try {
-					File bundleDir = FileLocator.getBundleFile(Platform.getBundle(pluginId));
-					InputStream in = new FileInputStream(new File(bundleDir, path));
-					tokenProvider = new CSSTokenProvider(in);
-				} catch (IOException e) {
+					URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path)
+							.toString());
+					tokenProvider = new CSSTokenProvider(url.openStream());
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 

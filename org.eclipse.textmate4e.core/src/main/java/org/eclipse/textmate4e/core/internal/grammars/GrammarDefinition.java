@@ -1,16 +1,15 @@
 package org.eclipse.textmate4e.core.internal.grammars;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
 
 public class GrammarDefinition {
 
+	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
+	
 	private String path;
 	private String scopeName;
 	private String pluginId;
@@ -31,8 +30,9 @@ public class GrammarDefinition {
 
 	public InputStream getInputStream() throws IOException {
 		if (path != null && path.length() > 0) {
-			File bundleDir = FileLocator.getBundleFile(Platform.getBundle(pluginId));
-			return new FileInputStream(new File(bundleDir, path));
+			URL url = new URL(
+					new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());
+			return url.openStream();
 		}
 		return null;
 	}
