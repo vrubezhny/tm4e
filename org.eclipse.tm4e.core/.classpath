@@ -8,7 +8,10 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcodings-1.0.13.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/joni-2.1.11.jar"/>
-	<classpathentry kind="src" path="src/main/java/"/>
-	<classpathentry kind="src" path="src/main/resources/"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/resources"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
