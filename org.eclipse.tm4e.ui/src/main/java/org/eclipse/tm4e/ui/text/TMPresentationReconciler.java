@@ -104,7 +104,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// Theme has changed, recolorize
 					tokenProvider = newTheme;
 					ITMModel model = getTMModelManager().connect(document);
-					colorize(0, document.getNumberOfLines() - 1, (TMModel) model);
+					colorize(0, document.getNumberOfLines() - 1, null, (TMModel) model);
 				}
 			}
 		}
@@ -144,20 +144,31 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void textChanged(TextEvent e) {
-			if (!e.getViewerRedrawState())
+			if (!e.getViewerRedrawState()) {
 				return;
-			
-			IDocument document = null;
-			int fromLineNumber = -1;
-			int toLineNumber = -1;
-			if (e.getDocumentEvent() == null) {
-				document = viewer.getDocument();
+			}
+			// textChanged is called in 2 cases:
+			// 1) when the content of the document has changed. In this case,
+			// colorization must not be done here. The colorization is done with
+			// modelTokensChanged listener.
+			// 2) when TextViewer#invalidateTextPresentation is called (because of folding, etc)
+			if (e.getDocumentEvent() != null) {
+				// case 1), ignore colorization
+				return;
+			}
+
+			// case 2), do the colorization.
+			IDocument document = viewer.getDocument();
+			if (document != null) {
+				IRegion region = null;
+				int fromLineNumber = -1;
+				int toLineNumber = -1;
 				if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
 					// redraw state change, damage the whole document
 					fromLineNumber = 0;
 					toLineNumber = document.getNumberOfLines() - 1;
 				} else {
-					IRegion region = widgetRegion2ModelRegion(e);
+					region = widgetRegion2ModelRegion(e);
 					if (region != null) {
 						try {
 							String text = document.get(region.getOffset(), region.getLength());
@@ -169,20 +180,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						}
 					}
 				}
-
-			} else {
-				DocumentEvent de = e.getDocumentEvent();
-				document = de.getDocument();
-				try {
-					fromLineNumber = DocumentHelper.getStartLine(de);
-					toLineNumber = DocumentHelper.getEndLine(de, false);
-				} catch (BadLocationException x) {
-				}
-			}
-
-			if (document != null) {
 				ITMModel model = getTMModelManager().connect(document);
-				colorize(fromLineNumber, toLineNumber, (TMModel) model);
+				colorize(fromLineNumber, toLineNumber, region, (TMModel) model);
+
 			}
 		}
 
@@ -227,7 +227,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void modelTokensChanged(ModelTokensChangedEvent e) {
-			Control control= viewer.getTextWidget();
+			Control control = viewer.getTextWidget();
 			if (control != null) {
 				control.getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -236,7 +236,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 							colorize(e);
 					}
 				});
-			}			
+			}
 		}
 	}
 
@@ -303,16 +303,18 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private void colorize(ModelTokensChangedEvent e) {
 		for (Range range : e.getRanges()) {
-			colorize(range.fromLineNumber - 1, range.toLineNumber - 1, ((TMModel) e.getModel()));
+			colorize(range.fromLineNumber - 1, range.toLineNumber - 1, null, ((TMModel) e.getModel()));
 		}
 	}
 
-	private void colorize(int fromLineNumber, int toLineNumber, TMModel model) {
+	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMModel model) {
 		// Refresh the UI Presentation
 		System.err.println("Render from: " + fromLineNumber + " to: " + toLineNumber);
 		try {
 			IDocument document = model.getDocument();
-			IRegion damage = DocumentHelper.getRegion(document, fromLineNumber, toLineNumber);
+			if (damage == null) {
+				damage = DocumentHelper.getRegion(document, fromLineNumber, toLineNumber);
+			}
 			TextPresentation presentation = new TextPresentation(damage, 1000);
 
 			int lastStart = damage.getOffset();
