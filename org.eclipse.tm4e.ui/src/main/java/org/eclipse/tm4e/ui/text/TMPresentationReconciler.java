@@ -151,7 +151,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			// 1) when the content of the document has changed. In this case,
 			// colorization must not be done here. The colorization is done with
 			// modelTokensChanged listener.
-			// 2) when TextViewer#invalidateTextPresentation is called (because of folding, etc)
+			// 2) when TextViewer#invalidateTextPresentation is called (because
+			// of folding, etc)
 			if (e.getDocumentEvent() != null) {
 				// case 1), ignore colorization
 				return;
@@ -312,12 +313,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		System.err.println("Render from: " + fromLineNumber + " to: " + toLineNumber);
 		try {
 			IDocument document = model.getDocument();
-			if (damage == null) {
-				damage = DocumentHelper.getRegion(document, fromLineNumber, toLineNumber);
-			}
-			TextPresentation presentation = new TextPresentation(damage, 1000);
+			TextPresentation presentation = new TextPresentation(
+					damage != null ? damage : DocumentHelper.getRegion(document, fromLineNumber, toLineNumber), 1000);
 
-			int lastStart = damage.getOffset();
+			int lastStart = presentation.getExtent().getOffset();
 			int length = 0;
 			boolean firstToken = true;
 			IToken lastToken = Token.UNDEFINED;
@@ -329,6 +328,20 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				int i = 0;
 				int startLineOffset = document.getLineOffset(line);
 				for (TMToken t : tokens) {
+					if (damage != null) {
+						// Damage region is setted (this case comes from when
+						// hyperlink, occurences, folding are processed and call
+						// TextViewer#invalidateTextPresentation)
+						if (isBeforeRegion(t, startLineOffset, damage)) {
+							// The token is before the damage region, ignore it
+							i++;
+							continue;
+						} else if (isAfterRegion(t, startLineOffset, damage)) {
+							// The token is after the damage region, stop the
+							// colorization process
+							break;
+						}
+					}
 					IToken token = toToken(t);
 					TextAttribute attribute = getTokenTextAttribute(token);
 					if (lastAttribute != null && lastAttribute.equals(attribute)) {
@@ -352,6 +365,32 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Return true if the given token is before the given region and false
+	 * otherwise.
+	 * 
+	 * @param token
+	 * @param startLineOffset
+	 * @param damage
+	 * @return
+	 */
+	private boolean isBeforeRegion(TMToken token, int startLineOffset, IRegion damage) {
+		return token.startIndex + startLineOffset < damage.getOffset();
+	}
+
+	/**
+	 * Return true if the given token is after the given region and false
+	 * otherwise.
+	 * 
+	 * @param t
+	 * @param startLineOffset
+	 * @param damage
+	 * @return
+	 */
+	private boolean isAfterRegion(TMToken t, int startLineOffset, IRegion damage) {
+		return t.startIndex + startLineOffset >= damage.getOffset() + damage.getLength();
 	}
 
 	private IToken toToken(TMToken t) {
