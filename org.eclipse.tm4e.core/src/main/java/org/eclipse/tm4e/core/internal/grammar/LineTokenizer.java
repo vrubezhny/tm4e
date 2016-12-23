@@ -31,7 +31,7 @@ import org.eclipse.tm4e.core.internal.rule.ICompiledRule;
 import org.eclipse.tm4e.core.internal.rule.MatchRule;
 import org.eclipse.tm4e.core.internal.rule.Rule;
 
-class Tokenizer {
+class LineTokenizer {
 
 	class WhileStack {
 
@@ -69,7 +69,7 @@ class Tokenizer {
 	private boolean STOP;
 	private final int lineLength;
 
-	public Tokenizer(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos, StackElement stack,
+	public LineTokenizer(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos, StackElement stack,
 			LineTokens lineTokens) {
 		this.grammar = grammar;
 		this.lineText = lineText;
@@ -492,6 +492,6 @@ class Tokenizer {
 
 	public static StackElement _tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
 			StackElement stack, LineTokens lineTokens) {
-		return new Tokenizer(grammar, lineText, isFirstLine, linePos, stack, lineTokens).scan();
+		return new LineTokenizer(grammar, lineText, isFirstLine, linePos, stack, lineTokens).scan();
 	}
 }

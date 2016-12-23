@@ -29,4 +29,11 @@ public interface ITheme extends ITokenProvider {
 	 * @return the name of the theme.
 	 */
 	String getName();
+
+	/**
+	 * Returns the theme content as CSS style sheet.
+	 * 
+	 * @return the theme content as CSS style sheet.
+	 */
+	String toCSSStyleSheet();
 }

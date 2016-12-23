@@ -193,7 +193,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		OnigString onigLineText = GrammarHelper.createOnigString(lineText);
 		int lineLength = lineText.length();
 		LineTokens lineTokens = new LineTokens();
-		StackElement nextState = Tokenizer._tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
+		StackElement nextState = LineTokenizer._tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
 
 		IToken[] _produced = lineTokens.getResult(nextState, lineLength);
 

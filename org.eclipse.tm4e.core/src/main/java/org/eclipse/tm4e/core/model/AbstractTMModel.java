@@ -54,6 +54,8 @@ public abstract class AbstractTMModel implements ITMModel {
 
 	private boolean _isDisposing;
 
+	private Tokenizer tokenizer;
+
 	public AbstractTMModel() {
 		this._decodeMap = new DecodeMap();
 		this.listeners = new ArrayList<>();
@@ -304,6 +306,7 @@ public abstract class AbstractTMModel implements ITMModel {
 	@Override
 	public void setGrammar(IGrammar grammar) {
 		this.grammar = grammar;
+		this.tokenizer = new Tokenizer(grammar);
 	}
 
 	@Override
@@ -420,7 +423,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		for (ModelLine line : this.lines) {
 			line.resetTokenizationState();
 		}
-		lines.get(0).setState(new TMState(null, null));
+		lines.get(0).setState(tokenizer.getInitialState());
 		this._invalidLineStartIndex = 0;
 		this._beginBackgroundTokenization();
 	}
@@ -526,7 +529,7 @@ public abstract class AbstractTMModel implements ITMModel {
 			try {
 				text = getLineText(lineIndex);
 				// Tokenize only the first X characters
-				r = tokenize(text, modeLine.getState(), 0, stopLineTokenizationAfter);
+				r = tokenizer.tokenize(text, modeLine.getState(), 0, stopLineTokenizationAfter);
 			} catch (Throwable e) {
 				// e.friendlyMessage =
 				// TextModelWithTokens.MODE_TOKENIZATION_FAILED_MSG;
@@ -608,76 +611,6 @@ public abstract class AbstractTMModel implements ITMModel {
 	}
 
 	// TMSyntax
-
-	private LineTokens tokenize(String line, TMState state, int offsetDelta, int stopLineTokenizationAfter) {
-		// Do not attempt to tokenize if a line has over 20k
-		// or if the rule stack contains more than 100 rules (indicator of
-		// broken grammar that forgets to pop rules)
-		// if (line.length >= 20000 || depth(state.getRuleStack()) > 100) {
-		// return new LineTokens(
-		// [new Token(offsetDelta, '')],
-		// [new ModeTransition(offsetDelta, state.getModeId())],
-		// offsetDelta,
-		// state
-		// );
-		// }
-
-		if (grammar == null) {
-			throw new TMException("No TextMate grammar defined");
-		}
-		TMState freshState = state.clone();
-		ITokenizeLineResult textMateResult = grammar.tokenizeLine(line, freshState.getRuleStack());
-		freshState.setRuleStack(textMateResult.getRuleStack());
-
-		// Create the result early and fill in the tokens later
-		List<TMToken> tokens = new ArrayList<>();
-		String lastTokenType = null;
-		for (int tokenIndex = 0, len = textMateResult.getTokens().length; tokenIndex < len; tokenIndex++) {
-			IToken token = textMateResult.getTokens()[tokenIndex];
-			int tokenStartIndex = token.getStartIndex();
-			String tokenType = decodeTextMateToken(this._decodeMap, token.getScopes().toArray(new String[0]));
-
-			// do not push a new token if the type is exactly the same (also
-			// helps with ligatures)
-			if (!tokenType.equals(lastTokenType)) {
-				tokens.add(new TMToken(tokenStartIndex + offsetDelta, tokenType));
-				lastTokenType = tokenType;
-			}
-		}
-		return new LineTokens(tokens, offsetDelta + line.length(), freshState);
-	}
-
-	private String decodeTextMateToken(DecodeMap decodeMap, String[] scopes) {
-		String[] prevTokenScopes = decodeMap.prevToken.scopes;
-		int prevTokenScopesLength = prevTokenScopes.length;
-		Map<Integer, Map<Integer, Boolean>> prevTokenScopeTokensMaps = decodeMap.prevToken.scopeTokensMaps;
-
-		Map<Integer, Map<Integer, Boolean>> scopeTokensMaps = new LinkedHashMap<>();
-		Map<Integer, Boolean> prevScopeTokensMaps = new LinkedHashMap<>();
-		boolean sameAsPrev = true;
-		for (int level = 1/* deliberately skip scope 0 */; level < scopes.length; level++) {
-			String scope = scopes[level];
-
-			if (sameAsPrev) {
-				if (level < prevTokenScopesLength && prevTokenScopes[level].equals(scope)) {
-					prevScopeTokensMaps = prevTokenScopeTokensMaps.get(level);
-					scopeTokensMaps.put(level, prevScopeTokensMaps);
-					continue;
-				}
-				sameAsPrev = false;
-			}
-
-			int[] tokens = decodeMap.getTokenIds(scope);
-			prevScopeTokensMaps = new LinkedHashMap<>(prevScopeTokensMaps);
-			for (int i = 0; i < tokens.length; i++) {
-				prevScopeTokensMaps.put(tokens[i], true);
-			}
-			scopeTokensMaps.put(level, prevScopeTokensMaps);
-		}
-
-		decodeMap.prevToken = new TMTokenDecodeData(scopes, scopeTokensMaps);
-		return decodeMap.getToken(prevScopeTokensMaps);
-	}
 
 	public List<TMToken> getLineTokens(int lineNumber) {
 		_withModelTokensChangedEventBuilder((eventBuilder) -> {

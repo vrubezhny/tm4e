@@ -10,7 +10,10 @@
  */
 package org.eclipse.tm4e.ui.internal.themes;
 
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.text.rules.IToken;
@@ -70,6 +73,25 @@ public class Theme implements ITheme {
 			}
 		}
 		return tokenProvider;
+	}
+	
+	@Override
+	public String toCSSStyleSheet() {
+		String pluginId = ce.getNamespaceIdentifier();
+		try {
+			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path)
+					.toString());
+			return convertStreamToString(url.openStream());
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private static String convertStreamToString(InputStream is) {
+	    Scanner s = new Scanner(is).useDelimiter("\\A");
+	    return s.hasNext() ? s.next() : "";
 	}
 
 }

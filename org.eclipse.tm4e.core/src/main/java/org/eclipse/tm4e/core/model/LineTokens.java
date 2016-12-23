@@ -22,4 +22,7 @@ public class LineTokens {
 		this.endState = endState;
 	}
 
+	public List<TMToken> getTokens() {
+		return tokens;
+	}
 }
