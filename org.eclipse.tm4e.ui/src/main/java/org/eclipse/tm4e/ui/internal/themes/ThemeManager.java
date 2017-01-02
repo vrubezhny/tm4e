@@ -90,6 +90,9 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	}
 
 	private String getThemeIdFor(IContentType[] contentTypes) {
+		if (contentTypes == null) {
+			return null;
+		}
 		String themeId = null;
 		for (IContentType contentType : contentTypes) {
 			themeId = themeContentTypeBindings.get(contentType.getId());

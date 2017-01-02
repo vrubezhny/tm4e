@@ -183,7 +183,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				}
 				ITMModel model = getTMModelManager().connect(document);
 				colorize(fromLineNumber, toLineNumber, region, (TMModel) model);
-
 			}
 		}
 
@@ -325,27 +324,40 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			List<TMToken> tokens = null;
 			for (int line = fromLineNumber; line <= toLineNumber; line++) {
 				tokens = model.getLineTokens(line);
-				int i = 0;
 				int startLineOffset = document.getLineOffset(line);
-				for (TMToken t : tokens) {
+				for (int i = 0; i < tokens.size(); i++) {
+					TMToken currentToken = tokens.get(i);
+					TMToken nextToken = (i + 1 < tokens.size()) ? tokens.get(i + 1) : null;
+					int tokenStartIndex = currentToken.startIndex + startLineOffset;
+
 					if (damage != null) {
 						// Damage region is setted (this case comes from when
 						// hyperlink, occurences, folding are processed and call
 						// TextViewer#invalidateTextPresentation)
-						if (isBeforeRegion(t, startLineOffset, damage)) {
-							// The token is before the damage region, ignore it
-							i++;
-							continue;
-						} else if (isAfterRegion(t, startLineOffset, damage)) {
+						if (isBeforeRegion(currentToken, startLineOffset, damage)) {
+							// The token is before the damage region
+							if (nextToken != null) {
+								if (isBeforeRegion(nextToken, startLineOffset, damage)) {
+									// ignore it
+									continue;
+								} else {
+									tokenStartIndex = damage.getOffset();
+								}
+							} else {
+								// , ignore it
+								continue;
+							}
+						} else if (isAfterRegion(currentToken, startLineOffset, damage)) {
 							// The token is after the damage region, stop the
 							// colorization process
 							break;
 						}
 					}
-					IToken token = toToken(t);
+
+					IToken token = toToken(currentToken);
 					TextAttribute attribute = getTokenTextAttribute(token);
 					if (lastAttribute != null && lastAttribute.equals(attribute)) {
-						length += getTokenLengh(t.startIndex, tokens, i, line, document);
+						length += getTokenLengh(currentToken, nextToken, line, document);
 						firstToken = false;
 					} else {
 						if (!firstToken)
@@ -353,10 +365,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						firstToken = false;
 						lastToken = token;
 						lastAttribute = attribute;
-						lastStart = t.startIndex + startLineOffset;
-						length = getTokenLengh(t.startIndex, tokens, i, line, document);
+						lastStart = tokenStartIndex;
+						length = getTokenLengh(currentToken, nextToken, line, document);
 					}
-					i++;
 				}
 			}
 
@@ -377,7 +388,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * @return
 	 */
 	private boolean isBeforeRegion(TMToken token, int startLineOffset, IRegion damage) {
-		return token.startIndex + startLineOffset < damage.getOffset();
+		return token.startIndex + startLineOffset <= damage.getOffset();
 	}
 
 	/**
@@ -401,13 +412,12 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return defaultToken;
 	}
 
-	private int getTokenLengh(int startOffset, List<TMToken> tokens, int i, int line, IDocument document)
+	private int getTokenLengh(TMToken currentToken, TMToken nextToken, int line, IDocument document)
 			throws BadLocationException {
-		TMToken next = (i + 1 < tokens.size()) ? tokens.get(i + 1) : null;
-		if (next != null) {
-			return next.startIndex - startOffset;
+		if (nextToken != null) {
+			return nextToken.startIndex - currentToken.startIndex;
 		}
-		return document.getLineLength(line) - startOffset;
+		return document.getLineLength(line) - currentToken.startIndex;
 	}
 
 	/**

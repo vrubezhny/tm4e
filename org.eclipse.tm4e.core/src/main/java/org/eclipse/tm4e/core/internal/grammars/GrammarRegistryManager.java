@@ -61,6 +61,9 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	@Override
 	public IGrammar getGrammarFor(IContentType[] contentTypes) {
 		loadGrammarsIfNeeded();
+		if (contentTypes == null) {
+			return null;
+		}
 		// Find grammar by content type
 		for (IContentType contentType : contentTypes) {
 			String scopeName = getScopeName(contentType);

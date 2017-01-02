@@ -613,9 +613,9 @@ public abstract class AbstractTMModel implements ITMModel {
 	// TMSyntax
 
 	public List<TMToken> getLineTokens(int lineNumber) {
-		_withModelTokensChangedEventBuilder((eventBuilder) -> {
-			_updateTokensUntilLine(eventBuilder, lineNumber, true);
-		});
+//		_withModelTokensChangedEventBuilder((eventBuilder) -> {
+//			_updateTokensUntilLine(eventBuilder, lineNumber, true);
+//		});
 		return lines.get(lineNumber).tokens;
 	}
 
