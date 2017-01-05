@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2015-2016 Angelo ZERR.
+ *  Copyright (c) 2015-2017 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -82,6 +82,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private IPreferenceChangeListener e4CSSThemeChangeListener;
 
+	private boolean forcedTheme;
+
 	/**
 	 * Listener to recolorize editors when E4 Theme from General / Appearance
 	 * preferences changed.
@@ -94,6 +96,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (ThemeManager.E4_THEME_ID.equals(event.getKey())) {
 				IDocument document = viewer.getDocument();
 				if (document == null) {
+					return;
+				}
+				if (forcedTheme) {
+					// The theme was forced, don't update it.
 					return;
 				}
 				ITokenProvider oldTheme = tokenProvider;
@@ -254,6 +260,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	public void setTokenProvider(ITokenProvider tokenProvider) {
 		this.tokenProvider = tokenProvider;
+		this.forcedTheme = true;
 	}
 
 	@Override
