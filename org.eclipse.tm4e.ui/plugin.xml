@@ -27,6 +27,11 @@
             path="./themes/Light.css" >
       </theme>
       <theme
+            id="org.eclipse.tm4e.ui.themes.Monokai"
+      		name="%Theme.Monokai.name"
+            path="./themes/Monokai.css" >
+      </theme>      
+      <theme
             id="org.eclipse.tm4e.ui.themes.SolarizedLight"
       		name="%Theme.SolarizedLight.name"
             path="./themes/Solarized-light.css"
