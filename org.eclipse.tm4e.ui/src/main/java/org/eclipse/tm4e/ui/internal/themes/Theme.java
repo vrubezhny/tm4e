@@ -11,7 +11,6 @@
 package org.eclipse.tm4e.ui.internal.themes;
 
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
 
@@ -83,7 +82,6 @@ public class Theme implements ITheme {
 					.toString());
 			return convertStreamToString(url.openStream());
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
