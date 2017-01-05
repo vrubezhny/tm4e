@@ -17,7 +17,7 @@ public class TypeScriptViewerConfiguration extends SourceViewerConfiguration {
 		TMPresentationReconciler reconciler = new TMPresentationReconciler();
 		// Set the TypeScript grammar
 		reconciler.setGrammar(getGrammar());
-		reconciler.setTokenProvider(TMUIPlugin.getThemeManager().getThemeById(ThemeIdConstants.Monokai));
+		//reconciler.setThemeId(ThemeIdConstants.Monokai);
 		return reconciler;
 	}
 

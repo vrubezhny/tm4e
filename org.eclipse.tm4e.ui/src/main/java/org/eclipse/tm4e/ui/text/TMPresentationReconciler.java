@@ -263,6 +263,15 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		this.forcedTheme = true;
 	}
 
+	/**
+	 * Force the TextMate theme id to use for the editor.
+	 * 
+	 * @param themeId
+	 */
+	public void setThemeId(String themeId) {
+		setTokenProvider(TMUIPlugin.getThemeManager().getThemeById(themeId));
+	}
+
 	@Override
 	public void install(ITextViewer viewer) {
 		Assert.isNotNull(viewer);
@@ -480,4 +489,5 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private void applyTextRegionCollection(TextPresentation presentation) {
 		viewer.changeTextPresentation(presentation, false);
 	}
+
 }
