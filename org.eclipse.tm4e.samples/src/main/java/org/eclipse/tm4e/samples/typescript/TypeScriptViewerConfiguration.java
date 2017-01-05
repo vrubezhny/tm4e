@@ -7,8 +7,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
-import org.eclipse.tm4e.ui.themes.ITokenProvider;
-import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
+import org.eclipse.tm4e.ui.themes.ThemeIdConstants;
 
 public class TypeScriptViewerConfiguration extends SourceViewerConfiguration {
 
@@ -18,6 +17,7 @@ public class TypeScriptViewerConfiguration extends SourceViewerConfiguration {
 		TMPresentationReconciler reconciler = new TMPresentationReconciler();
 		// Set the TypeScript grammar
 		reconciler.setGrammar(getGrammar());
+		reconciler.setTokenProvider(TMUIPlugin.getThemeManager().getThemeById(ThemeIdConstants.Monokai));
 		return reconciler;
 	}
 

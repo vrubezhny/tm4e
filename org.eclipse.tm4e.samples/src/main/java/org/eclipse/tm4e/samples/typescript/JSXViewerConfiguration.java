@@ -17,8 +17,6 @@ public class JSXViewerConfiguration extends SourceViewerConfiguration {
 		TMPresentationReconciler reconciler = new TMPresentationReconciler();
 		// Set the TypeScript grammar
 		reconciler.setGrammar(getGrammar());
-		// Set the token provider used to style editor tokens
-		reconciler.setTokenProvider(getTokenProvider());
 		return reconciler;
 	}
 
@@ -34,8 +32,4 @@ public class JSXViewerConfiguration extends SourceViewerConfiguration {
 		}
 	}
 
-	private ITokenProvider getTokenProvider() {
-		// TODO: cache the token provider
-		return new CSSTokenProvider(JSXViewerConfiguration.class.getResourceAsStream("style_Solarized-light.css"));
-	}
 }
