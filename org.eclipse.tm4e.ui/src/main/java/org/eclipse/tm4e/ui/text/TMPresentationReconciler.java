@@ -360,7 +360,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 									tokenStartIndex = damage.getOffset();
 								}
 							} else {
-								// , ignore it
+								IToken token = toToken(currentToken);
+								lastAttribute = getTokenTextAttribute(token);
+								length += getTokenLengh(currentToken, nextToken, line, document);
+								// ignore it
 								continue;
 							}
 						} else if (isAfterRegion(currentToken, startLineOffset, damage)) {
