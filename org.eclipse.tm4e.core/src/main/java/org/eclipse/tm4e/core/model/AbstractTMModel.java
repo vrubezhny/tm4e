@@ -39,7 +39,7 @@ public abstract class AbstractTMModel implements ITMModel {
 	/** The background thread. */
 	private BackgroundThread fThread;
 	/** The background thread delay. */
-	private int fDelay = 200;
+	private int fDelay = 1;
 	/** Queue to manage the changes applied to the text viewer. */
 	private IModelLines fDirtyRegionQueue;
 
@@ -254,7 +254,8 @@ public abstract class AbstractTMModel implements ITMModel {
 					// synchronized (this) {
 					// fIsDirty= fProgressMonitor.isCanceled();
 					// }
-					fIsDirty = true; // (_invalidLineStartIndex <
+					fIsDirty = false;
+					//fIsDirty = true; // (_invalidLineStartIndex <
 										// fDirtyRegionQueue.getSize());
 					fDirtyRegionQueue.notifyAll();
 					// }
