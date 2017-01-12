@@ -44,5 +44,32 @@
             defaultForE4ThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >            
       </theme>         
    </extension>
-   					
+
+   <!-- Preference Pages -->          		
+   <extension
+         point="org.eclipse.ui.preferencePages">		      
+      <page
+            name="%TextMatePreferencePage.name"        
+            class="org.eclipse.tm4e.ui.internal.preferences.TextMatePreferencePage"
+            id="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
+      </page>
+	  <page
+            name="%EditorPreferencePage.name"        
+            class="org.eclipse.tm4e.ui.internal.preferences.EditorPreferencePage"
+            id="org.eclipse.tm4e.internal.ui.EditorPreferencePage"
+            category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
+      </page>
+      <page
+            name="%GrammarPreferencePage.name"        
+            class="org.eclipse.tm4e.ui.internal.preferences.GrammarPreferencePage"
+            id="org.eclipse.tm4e.internal.ui.GrammarPreferencePage"
+            category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
+      </page>
+      <page
+            name="%ThemePreferencePage.name"        
+            class="org.eclipse.tm4e.ui.internal.preferences.ThemePreferencePage"
+            id="org.eclipse.tm4e.internal.ui.ThemePreferencePage"
+            category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
+      </page>
+   </extension>					
 </plugin>
