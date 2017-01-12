@@ -35,13 +35,13 @@
             id="org.eclipse.tm4e.ui.themes.SolarizedLight"
       		name="%Theme.SolarizedLight.name"
             path="./themes/Solarized-light.css"
-            defaultForE4ThemeId="*" >
+            eclipseThemeId="*" >
       </theme>
       <theme
             id="org.eclipse.tm4e.ui.themes.Dark"
       		name="%Theme.Dark.name"
             path="./themes/Dark.css"
-            defaultForE4ThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >            
+            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >            
       </theme>         
    </extension>
 

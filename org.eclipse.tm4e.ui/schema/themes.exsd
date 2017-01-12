@@ -83,7 +83,7 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="defaultForE4ThemeId" type="string">
+         <attribute name="eclipseThemeId" type="string">
             <annotation>
                <documentation>
                   

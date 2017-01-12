@@ -40,7 +40,7 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
 	// "theme" declaration
 	private static final String THEME_ELT_NAME = "theme"; //$NON-NLS-1$
-	private static final String DEFAULT_FOR_E4_THEME_ID = "defaultForE4ThemeId"; //$NON-NLS-1$
+	private static final String DEFAULT_ECLIPSE_THEME_ID = "eclipseThemeId"; //$NON-NLS-1$
 	private static final String DEFAULT_E4_THEME_ID = "*";
 
 	// "themeContentTypeBinding" declaration
@@ -167,9 +167,9 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 				Theme theme = new Theme(ce);
 				themes.put(theme.getId(), theme);
 				// Default theme for E4 theme
-				String defaultForE4ThemeId = ce.getAttribute(DEFAULT_FOR_E4_THEME_ID);
-				if (defaultForE4ThemeId != null && defaultForE4ThemeId.length() > 0) {
-					defaultThemes.put(defaultForE4ThemeId, theme);
+				String eclipseThemeId = ce.getAttribute(DEFAULT_ECLIPSE_THEME_ID);
+				if (eclipseThemeId != null && eclipseThemeId.length() > 0) {
+					defaultThemes.put(eclipseThemeId, theme);
 				}
 			} else if (THEME_CONTENT_TYPE_BINDING_ELT_NAME.equals(name)) {
 				// themeContentTypeBinding
