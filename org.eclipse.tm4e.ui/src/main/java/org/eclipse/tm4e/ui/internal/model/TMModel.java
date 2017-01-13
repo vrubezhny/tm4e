@@ -70,6 +70,9 @@ public class TMModel extends AbstractTMModel {
 						// Update line
 						getLines().updateLine(startLine);
 					}
+				} else {
+					// Update line
+					getLines().updateLine(startLine);
 				}
 				_invalidateLine(startLine);
 			} catch (BadLocationException e) {
