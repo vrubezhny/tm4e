@@ -75,7 +75,8 @@ public class DocumentHelper {
 	}
 
 	public static int getLineLength(IDocument document, int line) throws BadLocationException {
-		return document.getLineLength(line);
+		//String delim = document.getLineDelimiter(line);
+		return document.getLineLength(line); // - (delim != null ? delim.length() : 0);
 	}
 
 	public static IRegion getRegion(IDocument document, int fromLine, int toLine) throws BadLocationException {

@@ -158,7 +158,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			// colorization must not be done here. The colorization is done with
 			// modelTokensChanged listener.
 			// 2) when TextViewer#invalidateTextPresentation is called (because
-			// of folding, etc)
+			// of validation, folding, etc)
 			if (e.getDocumentEvent() != null) {
 				// case 1), ignore colorization
 				return;
@@ -177,6 +177,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				} else {
 					region = widgetRegion2ModelRegion(e);
 					if (region != null) {
+						if (region.getLength() == 0) {
+							// Some text was removed, don't colorize it.
+							return;
+						}
 						try {
 							String text = document.get(region.getOffset(), region.getLength());
 							DocumentEvent de = new DocumentEvent(document, region.getOffset(), region.getLength(),
@@ -344,7 +348,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				for (int i = 0; i < tokens.size(); i++) {
 					TMToken currentToken = tokens.get(i);
 					TMToken nextToken = (i + 1 < tokens.size()) ? tokens.get(i + 1) : null;
-					int tokenStartIndex = currentToken.startIndex + startLineOffset;
+					int tokenStartIndex = currentToken.startIndex;
 
 					if (damage != null) {
 						// Damage region is setted (this case comes from when
@@ -357,12 +361,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 									// ignore it
 									continue;
 								} else {
-									tokenStartIndex = damage.getOffset();
+									tokenStartIndex = damage.getOffset() - startLineOffset;
 								}
 							} else {
+								tokenStartIndex = damage.getOffset() - startLineOffset;
 								IToken token = toToken(currentToken);
 								lastAttribute = getTokenTextAttribute(token);
-								length += getTokenLengh(currentToken, nextToken, line, document);
+								length += getTokenLengh(tokenStartIndex, nextToken, line, document);
 								// ignore it
 								continue;
 							}
@@ -376,7 +381,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					IToken token = toToken(currentToken);
 					TextAttribute attribute = getTokenTextAttribute(token);
 					if (lastAttribute != null && lastAttribute.equals(attribute)) {
-						length += getTokenLengh(currentToken, nextToken, line, document);
+						length += getTokenLengh(tokenStartIndex, nextToken, line, document);
 						firstToken = false;
 					} else {
 						if (!firstToken)
@@ -384,8 +389,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						firstToken = false;
 						lastToken = token;
 						lastAttribute = attribute;
-						lastStart = tokenStartIndex;
-						length = getTokenLengh(currentToken, nextToken, line, document);
+						lastStart = tokenStartIndex + startLineOffset;
+						length = getTokenLengh(tokenStartIndex, nextToken, line, document);
 					}
 				}
 			}
@@ -431,12 +436,12 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return defaultToken;
 	}
 
-	private int getTokenLengh(TMToken currentToken, TMToken nextToken, int line, IDocument document)
+	private int getTokenLengh(int tokenStartIndex, TMToken nextToken, int line, IDocument document)
 			throws BadLocationException {
 		if (nextToken != null) {
-			return nextToken.startIndex - currentToken.startIndex;
+			return nextToken.startIndex - tokenStartIndex;
 		}
-		return document.getLineLength(line) - currentToken.startIndex;
+		return DocumentHelper.getLineLength(document, line) - tokenStartIndex;
 	}
 
 	/**
