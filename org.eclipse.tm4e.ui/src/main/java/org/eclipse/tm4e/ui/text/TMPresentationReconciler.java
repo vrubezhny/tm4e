@@ -67,20 +67,22 @@ import org.eclipse.tm4e.ui.themes.ITokenProvider;
  */
 public class TMPresentationReconciler implements IPresentationReconciler {
 
+	public static boolean GENERATE_TEST = false;
+	
 	/**
 	 * The default text attribute if non is returned as data by the current
 	 * token
 	 */
-	protected Token defaultToken = new Token(null);
+	private final Token defaultToken;
 
 	/** The target viewer. */
 	private ITextViewer viewer;
 	/** The internal listener. */
-	private InternalListener internalListener = new InternalListener();
+	private final InternalListener internalListener;
 	private IGrammar grammar;
 	private ITokenProvider tokenProvider;
 
-	private TextAttribute fDefaultTextAttribute = new TextAttribute(null);
+	private final TextAttribute fDefaultTextAttribute;
 
 	private IPreferenceChangeListener e4CSSThemeChangeListener;
 
@@ -88,9 +90,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private List<ITMPresentationReconcilerListener> listeners;
 
-	public static boolean GENERATE_TEST = false;
-
 	public TMPresentationReconciler() {
+		this.defaultToken = new Token(null);
+		this. internalListener = new InternalListener();
+		this.fDefaultTextAttribute = new TextAttribute(null);
 		listeners = null;
 		if (GENERATE_TEST) {
 			addTMPresentationReconcilerListener(new TMPresentationReconcilerTestGenerator());
