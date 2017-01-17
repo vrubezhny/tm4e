@@ -225,5 +225,44 @@
             class="org.eclipse.tm4e.samples.angular2.Angular2Editor"
             id="org.eclipse.tm4e.samples.angular2.Angular2Editor">
       </editor>
-   </extension>         
+   </extension>
+   
+	<!-- YAML Editor -->
+	
+	<extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="yaml"
+            id="org.eclipse.tm4e.samples.yaml"
+            name="YAML"
+            priority="normal">
+      </content-type>
+	</extension>  
+
+   <extension
+         point="org.eclipse.tm4e.core.grammars">
+      <grammar
+      		scopeName="source.yaml"
+            path="./syntaxes/YAML.tmLanguage" >
+      </grammar>      
+      <scopeNameContentTypeBinding
+            contentTypeId="org.eclipse.tm4e.samples.yaml"
+            scopeName="source.yaml">
+      </scopeNameContentTypeBinding>
+   </extension>
+   	
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="YAML Editor"
+            icon="icons/yaml.png"
+            class="org.eclipse.tm4e.samples.yaml.YAMLEditor"
+            id="org.eclipse.tm4e.samples.yaml.YAMLEditor">
+            <contentTypeBinding
+                  contentTypeId="org.eclipse.tm4e.samples.yaml">
+            </contentTypeBinding>
+      </editor>
+   </extension>
+               
 </plugin>
