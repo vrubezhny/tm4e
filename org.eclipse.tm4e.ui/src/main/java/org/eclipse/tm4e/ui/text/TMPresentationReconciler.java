@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.ui.text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -48,12 +49,13 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMModel;
+import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
 
 /**
- * TextMate presentation reconcilier which must be initialized with:
+ * TextMate presentation reconciler which must be initialized with:
  * 
  * <ul>
  * <li>a TextMate grammar {@link IGrammar} used to initialize the TextMate model
@@ -83,6 +85,17 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private IPreferenceChangeListener e4CSSThemeChangeListener;
 
 	private boolean forcedTheme;
+
+	private List<ITMPresentationReconcilerListener> listeners;
+
+	public static boolean GENERATE_TEST = false;
+
+	public TMPresentationReconciler() {
+		listeners = null;
+		if (GENERATE_TEST) {
+			addTMPresentationReconcilerListener(new TMPresentationReconcilerTestGenerator());
+		}
+	}
 
 	/**
 	 * Listener to recolorize editors when E4 Theme from General / Appearance
@@ -126,20 +139,32 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (oldDocument != null) {
 				viewer.removeTextListener(this);
 				getTMModelManager().disconnect(oldDocument);
+				fireUninstall();
 			}
 		}
 
 		@Override
 		public void inputDocumentChanged(IDocument oldDocument, IDocument newDocument) {
 			if (newDocument != null) {
+				fireInstall(viewer, newDocument);
 				// Connect a TextModel to the new document.
 				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
 					viewer.addTextListener(this);
 					// Update theme + grammar
-					IContentType[] contentTypes = DocumentHelper.getContentTypes(newDocument);
-					updateTokenProvider(contentTypes);
-					model.setGrammar(getGrammar(contentTypes));
+					IContentType[] contentTypes = null;
+					if (tokenProvider == null) {
+						contentTypes = DocumentHelper.getContentTypes(newDocument);
+						tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentTypes);
+					}
+					IGrammar grammar = TMPresentationReconciler.this.grammar;
+					if (grammar == null) {
+						contentTypes = contentTypes != null ? contentTypes
+								: DocumentHelper.getContentTypes(newDocument);
+						// Discover the well grammar from the contentTypes
+						grammar = TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+					}
+					model.setGrammar(grammar);
 					// Add model listener
 					model.addModelTokensChangedListener(this);
 				} catch (CoreException e) {
@@ -221,20 +246,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			return region;
 		}
 
-		private IGrammar getGrammar(IContentType[] contentTypes) throws CoreException {
-			if (grammar != null) {
-				return grammar;
-			}
-			// Discover the well grammar from the contentTypes
-			return TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
-		}
-
-		private void updateTokenProvider(IContentType[] contentTypes) throws CoreException {
-			if (tokenProvider == null) {
-				tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentTypes);
-			}
-		}
-
 		@Override
 		public void modelTokensChanged(ModelTokensChangedEvent e) {
 			Control control = viewer.getTextWidget();
@@ -242,8 +253,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				control.getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						if (viewer != null)
+						if (viewer != null) {
 							colorize(e);
+						}
 					}
 				});
 			}
@@ -299,7 +311,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		viewer.removeTextInputListener(internalListener);
 		// Ensure we uninstall all listeners
 		internalListener.inputDocumentAboutToBeChanged(viewer.getDocument(), null);
-		getTMModelManager().disconnect(viewer.getDocument());
 		if (e4CSSThemeChangeListener != null) {
 			ThemeManager.getInstance().getPreferenceE4CSSTheme()
 					.removePreferenceChangeListener(e4CSSThemeChangeListener);
@@ -330,9 +341,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMModel model) {
 		// Refresh the UI Presentation
 		System.err.println("Render from: " + fromLineNumber + " to: " + toLineNumber);
+		TextPresentation presentation = null;
+		Throwable error = null;
 		try {
 			IDocument document = model.getDocument();
-			TextPresentation presentation = new TextPresentation(
+			presentation = new TextPresentation(
 					damage != null ? damage : DocumentHelper.getRegion(document, fromLineNumber, toLineNumber), 1000);
 
 			int lastStart = presentation.getExtent().getOffset();
@@ -368,6 +381,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 								IToken token = toToken(currentToken);
 								lastAttribute = getTokenTextAttribute(token);
 								length += getTokenLengh(tokenStartIndex, nextToken, line, document);
+								firstToken = false;
 								// ignore it
 								continue;
 							}
@@ -394,11 +408,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					}
 				}
 			}
-
 			addRange(presentation, lastStart, length, lastAttribute);
 			applyTextRegionCollection(presentation);
 		} catch (Throwable e) {
+			error = e;
 			e.printStackTrace();
+		} finally {
+			fireColorize(presentation, error);
 		}
 	}
 
@@ -498,4 +514,74 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		viewer.changeTextPresentation(presentation, false);
 	}
 
+	/**
+	 * Add a TextMate presentation reconciler listener.
+	 * 
+	 * @param listener
+	 *            the TextMate presentation reconciler listener to add.
+	 */
+	public void addTMPresentationReconcilerListener(ITMPresentationReconcilerListener listener) {
+		if (listeners == null) {
+			listeners = new ArrayList<>();
+		}
+		synchronized (listeners) {
+			if (!listeners.contains(listener)) {
+				listeners.add(listener);
+			}
+		}
+	}
+
+	/**
+	 * Remove a TextMate presentation reconciler listener.
+	 * 
+	 * @param listener
+	 *            the TextMate presentation reconciler listener to remove.
+	 */
+	public void removeTMPresentationReconcilerListener(ITMPresentationReconcilerListener listener) {
+		if (listeners == null) {
+			return;
+		}
+		synchronized (listeners) {
+			listeners.remove(listener);
+		}
+	}
+
+	private void fireInstall(ITextViewer viewer, IDocument document) {
+		if (listeners == null) {
+			return;
+		}
+		synchronized (listeners) {
+			for (ITMPresentationReconcilerListener listener : listeners) {
+				listener.install(viewer, document);
+			}
+		}
+	}
+
+	private void fireUninstall() {
+		if (listeners == null) {
+			return;
+		}
+		synchronized (listeners) {
+			for (ITMPresentationReconcilerListener listener : listeners) {
+				listener.uninstall();
+			}
+		}
+	}
+
+	/**
+	 * Fire colorize.
+	 * 
+	 * @param presentation
+	 * @param error
+	 */
+	private void fireColorize(TextPresentation presentation, Throwable error) {
+		if (listeners == null) {
+			return;
+		}
+		synchronized (listeners) {
+			for (ITMPresentationReconcilerListener listener : listeners) {
+				listener.colorize(presentation, error);
+			}
+		}
+	}
 }
