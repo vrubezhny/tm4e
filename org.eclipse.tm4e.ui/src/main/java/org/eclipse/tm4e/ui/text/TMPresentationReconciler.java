@@ -160,6 +160,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						contentTypes = DocumentHelper.getContentTypes(newDocument);
 						tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentTypes);
 					}
+					Assert.isNotNull(tokenProvider);
 					IGrammar grammar = TMPresentationReconciler.this.grammar;
 					if (grammar == null) {
 						contentTypes = contentTypes != null ? contentTypes
@@ -167,6 +168,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						// Discover the well grammar from the contentTypes
 						grammar = TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
 					}
+					Assert.isNotNull(grammar);
 					model.setGrammar(grammar);
 					// Add model listener
 					model.addModelTokensChangedListener(this);
