@@ -1,7 +1,6 @@
 package org.eclipse.textmate4e.ui.internal.text;
 
 import org.eclipse.jface.text.Document;
-import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 
 public class DocumentSetCommand extends Command {
 
@@ -25,7 +24,7 @@ public class DocumentSetCommand extends Command {
 
 	@Override
 	protected Integer getLineTo() {
-		int numberOfLines = DocumentHelper.getNumberOfLines(document);
+		int numberOfLines =document.getNumberOfLines();
 		return numberOfLines > 0 ? numberOfLines - 1 : null;
 	}
 }
