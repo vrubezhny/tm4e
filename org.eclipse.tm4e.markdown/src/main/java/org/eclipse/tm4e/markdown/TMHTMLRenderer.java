@@ -29,7 +29,7 @@ public class TMHTMLRenderer extends HTMLRenderer {
 			super.code(code, lang, escaped);
 		} else {
 			ITokenizationSupport tokenizationSupport = new Tokenizer(grammar);
-			html.append("<div>");
+			html.append("<div style=\"white-space: pre-wrap;\">");
 			tokenizeLines(code, tokenizationSupport);
 			html.append("</div>");
 		}
