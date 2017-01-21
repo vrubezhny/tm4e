@@ -14,7 +14,6 @@ Require-Bundle: org.eclipse.tm4e.core,
  com.google.gson,
  org.eclipse.tm4e.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-Activator: org.eclipse.tm4e.ui.TMUIPlugin
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.core.filebuffers
 
