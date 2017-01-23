@@ -5,8 +5,11 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ * This code is an translation of code copyrighted by https://github.com/atom/node-oniguruma, and initially licensed under Copyright (c) 2013 GitHub Inc..
+ *
+ * Contributors:
+ *  - https://github.com/atom/node-oniguruma
+ *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
  */
 package org.eclipse.tm4e.core.internal.oniguruma;
 

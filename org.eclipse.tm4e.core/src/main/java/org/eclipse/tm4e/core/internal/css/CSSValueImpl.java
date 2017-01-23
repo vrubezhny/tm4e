@@ -1,5 +1,3 @@
-package org.eclipse.tm4e.core.internal.css;
-
 /*******************************************************************************
  * Copyright (c) 2008, 2013 Angelo Zerr and others.
  * All rights reserved. This program and the accompanying materials
@@ -11,6 +9,8 @@ package org.eclipse.tm4e.core.internal.css;
  *     Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  *     IBM Corporation - ongoing development
  *******************************************************************************/
+package org.eclipse.tm4e.core.internal.css;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSPrimitiveValue;
 import org.w3c.dom.css.CSSValue;
