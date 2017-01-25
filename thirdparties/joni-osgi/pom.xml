@@ -4,7 +4,7 @@
   <groupId>fr.opensagres.language.textmate</groupId>
   <artifactId>joni-osgi</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.jruby.joni/joni -->
     <dependency>
