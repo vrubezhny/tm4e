@@ -5,7 +5,9 @@
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
  *
- * This code is an translation of code copyrighted by Microsoft Corporation, and initially licensed under MIT.
+ * Initial code from https://github.com/Microsoft/vscode-textmate/
+ * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
+ * Initial license: MIT
  *
  * Contributors:
  *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
