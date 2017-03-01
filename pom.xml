@@ -218,9 +218,9 @@
 		</repository>
 	</repositories>
 	<scm>
-		<url>https://github.com/angelozerr/textmate.java</url>
-		<connection>scm:git:https://github.com/angelozerr/textmate.java.git</connection>
-		<developerConnection>scm:git:https://github.com/angelozerr/textmate.java.git</developerConnection>
+		<url>https://github.com/eclipse/tm4e</url>
+		<connection>scm:git:https://github.com/eclipse/tm4e.git</connection>
+		<developerConnection>scm:git:https://github.com/eclipse/tm4e.git</developerConnection>
 	</scm>
 	<profiles>
 		<profile>
