@@ -69,13 +69,7 @@
 				<version>2.19.1</version>
 				<executions>
 					<execution>
-						<id>test</id>
 						<phase>test</phase>
-						<configuration>
-							<includes>
-								<include>**/*Tests.java</include>
-							</includes>
-						</configuration>
 						<goals>
 							<goal>test</goal>
 						</goals>
@@ -218,9 +212,9 @@
 		</repository>
 	</repositories>
 	<scm>
-		<url>https://github.com/eclipse/tm4e</url>
-		<connection>scm:git:https://github.com/eclipse/tm4e.git</connection>
-		<developerConnection>scm:git:https://github.com/eclipse/tm4e.git</developerConnection>
+		<url>https://github.com/angelozerr/textmate.java</url>
+		<connection>scm:git:https://github.com/angelozerr/textmate.java.git</connection>
+		<developerConnection>scm:git:https://github.com/angelozerr/textmate.java.git</developerConnection>
 	</scm>
 	<profiles>
 		<profile>

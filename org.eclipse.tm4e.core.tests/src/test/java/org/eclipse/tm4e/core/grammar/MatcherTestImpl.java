@@ -23,7 +23,7 @@ import org.junit.runner.Description;
 import junit.framework.Test;
 import junit.framework.TestResult;
 
-public class MatcherTest implements Test, Describable {
+public class MatcherTestImpl implements Test, Describable {
 
 	private static final IMatchesName<List<String>> nameMatcher = new IMatchesName<List<String>>() {
 
@@ -56,7 +56,7 @@ public class MatcherTest implements Test, Describable {
 	private List<String> input;
 	private boolean result;
 
-	public MatcherTest() {
+	public MatcherTestImpl() {
 	}
 
 	@Override
