@@ -26,7 +26,7 @@ import com.google.gson.reflect.TypeToken;
 import junit.framework.TestSuite;
 
 @RunWith(AllTests.class)
-public class VSCodeTextMateTests {
+public class VSCodeTextMateTest {
 
 	private static final File REPO_ROOT = new File("src/test/resources");
 
@@ -66,10 +66,10 @@ public class VSCodeTextMateTests {
 	}
 
 	private static void addVSCodeTestSuite(File testLocation, TestSuite suite) throws Exception {
-		Type listType = new TypeToken<ArrayList<RawTest>>() {
+		Type listType = new TypeToken<ArrayList<RawTestImpl>>() {
 		}.getType();
-		List<RawTest> tests = new GsonBuilder().create().fromJson(new FileReader(testLocation), listType);
-		for (RawTest test : tests) {
+		List<RawTestImpl> tests = new GsonBuilder().create().fromJson(new FileReader(testLocation), listType);
+		for (RawTestImpl test : tests) {
 			if (!IGNORE_TESTS.contains(test.getDesc())) {
 				test.setTestLocation(testLocation);
 				suite.addTest(test);
@@ -78,12 +78,12 @@ public class VSCodeTextMateTests {
 	}
 
 	private static void createMatcherTestSuite(TestSuite suite) throws Exception {
-		Type listType = new TypeToken<ArrayList<MatcherTest>>() {
+		Type listType = new TypeToken<ArrayList<MatcherTestImpl>>() {
 		}.getType();
-		List<MatcherTest> tests = new GsonBuilder().create()
+		List<MatcherTestImpl> tests = new GsonBuilder().create()
 				.fromJson(new FileReader(new File(REPO_ROOT, "matcher-tests.json")), listType);
 		int i = 0;
-		for (MatcherTest test : tests) {
+		for (MatcherTestImpl test : tests) {
 			test.setDesc("Test #" + (i++));
 			suite.addTest(test);
 		}

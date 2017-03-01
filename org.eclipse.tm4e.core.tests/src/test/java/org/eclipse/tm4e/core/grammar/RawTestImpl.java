@@ -27,7 +27,7 @@ import org.junit.runner.Description;
 import junit.framework.Test;
 import junit.framework.TestResult;
 
-public class RawTest implements Test, Describable {
+public class RawTestImpl implements Test, Describable {
 
 	private String desc;
 	private List<String> grammars;
@@ -78,7 +78,7 @@ public class RawTest implements Test, Describable {
 		return 1;
 	}
 
-	private static void executeTest(RawTest test, File testLocation) throws Exception {
+	private static void executeTest(RawTestImpl test, File testLocation) throws Exception {
 		IGrammarLocator locator = new IGrammarLocator() {
 
 			@Override
@@ -117,7 +117,7 @@ public class RawTest implements Test, Describable {
 		}
 	}
 
-	private static IGrammar getGrammar(RawTest test, Registry registry, File testLocation) throws Exception {
+	private static IGrammar getGrammar(RawTestImpl test, Registry registry, File testLocation) throws Exception {
 		IGrammar grammar = null;
 		for (String grammarPath : test.getGrammars()) {
 			IGrammar tmpGrammar = registry.loadGrammarFromPathSync(new File(testLocation, grammarPath));
