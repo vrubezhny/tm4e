@@ -19,8 +19,8 @@
 		<tycho-version>1.0.0</tycho-version>
 	</properties>
 	<organization>
-		<name>Angelo Zerr and Co.</name>
-		<url>https://github.com/angelozerr/textmate.java</url>
+		<name>Eclipse TM4E project</name>
+		<url>https://projects.eclipse.org/projects/technology.lsp4e</url>
 	</organization>
 	<inceptionYear>2016</inceptionYear>
 
@@ -212,9 +212,9 @@
 		</repository>
 	</repositories>
 	<scm>
-		<url>https://github.com/angelozerr/textmate.java</url>
-		<connection>scm:git:https://github.com/angelozerr/textmate.java.git</connection>
-		<developerConnection>scm:git:https://github.com/angelozerr/textmate.java.git</developerConnection>
+		<url>https://github.com/eclipse/tm4e</url>
+		<connection>scm:git:https://github.com/eclipse/tm4e</connection>
+		<developerConnection>scm:git:https://github.com/eclipse/tm4e</developerConnection>
 	</scm>
 	<profiles>
 		<profile>
