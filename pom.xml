@@ -179,20 +179,6 @@
 
 		</plugins>
 	</build>
-	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.jruby.joni/joni -->
-		<dependency>
-			<groupId>org.jruby.joni</groupId>
-			<artifactId>joni</artifactId>
-			<version>2.1.11</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 
 	<repositories>
 		<repository>
@@ -203,7 +189,7 @@
 		<repository>
 			<id>orbit</id>
 			<layout>p2</layout>
-			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20140114142710/repository/</url>
+			<url>http://download.eclipse.org/tools/orbit/S-builds/S20170306214312/repository</url>
 		</repository>
 		<repository>
 			<id>license-feature</id>

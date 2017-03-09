@@ -7,4 +7,21 @@
     <artifactId>org.eclipse.tm4e</artifactId>
     <version>0.1.0-SNAPSHOT</version>
   </parent>
+  
+  <!-- Repeat dependencies as Mvn artifacts to org.eclipse.tm4e.core
+   can be consumed as a Java lib with Mvn (without OSGi not p2).
+   Tycho's pomDependencies must NOT be set to "consider" -->
+  <dependencies>
+		<dependency>
+			<groupId>org.jruby.joni</groupId>
+			<artifactId>joni</artifactId>
+			<version>2.1.11</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
