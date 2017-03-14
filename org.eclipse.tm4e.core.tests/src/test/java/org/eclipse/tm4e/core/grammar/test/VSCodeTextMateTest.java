@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.core.grammar;
+package org.eclipse.tm4e.core.grammar.test;
 
 import java.io.File;
 import java.io.FileReader;
