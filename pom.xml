@@ -13,6 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>1.0.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
+		<sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
 	</properties>
 	<organization>
 		<name>Eclipse TM4E project</name>
@@ -180,7 +181,24 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
-
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.9</version>
+				<executions>
+					<execution>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+				</executions>
+				<configuration>
+					<append>true</append>
+					<destFile>${sonar.jacoco.reportPath}</destFile>
+					<includes>
+						<include>org.eclipse.tm4e.*</include>
+						<include>org.eclipse.textmate4e.*</include>
+					</includes>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
