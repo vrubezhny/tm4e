@@ -6,15 +6,16 @@
 <repository location="http://download.eclipse.org/cbi/updates/license/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.feature.group" version="4.6.2.v20161124-1529"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.6/R-4.6.2-201611241400/"/>
-</location>
-<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="com.google.gson" version="2.7.0.v20170129-0911"/>
 <unit id="org.jcodings" version="1.0.18.v20170306-1742"/>
 <unit id="org.joni" version="2.1.11.v20170306-1742"/>
 <unit id="org.junit" version="4.12.0.v201504281640"/>
 <repository location="http://download.eclipse.org/tools/orbit/S-builds/S20170306214312/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.platform.feature.group" version="4.7.0.v20170308-2000"/>
+<unit id="org.eclipse.ui.tests.harness" version="1.4.0.v20160830-0648"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7milestones/S-4.7M6-201703082000/"/>
 </location>
 </locations>
 </target>
