@@ -58,19 +58,19 @@ class DecodeMap {
 	}
 
 	public String getToken(Map<Integer, Boolean> tokenMap) {
-		String result = "";
+		StringBuilder result = new StringBuilder();
 		boolean isFirst = true;
 		for (int i = 1; i <= this.lastAssignedId; i++) {
 			if (tokenMap.containsKey(i)) {
 				if (isFirst) {
 					isFirst = false;
-					result += this.tokenIdToToken.get(i);
+					result.append(this.tokenIdToToken.get(i));
 				} else {
-					result += '.';
-					result += this.tokenIdToToken.get(i);
+					result.append('.');
+					result.append(this.tokenIdToToken.get(i));
 				}
 			}
 		}
-		return result;
+		return result.toString();
 	}
 }

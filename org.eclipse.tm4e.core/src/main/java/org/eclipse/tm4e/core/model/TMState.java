@@ -61,6 +61,18 @@ public class TMState {
 		}
 		return this.ruleStack.equals(otherState.ruleStack);
 	}
+	
+	@Override
+	public int hashCode() {
+		int res = 0;
+		if (this._parentEmbedderState != null) {
+			res ^= this._parentEmbedderState.hashCode();
+		}
+		if (this.ruleStack != null) {
+			res ^= this.ruleStack.hashCode();
+		}
+		return super.hashCode();
+	}
 
 	public static boolean safeEquals(TMState a, TMState b) {
 		if (a == null && b == null) {
