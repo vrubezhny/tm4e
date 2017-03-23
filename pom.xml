@@ -14,6 +14,7 @@
 		<tycho-version>1.0.0</tycho-version>
 		<tycho-extras-version>${tycho-version}</tycho-extras-version>
 		<sonar.jacoco.reportPath>../target/jacoco.exec</sonar.jacoco.reportPath>
+		<tycho.scmUrl>scm:git:https://github.com/eclipse/tm4e.git</tycho.scmUrl>
 	</properties>
 	<organization>
 		<name>Eclipse TM4E project</name>
@@ -139,11 +140,29 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<baselineRepositories>
+						<repository>
+							<url>http://download.eclipse.org/tm4e/snapshots</url>
+						</repository>
+					</baselineRepositories>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<version>${tycho-version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-buildtimestamp-jgit</artifactId>
+						<version>${tycho-extras-version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<timestampProvider>jgit</timestampProvider>
+					<jgit.ignore>pom.xml</jgit.ignore>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.mycila.maven-license-plugin</groupId>
@@ -198,6 +217,25 @@
 						<include>org.eclipse.textmate4e.*</include>
 					</includes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-p2-extras-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<executions>
+					<!-- Make sure we don't forget to bump version -->
+					<execution>
+						<id>compare-version-with-baseline</id>
+						<goals>
+							<goal>compare-version-with-baselines</goal>
+						</goals>
+						<configuration>
+							<baselines>
+								<url>http://download.eclipse.org/lsp4e/releases/latest</url>
+							</baselines>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
