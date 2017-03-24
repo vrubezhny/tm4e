@@ -1,4 +1,4 @@
-package org.eclipse.textmate4e.ui.text;
+package org.eclipse.tm4e.ui.text;
 
 public interface ICommand {
 

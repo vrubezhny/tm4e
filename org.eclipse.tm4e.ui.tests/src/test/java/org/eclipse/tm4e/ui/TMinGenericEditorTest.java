@@ -1,4 +1,4 @@
-package org.eclipse.textmate4e.ui;
+package org.eclipse.tm4e.ui;
 
 import java.io.File;
 import java.io.FileOutputStream;

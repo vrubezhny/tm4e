@@ -8,9 +8,9 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.textmate4e.ui.internal.text;
+package org.eclipse.tm4e.ui.internal.text;
 
-import org.eclipse.textmate4e.ui.text.ICommand;
+import org.eclipse.tm4e.ui.text.ICommand;
 
 public abstract class Command implements ICommand {
 

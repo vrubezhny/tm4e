@@ -1,11 +1,11 @@
-package org.eclipse.textmate4e.ui.text.typescript;
+package org.eclipse.tm4e.ui.text.typescript;
 
 import java.util.List;
 
-import org.eclipse.textmate4e.ui.text.ICommand;
-import org.eclipse.textmate4e.ui.text.TMEditor;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.Registry;
+import org.eclipse.tm4e.ui.text.ICommand;
+import org.eclipse.tm4e.ui.text.TMEditor;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
 import org.junit.Assert;

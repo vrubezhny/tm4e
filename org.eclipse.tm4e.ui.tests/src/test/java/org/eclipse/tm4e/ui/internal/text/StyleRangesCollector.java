@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.textmate4e.ui.internal.text;
+package org.eclipse.tm4e.ui.internal.text;
 
 import java.util.Arrays;
 import java.util.Iterator;

@@ -51,7 +51,7 @@ public class TMPresentationReconcilerTestGenerator
 		document.addDocumentListener(this);
 		viewer.addTextListener(this);
 
-		write("package org.eclipse.textmate4e.ui.text;", true);
+		write("package org.eclipse.tm4e.ui.text;", true);
 		write("", true);
 
 		write("import org.eclipse.jface.text.Document;", true);

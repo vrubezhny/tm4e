@@ -1,4 +1,4 @@
-package org.eclipse.textmate4e.ui;
+package org.eclipse.tm4e.ui;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;

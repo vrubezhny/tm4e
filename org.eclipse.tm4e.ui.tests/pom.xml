@@ -10,7 +10,7 @@
   
   <properties>
   	<testSuite>${project.artifactId}</testSuite>
-  	<testClass>org.eclipse.textmate4e.ui.AllTests</testClass>
+  	<testClass>org.eclipse.tm4e.ui.AllTests</testClass>
   </properties>
   
   <build>
