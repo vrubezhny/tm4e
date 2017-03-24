@@ -8,4 +8,18 @@
    </bundle>
    <category-def name="TextMate" label="TextMate"/>
    <category-def name="Samples" label="Samples"/>
+   <category-def name="Sources" label="Sources"/>
+   <feature id="tm-feature.source" >
+      <category name="Sources"/>
+   </feature>
+   <bundle id="org.eclipse.tm4e.samples.source" version="0.1.0.qualifier">
+      <category name="Sources"/>
+   </bundle>
+   <category-def name="Dependencies" label="Dependencies"/>
+   <bundle id="org.joni" version="0.0.0">
+      <category name="Dependencies"/>
+   </bundle>
+   <bundle id="org.jcodings" version="0.0.0">
+      <category name="Dependencies"/>
+   </bundle>
 </site>

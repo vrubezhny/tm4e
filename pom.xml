@@ -58,6 +58,7 @@
 				<inherited>true</inherited>
 				<configuration>
 					<resolver>p2</resolver>
+					<includePackedArtifacts>true</includePackedArtifacts>
 					<pomDependencies>consider</pomDependencies>
 					<target>
 						<artifact>
