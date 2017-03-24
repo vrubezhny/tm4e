@@ -106,6 +106,20 @@ public class StackElement {
 		}
 		return this._parent.equals(other._parent);
 	}
+	
+	@Override
+	public int hashCode() {
+		int res = this.ruleId;
+		StringBuilder builder = new StringBuilder();
+		builder.append(this.endRule);
+		builder.append(this.scopeName);
+		builder.append(this.contentName);
+		res ^= builder.toString().hashCode();
+		if (this._parent != null) {
+			res ^= this._parent.hashCode();
+		}
+		return res;
+	}
 
 	private boolean _shallowEquals(StackElement other) {
 		return (this.ruleId == other.ruleId && this.endRule == other.endRule

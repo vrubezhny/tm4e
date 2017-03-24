@@ -155,7 +155,7 @@ class LineTokenizer {
 				STOP = true;
 				return;
 			}
-		} else {
+		} else if (captureIndices != null && captureIndices.length > 0) {
 			// We matched a rule!
 			Rule _rule = grammar.getRule(matchedRuleId);
 
