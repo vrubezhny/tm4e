@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.core.grammar;
+package org.eclipse.tm4e.core.grammar.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.grammar.IToken;
+import org.eclipse.tm4e.core.grammar.ITokenizeLineResult;
+import org.eclipse.tm4e.core.grammar.StackElement;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Assert;
