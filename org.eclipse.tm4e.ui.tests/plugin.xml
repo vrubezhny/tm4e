@@ -2,7 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.tm4e.core.grammars">
+         point="org.eclipse.tm4e.registry.grammars">
       <grammar
             path="grammars/TypeScript.tmLanguage.json"
             scopeName="source.ts">

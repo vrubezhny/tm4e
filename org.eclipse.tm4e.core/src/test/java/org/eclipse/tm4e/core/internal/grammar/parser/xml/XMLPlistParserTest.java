@@ -10,7 +10,6 @@
  */
 package org.eclipse.tm4e.core.internal.grammar.parser.xml;
 
-import org.eclipse.tm4e.core.internal.grammar.parser.xml.XMLPListParser;
 import org.eclipse.tm4e.core.internal.grammar.reader.IGrammarParser;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.junit.Test;

@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.core.internal.grammars;
+package org.eclipse.tm4e.registry.internal;
 
 import java.util.HashMap;
 import java.util.Map;
