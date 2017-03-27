@@ -64,7 +64,7 @@ public class DocumentHelper {
 		return event.getLength() == 0 && event.getText() != null;
 	}
 
-	public static String getLineText(IDocument document, int line, boolean withLineDelimiter) throws Exception {
+	public static String getLineText(IDocument document, int line, boolean withLineDelimiter) throws BadLocationException {
 		int lo = document.getLineOffset(line);
 		int ll = document.getLineLength(line);
 		if (!withLineDelimiter) {
