@@ -13,7 +13,7 @@
  *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
  */
-package org.eclipse.tm4e.core.registry;
+package org.eclipse.tm4e.registry.internal;
 
 import java.io.IOException;
 import java.io.InputStream;

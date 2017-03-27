@@ -26,7 +26,7 @@
   	
    <!-- Register C#, JSON, CSS TextMate grammars -->
    <extension
-         point="org.eclipse.tm4e.core.grammars">
+         point="org.eclipse.tm4e.registry.grammars">
       <grammar
       		scopeName="source.cs"
             path="./syntaxes/csharp.json" >
@@ -111,7 +111,7 @@
 	</extension>  
 
    <extension
-         point="org.eclipse.tm4e.core.grammars">
+         point="org.eclipse.tm4e.registry.grammars">
       <grammar
       		scopeName="text.html.basic"
             path="./syntaxes/html.json" >
@@ -153,7 +153,7 @@
 	</extension>  
 
    <extension
-         point="org.eclipse.tm4e.core.grammars">
+         point="org.eclipse.tm4e.registry.grammars">
       <grammar
       		scopeName="text.html.ftl"
             path="./syntaxes/ftl.tmLanguage" >
@@ -191,7 +191,7 @@
 	</extension>  
 
    <extension
-         point="org.eclipse.tm4e.core.grammars">
+         point="org.eclipse.tm4e.registry.grammars">
       <grammar
       		scopeName="text.html.php"
             path="./syntaxes/php.tmLanguage.json" >
@@ -241,7 +241,7 @@
 	</extension>  
 
    <extension
-         point="org.eclipse.tm4e.core.grammars">
+         point="org.eclipse.tm4e.registry.grammars">
       <grammar
       		scopeName="source.yaml"
             path="./syntaxes/YAML.tmLanguage" >

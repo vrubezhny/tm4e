@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.core.internal.grammars;
+package org.eclipse.tm4e.registry.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,9 +25,7 @@ import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
-import org.eclipse.tm4e.core.TMCorePlugin;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.grammars.IGrammarRegistryManager;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 
 /**
@@ -83,7 +81,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 	@Override
 	public void registryChanged(final IRegistryChangeEvent event) {
-		IExtensionDelta[] deltas = event.getExtensionDeltas(TMCorePlugin.PLUGIN_ID, EXTENSION_GRAMMARS);
+		IExtensionDelta[] deltas = event.getExtensionDeltas(TMEclipseRegistryPlugin.PLUGIN_ID, EXTENSION_GRAMMARS);
 		if (deltas != null) {
 			for (IExtensionDelta delta : deltas)
 				handleGrammarDelta(delta);
@@ -125,7 +123,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		if (registry != null) {
 			return;
 		}
-		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMCorePlugin.PLUGIN_ID,
+		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMEclipseRegistryPlugin.PLUGIN_ID,
 				EXTENSION_GRAMMARS);
 		GrammarRegistry registry = new GrammarRegistry(new IGrammarLocator() {
 
@@ -157,7 +155,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 			return;
 
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		registry.addRegistryChangeListener(this, TMCorePlugin.PLUGIN_ID);
+		registry.addRegistryChangeListener(this, TMEclipseRegistryPlugin.PLUGIN_ID);
 		registryListenerIntialized = true;
 	}
 

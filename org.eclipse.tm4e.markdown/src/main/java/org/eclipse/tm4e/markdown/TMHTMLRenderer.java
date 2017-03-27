@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
-import org.eclipse.tm4e.core.TMCorePlugin;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.model.ITokenizationSupport;
 import org.eclipse.tm4e.core.model.LineTokens;
@@ -23,6 +22,7 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.core.model.Tokenizer;
 import org.eclipse.tm4e.markdown.marked.HTMLRenderer;
 import org.eclipse.tm4e.markdown.marked.Helpers;
+import org.eclipse.tm4e.registry.internal.TMEclipseRegistryPlugin;
 
 public class TMHTMLRenderer extends HTMLRenderer {
 
@@ -110,6 +110,6 @@ public class TMHTMLRenderer extends HTMLRenderer {
 
 	protected IGrammar getGrammar(String lang) {
 		IContentType[] contentTypes = Platform.getContentTypeManager().findContentTypesFor("x." + lang);
-		return TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+		return TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
 	}
 }

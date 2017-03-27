@@ -8,20 +8,18 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.core;
+package org.eclipse.tm4e.registry.internal;
 
-import org.eclipse.tm4e.core.grammars.IGrammarRegistryManager;
-import org.eclipse.tm4e.core.internal.grammars.GrammarRegistryManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
- * OSGi Activator for TextMate Core bundle.
+ * OSGi Activator for TextMate Eclipse registry bundle.
  *
  */
-public class TMCorePlugin implements BundleActivator {
+public class TMEclipseRegistryPlugin implements BundleActivator {
 
-	public static final String PLUGIN_ID = "org.eclipse.tm4e.core";
+	public static final String PLUGIN_ID = "org.eclipse.tm4e.registry";
 
 	private static BundleContext context;
 
@@ -31,14 +29,14 @@ public class TMCorePlugin implements BundleActivator {
 
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
-		TMCorePlugin.context = bundleContext;
+		TMEclipseRegistryPlugin.context = bundleContext;
 		GrammarRegistryManager.getInstance().initialize();
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		GrammarRegistryManager.getInstance().destroy();
-		TMCorePlugin.context = null;
+		TMEclipseRegistryPlugin.context = null;
 	}
 
 	/**

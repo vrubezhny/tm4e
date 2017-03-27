@@ -39,13 +39,13 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.tm4e.core.TMCorePlugin;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.model.IModelTokensChangedListener;
 import org.eclipse.tm4e.core.model.ITMModel;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.Range;
 import org.eclipse.tm4e.core.model.TMToken;
+import org.eclipse.tm4e.registry.internal.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMModel;
@@ -166,7 +166,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						contentTypes = contentTypes != null ? contentTypes
 								: DocumentHelper.getContentTypes(newDocument);
 						// Discover the well grammar from the contentTypes
-						grammar = TMCorePlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+						grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
 					}
 					Assert.isNotNull(grammar);
 					model.setGrammar(grammar);
