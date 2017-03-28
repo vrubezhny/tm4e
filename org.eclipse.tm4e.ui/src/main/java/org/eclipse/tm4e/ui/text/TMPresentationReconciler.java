@@ -183,46 +183,47 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (!e.getViewerRedrawState()) {
 				return;
 			}
-			// textChanged is called in 2 cases:
-			// 1) when the content of the document has changed. In this case,
-			// colorization must not be done here. The colorization is done with
-			// modelTokensChanged listener.
-			// 2) when TextViewer#invalidateTextPresentation is called (because
-			// of validation, folding, etc)
+			// changed text: propagate previous style, which will be overridden later asynchronously by TM
 			if (e.getDocumentEvent() != null) {
-				// case 1), ignore colorization
-				return;
-			}
-
-			// case 2), do the colorization.
-			IDocument document = viewer.getDocument();
-			if (document != null) {
-				IRegion region = null;
-				int fromLineNumber = -1;
-				int toLineNumber = -1;
-				if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
-					// redraw state change, damage the whole document
-					fromLineNumber = 0;
-					toLineNumber = document.getNumberOfLines() - 1;
-				} else {
-					region = widgetRegion2ModelRegion(e);
-					if (region != null) {
-						if (region.getLength() == 0) {
-							// Some text was removed, don't colorize it.
-							return;
-						}
-						try {
-							String text = document.get(region.getOffset(), region.getLength());
-							DocumentEvent de = new DocumentEvent(document, region.getOffset(), region.getLength(),
-									text);
-							fromLineNumber = DocumentHelper.getStartLine(de);
-							toLineNumber = DocumentHelper.getEndLine(de, false);
-						} catch (BadLocationException x) {
-						}
+				int diff = e.getText().length() - e.getLength();
+				if (diff > 0 && e.getOffset() > 0) {
+					StyleRange range = viewer.getTextWidget().getStyleRangeAtOffset(e.getOffset() - 1);
+					if (range != null) {
+						range.length += diff;
+						viewer.getTextWidget().setStyleRange(range);
 					}
 				}
-				ITMModel model = getTMModelManager().connect(document);
-				colorize(fromLineNumber, toLineNumber, region, (TMModel) model);
+			} else { // TextViewer#invalidateTextPresentation is called (because of validation, folding, etc)
+				// case 2), do the colorization.
+				IDocument document = viewer.getDocument();
+				if (document != null) {
+					IRegion region = null;
+					int fromLineNumber = -1;
+					int toLineNumber = -1;
+					if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
+						// redraw state change, damage the whole document
+						fromLineNumber = 0;
+						toLineNumber = document.getNumberOfLines() - 1;
+					} else {
+						region = widgetRegion2ModelRegion(e);
+						if (region != null) {
+							if (region.getLength() == 0) {
+								// Some text was removed, don't colorize it.
+								return;
+							}
+							try {
+								String text = document.get(region.getOffset(), region.getLength());
+								DocumentEvent de = new DocumentEvent(document, region.getOffset(), region.getLength(),
+										text);
+								fromLineNumber = DocumentHelper.getStartLine(de);
+								toLineNumber = DocumentHelper.getEndLine(de, false);
+							} catch (BadLocationException x) {
+							}
+						}
+					}
+					ITMModel model = getTMModelManager().connect(document);
+					colorize(fromLineNumber, toLineNumber, region, (TMModel) model);
+				}
 			}
 		}
 
