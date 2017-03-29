@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="css"
+            id="org.eclipse.tm4e.samples.css"
+            name="CSS"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="json"
+            id="org.eclipse.tm4e.samples.json"
+            name="JSON"
+            priority="normal">
+      </content-type>
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="cs"
+            id="org.eclipse.tm4e.samples.csharp"
+            name="C#"
+            priority="normal">
+      </content-type>
+   </extension>
 
    <!-- TextMate Themes -->
    <!--<extension
@@ -32,7 +56,7 @@
             path="./syntaxes/csharp.json" >
       </grammar>      
       <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.languageserver.languages.csharp"
+            contentTypeId="org.eclipse.tm4e.samples.csharp"
             scopeName="source.cs">
       </scopeNameContentTypeBinding>
 
@@ -41,7 +65,7 @@
             path="./syntaxes/JSON.tmLanguage" >
       </grammar>      
       <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.languageserver.languages.json"
+            contentTypeId="org.eclipse.tm4e.samples.json"
             scopeName="source.json">
       </scopeNameContentTypeBinding>
       
@@ -50,7 +74,7 @@
             path="./syntaxes/css.plist" >
       </grammar>      
       <scopeNameContentTypeBinding
-            contentTypeId="org.eclipse.languageserver.languages.css"
+            contentTypeId="org.eclipse.tm4e.samples.css"
             scopeName="source.css">
       </scopeNameContentTypeBinding>
                   
@@ -109,7 +133,6 @@
             priority="normal">
       </content-type>
 	</extension>  
-
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
@@ -119,11 +142,18 @@
       <grammar
       		scopeName="source.js"
             path="./syntaxes/JavaScript.tmLanguage.json" >
-      </grammar>            
+      </grammar>
       <scopeNameContentTypeBinding
             contentTypeId="org.eclipse.tm4e.samples.html"
             scopeName="text.html.basic">
       </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.tm4e.samples.html">
+      </presentationReconciler>
    </extension>
    	
    <extension
@@ -151,7 +181,6 @@
             priority="normal">
       </content-type>
 	</extension>  
-
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
@@ -162,6 +191,13 @@
             contentTypeId="org.eclipse.tm4e.samples.freemarker"
             scopeName="text.html.ftl">
       </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.tm4e.samples.freemarker">
+      </presentationReconciler>
    </extension>
    	
    <extension
@@ -188,7 +224,14 @@
             name="PHP"
             priority="normal">
       </content-type>
-	</extension>  
+	</extension>
+	   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.tm4e.samples.php">
+      </presentationReconciler>
+   </extension>
 
    <extension
          point="org.eclipse.tm4e.registry.grammars">
@@ -228,7 +271,6 @@
    </extension>
    
 	<!-- YAML Editor -->
-	
 	<extension
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
@@ -239,7 +281,6 @@
             priority="normal">
       </content-type>
 	</extension>  
-
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
@@ -250,6 +291,13 @@
             contentTypeId="org.eclipse.tm4e.samples.yaml"
             scopeName="source.yaml">
       </scopeNameContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.tm4e.samples.yaml">
+      </presentationReconciler>
    </extension>
    	
    <extension
@@ -263,6 +311,13 @@
                   contentTypeId="org.eclipse.tm4e.samples.yaml">
             </contentTypeBinding>
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
+            contentType="org.eclipse.tm4e.samples.html">
+      </presentationReconciler>
    </extension>
                
 </plugin>
