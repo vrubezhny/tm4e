@@ -34,8 +34,6 @@ public class TMModel extends AbstractTMModel {
 
 		@Override
 		public void documentAboutToBeChanged(DocumentEvent event) {
-			// Initialize lines if needed
-			TMModel.this.initializeIfNeeded();
 			try {
 				if (!DocumentHelper.isInsert(event)) {
 					// Remove or Replace (Remove + Insert)
@@ -74,7 +72,7 @@ public class TMModel extends AbstractTMModel {
 					// Update line
 					getLines().updateLine(startLine);
 				}
-				_invalidateLine(startLine);
+				invalidateLine(startLine);
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}

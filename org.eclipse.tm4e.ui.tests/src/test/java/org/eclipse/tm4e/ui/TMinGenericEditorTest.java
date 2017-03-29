@@ -3,6 +3,9 @@ package org.eclipse.tm4e.ui;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Control;
@@ -24,16 +27,30 @@ public class TMinGenericEditorTest {
 	private File f;
 	private IEditorPart editor;
 
+	private Collection<Thread> getTM4EThreads() {
+		Set<Thread> threads = Thread.getAllStackTraces().keySet();
+		Set<Thread> res = new HashSet<>();
+		for (Thread thread : threads) {
+			if (thread.getClass().getName().contains("tm4e")) {
+				res.add(thread);
+			}
+		}
+		return res;
+	}
+	
 	@Before
 	public void checkHasGenericEditor() {
 		editorDescriptor = PlatformUI.getWorkbench().getEditorRegistry().findEditor("org.eclipse.ui.genericeditor.GenericEditor");
 		Assume.assumeNotNull(editorDescriptor);
+		Assert.assertTrue("TM4E threads still running", getTM4EThreads().isEmpty());
 	}
 	
 	@After
 	public void tearDown() {
 		editor.getEditorSite().getPage().closeEditor(editor, false);
+		editor = null;
 		f.delete();
+		f = null;
 	}
 
 	@Test
@@ -53,6 +70,14 @@ public class TMinGenericEditorTest {
 			}
 		}.waitForCondition(text.getDisplay(), 3000);
 		Assert.assertTrue(text.getStyleRanges().length > 1);
+	}
+
+	@Test
+	public void testReconcilierStartsAndDisposeThread() throws Exception {
+		testTMHighlightInGenericEditor();
+		editor.getEditorSite().getPage().closeEditor(editor, false);
+		Thread.sleep(500); // give time to dispose
+		Assert.assertTrue(getTM4EThreads().isEmpty());
 	}
 
 }
