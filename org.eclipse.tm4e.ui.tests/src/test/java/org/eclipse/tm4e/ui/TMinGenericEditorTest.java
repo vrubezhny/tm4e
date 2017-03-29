@@ -71,6 +71,29 @@ public class TMinGenericEditorTest {
 		}.waitForCondition(text.getDisplay(), 3000);
 		Assert.assertTrue(text.getStyleRanges().length > 1);
 	}
+	
+	@Test
+	public void testTMHighlightInGenericEditorEdit() throws IOException, PartInitException {
+		f = File.createTempFile("test" + System.currentTimeMillis(), ".ts");
+		FileOutputStream fileOutputStream = new FileOutputStream(f);
+		fileOutputStream.write("let a = '';".getBytes());
+		fileOutputStream.close();
+		f.deleteOnExit();
+		editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
+				f.toURI(), editorDescriptor.getId(), true);
+		StyledText text = (StyledText)editor.getAdapter(Control.class);
+		new DisplayHelper() {
+			@Override
+			protected boolean condition() {
+				return text.getStyleRanges().length > 1;
+			}
+		}.waitForCondition(text.getDisplay(), 3000);
+		int numberOfRanges = text.getStyleRanges().length;
+		Assert.assertTrue(numberOfRanges > 1);
+		text.setText("let a = '';\nlet b = 10;\nlet c = true;");
+		DisplayHelper.runEventLoop(text.getDisplay(), 3000);
+		Assert.assertTrue("More styles should have been added", text.getStyleRanges().length > numberOfRanges + 3);
+	}
 
 	@Test
 	public void testReconcilierStartsAndDisposeThread() throws Exception {
