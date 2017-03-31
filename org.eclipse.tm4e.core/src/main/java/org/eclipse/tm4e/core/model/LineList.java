@@ -19,7 +19,6 @@ class LineList implements IModelLines {
 	public void addLine(int line) {
 		try {
 			this.list.add(line, new ModelLine(this.lineToTextResolver.apply(line)));
-			notifyWaitingThreads();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -28,22 +27,14 @@ class LineList implements IModelLines {
 	@Override
 	public void removeLine(int line) {
 		this.list.remove(line);
-		notifyWaitingThreads();
 	}
 
 	@Override
 	public void updateLine(int line) {
 		try {
 			this.list.get(line).text = this.lineToTextResolver.apply(line);
-			notifyWaitingThreads();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-	
-	private void notifyWaitingThreads() {
-		synchronized (this) {
-			this.notifyAll();
 		}
 	}
 	
