@@ -64,6 +64,9 @@
                <documentation>
                   The file path for this Nodejs install.
                </documentation>
+               <appinfo>
+                  <meta.attribute kind="resource"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>
@@ -83,6 +86,9 @@
                <documentation>
                   the id of a content type as defined by the &lt;code&gt;org.eclipse.core.runtime.contentTypes&lt;/code&gt; extension point for which this TextMate scope name should be used.
                </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.core.contenttype.contentTypes/content-type/@id"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>
