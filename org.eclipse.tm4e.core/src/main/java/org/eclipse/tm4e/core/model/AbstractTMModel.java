@@ -332,6 +332,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		}
 	}
 
+	@Override
 	public List<TMToken> getLineTokens(int lineNumber) {
 		return lines.get(lineNumber).tokens;
 	}
