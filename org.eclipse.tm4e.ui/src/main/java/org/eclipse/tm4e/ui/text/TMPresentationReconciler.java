@@ -68,7 +68,7 @@ import org.eclipse.tm4e.ui.themes.ITokenProvider;
 public class TMPresentationReconciler implements IPresentationReconciler {
 
 	public static boolean GENERATE_TEST = false;
-	
+
 	/**
 	 * The default text attribute if non is returned as data by the current
 	 * token
@@ -92,7 +92,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	public TMPresentationReconciler() {
 		this.defaultToken = new Token(null);
-		this. internalListener = new InternalListener();
+		this.internalListener = new InternalListener();
 		this.fDefaultTextAttribute = new TextAttribute(null);
 		listeners = null;
 		if (GENERATE_TEST) {
@@ -183,7 +183,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (!e.getViewerRedrawState()) {
 				return;
 			}
-			// changed text: propagate previous style, which will be overridden later asynchronously by TM
+			// changed text: propagate previous style, which will be overridden
+			// later asynchronously by TM
 			if (e.getDocumentEvent() != null) {
 				int diff = e.getText().length() - e.getLength();
 				if (diff > 0 && e.getOffset() > 0) {
@@ -193,7 +194,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						viewer.getTextWidget().setStyleRange(range);
 					}
 				}
-			} else { // TextViewer#invalidateTextPresentation is called (because of validation, folding, etc)
+			} else { // TextViewer#invalidateTextPresentation is called (because
+						// of validation, folding, etc)
 				// case 2), do the colorization.
 				IDocument document = viewer.getDocument();
 				if (document != null) {
