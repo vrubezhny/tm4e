@@ -365,6 +365,14 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			List<TMToken> tokens = null;
 			for (int line = fromLineNumber; line <= toLineNumber; line++) {
 				tokens = model.getLineTokens(line);
+				if (tokens == null) {
+					// TextMate tokens was not computed for this line.
+					// This case comes from when the viewer is invalidated (by
+					// validation for instance) and textChanged is called.
+					// see https://github.com/eclipse/tm4e/issues/78
+					System.err.println("TextMate tokens not available for line " + line);
+					break;
+				}
 				int startLineOffset = document.getLineOffset(line);
 				for (int i = 0; i < tokens.size(); i++) {
 					TMToken currentToken = tokens.get(i);
