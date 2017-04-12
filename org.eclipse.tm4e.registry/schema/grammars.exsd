@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.tm4e.core" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="org.eclipse.tm4e.registry" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.eclipse.tm4e.core" id="grammars" name="TextMate grammars"/>
+         <meta.schema plugin="org.eclipse.tm4e.registry" id="grammars" name="TextMate grammars"/>
       </appinfo>
       <documentation>
          Extension point to register TextMate grammars *.tmLanguage, *.json (VSCode format).
@@ -55,14 +55,14 @@
          <attribute name="scopeName" type="string" use="required">
             <annotation>
                <documentation>
-                  TextMate scope name.
+                  The TextMate scope name.
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="path" type="string">
+         <attribute name="path" type="string" use="required">
             <annotation>
                <documentation>
-                  The file path for this Nodejs install.
+                  The TextMate grammar file path (*.tmLanguage, *.json (VSCode format)).
                </documentation>
                <appinfo>
                   <meta.attribute kind="resource"/>
@@ -73,18 +73,26 @@
    </element>
 
    <element name="scopeNameContentTypeBinding">
+      <annotation>
+         <documentation>
+            This extension point allows developers to define binding between a TextMate grammar and an Eclipse IContentType.
+         </documentation>
+      </annotation>
       <complexType>
          <attribute name="scopeName" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  The TextMate scope name.
                </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.tm4e.registry.grammars/grammar/@scopeName"/>
+               </appinfo>
             </annotation>
          </attribute>
          <attribute name="contentTypeId" type="string">
             <annotation>
                <documentation>
-                  the id of a content type as defined by the &lt;code&gt;org.eclipse.core.runtime.contentTypes&lt;/code&gt; extension point for which this TextMate scope name should be used.
+                  The id of a content type as defined by the &lt;code&gt;org.eclipse.core.runtime.contentTypes&lt;/code&gt; extension point for which this TextMate scope name should be used.
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier" basedOn="org.eclipse.core.contenttype.contentTypes/content-type/@id"/>
