@@ -45,7 +45,7 @@ import org.eclipse.tm4e.core.model.ITMModel;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.Range;
 import org.eclipse.tm4e.core.model.TMToken;
-import org.eclipse.tm4e.registry.internal.TMEclipseRegistryPlugin;
+import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMModel;

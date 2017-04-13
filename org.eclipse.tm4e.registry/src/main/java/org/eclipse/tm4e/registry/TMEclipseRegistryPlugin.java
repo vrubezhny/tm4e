@@ -8,8 +8,9 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.registry.internal;
+package org.eclipse.tm4e.registry;
 
+import org.eclipse.tm4e.registry.internal.GrammarRegistryManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -47,4 +48,5 @@ public class TMEclipseRegistryPlugin implements BundleActivator {
 	public static IGrammarRegistryManager getGrammarRegistryManager() {
 		return GrammarRegistryManager.getInstance();
 	}
+
 }

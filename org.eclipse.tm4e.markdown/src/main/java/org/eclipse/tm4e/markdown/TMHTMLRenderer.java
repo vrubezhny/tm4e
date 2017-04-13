@@ -22,7 +22,7 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.core.model.Tokenizer;
 import org.eclipse.tm4e.markdown.marked.HTMLRenderer;
 import org.eclipse.tm4e.markdown.marked.Helpers;
-import org.eclipse.tm4e.registry.internal.TMEclipseRegistryPlugin;
+import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
 public class TMHTMLRenderer extends HTMLRenderer {
 

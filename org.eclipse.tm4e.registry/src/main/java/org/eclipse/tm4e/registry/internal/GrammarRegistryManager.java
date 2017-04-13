@@ -27,6 +27,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
+import org.eclipse.tm4e.registry.IGrammarRegistryManager;
+import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
 /**
  * 
@@ -89,7 +91,6 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	}
 
 	private void handleGrammarDelta(IExtensionDelta delta) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -160,7 +161,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	}
 
 	/**
-	 * Load TextMate grammars declared from th extension point.
+	 * Load TextMate grammars declared from the extension point.
 	 */
 	private void loadGrammars(IConfigurationElement[] cf, GrammarRegistry cache) {
 		for (IConfigurationElement ce : cf) {
