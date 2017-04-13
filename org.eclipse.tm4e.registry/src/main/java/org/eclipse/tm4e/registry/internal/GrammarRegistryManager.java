@@ -26,7 +26,9 @@ import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
+import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
@@ -41,6 +43,8 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 	private static final GrammarRegistryManager INSTANCE = new GrammarRegistryManager();
 
+	private static final ILogger GRAMMAR_LOGGER = new EclipseSystemLogger("org.eclipse.tm4e.registry/debug/log/Grammar");
+	
 	public static GrammarRegistryManager getInstance() {
 		return INSTANCE;
 	}
@@ -144,8 +148,8 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
 				return info != null ? info.getInputStream() : null;
 			}
-			
-		});
+
+		}, GRAMMAR_LOGGER);
 		loadGrammars(cf, registry);
 		addRegistryListener();
 		this.registry = registry;
@@ -175,4 +179,5 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 			}
 		}
 	}
+
 }

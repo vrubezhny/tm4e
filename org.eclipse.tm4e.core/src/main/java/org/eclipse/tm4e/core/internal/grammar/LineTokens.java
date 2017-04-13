@@ -20,14 +20,17 @@ import java.util.List;
 
 import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.grammar.StackElement;
+import org.eclipse.tm4e.core.logger.ILogger;
 
 class LineTokens {
 
 	private final List<IToken> _tokens;
+	private final ILogger logger;
 	private int _lastTokenEndIndex;
-
-	LineTokens() {
+	
+	LineTokens(ILogger logger) {
 		this._tokens = new ArrayList<IToken>();
+		this.logger = logger;
 		this._lastTokenEndIndex = 0;
 	}
 
@@ -66,5 +69,9 @@ class LineTokens {
 		}
 
 		return this._tokens.toArray(new IToken[0]);
+	}
+	
+	public ILogger getLogger() {
+		return logger;
 	}
 }

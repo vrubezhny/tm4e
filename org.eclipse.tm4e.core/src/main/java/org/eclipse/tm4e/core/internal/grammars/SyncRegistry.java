@@ -27,14 +27,17 @@ import org.eclipse.tm4e.core.grammar.IGrammarRepository;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
+import org.eclipse.tm4e.core.logger.ILogger;
 
 public class SyncRegistry implements IGrammarRepository {
 
+	private final ILogger logger;
 	private final Map<String, IGrammar> _grammars;
 	private final Map<String, IRawGrammar> _rawGrammars;
 	private final Map<String, Collection<String>> _injectionGrammars;
 
-	public SyncRegistry() {
+	public SyncRegistry(ILogger logger) {
+		this.logger = logger;
 		this._grammars = new HashMap<>();
 		this._rawGrammars = new HashMap<>();
 		this._injectionGrammars = new HashMap<>();
@@ -152,4 +155,8 @@ public class SyncRegistry implements IGrammarRepository {
 		return this._injectionGrammars.get(targetScope);
 	}
 
+	@Override
+	public ILogger getLogger() {
+		return logger;
+	}
 }

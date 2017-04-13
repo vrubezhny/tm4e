@@ -22,6 +22,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.grammar.ITokenizeLineResult;
 import org.eclipse.tm4e.core.grammar.StackElement;
+import org.eclipse.tm4e.core.logger.SystemLogger;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Assert;
@@ -104,7 +105,7 @@ public class RawTestImpl implements Test, Describable {
 			}
 		};
 
-		Registry registry = new Registry(locator);
+		Registry registry = new Registry(locator, SystemLogger.INSTANCE);
 		IGrammar grammar = getGrammar(test, registry, testLocation.getParentFile());
 
 		if (test.getGrammarScopeName() != null) {

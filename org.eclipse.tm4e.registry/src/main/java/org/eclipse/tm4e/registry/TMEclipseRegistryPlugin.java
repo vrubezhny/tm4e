@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.registry;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.tm4e.registry.internal.GrammarRegistryManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -49,4 +50,15 @@ public class TMEclipseRegistryPlugin implements BundleActivator {
 		return GrammarRegistryManager.getInstance();
 	}
 
+	/**
+	 * Returns true if the debug option is enabled and false otherwise.
+	 * 
+	 * @param option
+	 *            the option name
+	 * @return true if the debug option is enabled and false otherwise.
+	 */
+	public static boolean isDebugOptionEnabled(String option) {
+		String enabled = Platform.getDebugOption(option);
+		return enabled != null && new Boolean(enabled).booleanValue();
+	}
 }

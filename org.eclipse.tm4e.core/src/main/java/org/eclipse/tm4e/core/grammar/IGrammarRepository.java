@@ -18,6 +18,7 @@ package org.eclipse.tm4e.core.grammar;
 import java.util.Collection;
 
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
+import org.eclipse.tm4e.core.logger.ILogger;
 
 /**
  * TextMate grammar repository API.
@@ -36,4 +37,6 @@ public interface IGrammarRepository {
 	 * Returns the injections for the given grammar
 	 */
 	Collection<String> injections(String targetScope);
+
+	ILogger getLogger();
 }

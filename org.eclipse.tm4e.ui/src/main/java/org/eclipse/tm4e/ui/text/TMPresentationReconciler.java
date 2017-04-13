@@ -40,11 +40,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.model.IModelTokensChangedListener;
 import org.eclipse.tm4e.core.model.ITMModel;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.Range;
 import org.eclipse.tm4e.core.model.TMToken;
+import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
@@ -67,7 +69,11 @@ import org.eclipse.tm4e.ui.themes.ITokenProvider;
  */
 public class TMPresentationReconciler implements IPresentationReconciler {
 
-	public static boolean GENERATE_TEST = false;
+	private static boolean GENERATE_TEST = TMEclipseRegistryPlugin
+			.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/GenerateTest");
+
+	private static final ILogger RECONCILER_LOGGER = new EclipseSystemLogger(
+			"org.eclipse.tm4e.ui/debug/log/TMPresentationReconciler");
 
 	/**
 	 * The default text attribute if non is returned as data by the current
@@ -89,6 +95,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private boolean forcedTheme;
 
 	private List<ITMPresentationReconcilerListener> listeners;
+
+	private ILogger logger;
 
 	public TMPresentationReconciler() {
 		this.defaultToken = new Token(null);
@@ -173,7 +181,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// Add model listener
 					model.addModelTokensChangedListener(this);
 				} catch (CoreException e) {
-					e.printStackTrace();
+					if (logger.isEnabled()) {
+						logger.log("Error while initializing TextMate model.", e);
+					}
 				}
 			}
 		}
@@ -347,8 +357,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMModel model) {
+		ILogger logger = getLogger();
 		// Refresh the UI Presentation
-		System.err.println("Render from: " + fromLineNumber + " to: " + toLineNumber);
+		if (logger.isEnabled()) {
+			logger.log("Render from: " + fromLineNumber + " to: " + toLineNumber);
+		}
 		TextPresentation presentation = null;
 		Throwable error = null;
 		try {
@@ -370,7 +383,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// This case comes from when the viewer is invalidated (by
 					// validation for instance) and textChanged is called.
 					// see https://github.com/eclipse/tm4e/issues/78
-					System.err.println("TextMate tokens not available for line " + line);
+					if (logger.isEnabled()) {
+						logger.log("TextMate tokens not available for line " + line);
+					}
 					break;
 				}
 				int startLineOffset = document.getLineOffset(line);
@@ -428,7 +443,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			applyTextRegionCollection(presentation);
 		} catch (Throwable e) {
 			error = e;
-			e.printStackTrace();
+			if (logger.isEnabled()) {
+				logger.log("Error while rendering from: " + fromLineNumber + " to: " + toLineNumber, e);
+			}
 		} finally {
 			fireColorize(presentation, error);
 		}
@@ -599,5 +616,16 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				listener.colorize(presentation, error);
 			}
 		}
+	}
+
+	public void setLogger(ILogger logger) {
+		this.logger = logger;
+	}
+
+	public ILogger getLogger() {
+		if (logger == null) {
+			return RECONCILER_LOGGER;
+		}
+		return logger;
 	}
 }

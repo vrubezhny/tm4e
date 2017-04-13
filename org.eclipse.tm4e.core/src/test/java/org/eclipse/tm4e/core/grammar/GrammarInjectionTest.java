@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.tm4e.core.Data;
+import org.eclipse.tm4e.core.logger.SystemLogger;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Assert;
@@ -70,7 +71,7 @@ public class GrammarInjectionTest {
 				}
 				return null;
 			}
-		});
+		}, SystemLogger.INSTANCE);
 		IGrammar grammar = registry.loadGrammar("source.ts");
 		ITokenizeLineResult lineTokens = grammar.tokenizeLine("@Component({template:`<a href='' ></a>`})");
 		for (int i = 0; i < lineTokens.getTokens().length; i++) {

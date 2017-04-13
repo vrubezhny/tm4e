@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 import org.eclipse.tm4e.core.registry.Registry;
 
@@ -21,8 +22,8 @@ public class GrammarRegistry extends Registry {
 
 	private Map<String, GrammarDefinition> definitions;
 
-	public GrammarRegistry(IGrammarLocator locator) {
-		super(locator);
+	public GrammarRegistry(IGrammarLocator locator, ILogger logger) {
+		super(locator, logger);
 		this.definitions = new HashMap<>();
 	}
 

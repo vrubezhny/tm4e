@@ -27,6 +27,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.internal.grammar.reader.GrammarReader;
 import org.eclipse.tm4e.core.internal.grammars.SyncRegistry;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
+import org.eclipse.tm4e.core.logger.ILogger;
 
 public class Registry {
 
@@ -38,8 +39,12 @@ public class Registry {
 	}
 
 	public Registry(IGrammarLocator locator) {
+		this(locator, ILogger.DEFAULT_LOGGER);
+	}
+
+	public Registry(IGrammarLocator locator, ILogger logger) {
 		this._locator = locator;
-		this._syncRegistry = new SyncRegistry();
+		this._syncRegistry = new SyncRegistry(logger);
 	}
 
 	public IGrammar loadGrammar(String initialScopeName) {
@@ -60,7 +65,6 @@ public class Registry {
 			String filePath = this._locator.getFilePath(scopeName);
 			if (filePath == null) {
 				if (scopeName.equals(initialScopeName)) {
-					// System.err.println();
 					throw new TMException("Unknown location for grammar <" + initialScopeName + ">");
 					// callback(new Error('Unknown location for grammar <' +
 					// initialScopeName + '>'), null);

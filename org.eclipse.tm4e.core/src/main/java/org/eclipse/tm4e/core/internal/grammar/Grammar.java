@@ -167,8 +167,6 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return (IRawGrammar) ((Raw) grammar).clone();
 	}
 
-	
-
 	@Override
 	public ITokenizeLineResult tokenizeLine(String lineText) {
 		return tokenizeLine(lineText, null);
@@ -194,8 +192,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		lineText = lineText + '\n';
 		OnigString onigLineText = GrammarHelper.createOnigString(lineText);
 		int lineLength = lineText.length();
-		LineTokens lineTokens = new LineTokens();
-		StackElement nextState = LineTokenizer._tokenizeString(this, onigLineText, isFirstLine, 0, prevState, lineTokens);
+		LineTokens lineTokens = new LineTokens(this._grammarRepository.getLogger());
+		StackElement nextState = LineTokenizer._tokenizeString(this, onigLineText, isFirstLine, 0, prevState,
+				lineTokens);
 
 		IToken[] _produced = lineTokens.getResult(nextState, lineLength);
 
