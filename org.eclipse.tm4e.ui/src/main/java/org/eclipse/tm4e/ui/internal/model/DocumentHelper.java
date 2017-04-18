@@ -64,7 +64,8 @@ public class DocumentHelper {
 		return event.getLength() == 0 && event.getText() != null;
 	}
 
-	public static String getLineText(IDocument document, int line, boolean withLineDelimiter) throws BadLocationException {
+	public static String getLineText(IDocument document, int line, boolean withLineDelimiter)
+			throws BadLocationException {
 		int lo = document.getLineOffset(line);
 		int ll = document.getLineLength(line);
 		if (!withLineDelimiter) {
@@ -75,8 +76,9 @@ public class DocumentHelper {
 	}
 
 	public static int getLineLength(IDocument document, int line) throws BadLocationException {
-		//String delim = document.getLineDelimiter(line);
-		return document.getLineLength(line); // - (delim != null ? delim.length() : 0);
+		// String delim = document.getLineDelimiter(line);
+		return document.getLineLength(line); // - (delim != null ?
+												// delim.length() : 0);
 	}
 
 	public static IRegion getRegion(IDocument document, int fromLine, int toLine) throws BadLocationException {
@@ -93,7 +95,13 @@ public class DocumentHelper {
 	public static IContentType[] getContentTypes(IDocument document) throws CoreException {
 		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
 		ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
-		return getContentTypes(buffer);
+		if (buffer != null) {
+			// The document is stored inside ITextFileBufferManager.
+			return getContentTypes(buffer);
+		} else {
+			// TODO: retrieve content type from IStorage, other?...
+		}
+		return null;
 	}
 
 	private static IContentType[] getContentTypes(ITextFileBuffer buffer) throws CoreException {
@@ -103,8 +111,7 @@ public class DocumentHelper {
 				InputStream input = null;
 				try {
 					input = new DocumentInputStream(buffer.getDocument());
-					IContentType[] contentTypes = Platform.getContentTypeManager().findContentTypesFor(input,
-							fileName);
+					IContentType[] contentTypes = Platform.getContentTypeManager().findContentTypesFor(input, fileName);
 					if (contentTypes != null)
 						return contentTypes;
 				} finally {
@@ -117,7 +124,7 @@ public class DocumentHelper {
 			}
 
 			InputStream contents = null;
-			try  {
+			try {
 				contents = getContents(buffer);
 				return Platform.getContentTypeManager().findContentTypesFor(contents, fileName);
 			} catch (Throwable e) {
@@ -128,18 +135,19 @@ public class DocumentHelper {
 				return null;
 			}
 		} catch (IOException x) {
-//			throw new CoreException(new Status(IStatus.ERROR, FileBuffersPlugin.PLUGIN_ID, IStatus.OK,
-//					NLSUtility.format(FileBuffersMessages.FileBuffer_error_queryContentDescription,
-//							fFile.getFullPath().toOSString()),
-//					x));
+			// throw new CoreException(new Status(IStatus.ERROR,
+			// FileBuffersPlugin.PLUGIN_ID, IStatus.OK,
+			// NLSUtility.format(FileBuffersMessages.FileBuffer_error_queryContentDescription,
+			// fFile.getFullPath().toOSString()),
+			// x));
 			x.printStackTrace();
 			return null;
 		}
 	}
 
 	private static InputStream getContents(ITextFileBuffer buffer) throws CoreException {
-		IWorkspaceRoot workspaceRoot= ResourcesPlugin.getWorkspace().getRoot();
-		IFile file= workspaceRoot.getFile(buffer.getLocation());
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IFile file = workspaceRoot.getFile(buffer.getLocation());
 		if (file.exists()) {
 			return file.getContents();
 		}
