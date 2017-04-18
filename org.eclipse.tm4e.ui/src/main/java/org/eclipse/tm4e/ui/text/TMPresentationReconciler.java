@@ -49,6 +49,7 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMModel;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
@@ -165,14 +166,14 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// Update theme + grammar
 					IContentType[] contentTypes = null;
 					if (tokenProvider == null) {
-						contentTypes = DocumentHelper.getContentTypes(newDocument);
+						contentTypes = ContentTypeHelper.findContentTypes(newDocument);
 						tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentTypes);
 					}
 					Assert.isNotNull(tokenProvider, "Cannot find Theme for the given document");
 					IGrammar grammar = TMPresentationReconciler.this.grammar;
 					if (grammar == null) {
 						contentTypes = contentTypes != null ? contentTypes
-								: DocumentHelper.getContentTypes(newDocument);
+								: ContentTypeHelper.findContentTypes(newDocument);
 						// Discover the well grammar from the contentTypes
 						grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
 					}
