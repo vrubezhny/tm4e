@@ -304,17 +304,26 @@ public abstract class AbstractTMModel implements ITMModel {
 		listeners.remove(listener);
 		if (listeners.isEmpty()) {
 			// no need to keep tokenizing if no-one cares
-			this.fThread.interrupt();
-			this.fThread = null;
+			interrupt();
 		}
 	}
 
 	@Override
 	public void dispose() {
+		interrupt();
+	}
+
+	/**
+	 * Interrupt the thread. 
+	 */
+	private void interrupt() {
+		if (fThread == null) {
+			return;
+		}
 		this.fThread.interrupt();
 		this.fThread = null;
 	}
-
+	
 	private void _withModelTokensChangedEventBuilder(Consumer<ModelTokensChangedEventBuilder> callback) {
 		ModelTokensChangedEventBuilder eventBuilder = new ModelTokensChangedEventBuilder(this);
 
