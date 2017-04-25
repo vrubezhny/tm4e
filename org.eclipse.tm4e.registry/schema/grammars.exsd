@@ -20,6 +20,7 @@
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="grammar" minOccurs="0" maxOccurs="unbounded"/>
             <element ref="scopeNameContentTypeBinding" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="injection" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -89,13 +90,43 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="contentTypeId" type="string">
+         <attribute name="contentTypeId" type="string" use="required">
             <annotation>
                <documentation>
                   The id of a content type as defined by the &lt;code&gt;org.eclipse.core.runtime.contentTypes&lt;/code&gt; extension point for which this TextMate scope name should be used.
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier" basedOn="org.eclipse.core.contenttype.contentTypes/content-type/@id"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="injection">
+      <annotation>
+         <documentation>
+            This extension point allows developers to inject an external grammar to a given grammar.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="scopeName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The scope name of the external grammar to inject.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.tm4e.registry.grammars/grammar/@scopeName"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="injectTo" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The scope name where the external grammar (defined by scopeName) must be injected.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.tm4e.registry.grammars/grammar/@scopeName"/>
                </appinfo>
             </annotation>
          </attribute>

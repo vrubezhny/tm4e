@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -43,8 +42,9 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 	private static final GrammarRegistryManager INSTANCE = new GrammarRegistryManager();
 
-	private static final ILogger GRAMMAR_LOGGER = new EclipseSystemLogger("org.eclipse.tm4e.registry/debug/log/Grammar");
-	
+	private static final ILogger GRAMMAR_LOGGER = new EclipseSystemLogger(
+			"org.eclipse.tm4e.registry/debug/log/Grammar");
+
 	public static GrammarRegistryManager getInstance() {
 		return INSTANCE;
 	}
@@ -52,14 +52,11 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	private boolean registryListenerIntialized;
 
 	private GrammarRegistry registry;
-	private Map<String, List<String>> injections;
-
 	private Map<String, String> scopeNameBindings;
 
 	public GrammarRegistryManager() {
 		this.registryListenerIntialized = false;
 		this.scopeNameBindings = new HashMap<>();
-		injections = new HashMap<>();
 	}
 
 	@Override
@@ -70,7 +67,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		}
 		// Find grammar by content type
 		for (IContentType contentType : contentTypes) {
-			String scopeName = getScopeName(contentType);
+			String scopeName = getScopeName(contentType.getId());
 			if (scopeName != null) {
 				IGrammar grammar = registry.getGrammar(scopeName);
 				if (grammar != null) {
@@ -81,8 +78,22 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		return null;
 	}
 
-	private String getScopeName(IContentType contentType) {
-		return scopeNameBindings.get(contentType.getId());
+	@Override
+	public IGrammar getGrammarFor(String contentTypeId) {
+		loadGrammarsIfNeeded();
+		// Find grammar by content type
+		String scopeName = getScopeName(contentTypeId);
+		if (scopeName != null) {
+			IGrammar grammar = registry.getGrammar(scopeName);
+			if (grammar != null) {
+				return grammar;
+			}
+		}
+		return null;
+	}
+
+	private String getScopeName(String contentTypeId) {
+		return scopeNameBindings.get(contentTypeId);
 	}
 
 	@Override
@@ -128,13 +139,13 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		if (registry != null) {
 			return;
 		}
-		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMEclipseRegistryPlugin.PLUGIN_ID,
-				EXTENSION_GRAMMARS);
+		IConfigurationElement[] cf = Platform.getExtensionRegistry()
+				.getConfigurationElementsFor(TMEclipseRegistryPlugin.PLUGIN_ID, EXTENSION_GRAMMARS);
 		GrammarRegistry registry = new GrammarRegistry(new IGrammarLocator() {
 
 			@Override
 			public Collection<String> getInjections(String scopeName) {
-				return injections.get(scopeName);
+				return GrammarRegistryManager.this.registry.getInjections(scopeName);
 			}
 
 			@Override
@@ -142,7 +153,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
 				return info != null ? info.getPath() : null;
 			}
-			
+
 			@Override
 			public InputStream getInputStream(String scopeName) throws IOException {
 				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
@@ -150,8 +161,11 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 			}
 
 		}, GRAMMAR_LOGGER);
-		loadGrammars(cf, registry);
+
+		Map<String, String> scopeNameBindings = new HashMap<>();
+		loadGrammars(cf, registry, scopeNameBindings);
 		addRegistryListener();
+		this.scopeNameBindings = scopeNameBindings;
 		this.registry = registry;
 	}
 
@@ -167,14 +181,19 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	/**
 	 * Load TextMate grammars declared from the extension point.
 	 */
-	private void loadGrammars(IConfigurationElement[] cf, GrammarRegistry cache) {
+	private void loadGrammars(IConfigurationElement[] cf, GrammarRegistry cache,
+			Map<String, String> scopeNameBindings) {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
-			if ("grammar".equals(name)) {
+			if (XMLConstants.GRAMMAR_ELT.equals(name)) {
 				cache.register(new GrammarDefinition(ce));
-			} else if ("scopeNameContentTypeBinding".equals(name)) {
-				String contentTypeId = ce.getAttribute("contentTypeId");
-				String scopeName = ce.getAttribute("scopeName");
+			} else if (XMLConstants.INJECTION_ELT.equals(name)) {
+				String scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
+				String injectTo = ce.getAttribute(XMLConstants.INJECT_TO_ATTR);
+				cache.registerInjection(scopeName, injectTo);
+			} else if (XMLConstants.SCOPE_NAME_CONTENT_TYPE_BINDING_ELT.equals(name)) {
+				String contentTypeId = ce.getAttribute(XMLConstants.CONTENT_TYPE_ID_ATTR);
+				String scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
 				scopeNameBindings.put(contentTypeId, scopeName);
 			}
 		}

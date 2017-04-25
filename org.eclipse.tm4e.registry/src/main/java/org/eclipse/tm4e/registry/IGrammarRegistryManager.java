@@ -28,4 +28,6 @@ public interface IGrammarRegistryManager {
 	 * @return the {@link IGrammar} for the given content type.
 	 */
 	IGrammar getGrammarFor(IContentType[] contentTypes);
+
+	IGrammar getGrammarFor(String contentTypeId);
 }
