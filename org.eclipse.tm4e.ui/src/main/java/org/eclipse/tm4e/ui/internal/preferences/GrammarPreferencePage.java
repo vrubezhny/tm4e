@@ -108,7 +108,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		GC gc = new GC(getShell());
 		gc.setFont(JFaceResources.getDialogFont());
 
-		GrammarDefinitionViewerComparator viewerComparator = new GrammarDefinitionViewerComparator();
+		ColumnViewerComparator viewerComparator = new ColumnViewerComparator();
 
 		fTableViewer = new TableViewer(table);
 
@@ -117,21 +117,21 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		int minWidth = computeMinimumColumnWidth(gc, TMUIMessages.GrammarPreferencePage_column_scopeName);
 		columnLayout.setColumnData(column1, new ColumnWeightData(2, minWidth, true));
 		column1.addSelectionListener(
-				new GrammarDefinitionColumnSelectionAdapter(column1, fTableViewer, 0, viewerComparator));
+				new ColumnSelectionAdapter(column1, fTableViewer, 0, viewerComparator));
 
 		TableColumn column2 = new TableColumn(table, SWT.NONE);
 		column2.setText(TMUIMessages.GrammarPreferencePage_column_path);
 		minWidth = computeMinimumColumnWidth(gc, TMUIMessages.GrammarPreferencePage_column_path);
 		columnLayout.setColumnData(column2, new ColumnWeightData(2, minWidth, true));
 		column2.addSelectionListener(
-				new GrammarDefinitionColumnSelectionAdapter(column2, fTableViewer, 1, viewerComparator));
+				new ColumnSelectionAdapter(column2, fTableViewer, 1, viewerComparator));
 
 		TableColumn column3 = new TableColumn(table, SWT.NONE);
 		column3.setText(TMUIMessages.GrammarPreferencePage_column_pluginId);
 		minWidth = computeMinimumColumnWidth(gc, TMUIMessages.GrammarPreferencePage_column_pluginId);
 		columnLayout.setColumnData(column3, new ColumnWeightData(2, minWidth, true));
 		column3.addSelectionListener(
-				new GrammarDefinitionColumnSelectionAdapter(column3, fTableViewer, 2, viewerComparator));
+				new ColumnSelectionAdapter(column3, fTableViewer, 2, viewerComparator));
 
 		gc.dispose();
 

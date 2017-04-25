@@ -1,18 +1,23 @@
 package org.eclipse.tm4e.ui.internal.preferences;
 
 import org.eclipse.jface.viewers.IBaseLabelProvider;
+import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 
-class GrammarDefinitionViewerComparator extends ViewerComparator {
+/**
+ * Viewer compoarator which sort a given column.
+ *
+ */
+class ColumnViewerComparator extends ViewerComparator {
 
 	private int fSortColumn;
 
 	private int fSortOrder; // 1 = asc, -1 = desc
 
-	public GrammarDefinitionViewerComparator() {
+	public ColumnViewerComparator() {
 		fSortColumn = 0;
 		fSortOrder = 1;
 	}
@@ -48,8 +53,8 @@ class GrammarDefinitionViewerComparator extends ViewerComparator {
 		if (viewer instanceof TableViewer) {
 			IBaseLabelProvider baseLabel = ((TableViewer) viewer).getLabelProvider();
 
-			String left = ((GrammarDefinitionLabelProvider) baseLabel).getColumnText(e1, fSortColumn);
-			String right = ((GrammarDefinitionLabelProvider) baseLabel).getColumnText(e2, fSortColumn);
+			String left = ((ITableLabelProvider) baseLabel).getColumnText(e1, fSortColumn);
+			String right = ((ITableLabelProvider) baseLabel).getColumnText(e2, fSortColumn);
 			int sortResult = getComparator().compare(left, right);
 			return sortResult * fSortOrder;
 		}

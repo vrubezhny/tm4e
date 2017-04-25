@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.ui.internal.themes;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,9 +55,9 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		return INSTANCE;
 	}
 
-	private Map<String /* theme id */ , Theme> themes;
+	private Map<String /* theme id */ , ITheme> themes;
 	private Map<String /* content type id */, String /* theme id */> themeContentTypeBindings;
-	private Map<String /* E4 theme id */ , Theme> defaultThemes;
+	private Map<String /* E4 theme id */ , ITheme> defaultThemes;
 
 	private ThemeManager() {
 	}
@@ -69,7 +70,7 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 
 	public ITheme getThemeForE4Theme(String e4ThemeId) {
 		loadThemesIfNeeded();
-		Theme themeForE4Theme = null;
+		ITheme themeForE4Theme = null;
 		if (e4ThemeId != null) {
 			themeForE4Theme = defaultThemes.get(e4ThemeId);
 		}
@@ -114,6 +115,13 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 			}
 		}
 		return getDefaultTheme();
+	}
+
+	@Override
+	public ITheme[] getThemes() {
+		loadThemesIfNeeded();
+		Collection<ITheme> themes = this.themes.values();
+		return themes.toArray(new ITheme[themes.size()]);
 	}
 
 	/**
@@ -162,9 +170,9 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		}
 		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMUIPlugin.PLUGIN_ID,
 				EXTENSION_THEMES);
-		Map<String, Theme> themes = new HashMap<>();
+		Map<String, ITheme> themes = new HashMap<>();
 		Map<String, String> themeContentTypeBindings = new HashMap<>();
-		Map<String, Theme> defaultThemes = new HashMap<>();
+		Map<String, ITheme> defaultThemes = new HashMap<>();
 		loadThemes(cf, themes, themeContentTypeBindings, defaultThemes);
 		addRegistryListener();
 		this.themeContentTypeBindings = themeContentTypeBindings;
@@ -180,8 +188,8 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	/**
 	 * Load TextMate themes declared from the extension point.
 	 */
-	private void loadThemes(IConfigurationElement[] cf, Map<String, Theme> themes,
-			Map<String, String> themeContentTypeBindings, Map<String, Theme> defaultThemes) {
+	private void loadThemes(IConfigurationElement[] cf, Map<String, ITheme> themes,
+			Map<String, String> themeContentTypeBindings, Map<String, ITheme> defaultThemes) {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
 			if (THEME_ELT_NAME.equals(name)) {
@@ -210,4 +218,5 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	public IEclipsePreferences getPreferenceE4CSSTheme() {
 		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
 	}
+
 }

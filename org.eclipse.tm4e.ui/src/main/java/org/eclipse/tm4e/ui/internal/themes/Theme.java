@@ -27,11 +27,12 @@ import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
 public class Theme implements ITheme {
 
 	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
-	
+
 	private final IConfigurationElement ce;
-	private String id;
-	private String name;
-	private String path;
+	private final String id;
+	private final String name;
+	private final String path;
+	private final String pluginId;
 
 	private ITokenProvider tokenProvider;
 
@@ -40,6 +41,7 @@ public class Theme implements ITheme {
 		this.id = ce.getAttribute("id");
 		this.name = ce.getAttribute("name");
 		this.path = ce.getAttribute("path");
+		this.pluginId = ce.getNamespaceIdentifier();
 	}
 
 	@Override
@@ -53,6 +55,15 @@ public class Theme implements ITheme {
 	}
 
 	@Override
+	public String getPath() {
+		return path;
+	}
+
+	public String getPluginId() {
+		return pluginId;
+	}
+
+	@Override
 	public IToken getToken(String type) {
 		return getTokenProvider().getToken(type);
 	}
@@ -62,8 +73,8 @@ public class Theme implements ITheme {
 			if (path != null && path.length() > 0) {
 				String pluginId = ce.getNamespaceIdentifier();
 				try {
-					URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path)
-							.toString());
+					URL url = new URL(
+							new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());
 					tokenProvider = new CSSTokenProvider(url.openStream());
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -73,23 +84,22 @@ public class Theme implements ITheme {
 		}
 		return tokenProvider;
 	}
-	
+
 	@Override
 	public String toCSSStyleSheet() {
 		String pluginId = ce.getNamespaceIdentifier();
 		try {
-			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path)
-					.toString());
+			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());
 			return convertStreamToString(url.openStream());
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	private static String convertStreamToString(InputStream is) {
-	    Scanner s = new Scanner(is).useDelimiter("\\A");
-	    return s.hasNext() ? s.next() : "";
+		Scanner s = new Scanner(is).useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
 	}
 
 }

@@ -31,6 +31,20 @@ public interface ITheme extends ITokenProvider {
 	String getName();
 
 	/**
+	 * Returns the path of the theme.
+	 * 
+	 * @return the path of the theme.
+	 */
+	String getPath();
+
+	/**
+	 * Returns the plugin id.
+	 * 
+	 * @return the plugin id
+	 */
+	String getPluginId();
+	
+	/**
 	 * Returns the theme content as CSS style sheet.
 	 * 
 	 * @return the theme content as CSS style sheet.

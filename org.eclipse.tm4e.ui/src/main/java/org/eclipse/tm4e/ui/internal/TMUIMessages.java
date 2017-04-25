@@ -31,6 +31,13 @@ public class TMUIMessages extends NLS {
 	public static String GrammarPreferencePage_column_path;
 	public static String GrammarPreferencePage_column_pluginId;
 
+	// Theme preferences page
+	public static String ThemePreferencePage_title;
+	public static String ThemePreferencePage_description;
+	public static String ThemePreferencePage_column_name;
+	public static String ThemePreferencePage_column_path;
+	public static String ThemePreferencePage_column_pluginId;
+
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, TMUIMessages.class);
 	}

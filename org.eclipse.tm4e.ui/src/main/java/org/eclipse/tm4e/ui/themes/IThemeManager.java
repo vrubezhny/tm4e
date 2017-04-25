@@ -52,4 +52,11 @@ public interface IThemeManager {
 	 */
 	ITheme getThemeById(String themeId);
 
+	/**
+	 * Returns the list of TextMate themes.
+	 * 
+	 * @return the list of TextMate themes.
+	 */
+	ITheme[] getThemes();
+
 }
