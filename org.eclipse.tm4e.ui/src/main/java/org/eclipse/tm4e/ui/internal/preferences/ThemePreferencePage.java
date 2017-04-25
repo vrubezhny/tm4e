@@ -43,6 +43,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  */
 public class ThemePreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+	public final static String PAGE_ID = "org.eclipse.tm4e.internal.ui.ThemePreferencePage";
+	
 	private TableViewer fTableViewer;
 	private IThemeManager themeManager;	
 	private Button fNewButton;

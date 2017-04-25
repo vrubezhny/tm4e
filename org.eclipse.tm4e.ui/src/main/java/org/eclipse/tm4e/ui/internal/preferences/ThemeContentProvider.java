@@ -12,7 +12,6 @@ package org.eclipse.tm4e.ui.internal.preferences;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**

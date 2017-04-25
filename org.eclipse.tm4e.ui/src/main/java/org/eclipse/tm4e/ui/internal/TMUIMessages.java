@@ -24,6 +24,10 @@ public class TMUIMessages extends NLS {
 	public static String Button_new;
 	public static String Button_remove;
 
+	// TextMate preferences page
+	public static String TextMatePreferencePage_GrammarRelatedLink;
+	public static String TextMatePreferencePage_ThemeRelatedLink;
+	
 	// Grammar preferences page
 	public static String GrammarPreferencePage_title;
 	public static String GrammarPreferencePage_description;

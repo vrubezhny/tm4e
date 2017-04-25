@@ -43,6 +43,8 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  */
 public class GrammarPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
+	public final static String PAGE_ID = "org.eclipse.tm4e.internal.ui.GrammarPreferencePage";
+	
 	private TableViewer fTableViewer;
 	private IGrammarRegistryManager grammarRegistryManager;
 	private Button fNewButton;
