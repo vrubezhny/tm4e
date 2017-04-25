@@ -53,12 +53,6 @@
             class="org.eclipse.tm4e.ui.internal.preferences.TextMatePreferencePage"
             id="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
       </page>
-	  <page
-            name="%EditorPreferencePage.name"        
-            class="org.eclipse.tm4e.ui.internal.preferences.EditorPreferencePage"
-            id="org.eclipse.tm4e.internal.ui.EditorPreferencePage"
-            category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
-      </page>
       <page
             name="%GrammarPreferencePage.name"        
             class="org.eclipse.tm4e.ui.internal.preferences.GrammarPreferencePage"
