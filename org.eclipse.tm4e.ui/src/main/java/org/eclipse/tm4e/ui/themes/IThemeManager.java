@@ -37,6 +37,13 @@ public interface IThemeManager {
 	ITheme getThemeFor(IContentType[] contentTypes);
 
 	/**
+	 * 
+	 * @param contentTypeId
+	 * @return
+	 */
+	ITheme getThemeFor(String contentTypeId);
+
+	/**
 	 * Returns the {@link ITheme} by the theme id.
 	 * 
 	 * @param themeId

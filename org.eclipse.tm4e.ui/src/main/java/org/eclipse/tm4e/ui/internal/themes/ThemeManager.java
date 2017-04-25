@@ -95,12 +95,34 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		}
 		String themeId = null;
 		for (IContentType contentType : contentTypes) {
-			themeId = themeContentTypeBindings.get(contentType.getId());
+			themeId = getThemeIdFor(contentType.getId());
 			if (themeId != null) {
 				return themeId;
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public ITheme getThemeFor(String contentTypeId) {
+		loadThemesIfNeeded();
+		String themeId = getThemeIdFor(contentTypeId);
+		if (themeId != null) {
+			ITheme theme = getThemeById(themeId);
+			if (theme != null) {
+				return theme;
+			}
+		}
+		return getDefaultTheme();
+	}
+
+	/**
+	 * 
+	 * @param contentTypeId
+	 * @return
+	 */
+	private String getThemeIdFor(String contentTypeId) {
+		return themeContentTypeBindings.get(contentTypeId);
 	}
 
 	@Override

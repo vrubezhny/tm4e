@@ -28,6 +28,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 import org.eclipse.tm4e.registry.EclipseSystemLogger;
+import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 
@@ -77,19 +78,11 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		}
 		return null;
 	}
-
+	
 	@Override
-	public IGrammar getGrammarFor(String contentTypeId) {
+	public IGrammarDefinition[] getDefinitions() {
 		loadGrammarsIfNeeded();
-		// Find grammar by content type
-		String scopeName = getScopeName(contentTypeId);
-		if (scopeName != null) {
-			IGrammar grammar = registry.getGrammar(scopeName);
-			if (grammar != null) {
-				return grammar;
-			}
-		}
-		return null;
+		return registry.getDefinitions();
 	}
 
 	private String getScopeName(String contentTypeId) {
@@ -150,13 +143,13 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 			@Override
 			public String getFilePath(String scopeName) {
-				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
+				IGrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
 				return info != null ? info.getPath() : null;
 			}
 
 			@Override
 			public InputStream getInputStream(String scopeName) throws IOException {
-				GrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
+				IGrammarDefinition info = GrammarRegistryManager.this.registry.getDefinition(scopeName);
 				return info != null ? info.getInputStream() : null;
 			}
 

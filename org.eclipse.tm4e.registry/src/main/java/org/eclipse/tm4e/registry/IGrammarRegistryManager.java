@@ -29,5 +29,11 @@ public interface IGrammarRegistryManager {
 	 */
 	IGrammar getGrammarFor(IContentType[] contentTypes);
 
-	IGrammar getGrammarFor(String contentTypeId);
+	/**
+	 * Returns the list of registered TextMate grammars.
+	 * 
+	 * @return the list of registered TextMate grammars.
+	 */
+	IGrammarDefinition[] getDefinitions();
+
 }

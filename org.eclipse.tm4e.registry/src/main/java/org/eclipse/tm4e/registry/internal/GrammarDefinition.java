@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.tm4e.registry.IGrammarDefinition;
 
 /**
  * Grammar definition defined by the "org.eclipse.tm4e.registry.grammars"
@@ -31,7 +32,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
  * </pre>
  *
  */
-public class GrammarDefinition {
+public class GrammarDefinition implements IGrammarDefinition {
 
 	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
 
@@ -45,30 +46,22 @@ public class GrammarDefinition {
 		this.pluginId = element.getNamespaceIdentifier();
 	}
 
-	/**
-	 * Returns the scope name of the TextMate grammar.
-	 * 
-	 * @return the scope name of the TextMate grammar.
-	 */
+	@Override
 	public String getScopeName() {
 		return scopeName;
 	}
 
-	/**
-	 * Returns the TextMate grammar path.
-	 * 
-	 * @return the TextMate grammar path.
-	 */
+	@Override
 	public String getPath() {
 		return path;
 	}
+	
+	@Override
+	public String getPluginId() {
+		return pluginId;
+	}
 
-	/**
-	 * Returns the stream of the TextMate grammar.
-	 * 
-	 * @return the stream of the TextMate grammar.
-	 * @throws IOException
-	 */
+	@Override
 	public InputStream getInputStream() throws IOException {
 		if (path != null && path.length() > 0) {
 			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());

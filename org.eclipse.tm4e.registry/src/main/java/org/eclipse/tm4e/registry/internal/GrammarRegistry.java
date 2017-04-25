@@ -19,6 +19,7 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.registry.IGrammarLocator;
 import org.eclipse.tm4e.core.registry.Registry;
+import org.eclipse.tm4e.registry.IGrammarDefinition;
 
 /**
  * Eclipse grammar registry.
@@ -26,7 +27,7 @@ import org.eclipse.tm4e.core.registry.Registry;
  */
 public class GrammarRegistry extends Registry {
 
-	private final Map<String, GrammarDefinition> definitions;
+	private final Map<String, IGrammarDefinition> definitions;
 	private final Map<String, Collection<String>> injections;
 
 	public GrammarRegistry(IGrammarLocator locator, ILogger logger) {
@@ -41,7 +42,7 @@ public class GrammarRegistry extends Registry {
 	 * @param definition
 	 *            the grammar definition to register.
 	 */
-	public void register(GrammarDefinition definition) {
+	public void register(IGrammarDefinition definition) {
 		definitions.put(definition.getScopeName(), definition);
 	}
 
@@ -69,7 +70,7 @@ public class GrammarRegistry extends Registry {
 	 * @return the grammar definition from the given <code>scopeName</code> and
 	 *         null otherwise.
 	 */
-	public GrammarDefinition getDefinition(String scopeName) {
+	public IGrammarDefinition getDefinition(String scopeName) {
 		return definitions.get(scopeName);
 	}
 
@@ -99,6 +100,11 @@ public class GrammarRegistry extends Registry {
 			this.injections.put(injectTo, injections);
 		}
 		injections.add(scopeName);
+	}
+
+	public IGrammarDefinition[] getDefinitions() {
+		Collection<IGrammarDefinition> definitions = this.definitions.values();
+		return definitions.toArray(new IGrammarDefinition[definitions.size()]);
 	}
 
 }
