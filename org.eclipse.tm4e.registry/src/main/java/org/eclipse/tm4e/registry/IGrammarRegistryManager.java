@@ -21,13 +21,24 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 public interface IGrammarRegistryManager {
 
 	/**
-	 * Returns the {@link IGrammar} for the given content types.
+	 * Returns the {@link IGrammar} for the given content types and null
+	 * otherwise.
 	 * 
 	 * @param contentTypes
 	 *            the content type.
-	 * @return the {@link IGrammar} for the given content type.
+	 * @return the {@link IGrammar} for the given content type and null
+	 *         otherwise.
 	 */
 	IGrammar getGrammarFor(IContentType[] contentTypes);
+
+	/**
+	 * Returns the {@link IGrammar} for the given scope name and null otherwise.
+	 * 
+	 * @param contentTypes
+	 *            the content type.
+	 * @return the {@link IGrammar} for the given scope name and null otherwise.
+	 */
+	IGrammar getGrammarFor(String scopeName);
 
 	/**
 	 * Returns the list of registered TextMate grammars.

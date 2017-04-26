@@ -34,6 +34,7 @@ public class TMUIMessages extends NLS {
 	public static String GrammarPreferencePage_column_scopeName;
 	public static String GrammarPreferencePage_column_path;
 	public static String GrammarPreferencePage_column_pluginId;
+	public static String GrammarPreferencePage_preview;
 
 	// Theme preferences page
 	public static String ThemePreferencePage_title;

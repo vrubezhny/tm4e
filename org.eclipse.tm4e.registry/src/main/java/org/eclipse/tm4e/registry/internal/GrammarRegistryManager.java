@@ -70,7 +70,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		for (IContentType contentType : contentTypes) {
 			String scopeName = getScopeName(contentType.getId());
 			if (scopeName != null) {
-				IGrammar grammar = registry.getGrammar(scopeName);
+				IGrammar grammar = getGrammarFor(scopeName);
 				if (grammar != null) {
 					return grammar;
 				}
@@ -78,7 +78,13 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		}
 		return null;
 	}
-	
+
+	@Override
+	public IGrammar getGrammarFor(String scopeName) {
+		loadGrammarsIfNeeded();
+		return registry.getGrammar(scopeName);
+	}
+
 	@Override
 	public IGrammarDefinition[] getDefinitions() {
 		loadGrammarsIfNeeded();

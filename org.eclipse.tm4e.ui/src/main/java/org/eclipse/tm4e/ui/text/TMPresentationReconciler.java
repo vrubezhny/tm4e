@@ -282,7 +282,17 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	public void setGrammar(IGrammar grammar) {
+		boolean changed = ((this.grammar == null) || !this.grammar.equals(grammar));
 		this.grammar = grammar;
+		if(changed) {
+			// Grammar has changed, recreate the TextMate model
+			IDocument document = viewer.getDocument();
+			if (document == null) {
+				return;
+			}
+			internalListener.inputDocumentAboutToBeChanged(viewer.getDocument(), null);
+			internalListener.inputDocumentChanged(null, document);
+		}
 	}
 
 	public IGrammar getGrammar() {
