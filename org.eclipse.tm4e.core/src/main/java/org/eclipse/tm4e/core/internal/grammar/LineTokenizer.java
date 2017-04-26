@@ -481,7 +481,7 @@ class LineTokenizer {
 					stack = whileRule.stack.pop();
 					break;
 				}
-				if (r.getCaptureIndices() != null && r.getCaptureIndices().length >= 0) {
+				if (r.getCaptureIndices() != null && r.getCaptureIndices().length > 0) {
 					lineTokens.produce(whileRule.stack, r.getCaptureIndices()[0].getStart());
 					handleCaptures(grammar, lineText, isFirstLine, whileRule.stack, lineTokens,
 							whileRule.rule.whileCaptures, r.getCaptureIndices());
