@@ -107,8 +107,7 @@ public abstract class AbstractTMModel implements ITMModel {
 				} catch (InterruptedException e) {
 					interrupt();
 				}
-			} while (!isInterrupted());
-
+			} while (!isInterrupted() && model.fThread != null);
 		}
 
 		/**
@@ -304,19 +303,19 @@ public abstract class AbstractTMModel implements ITMModel {
 		listeners.remove(listener);
 		if (listeners.isEmpty()) {
 			// no need to keep tokenizing if no-one cares
-			interrupt();
+			stop();
 		}
 	}
 
 	@Override
 	public void dispose() {
-		interrupt();
+		stop();
 	}
 
 	/**
 	 * Interrupt the thread. 
 	 */
-	private void interrupt() {
+	private void stop() {
 		if (fThread == null) {
 			return;
 		}
