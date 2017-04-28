@@ -16,8 +16,6 @@ import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
  * Theme association implementation.
- * 
- * @author azerr
  *
  */
 public class ThemeAssociation implements IThemeAssociation {
@@ -25,13 +23,16 @@ public class ThemeAssociation implements IThemeAssociation {
 	private final String themeId;
 	private final String eclipseThemeId;
 	private final String scopeName;
+	private final boolean defaultAssociation;
 	private final IThemeManager themeManager;
 
-	public ThemeAssociation(String themeId, String eclipseThemeId, String scopeName, IThemeManager themeManager) {
+	public ThemeAssociation(String themeId, String eclipseThemeId, String scopeName, boolean defaultAssociation,
+			IThemeManager themeManager) {
 		this.themeId = themeId;
 		this.eclipseThemeId = eclipseThemeId;
 		this.scopeName = scopeName;
 		this.themeManager = themeManager;
+		this.defaultAssociation = defaultAssociation;
 	}
 
 	@Override
@@ -52,5 +53,10 @@ public class ThemeAssociation implements IThemeAssociation {
 	@Override
 	public ITheme getTheme() {
 		return themeManager.getThemeById(getThemeId());
+	}
+
+	@Override
+	public boolean isDefault() {
+		return defaultAssociation;
 	}
 }

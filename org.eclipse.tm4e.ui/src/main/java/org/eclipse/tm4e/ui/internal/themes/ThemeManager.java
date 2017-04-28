@@ -47,6 +47,7 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	private static final String THEME_ASSOCIATION_ELT = "themeAssociation"; //$NON-NLS-1$
 	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
 	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
+	private static final String DEFAULT_ATTR = "default"; //$NON-NLS-1$
 
 	private static final ThemeManager INSTANCE = new ThemeManager();
 
@@ -78,10 +79,17 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	public ITheme getThemeForScope(String scopeName) {
 		return getThemeForScope(scopeName, getPreferenceE4CSSThemeId());
 	}
-	
+
 	@Override
 	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
-		return themeAssociationRegistry.getThemeAssociationsFor(scopeName);
+		loadThemesIfNeeded();
+		return themeAssociationRegistry.getThemeAssociationsForScope(scopeName);
+	}
+
+	@Override
+	public IThemeAssociation[] getThemeAssociationsForTheme(String themeId) {
+		loadThemesIfNeeded();
+		return themeAssociationRegistry.getThemeAssociationsForTheme(themeId);
 	}
 
 	@Override
@@ -158,7 +166,8 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 				String themeId = ce.getAttribute(THEME_ID_ATTR);
 				String eclipseThemeId = ce.getAttribute(ECLIPSE_THEME_ID_ATTR);
 				String scopeName = ce.getAttribute(SCOPE_NAME_ATTR);
-				registry.register(new ThemeAssociation(themeId, eclipseThemeId, scopeName, this));
+				boolean defaultAssociation = "true".equals(ce.getAttribute(DEFAULT_ATTR));
+				registry.register(new ThemeAssociation(themeId, eclipseThemeId, scopeName, defaultAssociation, this));
 			}
 		}
 	}

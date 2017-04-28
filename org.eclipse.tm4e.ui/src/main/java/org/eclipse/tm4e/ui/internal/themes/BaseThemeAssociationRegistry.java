@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 
@@ -14,42 +15,56 @@ import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 public class BaseThemeAssociationRegistry {
 
 	private IThemeAssociation defaultAssociation;
-	private final Map<String, IThemeAssociation> eclipseThemeIds;
+	private final Map<String /* E4 Theme id */, IThemeAssociation> eclipseThemeIds;
+	private List<IThemeAssociation> allAssociations;
 
 	public BaseThemeAssociationRegistry() {
 		eclipseThemeIds = new HashMap<>();
+		this.allAssociations = new ArrayList<>();
 	}
 
 	public void register(IThemeAssociation association) {
 		String eclipseThemeId = association.getEclipseThemeId();
-		if (eclipseThemeId == null) {
-			defaultAssociation = association;
-		} else {
-			eclipseThemeIds.put(eclipseThemeId, association);
+		if (association.isDefault()) {
+			if (eclipseThemeId == null) {
+				defaultAssociation = association;
+			} else {
+				eclipseThemeIds.put(eclipseThemeId, association);
+			}
 		}
+		allAssociations.add(association);
 	}
 
 	public void unregister(IThemeAssociation association) {
 		String eclipseThemeId = association.getEclipseThemeId();
-		if (eclipseThemeId == null) {
-			defaultAssociation = null;
-		} else {
-			eclipseThemeIds.remove(eclipseThemeId);
+		if (association.isDefault()) {
+			if (eclipseThemeId == null) {
+				defaultAssociation = null;
+			} else {
+				eclipseThemeIds.remove(eclipseThemeId);
+			}
 		}
+		allAssociations.remove(association);
 	}
 
 	public IThemeAssociation getThemeAssociationFor(String eclipseThemeId) {
 		return eclipseThemeIds.get(eclipseThemeId);
 	}
 
-	public IThemeAssociation[] getThemeAssociations() {
-		List<IThemeAssociation> associations = new ArrayList<>();
-		associations.add(getDefaultAssociation());
-		associations.addAll(eclipseThemeIds.values());
-		return associations.toArray(new IThemeAssociation[associations.size()]);
+	public IThemeAssociation[] getThemeAssociations(boolean isDefault) {
+		if (isDefault) {
+			return allAssociations.stream().filter(theme -> theme.isDefault()).collect(Collectors.toList())
+					.toArray(new IThemeAssociation[0]);
+		}
+		return allAssociations.toArray(new IThemeAssociation[allAssociations.size()]);
 	}
 
 	public IThemeAssociation getDefaultAssociation() {
 		return defaultAssociation;
+	}
+
+	public IThemeAssociation[] getThemeAssociationsForTheme(String themeId) {
+		return allAssociations.stream().filter(themeAssociation -> themeId.equals(themeAssociation.getThemeId()))
+				.collect(Collectors.toList()).toArray(new IThemeAssociation[0]);
 	}
 }

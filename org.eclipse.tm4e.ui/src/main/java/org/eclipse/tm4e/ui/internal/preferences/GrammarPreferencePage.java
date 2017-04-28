@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.tm4e.ui.internal.preferences;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.PreferencePage;
@@ -61,15 +63,15 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	private Button grammarNewButton;
 	private Button grammarRemoveButton;
 
-	// Content type bidings content 
+	// Content type bidings content
 	private TableViewer contentTypeViewer;
 	private Button contentTypeNewButton;
 	private Button contentTypeRemoveButton;
 
 	// Theme associations content
-	private TableViewer themeViewer;
-	private Button themeNewButton;
-	private Button themeRemoveButton;
+	private TableViewer themeAssociationViewer;
+	private Button themeAssociationNewButton;
+	private Button themeAssociationRemoveButton;
 
 	private IGrammarRegistryManager grammarRegistryManager;
 	private IThemeManager themeManager;
@@ -218,19 +220,28 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				String[] contentTypes = grammarRegistryManager.getContentTypesForScope(scopeName);
 				contentTypeViewer.setInput(contentTypes);
 
+				IThemeAssociation selectedAssociation = null;
+				IStructuredSelection oldSelection = (IStructuredSelection) themeAssociationViewer.getSelection();
 				// Load the theme associations for the given grammar
 				IThemeAssociation[] themeAssociations = themeManager.getThemeAssociationsForScope(scopeName);
-				themeViewer.setInput(themeAssociations);
-				IThemeAssociation firstAssociation = themeAssociations != null && themeAssociations.length > 0
-						? themeAssociations[0] : null;
-				if (firstAssociation != null) {
-					themeViewer.setSelection(new StructuredSelection(firstAssociation));
+				themeAssociationViewer.setInput(themeAssociations);
+				// Try to keep selection
+				if (!oldSelection.isEmpty()
+						&& Arrays.asList(themeAssociations).contains(oldSelection.getFirstElement())) {
+					selectedAssociation = (IThemeAssociation) oldSelection.getFirstElement();
+					themeAssociationViewer.setSelection(oldSelection);
+				} else {
+					selectedAssociation = themeAssociations != null && themeAssociations.length > 0
+							? themeAssociations[0] : null;
+					if (selectedAssociation != null) {
+						themeAssociationViewer.setSelection(new StructuredSelection(selectedAssociation));
+					}
 				}
 
 				// Preview the grammar
 				IGrammar grammar = grammarRegistryManager.getGrammarForScope(scopeName);
-				if (firstAssociation != null) {
-					previewViewer.setThemeId(firstAssociation.getThemeId(), firstAssociation.getEclipseThemeId());
+				if (selectedAssociation != null) {
+					previewViewer.setThemeId(selectedAssociation.getThemeId(), selectedAssociation.getEclipseThemeId());
 				}
 				previewViewer.setGrammar(grammar);
 			}
@@ -355,12 +366,12 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		table.setHeaderVisible(false);
 		table.setLinesVisible(false);
 
-		themeViewer = new TableViewer(table);
-		themeViewer.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		themeAssociationViewer = new TableViewer(table);
+		themeAssociationViewer.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		themeViewer.setContentProvider(ArrayContentProvider.getInstance());
-		themeViewer.setLabelProvider(new ThemeAssociationLabelProvider());
-		themeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		themeAssociationViewer.setContentProvider(ArrayContentProvider.getInstance());
+		themeAssociationViewer.setLabelProvider(new ThemeAssociationLabelProvider());
+		themeAssociationViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent e) {
 				IThemeAssociation association = (IThemeAssociation) ((IStructuredSelection) e.getSelection())
@@ -382,20 +393,20 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		layout.marginWidth = 0;
 		buttons.setLayout(layout);
 
-		themeNewButton = new Button(buttons, SWT.PUSH);
-		themeNewButton.setText(TMUIMessages.Button_new);
-		themeNewButton.setLayoutData(getButtonGridData(grammarNewButton));
-		themeNewButton.addListener(SWT.Selection, new Listener() {
+		themeAssociationNewButton = new Button(buttons, SWT.PUSH);
+		themeAssociationNewButton.setText(TMUIMessages.Button_new);
+		themeAssociationNewButton.setLayoutData(getButtonGridData(themeAssociationNewButton));
+		themeAssociationNewButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
 				// add();
 			}
 		});
 
-		themeRemoveButton = new Button(buttons, SWT.PUSH);
-		themeRemoveButton.setText(TMUIMessages.Button_remove);
-		themeRemoveButton.setLayoutData(getButtonGridData(themeRemoveButton));
-		themeRemoveButton.addListener(SWT.Selection, new Listener() {
+		themeAssociationRemoveButton = new Button(buttons, SWT.PUSH);
+		themeAssociationRemoveButton.setText(TMUIMessages.Button_remove);
+		themeAssociationRemoveButton.setLayoutData(getButtonGridData(themeAssociationRemoveButton));
+		themeAssociationRemoveButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
 
@@ -429,8 +440,8 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		grammarRemoveButton.setEnabled(false);
 		contentTypeNewButton.setEnabled(false);
 		contentTypeRemoveButton.setEnabled(false);
-		themeNewButton.setEnabled(false);
-		themeRemoveButton.setEnabled(false);
+		themeAssociationNewButton.setEnabled(false);
+		themeAssociationRemoveButton.setEnabled(false);
 	}
 
 	@Override

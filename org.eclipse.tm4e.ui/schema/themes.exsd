@@ -123,6 +123,13 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="default" type="boolean">
+            <annotation>
+               <documentation>
+                  Is default theme association?
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 

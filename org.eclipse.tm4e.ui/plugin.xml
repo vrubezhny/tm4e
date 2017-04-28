@@ -28,7 +28,8 @@
             path="./themes/Solarized-light.css" >
       </theme>      
       <themeAssociation
-            themeId="org.eclipse.tm4e.ui.themes.SolarizedLight" >
+            themeId="org.eclipse.tm4e.ui.themes.SolarizedLight"
+            default="true" >
       </themeAssociation>
       <!-- Dark theme bound with Eclipse E4 Dark theme -->
       <theme
@@ -38,7 +39,8 @@
       </theme>
       <themeAssociation
             themeId="org.eclipse.tm4e.ui.themes.Dark"
-            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >
+            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark"
+            default="true" >
       </themeAssociation>
       
       <!-- Other themes -->         
@@ -51,7 +53,11 @@
             id="org.eclipse.tm4e.ui.themes.Monokai"
       		name="%Theme.Monokai.name"
             path="./themes/Monokai.css" >
-      </theme>      
+      </theme>
+      <themeAssociation
+            themeId="org.eclipse.tm4e.ui.themes.Monokai"
+            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >
+      </themeAssociation>      
    </extension>
 
    <!-- Preference Pages -->          		

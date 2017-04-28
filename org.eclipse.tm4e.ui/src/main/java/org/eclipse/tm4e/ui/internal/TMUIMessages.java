@@ -44,6 +44,7 @@ public class TMUIMessages extends NLS {
 	public static String ThemePreferencePage_column_name;
 	public static String ThemePreferencePage_column_path;
 	public static String ThemePreferencePage_column_pluginId;
+	public static String ThemePreferencePage_preview;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, TMUIMessages.class);

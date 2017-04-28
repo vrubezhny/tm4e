@@ -26,6 +26,11 @@ class GrammarDefinitionLabelProvider extends LabelProvider implements ITableLabe
 	}
 
 	@Override
+	public String getText(Object element) {
+		return getColumnText(element, 0);
+	}
+
+	@Override
 	public String getColumnText(Object element, int columnIndex) {
 		IGrammarDefinition definition = (IGrammarDefinition) element;
 
@@ -35,7 +40,7 @@ class GrammarDefinitionLabelProvider extends LabelProvider implements ITableLabe
 		case 1:
 			return definition.getPath();
 		case 2:
-			return definition.getPluginId();			
+			return definition.getPluginId();
 		default:
 			return ""; //$NON-NLS-1$
 		}

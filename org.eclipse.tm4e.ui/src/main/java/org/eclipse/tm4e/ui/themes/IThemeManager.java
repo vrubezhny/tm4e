@@ -57,6 +57,16 @@ public interface IThemeManager {
 	IThemeAssociation[] getThemeAssociationsForScope(String scopeName);
 
 	/**
+	 * Returns the theme associations for the given TextMate theme
+	 * <code>themeId</code>.
+	 * 
+	 * @param themeId
+	 * @return the theme associations for the given TextMate theme
+	 *         <code>themeId</code>.
+	 */
+	IThemeAssociation[] getThemeAssociationsForTheme(String themeId);
+
+	/**
 	 * Returns the {@link ITheme} by the theme id.
 	 * 
 	 * @param themeId

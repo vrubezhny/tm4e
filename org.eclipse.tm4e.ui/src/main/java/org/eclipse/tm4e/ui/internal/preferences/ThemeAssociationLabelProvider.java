@@ -35,10 +35,16 @@ class ThemeAssociationLabelProvider extends LabelProvider implements ITableLabel
 		IThemeAssociation association = (IThemeAssociation) element;
 		switch (columnIndex) {
 		case 0:
-			if (association.getEclipseThemeId() == null) {
-				return association.getTheme().getName();
+			StringBuilder label = new StringBuilder(association.getTheme().getName());
+			if (association.isDefault()) {
+				label.append(" (default)");
 			}
-			return association.getTheme().getName() + " when '" + association.getEclipseThemeId() + "'";
+			if (association.getEclipseThemeId() != null) {
+				label.append(" when '");
+				label.append(association.getEclipseThemeId());
+				label.append("'");
+			}
+			return label.toString();
 		default:
 			return ""; //$NON-NLS-1$
 		}

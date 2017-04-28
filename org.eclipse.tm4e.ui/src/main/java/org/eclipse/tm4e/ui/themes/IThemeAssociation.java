@@ -45,4 +45,11 @@ public interface IThemeAssociation {
 	 */
 	ITheme getTheme();
 
+	/**
+	 * Returns true if the theme association is the default and false otherwise.
+	 * 
+	 * @return true if the theme association is the default and false otherwise.
+	 */
+	boolean isDefault();
+
 }
