@@ -19,11 +19,11 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IRegistryChangeEvent;
 import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.themes.ITheme;
+import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
@@ -40,14 +40,13 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	private static final String EXTENSION_THEMES = "themes"; //$NON-NLS-1$
 
 	// "theme" declaration
-	private static final String THEME_ELT_NAME = "theme"; //$NON-NLS-1$
-	private static final String DEFAULT_ECLIPSE_THEME_ID = "eclipseThemeId"; //$NON-NLS-1$
-	private static final String DEFAULT_E4_THEME_ID = "*";
+	private static final String THEME_ELT = "theme"; //$NON-NLS-1$
+	private static final String ECLIPSE_THEME_ID_ATTR = "eclipseThemeId"; //$NON-NLS-1$
 
-	// "themeContentTypeBinding" declaration
-	private static final String THEME_CONTENT_TYPE_BINDING_ELT_NAME = "themeContentTypeBinding"; //$NON-NLS-1$
-	private static final String THEME_ID_ATTR_NAME = "themeId"; //$NON-NLS-1$
-	private static final String CONTENT_TYPE_ID_ATTR_NAME = "contentTypeId"; //$NON-NLS-1$
+	// "themeAssociation" declaration
+	private static final String THEME_ASSOCIATION_ELT = "themeAssociation"; //$NON-NLS-1$
+	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
+	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
 
 	private static final ThemeManager INSTANCE = new ThemeManager();
 
@@ -56,8 +55,7 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	}
 
 	private Map<String /* theme id */ , ITheme> themes;
-	private Map<String /* content type id */, String /* theme id */> themeContentTypeBindings;
-	private Map<String /* E4 theme id */ , ITheme> defaultThemes;
+	private ThemeAssociationRegistry themeAssociationRegistry;
 
 	private ThemeManager() {
 	}
@@ -65,56 +63,25 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	@Override
 	public ITheme getDefaultTheme() {
 		String themeIdForE4Theme = getPreferenceE4CSSThemeId();
-		return getThemeForE4Theme(themeIdForE4Theme);
-	}
-
-	public ITheme getThemeForE4Theme(String e4ThemeId) {
-		loadThemesIfNeeded();
-		ITheme themeForE4Theme = null;
-		if (e4ThemeId != null) {
-			themeForE4Theme = defaultThemes.get(e4ThemeId);
-		}
-		return themeForE4Theme != null ? themeForE4Theme : defaultThemes.get(DEFAULT_E4_THEME_ID);
+		return getThemeForScope(null, themeIdForE4Theme);
 	}
 
 	@Override
-	public ITheme getThemeFor(IContentType[] contentTypes) {
+	public ITheme getThemeForScope(String scopeName, String eclipseThemeId) {
 		loadThemesIfNeeded();
-		String themeId = getThemeIdFor(contentTypes);
-		if (themeId != null) {
-			ITheme theme = getThemeById(themeId);
-			if (theme != null) {
-				return theme;
-			}
-		}
-		return getDefaultTheme();
-	}
-
-	private String getThemeIdFor(IContentType[] contentTypes) {
-		if (contentTypes == null) {
-			return null;
-		}
-		String themeId = null;
-		for (IContentType contentType : contentTypes) {
-			themeId = getThemeIdFor(contentType.getId());
-			if (themeId != null) {
-				return themeId;
-			}
-		}
-		return null;
+		IThemeAssociation association = themeAssociationRegistry.getThemeAssociationFor(scopeName, eclipseThemeId);
+		String themeId = association.getThemeId();
+		return getThemeById(themeId);
 	}
 
 	@Override
-	public ITheme getThemeFor(String contentTypeId) {
-		loadThemesIfNeeded();
-		String themeId = getThemeIdFor(contentTypeId);
-		if (themeId != null) {
-			ITheme theme = getThemeById(themeId);
-			if (theme != null) {
-				return theme;
-			}
-		}
-		return getDefaultTheme();
+	public ITheme getThemeForScope(String scopeName) {
+		return getThemeForScope(scopeName, getPreferenceE4CSSThemeId());
+	}
+	
+	@Override
+	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
+		return themeAssociationRegistry.getThemeAssociationsFor(scopeName);
 	}
 
 	@Override
@@ -122,15 +89,6 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		loadThemesIfNeeded();
 		Collection<ITheme> themes = this.themes.values();
 		return themes.toArray(new ITheme[themes.size()]);
-	}
-
-	/**
-	 * 
-	 * @param contentTypeId
-	 * @return
-	 */
-	private String getThemeIdFor(String contentTypeId) {
-		return themeContentTypeBindings.get(contentTypeId);
 	}
 
 	@Override
@@ -171,13 +129,12 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMUIPlugin.PLUGIN_ID,
 				EXTENSION_THEMES);
 		Map<String, ITheme> themes = new HashMap<>();
-		Map<String, String> themeContentTypeBindings = new HashMap<>();
+		ThemeAssociationRegistry themeAssociationRegistry = new ThemeAssociationRegistry();
 		Map<String, ITheme> defaultThemes = new HashMap<>();
-		loadThemes(cf, themes, themeContentTypeBindings, defaultThemes);
+		loadThemes(cf, themes, themeAssociationRegistry, defaultThemes);
 		addRegistryListener();
-		this.themeContentTypeBindings = themeContentTypeBindings;
+		this.themeAssociationRegistry = themeAssociationRegistry;
 		this.themes = themes;
-		this.defaultThemes = defaultThemes;
 	}
 
 	private void addRegistryListener() {
@@ -188,24 +145,20 @@ public class ThemeManager implements IThemeManager, IRegistryChangeListener {
 	/**
 	 * Load TextMate themes declared from the extension point.
 	 */
-	private void loadThemes(IConfigurationElement[] cf, Map<String, ITheme> themes,
-			Map<String, String> themeContentTypeBindings, Map<String, ITheme> defaultThemes) {
+	private void loadThemes(IConfigurationElement[] cf, Map<String, ITheme> themes, ThemeAssociationRegistry registry,
+			Map<String, ITheme> defaultThemes) {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
-			if (THEME_ELT_NAME.equals(name)) {
+			if (THEME_ELT.equals(name)) {
 				// theme
 				Theme theme = new Theme(ce);
 				themes.put(theme.getId(), theme);
-				// Default theme for E4 theme
-				String eclipseThemeId = ce.getAttribute(DEFAULT_ECLIPSE_THEME_ID);
-				if (eclipseThemeId != null && eclipseThemeId.length() > 0) {
-					defaultThemes.put(eclipseThemeId, theme);
-				}
-			} else if (THEME_CONTENT_TYPE_BINDING_ELT_NAME.equals(name)) {
-				// themeContentTypeBinding
-				String contentTypeId = ce.getAttribute(CONTENT_TYPE_ID_ATTR_NAME);
-				String themeId = ce.getAttribute(THEME_ID_ATTR_NAME);
-				themeContentTypeBindings.put(contentTypeId, themeId);
+			} else if (THEME_ASSOCIATION_ELT.equals(name)) {
+				// themeAssociation
+				String themeId = ce.getAttribute(THEME_ID_ATTR);
+				String eclipseThemeId = ce.getAttribute(ECLIPSE_THEME_ID_ATTR);
+				String scopeName = ce.getAttribute(SCOPE_NAME_ATTR);
+				registry.register(new ThemeAssociation(themeId, eclipseThemeId, scopeName, this));
 			}
 		}
 	}

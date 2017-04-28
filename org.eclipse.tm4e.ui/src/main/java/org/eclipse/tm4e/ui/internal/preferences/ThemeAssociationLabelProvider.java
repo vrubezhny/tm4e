@@ -13,34 +13,32 @@ package org.eclipse.tm4e.ui.internal.preferences;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.tm4e.ui.themes.ITheme;
+import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 
 /**
- * Label provider for TextMate theme.
+ * Label provider for TextMate theme association.
  */
-class ThemeLabelProvider extends LabelProvider implements ITableLabelProvider {
+class ThemeAssociationLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
 		return null;
 	}
-	
+
 	@Override
 	public String getText(Object element) {
-		ITheme theme = (ITheme) element;
-		return theme.getName();
+		return getColumnText(element, 0);
 	}
 
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
-		ITheme theme = (ITheme) element;
+		IThemeAssociation association = (IThemeAssociation) element;
 		switch (columnIndex) {
 		case 0:
-			return theme.getName();
-		case 1:
-			return theme.getPath();
-		case 2:
-			return theme.getPluginId();
+			if (association.getEclipseThemeId() == null) {
+				return association.getTheme().getName();
+			}
+			return association.getTheme().getName() + " when '" + association.getEclipseThemeId() + "'";
 		default:
 			return ""; //$NON-NLS-1$
 		}

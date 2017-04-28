@@ -86,14 +86,16 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private ITextViewer viewer;
 	/** The internal listener. */
 	private final InternalListener internalListener;
+
 	private IGrammar grammar;
+	private boolean forcedGrammar;
+
 	private ITokenProvider tokenProvider;
+	private boolean forcedTheme;
 
 	private final TextAttribute fDefaultTextAttribute;
 
 	private IPreferenceChangeListener e4CSSThemeChangeListener;
-
-	private boolean forcedTheme;
 
 	private List<ITMPresentationReconcilerListener> listeners;
 
@@ -123,20 +125,19 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				if (document == null) {
 					return;
 				}
+				IGrammar grammar = TMPresentationReconciler.this.grammar;
+				if (grammar == null) {
+					return;
+				}
 				if (forcedTheme) {
 					// The theme was forced, don't update it.
 					return;
 				}
 				ITokenProvider oldTheme = tokenProvider;
 				// Select the well TextMate theme from the given E4 theme id.
-				ITokenProvider newTheme = ThemeManager.getInstance()
-						.getThemeForE4Theme(event.getNewValue() != null ? event.getNewValue().toString() : null);
-				if (!newTheme.equals(oldTheme)) {
-					// Theme has changed, recolorize
-					tokenProvider = newTheme;
-					ITMModel model = getTMModelManager().connect(document);
-					colorize(0, document.getNumberOfLines() - 1, null, (TMModel) model);
-				}
+				ITokenProvider newTheme = ThemeManager.getInstance().getThemeForScope(grammar.getScopeName(),
+						event.getNewValue() != null ? event.getNewValue().toString() : null);
+				themeChange(oldTheme, newTheme, document);
 			}
 		}
 	};
@@ -163,22 +164,24 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
 					viewer.addTextListener(this);
-					// Update theme + grammar
-					IContentType[] contentTypes = null;
-					if (tokenProvider == null) {
-						contentTypes = ContentTypeHelper.findContentTypes(newDocument);
-						tokenProvider = TMUIPlugin.getThemeManager().getThemeFor(contentTypes);
-					}
-					Assert.isNotNull(tokenProvider, "Cannot find Theme for the given document");
-					IGrammar grammar = TMPresentationReconciler.this.grammar;
+					// Update the grammar
+					IGrammar grammar = forcedGrammar ? TMPresentationReconciler.this.grammar : null;
 					if (grammar == null) {
-						contentTypes = contentTypes != null ? contentTypes
-								: ContentTypeHelper.findContentTypes(newDocument);
+						IContentType[] contentTypes = ContentTypeHelper.findContentTypes(newDocument);
 						// Discover the well grammar from the contentTypes
 						grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
 					}
 					Assert.isNotNull(grammar, "Cannot find TextMate grammar for the given document");
+					TMPresentationReconciler.this.grammar = grammar;
 					model.setGrammar(grammar);
+
+					// Update the theme
+					String scopeName = grammar.getScopeName();
+					if (tokenProvider == null) {
+						tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
+					}
+					Assert.isNotNull(tokenProvider, "Cannot find Theme for the given grammar '" + scopeName + "'");
+
 					// Add model listener
 					model.addModelTokensChangedListener(this);
 				} catch (CoreException e) {
@@ -284,7 +287,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	public void setGrammar(IGrammar grammar) {
 		boolean changed = ((this.grammar == null) || !this.grammar.equals(grammar));
 		this.grammar = grammar;
-		if(changed) {
+		this.forcedGrammar = true;
+		if (changed) {
 			// Grammar has changed, recreate the TextMate model
 			IDocument document = viewer.getDocument();
 			if (document == null) {
@@ -304,8 +308,17 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	public void setTokenProvider(ITokenProvider tokenProvider) {
+		ITokenProvider oldTheme = this.tokenProvider;
+		ITokenProvider newTheme = tokenProvider;
+		boolean changed = ((oldTheme == null) || !oldTheme.equals(newTheme));
 		this.tokenProvider = tokenProvider;
 		this.forcedTheme = true;
+		if (changed) {
+			IGrammar grammar = TMPresentationReconciler.this.grammar;
+			if (grammar != null) {
+				themeChange(oldTheme, newTheme, viewer.getDocument());
+			}
+		}
 	}
 
 	/**
@@ -315,6 +328,22 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 */
 	public void setThemeId(String themeId) {
 		setTokenProvider(TMUIPlugin.getThemeManager().getThemeById(themeId));
+	}
+	
+	/**
+	 * Apply theme changed.
+	 * 
+	 * @param oldTheme
+	 * @param newTheme
+	 * @param document
+	 */
+	private void themeChange(ITokenProvider oldTheme, ITokenProvider newTheme, IDocument document) {
+		if (newTheme != null && !newTheme.equals(oldTheme)) {
+			// Theme has changed, recolorize
+			tokenProvider = newTheme;
+			ITMModel model = getTMModelManager().connect(document);
+			colorize(0, document.getNumberOfLines() - 1, null, (TMModel) model);
+		}
 	}
 
 	@Override
@@ -639,4 +668,5 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		}
 		return logger;
 	}
+
 }

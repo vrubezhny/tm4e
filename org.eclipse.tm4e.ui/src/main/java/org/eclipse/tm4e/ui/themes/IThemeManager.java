@@ -10,8 +10,6 @@
  */
 package org.eclipse.tm4e.ui.themes;
 
-import org.eclipse.core.runtime.content.IContentType;
-
 /**
  * TextMate theme manager API.
  *
@@ -26,22 +24,37 @@ public interface IThemeManager {
 	ITheme getDefaultTheme();
 
 	/**
-	 * Returns the {@link ITheme} for the given content type and the default
-	 * theme otherwise.
+	 * Returns the TextMate theme {@link ITheme} for the given TextMate grammar
+	 * <code>scopeName</code> and E4 Theme <code>eclipseThemeId</code>.
 	 * 
-	 * @param contentTypes
-	 *            the content type.
-	 * @return the {@link ITheme} for the given content type and the default
-	 *         theme otherwise.
+	 * @param scopeName
+	 *            the TextMate grammar
+	 * @param eclipseThemeId
+	 *            the E4 Theme.
+	 * @return the TextMate theme {@link ITheme} for the given TextMate grammar
+	 *         <code>scopeName</code> and E4 Theme <code>eclipseThemeId</code>.
 	 */
-	ITheme getThemeFor(IContentType[] contentTypes);
+	ITheme getThemeForScope(String scopeName, String eclipseThemeId);
 
 	/**
+	 * Returns the TextMate theme {@link ITheme} for the given TextMate grammar
+	 * <code>scopeName</code> and default E4 Theme.
 	 * 
-	 * @param contentTypeId
-	 * @return
+	 * @param scopeName
+	 * @return the TextMate theme {@link ITheme} for the given TextMate grammar
+	 *         <code>scopeName</code> and default E4 Theme.
 	 */
-	ITheme getThemeFor(String contentTypeId);
+	ITheme getThemeForScope(String scopeName);
+
+	/**
+	 * Returns the theme associations for the given TextMate grammar
+	 * <code>scopeName</code>.
+	 * 
+	 * @param scopeName
+	 * @return the theme associations for the given TextMate grammar
+	 *         <code>scopeName</code>.
+	 */
+	IThemeAssociation[] getThemeAssociationsForScope(String scopeName);
 
 	/**
 	 * Returns the {@link ITheme} by the theme id.

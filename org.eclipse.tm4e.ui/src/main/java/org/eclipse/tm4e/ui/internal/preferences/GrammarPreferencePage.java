@@ -17,13 +17,14 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.BidiUtils;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -39,7 +40,10 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
+import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
+import org.eclipse.tm4e.ui.themes.IThemeAssociation;
+import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -52,10 +56,23 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 
 	public final static String PAGE_ID = "org.eclipse.tm4e.internal.ui.GrammarPreferencePage";
 
-	private TableViewer fTableViewer;
+	// Grammar content
+	private TableViewer grammarViewer;
+	private Button grammarNewButton;
+	private Button grammarRemoveButton;
+
+	// Content type bidings content 
+	private TableViewer contentTypeViewer;
+	private Button contentTypeNewButton;
+	private Button contentTypeRemoveButton;
+
+	// Theme associations content
+	private TableViewer themeViewer;
+	private Button themeNewButton;
+	private Button themeRemoveButton;
+
 	private IGrammarRegistryManager grammarRegistryManager;
-	private Button fNewButton;
-	private Button fRemoveButton;
+	private IThemeManager themeManager;
 
 	private TMViewer previewViewer;
 
@@ -63,6 +80,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		super();
 		setDescription(TMUIMessages.GrammarPreferencePage_description);
 		setGrammarRegistryManager(TMEclipseRegistryPlugin.getGrammarRegistryManager());
+		setThemeManager(TMUIPlugin.getThemeManager());
 	}
 
 	/**
@@ -81,6 +99,24 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	 */
 	public void setGrammarRegistryManager(IGrammarRegistryManager grammarRegistryManager) {
 		this.grammarRegistryManager = grammarRegistryManager;
+	}
+
+	/**
+	 * Returns the theme manager.
+	 * 
+	 * @return the theme manager.
+	 */
+	public IThemeManager getThemeManager() {
+		return themeManager;
+	}
+
+	/**
+	 * Set the theme manager.
+	 * 
+	 * @param themeManager
+	 */
+	public void setThemeManager(IThemeManager themeManager) {
+		this.themeManager = themeManager;
 	}
 
 	@Override
@@ -102,7 +138,27 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		gd.horizontalSpan = 2;
 		innerParent.setLayoutData(gd);
 
-		Composite tableComposite = new Composite(innerParent, SWT.NONE);
+		createGrammarsContent(innerParent);
+		createContentTypeBindingContent(innerParent);
+		createThemeAssociationsContent(innerParent);
+
+		previewViewer = doCreateViewer(parent);
+		grammarViewer.setInput(grammarRegistryManager);
+
+		updateButtons();
+		Dialog.applyDialogFont(parent);
+		innerParent.layout();
+
+		return parent;
+	}
+
+	/**
+	 * Create grammar list content.
+	 * 
+	 * @param parent
+	 */
+	private void createGrammarsContent(Composite parent) {
+		Composite tableComposite = new Composite(parent, SWT.NONE);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.widthHint = 360;
 		data.heightHint = convertHeightInCharsToPixels(10);
@@ -121,83 +177,230 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 
 		ColumnViewerComparator viewerComparator = new ColumnViewerComparator();
 
-		fTableViewer = new TableViewer(table);
+		grammarViewer = new TableViewer(table);
 
 		TableColumn column1 = new TableColumn(table, SWT.NONE);
 		column1.setText(TMUIMessages.GrammarPreferencePage_column_scopeName);
 		int minWidth = computeMinimumColumnWidth(gc, TMUIMessages.GrammarPreferencePage_column_scopeName);
 		columnLayout.setColumnData(column1, new ColumnWeightData(2, minWidth, true));
-		column1.addSelectionListener(new ColumnSelectionAdapter(column1, fTableViewer, 0, viewerComparator));
+		column1.addSelectionListener(new ColumnSelectionAdapter(column1, grammarViewer, 0, viewerComparator));
 
 		TableColumn column2 = new TableColumn(table, SWT.NONE);
 		column2.setText(TMUIMessages.GrammarPreferencePage_column_path);
 		minWidth = computeMinimumColumnWidth(gc, TMUIMessages.GrammarPreferencePage_column_path);
 		columnLayout.setColumnData(column2, new ColumnWeightData(2, minWidth, true));
-		column2.addSelectionListener(new ColumnSelectionAdapter(column2, fTableViewer, 1, viewerComparator));
+		column2.addSelectionListener(new ColumnSelectionAdapter(column2, grammarViewer, 1, viewerComparator));
 
 		TableColumn column3 = new TableColumn(table, SWT.NONE);
 		column3.setText(TMUIMessages.GrammarPreferencePage_column_pluginId);
 		minWidth = computeMinimumColumnWidth(gc, TMUIMessages.GrammarPreferencePage_column_pluginId);
 		columnLayout.setColumnData(column3, new ColumnWeightData(2, minWidth, true));
-		column3.addSelectionListener(new ColumnSelectionAdapter(column3, fTableViewer, 2, viewerComparator));
+		column3.addSelectionListener(new ColumnSelectionAdapter(column3, grammarViewer, 2, viewerComparator));
 
 		gc.dispose();
 
-		fTableViewer.setLabelProvider(new GrammarDefinitionLabelProvider());
-		fTableViewer.setContentProvider(new GrammarDefinitionContentProvider());
-		fTableViewer.setComparator(viewerComparator);
+		grammarViewer.setLabelProvider(new GrammarDefinitionLabelProvider());
+		grammarViewer.setContentProvider(new GrammarDefinitionContentProvider());
+		grammarViewer.setComparator(viewerComparator);
 
-		fTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		grammarViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent e) {
 				IGrammarDefinition definition = (IGrammarDefinition) ((IStructuredSelection) e.getSelection())
 						.getFirstElement();
-				preview(definition);
+				selectGrammar(definition);
 			}
+
+			private void selectGrammar(IGrammarDefinition definition) {
+				String scopeName = definition.getScopeName();
+
+				// Load the content type binding for the given grammar
+				String[] contentTypes = grammarRegistryManager.getContentTypesForScope(scopeName);
+				contentTypeViewer.setInput(contentTypes);
+
+				// Load the theme associations for the given grammar
+				IThemeAssociation[] themeAssociations = themeManager.getThemeAssociationsForScope(scopeName);
+				themeViewer.setInput(themeAssociations);
+				IThemeAssociation firstAssociation = themeAssociations != null && themeAssociations.length > 0
+						? themeAssociations[0] : null;
+				if (firstAssociation != null) {
+					themeViewer.setSelection(new StructuredSelection(firstAssociation));
+				}
+
+				// Preview the grammar
+				IGrammar grammar = grammarRegistryManager.getGrammarForScope(scopeName);
+				if (firstAssociation != null) {
+					previewViewer.setThemeId(firstAssociation.getThemeId(), firstAssociation.getEclipseThemeId());
+				}
+				previewViewer.setGrammar(grammar);
+			}
+
 		});
 
 		// Specify default sorting
 		table.setSortColumn(column1);
 		table.setSortDirection(viewerComparator.getDirection());
 
-		BidiUtils.applyTextDirection(fTableViewer.getControl(), BidiUtils.BTD_DEFAULT);
+		BidiUtils.applyTextDirection(grammarViewer.getControl(), BidiUtils.BTD_DEFAULT);
 
-		Composite buttons = new Composite(innerParent, SWT.NONE);
+		Composite buttons = new Composite(parent, SWT.NONE);
 		buttons.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
-		layout = new GridLayout();
+		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		buttons.setLayout(layout);
 
-		fNewButton = new Button(buttons, SWT.PUSH);
-		fNewButton.setText(TMUIMessages.Button_new);
-		fNewButton.setLayoutData(getButtonGridData(fNewButton));
-		fNewButton.addListener(SWT.Selection, new Listener() {
+		grammarNewButton = new Button(buttons, SWT.PUSH);
+		grammarNewButton.setText(TMUIMessages.Button_new);
+		grammarNewButton.setLayoutData(getButtonGridData(grammarNewButton));
+		grammarNewButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
 				// add();
 			}
 		});
 
-		fRemoveButton = new Button(buttons, SWT.PUSH);
-		fRemoveButton.setText(TMUIMessages.Button_remove);
-		fRemoveButton.setLayoutData(getButtonGridData(fRemoveButton));
-		fRemoveButton.addListener(SWT.Selection, new Listener() {
+		grammarRemoveButton = new Button(buttons, SWT.PUSH);
+		grammarRemoveButton.setText(TMUIMessages.Button_remove);
+		grammarRemoveButton.setLayoutData(getButtonGridData(grammarRemoveButton));
+		grammarRemoveButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
 				// remove();
 			}
 		});
+	}
 
-		previewViewer = doCreateViewer(parent);
+	/**
+	 * Create scopeName ContentType Binding content.
+	 * 
+	 * @param parent
+	 */
+	private void createContentTypeBindingContent(Composite parent) {
+		Label label = new Label(parent, SWT.NONE);
+		label.setText(TMUIMessages.GrammarPreferencePage_ScopeNameContentTypeBinding);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		data.horizontalSpan = 2;
+		label.setLayoutData(data);
 
-		fTableViewer.setInput(grammarRegistryManager);
+		Composite themeComposite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		themeComposite.setLayout(layout);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		themeComposite.setLayoutData(data);
 
-		updateButtons();
-		Dialog.applyDialogFont(parent);
-		innerParent.layout();
+		Table table = new Table(themeComposite,
+				SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
+		table.setHeaderVisible(false);
+		table.setLinesVisible(false);
 
-		return parent;
+		contentTypeViewer = new TableViewer(table);
+		contentTypeViewer.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		contentTypeViewer.setContentProvider(ArrayContentProvider.getInstance());
+		contentTypeViewer.setLabelProvider(new ContentTypeLabelProvider());
+
+		Composite buttons = new Composite(parent, SWT.NONE);
+		buttons.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
+		layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		buttons.setLayout(layout);
+
+		contentTypeNewButton = new Button(buttons, SWT.PUSH);
+		contentTypeNewButton.setText(TMUIMessages.Button_new);
+		contentTypeNewButton.setLayoutData(getButtonGridData(grammarNewButton));
+		contentTypeNewButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				// add();
+			}
+		});
+
+		contentTypeRemoveButton = new Button(buttons, SWT.PUSH);
+		contentTypeRemoveButton.setText(TMUIMessages.Button_remove);
+		contentTypeRemoveButton.setLayoutData(getButtonGridData(contentTypeRemoveButton));
+		contentTypeRemoveButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+
+			}
+		});
+	}
+
+	/**
+	 * Create theme associations content.
+	 * 
+	 * @param parent
+	 */
+	private void createThemeAssociationsContent(Composite parent) {
+		Label label = new Label(parent, SWT.NONE);
+		label.setText(TMUIMessages.GrammarPreferencePage_ThemeAssociations);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		data.horizontalSpan = 2;
+		label.setLayoutData(data);
+
+		Composite themeComposite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		themeComposite.setLayout(layout);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		themeComposite.setLayoutData(data);
+
+		Table table = new Table(themeComposite,
+				SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
+		table.setHeaderVisible(false);
+		table.setLinesVisible(false);
+
+		themeViewer = new TableViewer(table);
+		themeViewer.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		themeViewer.setContentProvider(ArrayContentProvider.getInstance());
+		themeViewer.setLabelProvider(new ThemeAssociationLabelProvider());
+		themeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent e) {
+				IThemeAssociation association = (IThemeAssociation) ((IStructuredSelection) e.getSelection())
+						.getFirstElement();
+				selectTheme(association);
+			}
+
+			private void selectTheme(IThemeAssociation association) {
+				String themeId = association.getThemeId();
+				String eclipseThemeId = association.getEclipseThemeId();
+				previewViewer.setThemeId(themeId, eclipseThemeId);
+			}
+		});
+
+		Composite buttons = new Composite(parent, SWT.NONE);
+		buttons.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
+		layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		buttons.setLayout(layout);
+
+		themeNewButton = new Button(buttons, SWT.PUSH);
+		themeNewButton.setText(TMUIMessages.Button_new);
+		themeNewButton.setLayoutData(getButtonGridData(grammarNewButton));
+		themeNewButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+				// add();
+			}
+		});
+
+		themeRemoveButton = new Button(buttons, SWT.PUSH);
+		themeRemoveButton.setText(TMUIMessages.Button_remove);
+		themeRemoveButton.setLayoutData(getButtonGridData(themeRemoveButton));
+		themeRemoveButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+
+			}
+		});
 	}
 
 	private int computeMinimumColumnWidth(GC gc, String string) {
@@ -222,8 +425,12 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	}
 
 	private void updateButtons() {
-		fNewButton.setEnabled(false);
-		fRemoveButton.setEnabled(false);
+		grammarNewButton.setEnabled(false);
+		grammarRemoveButton.setEnabled(false);
+		contentTypeNewButton.setEnabled(false);
+		contentTypeRemoveButton.setEnabled(false);
+		themeNewButton.setEnabled(false);
+		themeRemoveButton.setEnabled(false);
 	}
 
 	@Override
@@ -235,11 +442,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 
 	@Override
 	public void init(IWorkbench workbench) {
-	}
 
-	private void preview(IGrammarDefinition definition) {
-		IGrammar grammar = grammarRegistryManager.getGrammarFor(definition.getScopeName());
-		previewViewer.setGrammar(grammar);
 	}
 
 	private TMViewer doCreateViewer(Composite parent) {
@@ -250,10 +453,6 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		label.setLayoutData(data);
 
 		TMViewer viewer = createViewer(parent);
-
-		// viewer.setEditable(false);
-		Cursor arrowCursor = viewer.getTextWidget().getDisplay().getSystemCursor(SWT.CURSOR_ARROW);
-		viewer.getTextWidget().setCursor(arrowCursor);
 
 		// Don't set caret to 'null' as this causes
 		// https://bugs.eclipse.org/293263

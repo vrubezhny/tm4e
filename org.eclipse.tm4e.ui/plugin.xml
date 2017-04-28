@@ -21,6 +21,27 @@
    <!-- Register default TextMate Themes -->
    <extension
          point="org.eclipse.tm4e.ui.themes">
+      <!-- Default theme used for any Eclipse E4 theme  -->
+      <theme
+            id="org.eclipse.tm4e.ui.themes.SolarizedLight"
+      		name="%Theme.SolarizedLight.name"
+            path="./themes/Solarized-light.css" >
+      </theme>      
+      <themeAssociation
+            themeId="org.eclipse.tm4e.ui.themes.SolarizedLight" >
+      </themeAssociation>
+      <!-- Dark theme bound with Eclipse E4 Dark theme -->
+      <theme
+            id="org.eclipse.tm4e.ui.themes.Dark"
+      		name="%Theme.Dark.name"
+            path="./themes/Dark.css" >
+      </theme>
+      <themeAssociation
+            themeId="org.eclipse.tm4e.ui.themes.Dark"
+            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >
+      </themeAssociation>
+      
+      <!-- Other themes -->         
       <theme
             id="org.eclipse.tm4e.ui.themes.Light"
       		name="%Theme.Light.name"
@@ -31,18 +52,6 @@
       		name="%Theme.Monokai.name"
             path="./themes/Monokai.css" >
       </theme>      
-      <theme
-            id="org.eclipse.tm4e.ui.themes.SolarizedLight"
-      		name="%Theme.SolarizedLight.name"
-            path="./themes/Solarized-light.css"
-            eclipseThemeId="*" >
-      </theme>
-      <theme
-            id="org.eclipse.tm4e.ui.themes.Dark"
-      		name="%Theme.Dark.name"
-            path="./themes/Dark.css"
-            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >            
-      </theme>         
    </extension>
 
    <!-- Preference Pages -->          		

@@ -201,4 +201,8 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return new TokenizeLineResult(_produced, nextState);
 	}
 
+	@Override
+	public String getScopeName() {
+		return _grammar.getScopeName();
+	}
 }

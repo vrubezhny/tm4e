@@ -20,6 +20,13 @@ import java.io.InputStream;
 public interface IGrammarDefinition {
 
 	/**
+	 * Returns the name of the TextMate grammar.
+	 * 
+	 * @return the name of the TextMate grammar.
+	 */
+	String getName();
+	
+	/**
 	 * Returns the scope name of the TextMate grammar.
 	 * 
 	 * @return the scope name of the TextMate grammar.

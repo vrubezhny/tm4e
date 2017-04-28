@@ -19,7 +19,7 @@
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
             <element ref="theme" minOccurs="0" maxOccurs="unbounded"/>
-            <element ref="themeContentTypeBinding" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="themeAssociation" minOccurs="0" maxOccurs="unbounded"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -83,33 +83,44 @@
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="eclipseThemeId" type="string">
-            <annotation>
-               <documentation>
-                  
-               </documentation>
-            </annotation>
-         </attribute>
       </complexType>
    </element>
 
-   <element name="themeContentTypeBinding">
+   <element name="themeAssociation">
+      <annotation>
+         <documentation>
+            This extension point allows developers to register TextMate theme.
+         </documentation>
+      </annotation>
       <complexType>
          <attribute name="themeId" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  The referenced TextMate theme id.
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier" basedOn="org.eclipse.tm4e.ui.themes/theme/@id"/>
                </appinfo>
             </annotation>
          </attribute>
-         <attribute name="contentTypeId" type="string">
+         <attribute name="scopeName" type="string">
             <annotation>
                <documentation>
-                  
+                  Use the TextMate theme &lt;code&gt;themeId&lt;/code&gt; for the given grammar identified with &lt;code&gt;scopeName&lt;/code&gt;
                </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.tm4e.registry.grammars/grammar/@scopeName"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="eclipseThemeId" type="string">
+            <annotation>
+               <documentation>
+                  Use the TextMate theme &lt;code&gt;themeId&lt;/code&gt; when the Eclipse CSS theme id is activated.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="identifier" basedOn="org.eclipse.e4.ui.css.swt.theme/theme/@id"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>

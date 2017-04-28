@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionDelta;
@@ -70,7 +71,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 		for (IContentType contentType : contentTypes) {
 			String scopeName = getScopeName(contentType.getId());
 			if (scopeName != null) {
-				IGrammar grammar = getGrammarFor(scopeName);
+				IGrammar grammar = getGrammarForScope(scopeName);
 				if (grammar != null) {
 					return grammar;
 				}
@@ -80,7 +81,7 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	}
 
 	@Override
-	public IGrammar getGrammarFor(String scopeName) {
+	public IGrammar getGrammarForScope(String scopeName) {
 		loadGrammarsIfNeeded();
 		return registry.getGrammar(scopeName);
 	}
@@ -93,6 +94,13 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 
 	private String getScopeName(String contentTypeId) {
 		return scopeNameBindings.get(contentTypeId);
+	}
+
+	@Override
+	public String[] getContentTypesForScope(String scopeName) {
+		loadGrammarsIfNeeded();
+		return scopeNameBindings.entrySet().stream().filter(map -> scopeName.equals(map.getValue()))
+				.map(map -> map.getKey()).collect(Collectors.toList()).toArray(new String[0]);
 	}
 
 	@Override

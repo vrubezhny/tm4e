@@ -24,6 +24,13 @@ package org.eclipse.tm4e.core.grammar;
 public interface IGrammar {
 
 	/**
+	 * Returns the scope name of the grammar.
+	 * 
+	 * @return the scope name of the grammar.
+	 */
+	String getScopeName();
+
+	/**
 	 * Tokenize `lineText`.
 	 * 
 	 * @param lineText

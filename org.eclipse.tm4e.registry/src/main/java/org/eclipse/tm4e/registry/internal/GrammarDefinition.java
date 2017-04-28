@@ -36,14 +36,28 @@ public class GrammarDefinition implements IGrammarDefinition {
 
 	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
 
-	private String path;
-	private String scopeName;
-	private String pluginId;
+	private final String name;
+	private final String path;
+	private final String scopeName;
+	private final String pluginId;
 
 	public GrammarDefinition(IConfigurationElement element) {
 		this.path = element.getAttribute(XMLConstants.PATH_ATTR);
 		this.scopeName = element.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
+		this.name = getName(element.getAttribute(XMLConstants.NAME_ATTR), scopeName);
 		this.pluginId = element.getNamespaceIdentifier();
+	}
+
+	private String getName(String name, String scopeName) {
+		if (name != null && name.length() > 0) {
+			return name;
+		}
+		return scopeName;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override
@@ -55,7 +69,7 @@ public class GrammarDefinition implements IGrammarDefinition {
 	public String getPath() {
 		return path;
 	}
-	
+
 	@Override
 	public String getPluginId() {
 		return pluginId;

@@ -19,6 +19,7 @@ public class XMLConstants {
 
 	// grammar definition
 	public static final String GRAMMAR_ELT = "grammar";
+	public static final String NAME_ATTR = "name";
 	public static final String SCOPE_NAME_ATTR = "scopeName";
 	public static final String PATH_ATTR = "path";
 

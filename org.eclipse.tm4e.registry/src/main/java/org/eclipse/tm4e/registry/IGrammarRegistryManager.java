@@ -38,7 +38,7 @@ public interface IGrammarRegistryManager {
 	 *            the content type.
 	 * @return the {@link IGrammar} for the given scope name and null otherwise.
 	 */
-	IGrammar getGrammarFor(String scopeName);
+	IGrammar getGrammarForScope(String scopeName);
 
 	/**
 	 * Returns the list of registered TextMate grammars.
@@ -46,5 +46,7 @@ public interface IGrammarRegistryManager {
 	 * @return the list of registered TextMate grammars.
 	 */
 	IGrammarDefinition[] getDefinitions();
+
+	String[] getContentTypesForScope(String scopeName);
 
 }
