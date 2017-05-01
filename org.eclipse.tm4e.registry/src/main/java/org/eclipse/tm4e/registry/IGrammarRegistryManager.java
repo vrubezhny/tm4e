@@ -41,6 +41,15 @@ public interface IGrammarRegistryManager {
 	IGrammar getGrammarForScope(String scopeName);
 
 	/**
+	 * Returns the {@link IGrammar} for the given file type and null otherwise.
+	 * 
+	 * @param contentTypes
+	 *            the content type.
+	 * @return the {@link IGrammar} for the file type name and null otherwise.
+	 */
+	IGrammar getGrammarForFileType(String fileType);
+	
+	/**
 	 * Returns the list of registered TextMate grammars.
 	 * 
 	 * @return the list of registered TextMate grammars.

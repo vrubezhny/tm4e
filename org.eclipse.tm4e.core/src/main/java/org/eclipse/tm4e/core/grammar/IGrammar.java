@@ -15,6 +15,8 @@
  */
 package org.eclipse.tm4e.core.grammar;
 
+import java.util.Collection;
+
 /**
  * TextMate grammar API.
  * 
@@ -29,6 +31,8 @@ public interface IGrammar {
 	 * @return the scope name of the grammar.
 	 */
 	String getScopeName();
+	
+	Collection<String> getFileTypes();
 
 	/**
 	 * Tokenize `lineText`.

@@ -36,6 +36,25 @@ import org.eclipse.ui.IStorageEditorInput;
  */
 public class ContentTypeHelper {
 
+	public static class ContentTypeInfo {
+
+		private final String fileName;
+		private final IContentType[] contentTypes;
+
+		public ContentTypeInfo(String fileName, IContentType[] contentTypes) {
+			this.fileName = fileName;
+			this.contentTypes = contentTypes;
+		}
+
+		public String getFileName() {
+			return fileName;
+		}
+
+		public IContentType[] getContentTypes() {
+			return contentTypes;
+		}
+	}
+
 	/**
 	 * Find the content types from the given {@link IDocument} and null
 	 * otherwise.
@@ -45,9 +64,9 @@ public class ContentTypeHelper {
 	 *         otherwise.
 	 * @throws CoreException
 	 */
-	public static IContentType[] findContentTypes(IDocument document) throws CoreException {
+	public static ContentTypeInfo findContentTypes(IDocument document) throws CoreException {
 		// Find content types from FileBuffers
-		IContentType[] contentTypes = findContentTypesFromFileBuffers(document);
+		ContentTypeInfo contentTypes = findContentTypesFromFileBuffers(document);
 		if (contentTypes != null) {
 			return contentTypes;
 		}
@@ -66,7 +85,7 @@ public class ContentTypeHelper {
 	 *         {@link ITextFileBufferManager} and null otherwise.
 	 * @throws CoreException
 	 */
-	private static IContentType[] findContentTypesFromFileBuffers(IDocument document) throws CoreException {
+	private static ContentTypeInfo findContentTypesFromFileBuffers(IDocument document) throws CoreException {
 		ITextFileBufferManager bufferManager = FileBuffers.getTextFileBufferManager();
 		ITextFileBuffer buffer = bufferManager.getTextFileBuffer(document);
 		if (buffer != null) {
@@ -82,7 +101,7 @@ public class ContentTypeHelper {
 	 * @return the content types from the given {@link ITextFileBuffer}.
 	 * @throws CoreException
 	 */
-	private static IContentType[] getContentTypes(ITextFileBuffer buffer) throws CoreException {
+	private static ContentTypeInfo getContentTypes(ITextFileBuffer buffer) throws CoreException {
 		try {
 			String fileName = buffer.getFileStore().getName();
 			if (buffer.isDirty()) {
@@ -92,8 +111,9 @@ public class ContentTypeHelper {
 				try {
 					input = new DocumentInputStream(buffer.getDocument());
 					IContentType[] contentTypes = Platform.getContentTypeManager().findContentTypesFor(input, fileName);
-					if (contentTypes != null)
-						return contentTypes;
+					if (contentTypes != null) {
+						return new ContentTypeInfo(fileName, contentTypes);
+					}
 				} finally {
 					try {
 						if (input != null)
@@ -107,7 +127,8 @@ public class ContentTypeHelper {
 			InputStream contents = null;
 			try {
 				contents = getContents(buffer);
-				return Platform.getContentTypeManager().findContentTypesFor(contents, fileName);
+				return new ContentTypeInfo(fileName,
+						Platform.getContentTypeManager().findContentTypesFor(contents, fileName));
 			} catch (Throwable e) {
 				if (contents != null) {
 					contents.close();
@@ -147,7 +168,7 @@ public class ContentTypeHelper {
 	 * @return the content types from the given {@link IDocument} by using
 	 *         {@link IEditorInput} and null otherwise.
 	 */
-	private static IContentType[] findContentTypesFromEditorInput(IDocument document) {
+	private static ContentTypeInfo findContentTypesFromEditorInput(IDocument document) {
 		IEditorInput editorInput = getEditorInput(document);
 		if (editorInput != null) {
 			if (editorInput instanceof IStorageEditorInput) {
@@ -156,7 +177,7 @@ public class ContentTypeHelper {
 					IStorage storage = ((IStorageEditorInput) editorInput).getStorage();
 					String fileName = storage.getName();
 					input = storage.getContents();
-					return Platform.getContentTypeManager().findContentTypesFor(input, fileName);
+					return new ContentTypeInfo(fileName, Platform.getContentTypeManager().findContentTypesFor(input, fileName));
 				} catch (Exception e) {
 					return null;
 				} finally {

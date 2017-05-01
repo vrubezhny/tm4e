@@ -205,4 +205,10 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	public String getScopeName() {
 		return _grammar.getScopeName();
 	}
+	
+	@Override
+	public Collection<String> getFileTypes() {
+		return _grammar.getFileTypes();
+	}
+	
 }

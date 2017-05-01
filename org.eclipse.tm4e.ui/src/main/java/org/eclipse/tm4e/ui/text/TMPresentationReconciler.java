@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
@@ -50,6 +51,7 @@ import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
+import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMModel;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
@@ -167,9 +169,21 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// Update the grammar
 					IGrammar grammar = forcedGrammar ? TMPresentationReconciler.this.grammar : null;
 					if (grammar == null) {
-						IContentType[] contentTypes = ContentTypeHelper.findContentTypes(newDocument);
-						// Discover the well grammar from the contentTypes
-						grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+						ContentTypeInfo info = ContentTypeHelper.findContentTypes(newDocument);
+						if (info != null) {
+							IContentType[] contentTypes = info.getContentTypes();
+							// Discover the well grammar from the contentTypes
+							grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+							if (grammar == null) {
+								// Discover the well grammar from the filetype
+								String fileName = info.getFileName();
+								if (fileName != null) {
+									String fileType = new Path(fileName).getFileExtension();
+									grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager()
+											.getGrammarForFileType(fileType);
+								}
+							}
+						}
 					}
 					Assert.isNotNull(grammar, "Cannot find TextMate grammar for the given document");
 					TMPresentationReconciler.this.grammar = grammar;
@@ -329,7 +343,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	public void setThemeId(String themeId) {
 		setTokenProvider(TMUIPlugin.getThemeManager().getThemeById(themeId));
 	}
-	
+
 	/**
 	 * Apply theme changed.
 	 * 

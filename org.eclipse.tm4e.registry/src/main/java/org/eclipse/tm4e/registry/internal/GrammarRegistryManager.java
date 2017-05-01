@@ -87,6 +87,25 @@ public class GrammarRegistryManager implements IGrammarRegistryManager, IRegistr
 	}
 
 	@Override
+	public IGrammar getGrammarForFileType(String fileType) {
+		loadGrammarsIfNeeded();
+		// TODO: cache grammar by file types
+		IGrammarDefinition[] definitions = getDefinitions();
+		for (IGrammarDefinition definition : definitions) {
+			// Not very optimized because it forces the load of the whole
+			// grammar.
+			// Extension Point grammar should perhaps stores file type bindings
+			// like content type/scope binding?
+			IGrammar grammar = getGrammarForScope(definition.getScopeName());
+			Collection<String> fileTypes = grammar.getFileTypes();
+			if (fileTypes != null && fileTypes.contains(fileType)) {
+				return grammar;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public IGrammarDefinition[] getDefinitions() {
 		loadGrammarsIfNeeded();
 		return registry.getDefinitions();
