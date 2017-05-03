@@ -8,8 +8,9 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.internal.preferences;
+package org.eclipse.tm4e.ui.internal.widgets;
 
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.source.IOverviewRuler;
@@ -79,6 +80,7 @@ public class TMViewer extends SourceViewer {
 			getTextWidget().setBackground(null);
 			getTextWidget().setForeground(null);
 		}
+		getTextWidget().setFont(JFaceResources.getTextFont());
 	}
 
 }

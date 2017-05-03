@@ -112,4 +112,7 @@ public class Registry {
 		return this._syncRegistry.grammarForScopeName(scopeName);
 	}
 
+	public IGrammarLocator getLocator() {
+		return _locator;
+	}
 }

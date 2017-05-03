@@ -1,4 +1,14 @@
-package org.eclipse.tm4e.ui.internal.preferences;
+/**
+ *  Copyright (c) 2015-2017 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
+package org.eclipse.tm4e.ui.internal.widgets;
 
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -11,7 +21,7 @@ import org.eclipse.swt.SWT;
  * Viewer compoarator which sort a given column.
  *
  */
-class ColumnViewerComparator extends ViewerComparator {
+public class ColumnViewerComparator extends ViewerComparator {
 
 	private int fSortColumn;
 
@@ -55,7 +65,7 @@ class ColumnViewerComparator extends ViewerComparator {
 
 			String left = ((ITableLabelProvider) baseLabel).getColumnText(e1, fSortColumn);
 			String right = ((ITableLabelProvider) baseLabel).getColumnText(e2, fSortColumn);
-			int sortResult = getComparator().compare(left, right);
+			int sortResult = getComparator().compare(left != null ? left : "", right != null ? right : "");
 			return sortResult * fSortOrder;
 		}
 

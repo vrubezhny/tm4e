@@ -32,12 +32,10 @@ public class TMEclipseRegistryPlugin implements BundleActivator {
 	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		TMEclipseRegistryPlugin.context = bundleContext;
-		GrammarRegistryManager.getInstance().initialize();
 	}
 
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
-		GrammarRegistryManager.getInstance().destroy();
 		TMEclipseRegistryPlugin.context = null;
 	}
 

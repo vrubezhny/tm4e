@@ -23,19 +23,19 @@ public class TMUIMessages extends NLS {
 	// Buttons
 	public static String Button_new;
 	public static String Button_remove;
+	public static String Button_browse_FileSystem;
+	public static String Button_browse_Workspace;
 
 	// TextMate preferences page
 	public static String TextMatePreferencePage_GrammarRelatedLink;
 	public static String TextMatePreferencePage_ThemeRelatedLink;
-	
+
 	// Grammar preferences page
 	public static String GrammarPreferencePage_title;
 	public static String GrammarPreferencePage_description;
 	public static String GrammarPreferencePage_column_scopeName;
 	public static String GrammarPreferencePage_column_path;
 	public static String GrammarPreferencePage_column_pluginId;
-	public static String GrammarPreferencePage_ScopeNameContentTypeBinding;
-	public static String GrammarPreferencePage_ThemeAssociations;
 	public static String GrammarPreferencePage_preview;
 
 	// Theme preferences page
@@ -45,6 +45,21 @@ public class TMUIMessages extends NLS {
 	public static String ThemePreferencePage_column_path;
 	public static String ThemePreferencePage_column_pluginId;
 	public static String ThemePreferencePage_preview;
+
+	// Widgets
+	public static String ContentTypesBindingWidget_description;
+	public static String ThemeAssociationsWidget_description;
+
+	// Wizards
+	public static String SelectGrammarWizardPage_title;
+	public static String SelectGrammarWizardPage_description;
+	public static String SelectGrammarWizardPage_file_label;
+	public static String SelectGrammarWizardPage_name_label;
+	public static String SelectGrammarWizardPage_scopeName_label;
+	public static String SelectGrammarWizardPage_fileTypes_label;
+	public static String SelectGrammarWizardPage_file_error_required;
+	public static String SelectGrammarWizardPage_file_error_load;
+	public static String SelectGrammarWizardPage_file_error_invalid;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, TMUIMessages.class);

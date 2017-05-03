@@ -60,7 +60,7 @@
       </themeAssociation>      
    </extension>
 
-   <!-- Preference Pages -->          		
+   <!-- Preference Pages -->
    <extension
          point="org.eclipse.ui.preferencePages">		      
       <page
@@ -80,5 +80,22 @@
             id="org.eclipse.tm4e.internal.ui.ThemePreferencePage"
             category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
       </page>
-   </extension>					
+   </extension>
+   
+   <!-- Wizards -->
+   <extension
+      point="org.eclipse.ui.importWizards">
+		<category
+		   id="org.eclipse.tm4e.ui.wizards"
+		   name="%TextMateWizard.category">
+		</category>
+	 	<wizard
+		   id="org.eclipse.tm4e.ui.wizards.TextMateGrammarWizard"
+	       name="%TextMateGrammarImportWizard.name"
+		   class="org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard"
+		   category="org.eclipse.tm4e.ui.wizards">
+	       <description>%TextMateGrammarImportWizard.desc</description>
+		</wizard>
+   </extension>
+
 </plugin>

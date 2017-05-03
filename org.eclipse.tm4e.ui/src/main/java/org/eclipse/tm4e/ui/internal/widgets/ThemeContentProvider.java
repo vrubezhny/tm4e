@@ -8,28 +8,28 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.internal.preferences;
+package org.eclipse.tm4e.ui.internal.widgets;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.tm4e.registry.IGrammarRegistryManager;
+import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
- * A content provider for the template grammar page's table viewer.
+ * A content provider for the template theme page's table viewer.
  * 
  */
-class GrammarDefinitionContentProvider implements IStructuredContentProvider {
+public class ThemeContentProvider implements IStructuredContentProvider {
 
-	private IGrammarRegistryManager registry;
+	private IThemeManager registry;
 
 	@Override
 	public Object[] getElements(Object input) {
-		return registry.getDefinitions();
+		return registry.getThemes();
 	}
 
 	@Override
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-		registry = (IGrammarRegistryManager) newInput;
+		registry = (IThemeManager) newInput;
 	}
 
 	@Override

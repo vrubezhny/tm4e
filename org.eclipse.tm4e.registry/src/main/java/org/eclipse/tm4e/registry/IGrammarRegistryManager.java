@@ -12,6 +12,7 @@ package org.eclipse.tm4e.registry;
 
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * 
@@ -19,6 +20,46 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
  *
  */
 public interface IGrammarRegistryManager {
+
+	// --------------- TextMate grammar definitions methods
+
+	/**
+	 * Returns the list of registered TextMate grammar definitions.
+	 * 
+	 * @return the list of registered TextMate grammar definitions.
+	 */
+	IGrammarDefinition[] getDefinitions();
+
+	/**
+	 * Add grammar definition to the registry.
+	 * 
+	 * NOTE: you must call save() method if you wish to save in the preferences.
+	 * 
+	 * @param definition
+	 */
+	void addGrammarDefinition(IGrammarDefinition definition);
+
+	/**
+	 * Remove grammar definition from the registry.
+	 * 
+	 * NOTE: you must call save() method if you wish to save in the preferences.
+	 * 
+	 * @param definition
+	 */
+	void removeGrammarDefinition(IGrammarDefinition definition);
+
+	/**
+	 * Load the grammar definitions.
+	 */
+	void load();
+
+	/**
+	 * Save the grammar definitions.
+	 * @throws BackingStoreException 
+	 */
+	void save() throws BackingStoreException;
+
+	// --------------- TextMate grammar queries methods.
 
 	/**
 	 * Returns the {@link IGrammar} for the given content types and null
@@ -48,14 +89,14 @@ public interface IGrammarRegistryManager {
 	 * @return the {@link IGrammar} for the file type name and null otherwise.
 	 */
 	IGrammar getGrammarForFileType(String fileType);
-	
+
 	/**
-	 * Returns the list of registered TextMate grammars.
+	 * Returns the list of content types bound with the given scope name and
+	 * null otherwise.
 	 * 
-	 * @return the list of registered TextMate grammars.
+	 * @param scopeName
+	 * @return the list of content types bound with the given scope name and
+	 *         null otherwise.
 	 */
-	IGrammarDefinition[] getDefinitions();
-
 	String[] getContentTypesForScope(String scopeName);
-
 }

@@ -34,9 +34,11 @@
 		<module>org.eclipse.tm4e.core</module>
 		<module>org.eclipse.tm4e.core.tests</module>
 		<module>org.eclipse.tm4e.registry</module>
+		<module>org.eclipse.tm4e.registry.tests</module>
 		<module>org.eclipse.tm4e.ui</module>
 		<module>org.eclipse.tm4e.ui.tests</module>
 		<module>org.eclipse.tm4e.markdown</module>
+        <module>org.eclipse.tm4e.ui.editor</module>
 		<module>org.eclipse.tm4e.samples</module>
 		<module>tm-feature</module>
 		<module>org.eclipse.tm4e.repository</module>

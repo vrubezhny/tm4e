@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.internal.preferences;
+package org.eclipse.tm4e.ui.internal.widgets;
 
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -18,7 +18,7 @@ import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 /**
  * Label provider for TextMate theme association.
  */
-class ThemeAssociationLabelProvider extends LabelProvider implements ITableLabelProvider {
+public class ThemeAssociationLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {

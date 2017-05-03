@@ -17,7 +17,6 @@ import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.BidiUtils;
-import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ComboViewer;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -43,6 +42,14 @@ import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
+import org.eclipse.tm4e.ui.internal.widgets.ColumnSelectionAdapter;
+import org.eclipse.tm4e.ui.internal.widgets.ColumnViewerComparator;
+import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionContentProvider;
+import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionLabelProvider;
+import org.eclipse.tm4e.ui.internal.widgets.TMViewer;
+import org.eclipse.tm4e.ui.internal.widgets.ThemeAssociationsWidget;
+import org.eclipse.tm4e.ui.internal.widgets.ThemeContentProvider;
+import org.eclipse.tm4e.ui.internal.widgets.ThemeLabelProvider;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
@@ -64,9 +71,7 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 	private Button themeRemoveButton;
 
 	// Theme associations content
-	private TableViewer themeAssociationViewer;
-	private Button themeAssociationNewButton;
-	private Button themeAssociationRemoveButton;
+	private ThemeAssociationsWidget themeAssociationsWidget;
 
 	// Preview content
 	private ComboViewer grammarViewer;
@@ -212,11 +217,11 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 				IThemeAssociation[] themeAssociations = themeManager.getThemeAssociationsForTheme(
 						((ITheme) ((IStructuredSelection) themeViewer.getSelection()).getFirstElement()).getId());
 				if (themeAssociations != null) {
-					themeAssociationViewer.setInput(themeAssociations);
+					themeAssociationsWidget.setInput(themeAssociations);
 					IThemeAssociation firstAssociation = themeAssociations != null && themeAssociations.length > 0
 							? themeAssociations[0] : null;
 					if (firstAssociation != null) {
-						themeAssociationViewer.setSelection(new StructuredSelection(firstAssociation));
+						themeAssociationsWidget.setSelection(new StructuredSelection(firstAssociation));
 					}
 				}
 				preview();
@@ -263,61 +268,14 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 	 * @param parent
 	 */
 	private void createThemeAssociationsContent(Composite parent) {
-		Label label = new Label(parent, SWT.NONE);
-		label.setText(TMUIMessages.GrammarPreferencePage_ThemeAssociations);
+		themeAssociationsWidget = new ThemeAssociationsWidget(parent, SWT.NONE);
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
-		label.setLayoutData(data);
-
-		Composite themeComposite = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
-		themeComposite.setLayout(layout);
-		data = new GridData(GridData.FILL_HORIZONTAL);
-		themeComposite.setLayoutData(data);
-
-		Table table = new Table(themeComposite,
-				SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL);
-		table.setHeaderVisible(false);
-		table.setLinesVisible(false);
-
-		themeAssociationViewer = new TableViewer(table);
-		themeAssociationViewer.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		themeAssociationViewer.setContentProvider(ArrayContentProvider.getInstance());
-		themeAssociationViewer.setLabelProvider(new ThemeAssociationLabelProvider());
-		themeAssociationViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		themeAssociationsWidget.setLayoutData(data);
+		themeAssociationsWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent e) {
 				preview();
-			}
-		});
-
-		Composite buttons = new Composite(parent, SWT.NONE);
-		buttons.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
-		layout = new GridLayout();
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
-		buttons.setLayout(layout);
-
-		themeAssociationNewButton = new Button(buttons, SWT.PUSH);
-		themeAssociationNewButton.setText(TMUIMessages.Button_new);
-		themeAssociationNewButton.setLayoutData(getButtonGridData(themeAssociationNewButton));
-		themeAssociationNewButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				// add();
-			}
-		});
-
-		themeAssociationRemoveButton = new Button(buttons, SWT.PUSH);
-		themeAssociationRemoveButton.setText(TMUIMessages.Button_remove);
-		themeAssociationRemoveButton.setLayoutData(getButtonGridData(themeAssociationRemoveButton));
-		themeAssociationRemoveButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-
 			}
 		});
 	}
@@ -364,8 +322,6 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 	private void updateButtons() {
 		themeNewButton.setEnabled(false);
 		themeRemoveButton.setEnabled(false);
-		themeAssociationNewButton.setEnabled(false);
-		themeAssociationRemoveButton.setEnabled(false);
 	}
 
 	@Override
@@ -394,7 +350,7 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 		IGrammarDefinition definition = (IGrammarDefinition) selection.getFirstElement();
 
 		IThemeAssociation association = null;
-		selection = (IStructuredSelection) themeAssociationViewer.getSelection();
+		selection = (IStructuredSelection) themeAssociationsWidget.getSelection();
 		if (!selection.isEmpty()) {
 			association = (IThemeAssociation) selection.getFirstElement();
 		}

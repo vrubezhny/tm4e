@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.internal.preferences;
+package org.eclipse.tm4e.ui.internal.widgets;
 
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.TableColumn;
  * Sort the selected column and refresh the viewer.
  *
  */
-class ColumnSelectionAdapter extends SelectionAdapter {
+public class ColumnSelectionAdapter extends SelectionAdapter {
 
 	private final TableColumn fTableColumn;
 	private final TableViewer tableViewer;

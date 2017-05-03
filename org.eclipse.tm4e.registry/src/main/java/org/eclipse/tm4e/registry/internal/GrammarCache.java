@@ -14,26 +14,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.logger.ILogger;
-import org.eclipse.tm4e.core.registry.IGrammarLocator;
-import org.eclipse.tm4e.core.registry.Registry;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 
 /**
- * Eclipse grammar registry.
+ * Grammar cache.
  *
  */
-public class GrammarRegistry extends Registry {
+public class GrammarCache {
 
-	private final Map<String, IGrammarDefinition> definitions;
-	private final Map<String, Collection<String>> injections;
+	private final Map<String /* Scope name */, IGrammarDefinition> definitions;
+	private final Map<String /* Scope name */, Collection<String>> injections;
+	private final Map<String /* IContentType Id */ , String /* Scope name */> scopeNameBindings;
 
-	public GrammarRegistry(IGrammarLocator locator, ILogger logger) {
-		super(locator, logger);
+	public GrammarCache() {
 		this.definitions = new HashMap<>();
 		this.injections = new HashMap<>();
+		this.scopeNameBindings = new HashMap<>();
 	}
 
 	/**
@@ -42,24 +40,21 @@ public class GrammarRegistry extends Registry {
 	 * @param definition
 	 *            the grammar definition to register.
 	 */
-	public void register(IGrammarDefinition definition) {
+	public void registerGrammarDefinition(IGrammarDefinition definition) {
 		definitions.put(definition.getScopeName(), definition);
 	}
 
+	public void unregisterGrammarDefinition(IGrammarDefinition definition) {
+		definitions.remove(definition.getScopeName());
+	}
+
 	/**
-	 * Returns the loaded grammar from the given <code>scopeName</code> and null
-	 * otherwise.
+	 * Returns the whole registered grammar definition.
 	 * 
-	 * @param scopeName
-	 * @return the loaded grammar from the given <code>scopeName</code> and null
-	 *         otherwise.
+	 * @return
 	 */
-	public IGrammar getGrammar(String scopeName) {
-		IGrammar grammar = super.grammarForScopeName(scopeName);
-		if (grammar != null) {
-			return grammar;
-		}
-		return super.loadGrammar(scopeName);
+	public Collection<IGrammarDefinition> getDefinitions() {
+		return this.definitions.values();
 	}
 
 	/**
@@ -102,9 +97,26 @@ public class GrammarRegistry extends Registry {
 		injections.add(scopeName);
 	}
 
-	public IGrammarDefinition[] getDefinitions() {
-		Collection<IGrammarDefinition> definitions = this.definitions.values();
-		return definitions.toArray(new IGrammarDefinition[definitions.size()]);
+	/**
+	 * Returns scope name bound with the given content type and null otherwise.
+	 * 
+	 * @param contentTypeId
+	 * @return scope name bound with the given content type and null otherwise.
+	 */
+	public String getScopeNameForContentType(String contentTypeId) {
+		return scopeNameBindings.get(contentTypeId);
+	}
+
+	public String[] getContentTypesForScope(String scopeName) {
+		if (scopeName == null) {
+			return null;
+		}
+		return scopeNameBindings.entrySet().stream().filter(map -> scopeName.equals(map.getValue()))
+				.map(map -> map.getKey()).collect(Collectors.toList()).toArray(new String[0]);
+	}
+
+	public void registerContentTypeBinding(String contentTypeId, String scopeName) {
+		scopeNameBindings.put(contentTypeId, scopeName);
 	}
 
 }
