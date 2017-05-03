@@ -42,7 +42,8 @@ public abstract class AbstractTMModel implements ITMModel {
 		this.listeners = new ArrayList<>();
 		this.lines = new LineList(lineNumber -> {
 			try {
-				return getLineText(lineNumber);
+				// No need to store text in the line list (helpful just for debugging).
+				return null; //getLineText(lineNumber);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				return "";
