@@ -20,9 +20,9 @@ import org.eclipse.ui.editors.text.TextEditor;
  * Basic TextMate TextEditor to consume the {@link TMPresentationReconciler}.
  *
  */
-public class TMTextEditor extends TextEditor {
+public class TextMateEditor extends TextEditor {
 
-	public TMTextEditor() {
+	public TextMateEditor() {
 		setSourceViewerConfiguration(new SourceViewerConfiguration() {
 			@Override
 			public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {

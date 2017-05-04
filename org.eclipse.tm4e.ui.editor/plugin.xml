@@ -17,9 +17,9 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            name="TMEditor"
-            class="org.eclipse.tm4e.ui.editor.internal.TMTextEditor"
-            id="org.eclipse.tm4e.ui.editor.TMTextEditor">
+            name="%TextMateEditor.name"
+            class="org.eclipse.tm4e.ui.editor.internal.TextMateEditor"
+            id="org.eclipse.tm4e.ui.editor.TextMateEditor">
       </editor>
    </extension>
    
