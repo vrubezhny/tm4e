@@ -40,7 +40,7 @@ public abstract class AbstractTMModel implements ITMModel {
 
 	public AbstractTMModel() {
 		this.listeners = new ArrayList<>();
-		this.lines = new LineList(lineNumber -> {
+		this.lines = new LineList(/*lineNumber -> {
 			try {
 				// No need to store text in the line list (helpful just for debugging).
 				return null; //getLineText(lineNumber);
@@ -48,7 +48,7 @@ public abstract class AbstractTMModel implements ITMModel {
 				ex.printStackTrace();
 				return "";
 			}
-		});
+		}*/);
 		invalidLines.add(0);
 	}
 
