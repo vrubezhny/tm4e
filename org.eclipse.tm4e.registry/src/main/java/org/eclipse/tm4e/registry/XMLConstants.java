@@ -31,4 +31,6 @@ public class XMLConstants {
 	public static final String INJECTION_ELT = "injection";
 	public static final String INJECT_TO_ATTR = "injectTo";
 
+	public static final String ID_ATTR = "id";
+
 }

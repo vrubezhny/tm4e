@@ -11,11 +11,11 @@
 package org.eclipse.tm4e.ui.internal.themes;
 
 import java.io.InputStream;
-import java.util.Scanner;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.tm4e.registry.TMResource;
+import org.eclipse.tm4e.registry.XMLConstants;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
@@ -29,6 +29,7 @@ public class Theme extends TMResource implements ITheme {
 	private ITokenProvider tokenProvider;
 
 	private String id;
+	private String name;
 
 	/**
 	 * Constructor for user preferences (loaded from Json with Gson).
@@ -43,18 +44,25 @@ public class Theme extends TMResource implements ITheme {
 	 * @param element
 	 */
 	public Theme(String id, String path, String name) {
-		super(path, name);
+		super(path);
 		this.id = id;
+		this.name = name;
 	}
 
 	public Theme(IConfigurationElement ce) {
 		super(ce);
-		id = ce.getAttribute("id");
+		id = ce.getAttribute(XMLConstants.ID_ATTR);
+		name = ce.getAttribute(XMLConstants.NAME_ATTR);
 	}
 
 	@Override
 	public String getId() {
 		return id;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override
@@ -80,11 +88,6 @@ public class Theme extends TMResource implements ITheme {
 	@Override
 	public String toCSSStyleSheet() {
 		return super.getResourceContent();
-	}
-
-	private static String convertStreamToString(InputStream is) {
-		Scanner s = new Scanner(is).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
 	}
 
 }

@@ -33,6 +33,7 @@ import org.eclipse.tm4e.registry.GrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
+import org.eclipse.tm4e.ui.internal.widgets.GrammarInfoWidget;
 
 /**
  * Wizard page to select a textMate grammar file and register it in the grammar
@@ -48,9 +49,7 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 
 	private Text grammarFileText;
 
-	private Text nameText;
-	private Text scopeNameText;
-	private Text fileTypesText;
+	private GrammarInfoWidget grammarInfoWidget;
 
 	// private ContentTypesBindingWidget contentTypesWidget;
 
@@ -101,15 +100,11 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 				// TODO
 			}
 		});
-
-		nameText = createText(parent, TMUIMessages.SelectGrammarWizardPage_name_label);
-		nameText.setEditable(false);
-		scopeNameText = createText(parent, TMUIMessages.SelectGrammarWizardPage_scopeName_label);
-		scopeNameText.setEditable(false);
-		fileTypesText = createText(parent, TMUIMessages.SelectGrammarWizardPage_fileTypes_label);
-		fileTypesText.setEditable(false);
-
-		// createContentTypeBindingContent(parent);
+		
+		grammarInfoWidget = new GrammarInfoWidget(parent, SWT.NONE);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		data.horizontalSpan = 2;
+		grammarInfoWidget.setLayoutData(data);
 	}
 
 	/**
@@ -140,7 +135,7 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 
 	@Override
 	protected IStatus validatePage(Event event) {
-		scopeNameText.setText("");
+		grammarInfoWidget.refresh(null);
 		String path = grammarFileText.getText();
 		if (path.length() == 0) {
 			return new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID,
@@ -150,11 +145,11 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 		Registry registry = new Registry();
 		try {
 			IGrammar grammar = registry.loadGrammarFromPathSync(f.getName(), new FileInputStream(f));
-			if (grammar.getScopeName() == null) {
+			if (grammar == null || grammar.getScopeName() == null) {
 				return new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID,
 						TMUIMessages.SelectGrammarWizardPage_file_error_invalid);
 			}
-			scopeNameText.setText(grammar.getScopeName());
+			grammarInfoWidget.refresh(grammar);
 		} catch (Exception e) {
 			return new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID,
 					NLS.bind(TMUIMessages.SelectGrammarWizardPage_file_error_load, e.getMessage()), e);
@@ -163,7 +158,7 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 	}
 
 	public IGrammarDefinition getGrammarDefinition() {
-		return new GrammarDefinition(scopeNameText.getText(), grammarFileText.getText(), nameText.getText());
+		return new GrammarDefinition(grammarInfoWidget.getScopeNameText().getText(), grammarFileText.getText());
 	}
 
 }

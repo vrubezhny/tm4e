@@ -18,6 +18,7 @@ import org.eclipse.tm4e.ui.snippets.ISnippet;
 public class Snippet extends TMResource implements ISnippet {
 
 	private String scopeName;
+	private String name;
 
 	/**
 	 * Constructor for user preferences (loaded from Json with Gson).
@@ -32,13 +33,20 @@ public class Snippet extends TMResource implements ISnippet {
 	 * @param element
 	 */
 	public Snippet(String scopeName, String path, String name) {
-		super(path, name);
+		super(path);
 		this.scopeName = scopeName;
+		this.name = name;
 	}
 
 	public Snippet(IConfigurationElement ce) {
 		super(ce);
 		this.scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
+		this.name = ce.getAttribute(XMLConstants.NAME_ATTR);
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override

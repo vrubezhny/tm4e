@@ -20,13 +20,6 @@ import java.io.InputStream;
 public interface ITMResource {
 
 	/**
-	 * Returns the name of the TextMate resource.
-	 * 
-	 * @return the name of the TextMate resource.
-	 */
-	String getName();
-
-	/**
 	 * Returns the TextMate resource path.
 	 * 
 	 * @return the TextMate resource path.

@@ -26,12 +26,24 @@ import java.util.Collection;
 public interface IGrammar {
 
 	/**
+	 * Returns the name of the grammar.
+	 * 
+	 * @return the name of the grammar.
+	 */
+	String getName();
+
+	/**
 	 * Returns the scope name of the grammar.
 	 * 
 	 * @return the scope name of the grammar.
 	 */
 	String getScopeName();
-	
+
+	/**
+	 * Returns the supported file types and null otherwise.
+	 * 
+	 * @return the supported file types and null otherwise.
+	 */
 	Collection<String> getFileTypes();
 
 	/**

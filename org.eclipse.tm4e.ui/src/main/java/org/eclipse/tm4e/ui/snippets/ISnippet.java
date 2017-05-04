@@ -20,6 +20,13 @@ import org.eclipse.tm4e.registry.ITMResource;
 public interface ISnippet extends ITMResource {
 
 	/**
+	 * Returns the name of the snippet.
+	 * 
+	 * @return the name of the snippet.
+	 */
+	String getName();
+	
+	/**
 	 * Returns the scope name of the snippet.
 	 * 
 	 * @return the scope name of the snippet.

@@ -26,7 +26,6 @@ public class TMResource implements ITMResource {
 
 	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
 
-	private String name;
 	private String path;
 	private String pluginId;
 
@@ -42,20 +41,13 @@ public class TMResource implements ITMResource {
 	 * 
 	 * @param element
 	 */
-	public TMResource(String path, String name) {
+	public TMResource(String path) {
 		this.path = path;
-		this.name = name;
 	}
 
 	public TMResource(IConfigurationElement ce) {
-		this(ce.getAttribute(XMLConstants.PATH_ATTR),
-				ce.getAttribute(XMLConstants.NAME_ATTR));
+		this(ce.getAttribute(XMLConstants.PATH_ATTR));
 		this.pluginId = ce.getNamespaceIdentifier();
-	}
-
-	@Override
-	public String getName() {
-		return name;
 	}
 
 	@Override

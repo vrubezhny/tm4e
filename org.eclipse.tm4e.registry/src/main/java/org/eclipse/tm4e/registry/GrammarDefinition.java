@@ -43,8 +43,8 @@ public class GrammarDefinition extends TMResource implements IGrammarDefinition 
 	 * 
 	 * @param element
 	 */
-	public GrammarDefinition(String scopeName, String path, String name) {
-		super(path, name);
+	public GrammarDefinition(String scopeName, String path) {
+		super(path);
 		this.scopeName = scopeName;
 	}
 

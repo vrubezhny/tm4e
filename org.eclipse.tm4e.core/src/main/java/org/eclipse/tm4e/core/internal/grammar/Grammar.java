@@ -202,13 +202,18 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	@Override
+	public String getName() {
+		return _grammar.getName();
+	}
+
+	@Override
 	public String getScopeName() {
 		return _grammar.getScopeName();
 	}
-	
+
 	@Override
 	public Collection<String> getFileTypes() {
 		return _grammar.getFileTypes();
 	}
-	
+
 }
