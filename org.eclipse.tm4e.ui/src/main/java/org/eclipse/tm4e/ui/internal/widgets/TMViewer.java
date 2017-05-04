@@ -83,4 +83,10 @@ public class TMViewer extends SourceViewer {
 		getTextWidget().setFont(JFaceResources.getTextFont());
 	}
 
+	public void setText(String text) {
+		if (getDocument() == null) {
+			super.setDocument(new Document());
+		}
+		getDocument().set(text);
+	}
 }

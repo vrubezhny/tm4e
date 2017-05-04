@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.registry.GrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
+import org.eclipse.tm4e.registry.XMLConstants;
 import org.eclipse.tm4e.registry.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.registry.internal.preferences.PreferenceHelper;
 import org.osgi.service.prefs.BackingStoreException;

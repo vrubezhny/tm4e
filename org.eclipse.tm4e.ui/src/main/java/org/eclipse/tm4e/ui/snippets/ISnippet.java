@@ -8,18 +8,28 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.registry;
+package org.eclipse.tm4e.ui.snippets;
+
+import org.eclipse.tm4e.registry.ITMResource;
 
 /**
- * TextMate grammar definition API.
+ * 
+ * Snippet API.
  *
  */
-public interface IGrammarDefinition extends ITMResource {
-	
+public interface ISnippet extends ITMResource {
+
 	/**
-	 * Returns the scope name of the TextMate grammar.
+	 * Returns the scope name of the snippet.
 	 * 
-	 * @return the scope name of the TextMate grammar.
+	 * @return the scope name of the snippet.
 	 */
 	String getScopeName();
+
+	/**
+	 * Returns the content of the snippet.
+	 * 
+	 * @return the content of the snippet.
+	 */
+	String getContent();
 }

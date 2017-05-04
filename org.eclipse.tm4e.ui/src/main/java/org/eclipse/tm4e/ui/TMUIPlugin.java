@@ -11,8 +11,10 @@
 package org.eclipse.tm4e.ui;
 
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
+import org.eclipse.tm4e.ui.internal.snippets.SnippetManager;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
+import org.eclipse.tm4e.ui.snippets.ISnippetManager;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -73,6 +75,15 @@ public class TMUIPlugin extends AbstractUIPlugin {
 	 */
 	public static IThemeManager getThemeManager() {
 		return ThemeManager.getInstance();
+	}
+
+	/**
+	 * Returns the Snippet manager.
+	 * 
+	 * @return the Snippet manager.
+	 */
+	public static ISnippetManager getSnippetManager() {
+		return SnippetManager.getInstance();
 	}
 
 }

@@ -57,6 +57,8 @@ import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionLabelProvider;
 import org.eclipse.tm4e.ui.internal.widgets.TMViewer;
 import org.eclipse.tm4e.ui.internal.widgets.ThemeAssociationsWidget;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
+import org.eclipse.tm4e.ui.snippets.ISnippet;
+import org.eclipse.tm4e.ui.snippets.ISnippetManager;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.ui.IWorkbench;
@@ -75,6 +77,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	// Managers
 	private IGrammarRegistryManager workingCopyGrammarRegistryManager;
 	private IThemeManager themeManager;
+	private ISnippetManager snippetManager;
 
 	// Grammar content
 	private TableViewer grammarViewer;
@@ -95,6 +98,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		setGrammarRegistryManager(
 				new WorkingCopyGrammarRegistryManager(TMEclipseRegistryPlugin.getGrammarRegistryManager()));
 		setThemeManager(TMUIPlugin.getThemeManager());
+		setSnippetManager(TMUIPlugin.getSnippetManager());
 	}
 
 	/**
@@ -131,6 +135,14 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	 */
 	public void setThemeManager(IThemeManager themeManager) {
 		this.themeManager = themeManager;
+	}
+
+	public ISnippetManager getSnippetManager() {
+		return snippetManager;
+	}
+
+	public void setSnippetManager(ISnippetManager snippetManager) {
+		this.snippetManager = snippetManager;
 	}
 
 	@Override
@@ -263,6 +275,14 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 					previewViewer.setThemeId(selectedAssociation.getThemeId(), selectedAssociation.getEclipseThemeId());
 				}
 				previewViewer.setGrammar(grammar);
+				
+				// Snippet
+				ISnippet[] snippets = snippetManager.getSnippets(scopeName);
+				if (snippets != null && snippets.length > 0) {
+					// TODO: manage list of snippet for the given scope.
+					previewViewer.setText(snippets[0].getContent());
+				}
+
 			}
 
 		});

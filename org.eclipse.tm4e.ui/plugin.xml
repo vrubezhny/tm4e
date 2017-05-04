@@ -17,6 +17,9 @@
    <extension-point id="themes" 
    					name="%Themes.extension.name"
 					schema="schema/themes.exsd" />
+   <extension-point id="snippets" 
+   					name="%Snippets.extension.name"
+					schema="schema/snippets.exsd" />
 					
    <!-- Register default TextMate Themes -->
    <extension

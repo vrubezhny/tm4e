@@ -11,11 +11,11 @@
 package org.eclipse.tm4e.ui.internal.themes;
 
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Scanner;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.tm4e.registry.TMResource;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
@@ -24,43 +24,37 @@ import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
  * {@link ITheme} implementation.
  *
  */
-public class Theme implements ITheme {
-
-	private static final String PLATFORM_PLUGIN = "platform:/plugin/"; //$NON-NLS-1$
-
-	private final IConfigurationElement ce;
-	private final String id;
-	private final String name;
-	private final String path;
-	private final String pluginId;
+public class Theme extends TMResource implements ITheme {
 
 	private ITokenProvider tokenProvider;
 
+	private String id;
+
+	/**
+	 * Constructor for user preferences (loaded from Json with Gson).
+	 */
+	public Theme() {
+		super();
+	}
+
+	/**
+	 * Constructor for extension point.
+	 * 
+	 * @param element
+	 */
+	public Theme(String id, String path, String name) {
+		super(path, name);
+		this.id = id;
+	}
+
 	public Theme(IConfigurationElement ce) {
-		this.ce = ce;
-		this.id = ce.getAttribute("id");
-		this.name = ce.getAttribute("name");
-		this.path = ce.getAttribute("path");
-		this.pluginId = ce.getNamespaceIdentifier();
+		super(ce);
+		id = ce.getAttribute("id");
 	}
 
 	@Override
 	public String getId() {
 		return id;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	@Override
-	public String getPath() {
-		return path;
-	}
-
-	public String getPluginId() {
-		return pluginId;
 	}
 
 	@Override
@@ -70,16 +64,14 @@ public class Theme implements ITheme {
 
 	private ITokenProvider getTokenProvider() {
 		if (tokenProvider == null) {
-			if (path != null && path.length() > 0) {
-				String pluginId = ce.getNamespaceIdentifier();
-				try {
-					URL url = new URL(
-							new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());
-					tokenProvider = new CSSTokenProvider(url.openStream());
-				} catch (Exception e) {
-					e.printStackTrace();
+			try {
+				InputStream in = super.getInputStream();
+				if (in == null) {
+					return null;
 				}
-
+				tokenProvider = new CSSTokenProvider(in);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		return tokenProvider;
@@ -87,14 +79,7 @@ public class Theme implements ITheme {
 
 	@Override
 	public String toCSSStyleSheet() {
-		String pluginId = ce.getNamespaceIdentifier();
-		try {
-			URL url = new URL(new StringBuilder(PLATFORM_PLUGIN).append(pluginId).append("/").append(path).toString());
-			return convertStreamToString(url.openStream());
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-		return null;
+		return super.getResourceContent();
 	}
 
 	private static String convertStreamToString(InputStream is) {

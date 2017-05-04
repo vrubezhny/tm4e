@@ -8,33 +8,21 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.registry;
+package org.eclipse.tm4e.ui.internal.snippets;
 
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.tm4e.registry.TMResource;
+import org.eclipse.tm4e.registry.XMLConstants;
+import org.eclipse.tm4e.ui.snippets.ISnippet;
 
-/**
- * Grammar definition defined by the "org.eclipse.tm4e.registry.grammars"
- * extension point. Here a sample to register TypeScript TextMate grammar.
- * 
- * <pre>
- * <extension
-         point="org.eclipse.tm4e.registry.grammars">
-      <grammar
-      		scopeName="source.ts"
-            path="./syntaxes/TypeScript.tmLanguage.json" >
-      </grammar>
-   </extension>
- * </pre>
- *
- */
-public class GrammarDefinition extends TMResource implements IGrammarDefinition {
+public class Snippet extends TMResource implements ISnippet {
 
 	private String scopeName;
 
 	/**
 	 * Constructor for user preferences (loaded from Json with Gson).
 	 */
-	public GrammarDefinition() {
+	public Snippet() {
 		super();
 	}
 
@@ -43,14 +31,19 @@ public class GrammarDefinition extends TMResource implements IGrammarDefinition 
 	 * 
 	 * @param element
 	 */
-	public GrammarDefinition(String scopeName, String path, String name) {
+	public Snippet(String scopeName, String path, String name) {
 		super(path, name);
 		this.scopeName = scopeName;
 	}
 
-	public GrammarDefinition(IConfigurationElement ce) {
+	public Snippet(IConfigurationElement ce) {
 		super(ce);
 		this.scopeName = ce.getAttribute(XMLConstants.SCOPE_NAME_ATTR);
+	}
+
+	@Override
+	public String getContent() {
+		return getResourceContent();
 	}
 
 	@Override

@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.registry.internal;
+package org.eclipse.tm4e.registry;
 
 /**
  * XML constants used with the "org.eclipse.tm4e.registry.grammars" extension
