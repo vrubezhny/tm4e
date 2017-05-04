@@ -10,6 +10,8 @@
  */
 package org.eclipse.tm4e.registry;
 
+import java.util.Collection;
+
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.osgi.service.prefs.BackingStoreException;
@@ -99,4 +101,6 @@ public interface IGrammarRegistryManager {
 	 *         null otherwise.
 	 */
 	String[] getContentTypesForScope(String scopeName);
+	
+	Collection<String> getInjections(String scopeName);
 }

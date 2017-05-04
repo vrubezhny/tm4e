@@ -11,6 +11,7 @@
 package org.eclipse.tm4e.registry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.tm4e.registry.internal.AbstractGrammarRegistryManager;
@@ -45,6 +46,13 @@ public class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryMa
 			if (contentTypes != null) {
 				for (String contentTypeId : contentTypes) {
 					super.registerContentTypeBinding(contentTypeId, scopeName);
+				}
+			}
+			// Copy injection
+			Collection<String> injections = manager.getInjections(scopeName);
+			if (injections != null) {
+				for (String injectFrom : injections) {
+					super.registerInjection(injectFrom, scopeName);
 				}
 			}
 		}
