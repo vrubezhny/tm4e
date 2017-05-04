@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
@@ -37,9 +38,13 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.IPresentationRepairer;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.model.IModelTokensChangedListener;
@@ -50,14 +55,17 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.internal.TMUIMessages;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMModel;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
+import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * TextMate presentation reconciler which must be initialized with:
@@ -171,20 +179,27 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					if (grammar == null) {
 						ContentTypeInfo info = ContentTypeHelper.findContentTypes(newDocument);
 						if (info != null) {
-							IContentType[] contentTypes = info.getContentTypes();
-							// Discover the well grammar from the contentTypes
-							grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+							grammar = findGrammar(info);
 							if (grammar == null) {
-								// Discover the well grammar from the filetype
-								String fileName = info.getFileName();
-								if (fileName != null) {
-									String fileType = new Path(fileName).getFileExtension();
-									grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager()
-											.getGrammarForFileType(fileType);
+								// Grammar cannot be found, suggest the user to
+								// register the grammar
+								Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+								if (MessageDialog.openConfirm(activeShell,
+										TMUIMessages.TMPresentationReconciler_register_dialog_title,
+										NLS.bind(TMUIMessages.TMPresentationReconciler_register_dialog_message,
+												info.getFileName()))) {
+									TextMateGrammarImportWizard wizard = new TextMateGrammarImportWizard();
+									WizardDialog dialog = new WizardDialog(activeShell, wizard);
+									if (dialog.open() == Window.OK) {
+										// User grammar was created in the registry, retry to find
+										// the grammar.
+										grammar = findGrammar(info);
+									}
 								}
 							}
 						}
 					}
+
 					Assert.isNotNull(grammar, "Cannot find TextMate grammar for the given document");
 					TMPresentationReconciler.this.grammar = grammar;
 					model.setGrammar(grammar);
@@ -204,6 +219,22 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					}
 				}
 			}
+		}
+
+		private IGrammar findGrammar(ContentTypeInfo info) {
+			IGrammar grammar;
+			IContentType[] contentTypes = info.getContentTypes();
+			// Discover the well grammar from the contentTypes
+			grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+			if (grammar == null) {
+				// Discover the well grammar from the filetype
+				String fileName = info.getFileName();
+				if (fileName != null) {
+					String fileType = new Path(fileName).getFileExtension();
+					grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForFileType(fileType);
+				}
+			}
+			return grammar;
 		}
 
 		@Override
