@@ -14,17 +14,22 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.tm4e.core.model.AbstractTMModel;
+import org.eclipse.tm4e.core.model.AbstractLineList;
 
 /**
- * TextMate model implementation linked to an {@link IDocument}.
+ * TextMate {@link AbstractLineList} implementation with Eclipse
+ * {@link IDocument}.
+ * 
+ * Goal of this class is to synchronize Eclipse {@link DocumentEvent} with
+ * TextMate model lines.
+ *
  */
-public class TMModel extends AbstractTMModel {
+public class DocumentLineList extends AbstractLineList {
 
 	private final IDocument document;
-	private final InternalListener listener;
+	private InternalListener listener;
 
-	public TMModel(IDocument document) {
+	public DocumentLineList(IDocument document) {
 		this.document = document;
 		this.listener = new InternalListener();
 		document.addDocumentListener(listener);
@@ -48,7 +53,7 @@ public class TMModel extends AbstractTMModel {
 			int startLine = DocumentHelper.getStartLine(event);
 			int endLine = DocumentHelper.getEndLine(event, true);
 			for (int i = endLine; i > startLine; i--) {
-				getLines().removeLine(i);
+				DocumentLineList.this.removeLine(i);
 			}
 		}
 
@@ -58,19 +63,19 @@ public class TMModel extends AbstractTMModel {
 			try {
 				int startLine = DocumentHelper.getStartLine(event);
 				if (!DocumentHelper.isRemove(event)) {
-					if (getLines().getSize() != DocumentHelper.getNumberOfLines(document)) {
+					if (DocumentLineList.this.getSize() != DocumentHelper.getNumberOfLines(document)) {
 						int endLine = DocumentHelper.getEndLine(event, false);
 						// Insert new lines
 						for (int i = startLine; i < endLine; i++) {
-							getLines().addLine(i + 1);
+							DocumentLineList.this.addLine(i + 1);
 						}
 					} else {
 						// Update line
-						getLines().updateLine(startLine);
+						DocumentLineList.this.updateLine(startLine);
 					}
 				} else {
 					// Update line
-					getLines().updateLine(startLine);
+					DocumentLineList.this.updateLine(startLine);
 				}
 				invalidateLine(startLine);
 			} catch (BadLocationException e) {
@@ -80,28 +85,22 @@ public class TMModel extends AbstractTMModel {
 	}
 
 	@Override
-	protected int getNumberOfLines() {
+	public int getNumberOfLines() {
 		return DocumentHelper.getNumberOfLines(document);
 	}
 
 	@Override
-	protected String getLineText(int line) throws Exception {
+	public String getLineText(int line) throws Exception {
 		return DocumentHelper.getLineText(document, line, false);
 	}
 
 	@Override
-	protected int getLineLength(int line) throws Exception {
+	public int getLineLength(int line) throws Exception {
 		return DocumentHelper.getLineLength(document, line);
 	}
 
 	@Override
 	public void dispose() {
-		super.dispose();
 		document.removeDocumentListener(listener);
 	}
-
-	public IDocument getDocument() {
-		return document;
-	}
-
 }

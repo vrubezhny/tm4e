@@ -18,10 +18,10 @@ import java.util.function.Consumer;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 
 /**
- * Abstract class for TextMate model.
+ * TextMate model class.
  *
  */
-public abstract class AbstractTMModel implements ITMModel {
+public class TMModel implements ITMModel {
 
 	/**
 	 * The TextMate grammar to use to parse for each lines of the document the
@@ -35,34 +35,27 @@ public abstract class AbstractTMModel implements ITMModel {
 	/** The background thread. */
 	private TokenizerThread fThread;
 
-	private final LineList lines;
+	private final IModelLines lines;
 	private PriorityBlockingQueue<Integer> invalidLines = new PriorityBlockingQueue<>();
 
-	public AbstractTMModel() {
+	public TMModel(IModelLines lines) {
 		this.listeners = new ArrayList<>();
-		this.lines = new LineList(/*lineNumber -> {
-			try {
-				// No need to store text in the line list (helpful just for debugging).
-				return null; //getLineText(lineNumber);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				return "";
-			}
-		}*/);
+		this.lines = lines;
+		((AbstractLineList)lines).setModel(this);
 		invalidLines.add(0);
 	}
 
 	/**
-	 * The {@link TokenizerThread} takes as input an {@link AbstractTMModel} and continuously
-	 * runs tokenizing in background on the lines found in {@link AbstractTMModel#lines}.
-	 * The {@link AbstractTMModel#lines} are expected to be accessed through {@link AbstractTMModel#getLines()}
+	 * The {@link TokenizerThread} takes as input an {@link TMModel} and continuously
+	 * runs tokenizing in background on the lines found in {@link TMModel#lines}.
+	 * The {@link TMModel#lines} are expected to be accessed through {@link TMModel#getLines()}
 	 * and manipulated by the UI part to inform of needs to (re)tokenize area, then the {@link TokenizerThread}
 	 * processes them and emits events through the model. UI elements are supposed to subscribe and react to the events with
-	 * {@link AbstractTMModel#addModelTokensChangedListener(IModelTokensChangedListener)}.
+	 * {@link TMModel#addModelTokensChangedListener(IModelTokensChangedListener)}.
 	 *
 	 */
 	static class TokenizerThread extends Thread {
-		private AbstractTMModel model;
+		private TMModel model;
 		private TMState _lastState;
 		private Tokenizer tokenizer;
 
@@ -73,7 +66,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		 * @param name
 		 *            the thread's name
 		 */
-		public TokenizerThread(String name, AbstractTMModel model) {
+		public TokenizerThread(String name, TMModel model) {
 			super(name);
 			this.model = model;
 			this.tokenizer = new Tokenizer(model.getGrammar());
@@ -87,7 +80,7 @@ public abstract class AbstractTMModel implements ITMModel {
 				return;
 
 			// initialize
-			int linesLength = model.getNumberOfLines();
+			int linesLength = model.lines.getNumberOfLines();
 			for (int line = 0; line < linesLength; line++) {
 				try {
 					model.lines.addLine(line);
@@ -147,7 +140,7 @@ public abstract class AbstractTMModel implements ITMModel {
 
 					// Compute how many characters will be tokenized for this line
 					try {
-						currentCharsToTokenize = model.getLineLength(lineIndex);
+						currentCharsToTokenize = model.lines.getLineLength(lineIndex);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -194,7 +187,7 @@ public abstract class AbstractTMModel implements ITMModel {
 				String text = null;
 				ModelLine modeLine = model.lines.get(lineIndex);
 				try {
-					text = model.getLineText(lineIndex);
+					text = model.lines.getLineText(lineIndex);
 					// Tokenize only the first X characters
 					r = tokenizer.tokenize(text, modeLine.getState(), 0, stopLineTokenizationAfter);
 				} catch (Throwable e) {
@@ -270,7 +263,6 @@ public abstract class AbstractTMModel implements ITMModel {
 			int deltaOffset = 0;
 			List<TMToken> tokens = new ArrayList<>();
 			tokens.add(new TMToken(deltaOffset, ""));
-
 			return new LineTokens(tokens, deltaOffset + buffer.length(), state);
 		}
 
@@ -311,6 +303,7 @@ public abstract class AbstractTMModel implements ITMModel {
 	@Override
 	public void dispose() {
 		stop();
+		getLines().dispose();
 	}
 
 	/**
@@ -350,7 +343,7 @@ public abstract class AbstractTMModel implements ITMModel {
 		return lines.get(lineNumber).isInvalid;
 	}
 	
-	protected void invalidateLine(int lineIndex) {
+	void invalidateLine(int lineIndex) {
 		this.lines.get(lineIndex).isInvalid = true;
 		//Integer currentInvalidIndex = this.invalidLines.peek();
 		this.invalidLines.add(lineIndex);
@@ -366,9 +359,4 @@ public abstract class AbstractTMModel implements ITMModel {
 		return this.lines;
 	}
 
-	protected abstract int getNumberOfLines();
-
-	protected abstract String getLineText(int line) throws Exception;
-
-	protected abstract int getLineLength(int line) throws Exception;
 }

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.core.model.ITMModel;
+import org.eclipse.tm4e.core.model.TMModel;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 
 /**
@@ -41,7 +42,7 @@ public class TMModelManager implements ITMModelManager {
 		if (model != null) {
 			return model;
 		}
-		model = new TMModel(document);
+		model = new TMDocumentModel(document);
 		models.put(document, model);
 		return model;
 	}

@@ -59,7 +59,7 @@ import org.eclipse.tm4e.ui.internal.TMUIMessages;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
-import org.eclipse.tm4e.ui.internal.model.TMModel;
+import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
@@ -72,7 +72,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * <ul>
  * <li>a TextMate grammar {@link IGrammar} used to initialize the TextMate model
- * {@link ITMModel}.</li>
+ * {@link ITMDocumentModel}.</li>
  * <li>a token provider {@link ITokenProvider} to retrieve the {@link IToken}
  * from a TextMate token type .</li>
  * </ul>
@@ -191,7 +191,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 									TextMateGrammarImportWizard wizard = new TextMateGrammarImportWizard();
 									WizardDialog dialog = new WizardDialog(activeShell, wizard);
 									if (dialog.open() == Window.OK) {
-										// User grammar was created in the registry, retry to find
+										// User grammar was created in the
+										// registry, retry to find
 										// the grammar.
 										grammar = findGrammar(info);
 									}
@@ -283,7 +284,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						}
 					}
 					ITMModel model = getTMModelManager().connect(document);
-					colorize(fromLineNumber, toLineNumber, region, (TMModel) model);
+					colorize(fromLineNumber, toLineNumber, region, (TMDocumentModel) model);
 				}
 			}
 		}
@@ -387,7 +388,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			// Theme has changed, recolorize
 			tokenProvider = newTheme;
 			ITMModel model = getTMModelManager().connect(document);
-			colorize(0, document.getNumberOfLines() - 1, null, (TMModel) model);
+			colorize(0, document.getNumberOfLines() - 1, null, (TMDocumentModel) model);
 		}
 	}
 
@@ -437,11 +438,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private void colorize(ModelTokensChangedEvent e) {
 		for (Range range : e.getRanges()) {
-			colorize(range.fromLineNumber - 1, range.toLineNumber - 1, null, ((TMModel) e.getModel()));
+			colorize(range.fromLineNumber - 1, range.toLineNumber - 1, null, ((TMDocumentModel) e.getModel()));
 		}
 	}
 
-	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMModel model) {
+	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMDocumentModel model) {
 		ILogger logger = getLogger();
 		// Refresh the UI Presentation
 		if (logger.isEnabled()) {

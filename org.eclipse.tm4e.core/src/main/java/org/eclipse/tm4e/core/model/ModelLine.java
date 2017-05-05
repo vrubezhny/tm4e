@@ -12,7 +12,7 @@ package org.eclipse.tm4e.core.model;
 
 import java.util.List;
 
-class ModelLine {
+public class ModelLine {
 
 	//String text;
 	boolean isInvalid;

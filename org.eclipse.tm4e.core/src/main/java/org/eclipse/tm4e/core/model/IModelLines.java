@@ -10,6 +10,8 @@
  */
 package org.eclipse.tm4e.core.model;
 
+import java.util.function.Consumer;
+
 /**
  * Mode lines API which must be initalize with a document and changed of
  * document.
@@ -45,4 +47,17 @@ public interface IModelLines {
 	 */
 	int getSize();
 
+	ModelLine get(int index);
+	
+	void forEach(Consumer<ModelLine> consumer);
+	
+	int getNumberOfLines();
+
+	String getLineText(int line) throws Exception;
+
+	int getLineLength(int line) throws Exception;
+
+	void dispose();
+	
+	
 }
