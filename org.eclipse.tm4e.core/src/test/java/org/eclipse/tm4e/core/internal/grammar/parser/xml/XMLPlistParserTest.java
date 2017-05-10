@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.core.internal.grammar.parser.xml;
 
+import org.eclipse.tm4e.core.internal.grammar.reader.GrammarReader;
 import org.eclipse.tm4e.core.internal.grammar.reader.IGrammarParser;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class XMLPlistParserTest {
 
 	@Test
 	public void testCsharp() throws Exception {
-		IGrammarParser parser = XMLPListParser.INSTANCE;
+		IGrammarParser parser = GrammarReader.XML_PARSER;
 		IRawGrammar grammar = parser.parse(XMLPlistParserTest.class.getResourceAsStream("JavaScript.tmLanguage"));
 		System.err.println(grammar);
 	}

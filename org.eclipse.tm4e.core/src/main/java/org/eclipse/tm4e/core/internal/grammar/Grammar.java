@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import org.eclipse.tm4e.core.grammar.GrammarHelper;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IGrammarRepository;
-import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.grammar.ITokenizeLineResult;
+import org.eclipse.tm4e.core.grammar.ITokenizeLineResult2;
 import org.eclipse.tm4e.core.grammar.Injection;
 import org.eclipse.tm4e.core.grammar.StackElement;
 import org.eclipse.tm4e.core.internal.grammar.parser.Raw;
@@ -41,6 +41,8 @@ import org.eclipse.tm4e.core.internal.rule.RuleFactory;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
+import org.eclipse.tm4e.core.theme.IThemeProvider;
+import org.eclipse.tm4e.core.theme.ThemeTrieElementRule;
 
 /**
  * TextMate grammar implementation.
@@ -57,8 +59,11 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	private final IGrammarRepository _grammarRepository;
 	private final IRawGrammar _grammar;
 	private List<Injection> _injections;
+	private final ScopeMetadataProvider _scopeMetadataProvider;
 
-	public Grammar(IRawGrammar grammar, IGrammarRepository grammarRepository) {
+	public Grammar(IRawGrammar grammar, int initialLanguage, Map<String, Integer> embeddedLanguages,
+			IGrammarRepository grammarRepository, IThemeProvider themeProvider) {
+		this._scopeMetadataProvider = new ScopeMetadataProvider(initialLanguage, themeProvider, embeddedLanguages);
 		this._rootId = -1;
 		this._lastRuleId = 0;
 		this._includedGrammars = new HashMap<String, IRawGrammar>();
@@ -68,6 +73,14 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		this._injections = null;
 	}
 
+	public void onDidChangeTheme() {
+		this._scopeMetadataProvider.onDidChangeTheme();
+	}
+	
+	public ScopeMetadata getMetadataForScope(String scope) {
+		return this._scopeMetadataProvider.getMetadataForScope(scope);
+	}
+	
 	public List<Injection> getInjections(StackElement states) {
 		if (this._injections == null) {
 			this._injections = new ArrayList<Injection>();
@@ -174,31 +187,56 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	@Override
 	public ITokenizeLineResult tokenizeLine(String lineText, StackElement prevState) {
+		return _tokenize(lineText, prevState, false);
+	}
+
+	@Override
+	public ITokenizeLineResult2 tokenizeLine2(String lineText) {
+		return tokenizeLine2(lineText, null);
+	}
+
+	@Override
+	public ITokenizeLineResult2 tokenizeLine2(String lineText, StackElement prevState) {
+		return _tokenize(lineText, prevState, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> T _tokenize(String lineText, StackElement prevState, boolean emitBinaryTokens) {
 		if (this._rootId == -1) {
 			this._rootId = RuleFactory.getCompiledRuleId(this._grammar.getRepository().getSelf(), this,
 					this._grammar.getRepository());
 		}
 
 		boolean isFirstLine;
-		if (prevState == null) {
+		if (prevState == null || prevState.equals(StackElement.NULL)) {
 			isFirstLine = true;
-			prevState = new StackElement(null, this._rootId, -1, null, this.getRule(this._rootId).getName(null, null),
-					null);
+			ScopeMetadata rawDefaultMetadata = this._scopeMetadataProvider.getDefaultMetadata();
+			ThemeTrieElementRule defaultTheme = rawDefaultMetadata.themeData.get(0);
+			int defaultMetadata = StackElementMetadata.set(0, rawDefaultMetadata.languageId, rawDefaultMetadata.tokenType, defaultTheme.fontStyle, defaultTheme.foreground, defaultTheme.background);
+
+			String rootScopeName = this.getRule(this._rootId).getName(null, null);
+			ScopeMetadata rawRootMetadata = this._scopeMetadataProvider.getMetadataForScope(rootScopeName);
+			int rootMetadata = ScopeListElement.mergeMetadata(defaultMetadata, null, rawRootMetadata);
+
+			ScopeListElement scopeList = new ScopeListElement(null, rootScopeName, rootMetadata);
+
+			prevState = new StackElement(null, this._rootId, -1, null, scopeList, scopeList);
 		} else {
 			isFirstLine = false;
 			prevState.reset();
 		}
-
+		
 		lineText = lineText + '\n';
 		OnigString onigLineText = GrammarHelper.createOnigString(lineText);
 		int lineLength = lineText.length();
-		LineTokens lineTokens = new LineTokens(this._grammarRepository.getLogger());
+		LineTokens lineTokens = new LineTokens(emitBinaryTokens, lineText, this._grammarRepository.getLogger());
 		StackElement nextState = LineTokenizer._tokenizeString(this, onigLineText, isFirstLine, 0, prevState,
 				lineTokens);
 
-		IToken[] _produced = lineTokens.getResult(nextState, lineLength);
-
-		return new TokenizeLineResult(_produced, nextState);
+		if (emitBinaryTokens) {
+			return (T) new TokenizeLineResult2(lineTokens.getBinaryResult(nextState, lineLength), nextState);
+		}
+		return (T) new TokenizeLineResult(lineTokens.getResult(nextState, lineLength), nextState);
 	}
 
 	@Override

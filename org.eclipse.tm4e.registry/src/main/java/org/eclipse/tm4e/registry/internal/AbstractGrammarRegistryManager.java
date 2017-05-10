@@ -18,7 +18,7 @@ import java.util.Collection;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.logger.ILogger;
-import org.eclipse.tm4e.core.registry.IGrammarLocator;
+import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
@@ -36,7 +36,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	protected final GrammarCache pluginCache;
 	protected final GrammarCache userCache;
 
-	private static class GrammarLocator implements IGrammarLocator {
+	private static class EclipseRegistryOptions implements IRegistryOptions {
 
 		private AbstractGrammarRegistryManager registry;
 
@@ -63,11 +63,11 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	};
 
 	public AbstractGrammarRegistryManager() {
-		this(new GrammarLocator(), GRAMMAR_LOGGER);
-		((GrammarLocator) getLocator()).setRegistry(this);
+		this(new EclipseRegistryOptions(), GRAMMAR_LOGGER);
+		((EclipseRegistryOptions) getLocator()).setRegistry(this);
 	}
 
-	public AbstractGrammarRegistryManager(IGrammarLocator locator, ILogger logger) {
+	public AbstractGrammarRegistryManager(IRegistryOptions locator, ILogger logger) {
 		super(locator, logger);
 		this.pluginCache = new GrammarCache();
 		this.userCache = new GrammarCache();

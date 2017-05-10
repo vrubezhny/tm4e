@@ -591,7 +591,8 @@
 						"value": "html",
 						"scopes": [
 							"text.jade",
-							"meta.tag.other entity.name.tag.jade"
+							"meta.tag.other",
+							"entity.name.tag.jade"
 						]
 					}
 				]
@@ -609,7 +610,8 @@
 						"value": "head",
 						"scopes": [
 							"text.jade",
-							"meta.tag.other entity.name.tag.jade"
+							"meta.tag.other",
+							"entity.name.tag.jade"
 						]
 					}
 				]

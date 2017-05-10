@@ -19,7 +19,7 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.registry.IGrammarLocator;
+import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
 
@@ -35,7 +35,7 @@ public class Angular2ViewerConfiguration extends SourceViewerConfiguration {
 	}
 
 	private IGrammar getGrammar() {
-		Registry registry = new Registry(new IGrammarLocator() {
+		Registry registry = new Registry(new IRegistryOptions() {
 
 			@Override
 			public InputStream getInputStream(String scopeName) throws IOException {

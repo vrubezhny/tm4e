@@ -19,6 +19,10 @@ import java.io.InputStream;
 
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 
+/**
+ * TextMate Grammar parser.
+ *
+ */
 public interface IGrammarParser {
 
 	IRawGrammar parse(InputStream contents) throws Exception;

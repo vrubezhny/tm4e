@@ -17,7 +17,7 @@ import java.util.Collection;
 
 import org.eclipse.tm4e.core.Data;
 import org.eclipse.tm4e.core.logger.SystemLogger;
-import org.eclipse.tm4e.core.registry.IGrammarLocator;
+import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class GrammarInjectionTest {
 
 	@Test
 	public void angular2TokenizeLine() throws Exception {
-		Registry registry = new Registry(new IGrammarLocator() {
+		Registry registry = new Registry(new IRegistryOptions() {
 
 			@Override
 			public InputStream getInputStream(String scopeName) throws IOException {

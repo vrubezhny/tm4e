@@ -17,12 +17,36 @@ package org.eclipse.tm4e.core.internal.grammar.reader;
 
 import java.io.InputStream;
 
-import org.eclipse.tm4e.core.internal.grammar.parser.json.JSONPListParser;
-import org.eclipse.tm4e.core.internal.grammar.parser.xml.XMLPListParser;
+import org.eclipse.tm4e.core.internal.parser.json.JSONPListParser;
+import org.eclipse.tm4e.core.internal.parser.xml.XMLPListParser;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 
+/**
+ * TextMate Grammar reader utilities.
+ *
+ */
 public class GrammarReader {
 
+	public final static IGrammarParser XML_PARSER = new IGrammarParser() {
+
+		private XMLPListParser<IRawGrammar> parser = new XMLPListParser<IRawGrammar>(false);
+
+		@Override
+		public IRawGrammar parse(InputStream contents) throws Exception {
+			return parser.parse(contents);
+		}
+	};
+
+	public final static IGrammarParser JSON_PARSER = new IGrammarParser() {
+
+		private JSONPListParser<IRawGrammar> parser = new JSONPListParser<IRawGrammar>(false);
+
+		@Override
+		public IRawGrammar parse(InputStream contents) throws Exception {
+			return parser.parse(contents);
+		}
+	};
+	
 	public static IRawGrammar readGrammarSync(String filePath, InputStream in) throws Exception {
 		SyncGrammarReader reader = new SyncGrammarReader(in, getGrammarParser(filePath));
 		return reader.load();
@@ -30,8 +54,8 @@ public class GrammarReader {
 
 	private static IGrammarParser getGrammarParser(String filePath) {
 		if (filePath.endsWith(".json")) {
-			return JSONPListParser.INSTANCE;
+			return JSON_PARSER;
 		}
-		return XMLPListParser.INSTANCE;
+		return XML_PARSER;
 	}
 }

@@ -15,14 +15,18 @@
  */
 package org.eclipse.tm4e.core.grammar;
 
+import java.util.Map;
+
 import org.eclipse.tm4e.core.internal.grammar.Grammar;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigString;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
+import org.eclipse.tm4e.core.theme.IThemeProvider;
 
 public class GrammarHelper {
 
-	public static IGrammar createGrammar(IRawGrammar rawGrammar, IGrammarRepository repository) {
-		return new Grammar(rawGrammar, repository);
+	public static IGrammar createGrammar(IRawGrammar grammar, int initialLanguage,
+			Map<String, Integer> embeddedLanguages, IGrammarRepository repository, IThemeProvider themeProvider) {
+		return new Grammar(grammar, initialLanguage, embeddedLanguages, repository, themeProvider);
 	}
 
 	public static OnigString createOnigString(String str) {

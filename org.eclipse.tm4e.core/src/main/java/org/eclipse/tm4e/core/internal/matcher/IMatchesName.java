@@ -26,7 +26,7 @@ public interface IMatchesName<T> {
 
 		@Override
 		public boolean match(Collection<String> identifers, StackElement stackElements) {
-			List<String> scopes = stackElements.generateScopes();
+			List<String> scopes = stackElements.contentNameScopesList.generateScopes();
 			int lastIndex = 0;
 			// every
 			for (String identifier : identifers) {

@@ -18,29 +18,49 @@ package org.eclipse.tm4e.core.internal.grammars;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.tm4e.core.grammar.GrammarHelper;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IGrammarRepository;
+import org.eclipse.tm4e.core.internal.grammar.Grammar;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
 import org.eclipse.tm4e.core.logger.ILogger;
+import org.eclipse.tm4e.core.theme.IThemeProvider;
+import org.eclipse.tm4e.core.theme.Theme;
+import org.eclipse.tm4e.core.theme.ThemeTrieElementRule;
 
-public class SyncRegistry implements IGrammarRepository {
+public class SyncRegistry implements IGrammarRepository, IThemeProvider {
 
 	private final ILogger logger;
 	private final Map<String, IGrammar> _grammars;
 	private final Map<String, IRawGrammar> _rawGrammars;
 	private final Map<String, Collection<String>> _injectionGrammars;
+	private Theme _theme;
 
-	public SyncRegistry(ILogger logger) {
+	public SyncRegistry(Theme theme, ILogger logger) {
+		this._theme = theme;
 		this.logger = logger;
 		this._grammars = new HashMap<>();
 		this._rawGrammars = new HashMap<>();
 		this._injectionGrammars = new HashMap<>();
+	}
+
+	public void setTheme(Theme theme) {
+		this._theme = theme;
+		this._grammars.keySet().forEach((scopeName) -> {
+			IGrammar grammar = this._grammars.get(scopeName);
+			((Grammar) grammar).onDidChangeTheme();
+		});
+	}
+
+	public Set<String> getColorMap() {
+		return this._theme.getColorMap();
 	}
 
 	/**
@@ -58,6 +78,53 @@ public class SyncRegistry implements IGrammarRepository {
 			});
 		}
 		return includedScopes;
+	}
+
+	@Override
+	public IRawGrammar lookup(String scopeName) {
+		return this._rawGrammars.get(scopeName);
+	}
+
+	@Override
+	public Collection<String> injections(String targetScope) {
+		return this._injectionGrammars.get(targetScope);
+	}
+
+	/**
+	 * Get the default theme settings
+	 */
+	@Override
+	public ThemeTrieElementRule getDefaults() {
+		return this._theme.getDefaults();
+	}
+
+	/**
+	 * Match a scope in the theme.
+	 */
+	@Override
+	public List<ThemeTrieElementRule> themeMatch(String scopeName) {
+		return this._theme.match(scopeName);
+	}
+
+	/**
+	 * Lookup a grammar.
+	 */
+	public IGrammar grammarForScopeName(String scopeName, int initialLanguage,
+			Map<String, Integer> embeddedLanguages) {
+		if (!this._grammars.containsKey(scopeName)) {
+			IRawGrammar rawGrammar = lookup(scopeName);
+			if (rawGrammar == null) {
+				return null;
+			}
+			this._grammars.put(scopeName,
+					GrammarHelper.createGrammar(rawGrammar, initialLanguage, embeddedLanguages, this, this));
+		}
+		return this._grammars.get(scopeName);
+	}
+
+	@Override
+	public ILogger getLogger() {
+		return logger;
 	}
 
 	private static void collectIncludedScopes(Collection<String> result, IRawGrammar grammar) {
@@ -131,32 +198,4 @@ public class SyncRegistry implements IGrammarRepository {
 		}
 	}
 
-	@Override
-	public IRawGrammar lookup(String scopeName) {
-		return this._rawGrammars.get(scopeName);
-	}
-
-	/**
-	 * Lookup a grammar.
-	 */
-	public IGrammar grammarForScopeName(String scopeName) {
-		if (!this._grammars.containsKey(scopeName)) {
-			IRawGrammar rawGrammar = lookup(scopeName);
-			if (rawGrammar == null) {
-				return null;
-			}
-			this._grammars.put(scopeName, GrammarHelper.createGrammar(rawGrammar, this));
-		}
-		return this._grammars.get(scopeName);
-	}
-
-	@Override
-	public Collection<String> injections(String targetScope) {
-		return this._injectionGrammars.get(targetScope);
-	}
-
-	@Override
-	public ILogger getLogger() {
-		return logger;
-	}
 }

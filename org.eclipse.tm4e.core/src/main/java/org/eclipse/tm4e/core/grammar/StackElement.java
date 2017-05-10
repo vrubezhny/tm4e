@@ -18,195 +18,179 @@ package org.eclipse.tm4e.core.grammar;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.tm4e.core.internal.grammar.ScopeListElement;
 import org.eclipse.tm4e.core.internal.rule.IRuleRegistry;
 import org.eclipse.tm4e.core.internal.rule.Rule;
 
 /**
- * 
+ * Represents a "pushed" state on the stack (as a linked list element).
+ *
  * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/grammar.ts
  *
  */
 public class StackElement {
-
-	public final StackElement _parent;
-	private final int ruleId;
-	private int enterPos;
-	private String endRule;
-	private final String scopeName;
-	private String contentName;
-
-	public StackElement(StackElement parent, int ruleId, int enterPos, String endRule, String scopeName,
-			String contentName) {
-		this._parent = parent;
-		this.ruleId = ruleId;
-		this.enterPos = enterPos;
-		this.endRule = endRule;
-		this.scopeName = scopeName;
-		this.contentName = contentName;
-	}
-
-	public boolean matches(String scopeName) {
-		if (this.scopeName == null) {
-			return false;
-		}
-		if (this.scopeName.equals(scopeName)) {
-			return true;
-		}
-		int len = scopeName.length();
-		return this.scopeName.length() > len && this.scopeName.substring(0, len).equals(scopeName)
-				&& this.scopeName.charAt(len) == '.';
-	}
-
-	public void setEnterPos(int enterPos) {
-		this.enterPos = enterPos;
-	}
-
-	public int getEnterPos() {
-		return enterPos;
-	}
-
-	public String getScopeName() {
-		return scopeName;
-	}
-
-	public String getContentName() {
-		return contentName;
-	}
-
-	public int getRuleId() {
-		return ruleId;
-	}
-
-	public String getEndRule() {
-		return endRule;
-	}
-
-	public void setEndRule(String endRule) {
-		this.endRule = endRule;
-	}
-
-	public void setContentName(String contentName) {
-		this.contentName = contentName;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof StackElement)) {
-			return false;
-		}
-		StackElement other = (StackElement) obj;
-		if (!this._shallowEquals(other)) {
-			return false;
-		}
-		if (this._parent == null && other._parent == null) {
-			return true;
-		}
-		if (this._parent == null || other._parent == null) {
-			return false;
-		}
-		return this._parent.equals(other._parent);
-	}
 	
-	@Override
-	public int hashCode() {
-		int res = this.ruleId;
-		StringBuilder builder = new StringBuilder();
-		builder.append(this.endRule);
-		builder.append(this.scopeName);
-		builder.append(this.contentName);
-		res ^= builder.toString().hashCode();
-		if (this._parent != null) {
-			res ^= this._parent.hashCode();
-		}
-		return res;
-	}
+	//_stackElementBrand: void;
 
-	private boolean _shallowEquals(StackElement other) {
-		return (this.ruleId == other.ruleId && this.endRule == other.endRule
-				&& isEquals(this.scopeName, other.scopeName) && isEquals(this.contentName, other.contentName));
-	}
+	public static final StackElement NULL = new StackElement(null, 0, 0, null, null, null);
 
-	private boolean isEquals(String s1, String s2) {
-		if (s1 == null) {
-			return s2 == null;
-		}
-		return s1.equals(s2);
-	}
+	/**
+	 * The position on the current line where this state was pushed.
+	 * This is relevant only while tokenizing a line, to detect endless loops.
+	 * Its value is meaningless across lines.
+	 */
+	private int _enterPos;
 
-	public void reset() {
-		this.enterPos = -1;
-		if (this._parent != null) {
-			this._parent.reset();
-		}
-	}
+	/**
+	 * The previous state on the stack (or null for the root state).
+	 */
+	public final StackElement parent;
+	/**
+	 * The depth of the stack.
+	 */
+	public final int depth;
 
-	public StackElement pop() {
-		return this._parent;
-	}
+	/**
+	 * The state (rule) that this element represents.
+	 */
+	public final int ruleId;
+	/**
+	 * The "pop" (end) condition for this state in case that it was dynamically generated through captured text.
+	 */
+	public final String endRule;
+	/**
+	 * The list of scopes containing the "name" for this state.
+	 */
+	public final ScopeListElement nameScopesList;
+	/**
+	 * The list of scopes containing the "contentName" (besides "name") for this state.
+	 * This list **must** contain as an element `scopeName`.
+	 */
+	public final ScopeListElement contentNameScopesList;
 
-	public StackElement safePop() {
-		if (this._parent != null) {
-			return this._parent;
-		}
-		return this;
-	}
-
-	public StackElement pushElement(StackElement what) {
-		return this.push(what.ruleId, what.enterPos, what.endRule, what.scopeName, what.contentName);
-	}
-
-	public StackElement push(int ruleId, int enterPos, String endRule, String scopeName, String contentName) {
-		return new StackElement(this, ruleId, enterPos, endRule, scopeName, contentName);
-	}
-
-	public StackElement withContentName(String contentName) {
-		if (isEquals(this.contentName, contentName)) {
-			return this;
-		}
-		return new StackElement(this._parent, this.ruleId, this.enterPos, this.endRule, this.scopeName, contentName);
-	}
-
-	public StackElement withEndRule(String endRule) {
-		if (isEquals(this.endRule, endRule)) {
-			return this;
-		}
-		return new StackElement(this._parent, this.ruleId, this.enterPos, endRule, this.scopeName, this.contentName);
-	}
-
-	private int _writeScopes(List<String> scopes, int outIndex) {
-		if (this._parent != null) {
-			outIndex = this._parent._writeScopes(scopes, outIndex);
-		}
-
-		if (this.scopeName != null) {
-			// scopes[outIndex++] = this.scopeName;
-			outIndex++;
-			scopes.add(this.scopeName);
-		}
-
-		if (this.contentName != null) {
-			outIndex++;
-			// scopes[outIndex++] = this.contentName;
-			scopes.add(this.contentName);
-		}
-
-		return outIndex;
+	public StackElement(StackElement parent, int ruleId, int enterPos, String endRule, ScopeListElement nameScopesList, ScopeListElement contentNameScopesList) {
+		this.parent = parent;
+		this.depth = (this.parent != null ? this.parent.depth + 1 : 1);
+		this.ruleId = ruleId;
+		this._enterPos = enterPos;
+		this.endRule = endRule;
+		this.nameScopesList = nameScopesList;
+		this.contentNameScopesList = contentNameScopesList;
 	}
 
 	/**
-	 * Token scopes
+	 * A structural equals check. Does not take into account `scopes`.
 	 */
-	public List<String> generateScopes() {
-		List<String> result = new ArrayList<>();
-		this._writeScopes(result, 0);
-		return result;
+	private static boolean _structuralEquals(StackElement a, StackElement b) {
+		do {
+			if (a == b) {
+				return true;
+			}
+
+			if (a.depth != b.depth || a.ruleId != b.ruleId || a.endRule != b.endRule) {
+				return false;
+			}
+
+			// Go to previous pair
+			a = a.parent;
+			b = b.parent;
+
+			if (a == null && b == null) {
+				// End of list reached for both
+				return true;
+			}
+
+			if (a == null || b == null) {
+				// End of list reached only for one
+				return false;
+			}
+
+		} while (true);
+	}
+ 
+	private static boolean _equals(StackElement a, StackElement b) {
+		if (a == b) {
+			return true;
+		}
+		if (!_structuralEquals(a, b)) {
+			return false;
+		}
+		return a.contentNameScopesList.equals(b.contentNameScopesList);
 	}
 
-	public boolean hasSameRuleAs(StackElement other) {
-		return this.ruleId == other.ruleId;
+	public StackElement clone() {
+		return this;
+	}	
+	
+	public boolean equals(StackElement other) {
+		if (other == null) {
+			return false;
+		}
+		return StackElement._equals(this, other);
+	}
+
+	private static void _reset(StackElement el) {
+		while (el != null) {
+			el._enterPos = -1;
+			el = el.parent;
+		}
+	}
+
+	public void reset() {
+		StackElement._reset(this);
+	}
+
+	public StackElement pop() {
+		return this.parent;
+	}
+
+	public StackElement safePop() {
+		if (this.parent != null) {
+			return this.parent;
+		}
+		return this;
+	}
+	
+	public StackElement push(int ruleId, int enterPos, String endRule, ScopeListElement nameScopesList, ScopeListElement contentNameScopesList) {
+		return new StackElement(this, ruleId, enterPos, endRule, nameScopesList, contentNameScopesList);
+	}
+
+	public int getEnterPos() {
+		return this._enterPos;
 	}
 
 	public Rule getRule(IRuleRegistry grammar) {
 		return grammar.getRule(this.ruleId);
 	}
-}
+
+	private void _writeString(List<String> res) {
+		if (this.parent != null) {
+			this.parent._writeString(res);
+		}
+		String s = "(" + this.ruleId + ")"; //, TODO-${this.nameScopesList}, TODO-${this.contentNameScopesList})`;
+		res.add(s);
+	}
+
+	public String toString() {
+		List<String> r = new ArrayList<>();
+		this._writeString(r);
+		return '[' + String.join(", ", r) + ']';
+	}
+
+	public StackElement setContentNameScopesList(ScopeListElement contentNameScopesList) {
+		if (this.contentNameScopesList.equals(contentNameScopesList)) {
+			return this;
+		}
+		return this.parent.push(this.ruleId, this._enterPos, this.endRule, this.nameScopesList, contentNameScopesList);
+	}
+
+	public StackElement setEndRule(String endRule) {
+		if (this.endRule != null && this.endRule.equals(endRule)) {
+			return this;
+		}
+		return new StackElement(this.parent, this.ruleId, this._enterPos, endRule, this.nameScopesList, this.contentNameScopesList);
+	}
+
+	public boolean hasSameRuleAs(StackElement other) {
+		return this.ruleId == other.ruleId;
+	}}

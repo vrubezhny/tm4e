@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.core.internal.grammar.parser.json;
 
+import org.eclipse.tm4e.core.internal.grammar.reader.GrammarReader;
 import org.eclipse.tm4e.core.internal.grammar.reader.IGrammarParser;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.junit.Test;
@@ -18,7 +19,7 @@ public class JSONPListParserTest {
 
 	@Test
 	public void testCsharp() throws Exception {
-		IGrammarParser parser = JSONPListParser.INSTANCE;
+		IGrammarParser parser = GrammarReader.JSON_PARSER;
 		IRawGrammar grammar = parser.parse(JSONPListParserTest.class.getResourceAsStream("csharp.json"));
 		System.err.println(grammar);
 	}
