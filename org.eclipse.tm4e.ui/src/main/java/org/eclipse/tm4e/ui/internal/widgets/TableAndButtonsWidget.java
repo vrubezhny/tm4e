@@ -41,6 +41,8 @@ public class TableAndButtonsWidget extends Composite {
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
 		super.setLayout(layout);
 		super.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		createUI(title, this);
@@ -51,22 +53,26 @@ public class TableAndButtonsWidget extends Composite {
 		createTitle(title, ancestor);
 
 		// Table
-		Composite parent = new Composite(ancestor, SWT.NONE);
+		Composite tableComposite = new Composite(ancestor, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
-		parent.setLayout(layout);
-		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		createTable(parent);
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
+		tableComposite.setLayout(layout);
+		tableComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		createTable(tableComposite);
 
 		// Buttons
-		Composite buttons = new Composite(ancestor, SWT.NONE);
-		buttons.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING));
+		Composite buttonsComposite = new Composite(ancestor, SWT.NONE);
 		layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
-		buttons.setLayout(layout);
-		createButtons(buttons);
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
+		buttonsComposite.setLayout(layout);
+		buttonsComposite.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING | GridData.FILL_VERTICAL));
+		createButtons(buttonsComposite);
 	}
 
 	private void createTitle(String title, Composite ancestor) {

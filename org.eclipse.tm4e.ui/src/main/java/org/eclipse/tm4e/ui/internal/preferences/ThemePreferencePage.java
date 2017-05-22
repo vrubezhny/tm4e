@@ -267,11 +267,21 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 	 * 
 	 * @param parent
 	 */
-	private void createThemeAssociationsContent(Composite parent) {
-		themeAssociationsWidget = new ThemeAssociationsWidget(parent, SWT.NONE);
+	private void createThemeAssociationsContent(Composite ancestor) {
+		Composite parent = new Composite(ancestor, SWT.NONE);
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
-		themeAssociationsWidget.setLayoutData(data);
+		parent.setLayoutData(data);
+		
+		GridLayout layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
+		parent.setLayout(layout);
+		
+		themeAssociationsWidget = new ThemeAssociationsWidget(parent, SWT.NONE);
+		themeAssociationsWidget.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		themeAssociationsWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override
 			public void selectionChanged(SelectionChangedEvent e) {
@@ -290,6 +300,7 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
 		parent.setLayoutData(data);
+		
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;

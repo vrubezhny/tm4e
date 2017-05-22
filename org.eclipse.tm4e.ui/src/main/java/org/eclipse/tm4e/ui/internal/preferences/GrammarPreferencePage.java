@@ -377,7 +377,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	 */
 	private void createGrammarDetailContent(Composite parent) {
 		TabFolder folder = new TabFolder(parent, SWT.NONE);
-		// folder.setLayout(new GridLayout());
+
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
 		folder.setLayoutData(gd);
@@ -397,12 +397,14 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		TabItem tab = new TabItem(folder, SWT.NONE);
 		tab.setText(TMUIMessages.GrammarPreferencePage_tab_general_text);
 
-		grammarInfoWidget = new GrammarInfoWidget(folder, SWT.NONE);
-		GridData data = new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalSpan = 2;
-		grammarInfoWidget.setLayoutData(data);
+		Composite parent = new Composite(folder, SWT.NONE);
+		parent.setLayout(new GridLayout());
+		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		tab.setControl(grammarInfoWidget);
+		grammarInfoWidget = new GrammarInfoWidget(parent, SWT.NONE);
+		grammarInfoWidget.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		tab.setControl(parent);
 
 	}
 
@@ -415,12 +417,14 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		TabItem tab = new TabItem(folder, SWT.NONE);
 		tab.setText(TMUIMessages.GrammarPreferencePage_tab_contentType_text);
 
-		contentTypesWidget = new ContentTypesBindingWidget(folder, SWT.NONE);
-		GridData data = new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalSpan = 2;
-		contentTypesWidget.setLayoutData(data);
+		Composite parent = new Composite(folder, SWT.NONE);
+		parent.setLayout(new GridLayout());
+		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-		tab.setControl(contentTypesWidget);
+		contentTypesWidget = new ContentTypesBindingWidget(parent, SWT.NONE);
+		contentTypesWidget.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		tab.setControl(parent);
 	}
 
 	/**
@@ -432,7 +436,11 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		TabItem tab = new TabItem(folder, SWT.NONE);
 		tab.setText(TMUIMessages.GrammarPreferencePage_tab_theme_text);
 
-		themeAssociationsWidget = new ThemeAssociationsWidget(folder, SWT.NONE);
+		Composite parent = new Composite(folder, SWT.NONE);
+		parent.setLayout(new GridLayout());
+		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		themeAssociationsWidget = new ThemeAssociationsWidget(parent, SWT.NONE);
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
 		themeAssociationsWidget.setLayoutData(data);
@@ -452,7 +460,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 			}
 		});
 
-		tab.setControl(themeAssociationsWidget);
+		tab.setControl(parent);
 	}
 
 	/**
@@ -463,6 +471,14 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	private void createInjectionTab(TabFolder folder) {
 		TabItem tab = new TabItem(folder, SWT.NONE);
 		tab.setText(TMUIMessages.GrammarPreferencePage_tab_injection_text);
+		
+		Composite parent = new Composite(folder, SWT.NONE);
+		parent.setLayout(new GridLayout());
+		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		// TODO: manage UI injection
+		
+		tab.setControl(parent);
 	}
 
 	private int computeMinimumColumnWidth(GC gc, String string) {

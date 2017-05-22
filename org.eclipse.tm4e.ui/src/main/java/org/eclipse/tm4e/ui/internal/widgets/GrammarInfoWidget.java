@@ -34,18 +34,25 @@ public class GrammarInfoWidget extends Composite {
 
 	public GrammarInfoWidget(Composite parent, int style) {
 		super(parent, style);
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
 		super.setLayout(layout);
-		super.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		super.setLayoutData(new GridData(GridData.FILL_BOTH));
 		createUI(this);
 	}
 
 	private void createUI(Composite ancestor) {
 		Composite parent = new Composite(ancestor, SWT.NONE);
-		parent.setLayout(new GridLayout(2, false));
-		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
+		parent.setLayout(layout);
+		parent.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		Label grammarNameLabel = new Label(parent, SWT.NONE);
 		grammarNameLabel.setText(TMUIMessages.GrammarInfoWidget_name_text);
