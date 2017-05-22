@@ -85,16 +85,16 @@
          point="org.eclipse.ui.genericeditor.presentationReconcilers">
       <presentationReconciler
             class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
-            contentType="org.eclipse.languageserver.languages.csharp">
+            contentType="org.eclipse.tm4e.samples.csharp">
       </presentationReconciler>
       <presentationReconciler
             class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
-            contentType="org.eclipse.languageserver.languages.json">
+            contentType="org.eclipse.tm4e.samples.json">
       </presentationReconciler>
       <presentationReconciler
             class="org.eclipse.tm4e.ui.text.TMPresentationReconciler"
-            contentType="org.eclipse.languageserver.languages.css">
-      </presentationReconciler>      
+            contentType="org.eclipse.tm4e.samples.css">
+      </presentationReconciler>
    </extension>
   
    <!-- TypeScript Editor -->
