@@ -38,33 +38,33 @@ public class TableAndButtonsWidget extends Composite {
 
 	public TableAndButtonsWidget(Composite parent, int style, String title) {
 		super(parent, style);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
-		layout.marginLeft = 0;
-		layout.marginRight = 0;
-		super.setLayout(layout);
-		super.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		createUI(title, this);
-	}
-
-	private void createUI(String title, Composite ancestor) {
-		// Title
-		createTitle(title, ancestor);
-
-		// Table
-		Composite tableComposite = new Composite(ancestor, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		layout.marginLeft = 0;
 		layout.marginRight = 0;
-		tableComposite.setLayout(layout);
-		tableComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		createTable(tableComposite);
+		super.setLayout(layout);
+		createUI(title, this);
+	}
+
+	private void createUI(String title, Composite ancestor) {
+		Composite parent = new Composite(ancestor, SWT.NONE);
+		GridLayout layout = new GridLayout(2, false);
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.marginLeft = 0;
+		layout.marginRight = 0;
+		parent.setLayout(layout);
+		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
+		// Title
+		createTitle(title, parent);
+
+		// Table
+		createTable(parent);
 
 		// Buttons
-		Composite buttonsComposite = new Composite(ancestor, SWT.NONE);
+		Composite buttonsComposite = new Composite(parent, SWT.NONE);
 		layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
@@ -92,11 +92,12 @@ public class TableAndButtonsWidget extends Composite {
 		table.setLinesVisible(false);
 
 		viewer = new TableViewer(table);
-		viewer.getControl().setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		table.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		
 	}
 
-	private void createButtons(Composite buttons) {
-		newButton = new Button(buttons, SWT.PUSH);
+	private void createButtons(Composite parent) {
+		newButton = new Button(parent, SWT.PUSH);
 		newButton.setText(TMUIMessages.Button_new);
 		newButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		newButton.addListener(SWT.Selection, new Listener() {
@@ -107,7 +108,7 @@ public class TableAndButtonsWidget extends Composite {
 		});
 		newButton.setEnabled(false);
 
-		removeButton = new Button(buttons, SWT.PUSH);
+		removeButton = new Button(parent, SWT.PUSH);
 		removeButton.setText(TMUIMessages.Button_remove);
 		removeButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		removeButton.addListener(SWT.Selection, new Listener() {

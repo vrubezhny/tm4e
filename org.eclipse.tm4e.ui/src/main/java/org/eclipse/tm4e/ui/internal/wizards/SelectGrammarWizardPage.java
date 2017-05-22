@@ -44,6 +44,8 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 
 	private static final String PAGE_NAME = SelectGrammarWizardPage.class.getName();
 
+	protected static final String[] TEXTMATE_EXTENSIONS = new String[] {"*.tmLanguage","*.json"};
+
 	private Button browseFileSystemButton;
 	private Button browseWorkspaceButton;
 
@@ -84,6 +86,7 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				FileDialog dialog = new FileDialog(parent.getShell());
+				dialog.setFilterExtensions(TEXTMATE_EXTENSIONS);
 				dialog.setFilterPath(grammarFileText.getText());
 				String result = dialog.open();
 				if (result != null && result.length() > 0) {
@@ -106,18 +109,6 @@ public class SelectGrammarWizardPage extends AbstractWizardPage {
 		data.horizontalSpan = 2;
 		grammarInfoWidget.setLayoutData(data);
 	}
-
-	/**
-	 * Create scopeName ContentType Binding content.
-	 * 
-	 * @param parent
-	 */
-	/*
-	 * private void createContentTypeBindingContent(Composite parent) {
-	 * contentTypesWidget = new ContentTypesBindingWidget(parent, SWT.NONE);
-	 * GridData data = new GridData(GridData.FILL_HORIZONTAL);
-	 * data.horizontalSpan = 2; contentTypesWidget.setLayoutData(data); }
-	 */
 
 	private Text createText(Composite parent, String s) {
 		Label label = new Label(parent, SWT.NONE);
