@@ -12,11 +12,10 @@
  * Contributors:
  *  - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ *  - Fabio Zadrozny <fabiofz@gmail.com> - Convert uniqueId to Object (for identity compare)
  */
- 
-package org.eclipse.tm4e.core.internal.oniguruma;
 
-import java.util.UUID;
+package org.eclipse.tm4e.core.internal.oniguruma;
 
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Matcher;
@@ -27,13 +26,13 @@ import org.joni.Syntax;
 import org.joni.WarnCallback;
 
 /**
- * 
+ *
  * @see https://github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc
  *
  */
 public class OnigRegExp {
 
-	private UUID lastSearchStrUniqueId;
+	private Object lastSearchStrUniqueId;
 	private int lastSearchPosition;
 	private OnigResult lastSearchResult;
 	private Regex regex;

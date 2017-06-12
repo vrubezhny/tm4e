@@ -12,6 +12,7 @@
  * Contributors:
  *  - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ *  - Fabio Zadrozny <fabiofz@gmail.com> - Not adding '\n' on tokenize if it already finished with '\n'
  */
 package org.eclipse.tm4e.core.internal.grammar;
 
@@ -46,7 +47,7 @@ import org.eclipse.tm4e.core.theme.ThemeTrieElementRule;
 
 /**
  * TextMate grammar implementation.
- * 
+ *
  * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/grammar.ts
  *
  */
@@ -76,11 +77,11 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	public void onDidChangeTheme() {
 		this._scopeMetadataProvider.onDidChangeTheme();
 	}
-	
+
 	public ScopeMetadata getMetadataForScope(String scope) {
 		return this._scopeMetadataProvider.getMetadataForScope(scope);
 	}
-	
+
 	public List<Injection> getInjections(StackElement states) {
 		if (this._injections == null) {
 			this._injections = new ArrayList<Injection>();
@@ -225,8 +226,11 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			isFirstLine = false;
 			prevState.reset();
 		}
-		
-		lineText = lineText + '\n';
+
+		if(lineText.isEmpty() || lineText.charAt(lineText.length()-1) != '\n') {
+			// Only add \n if the passed lineText didn't have it.
+			lineText += '\n';
+		}
 		OnigString onigLineText = GrammarHelper.createOnigString(lineText);
 		int lineLength = lineText.length();
 		LineTokens lineTokens = new LineTokens(emitBinaryTokens, lineText, this._grammarRepository.getLogger());
