@@ -35,7 +35,7 @@ import junit.framework.TestSuite;
  *
  */
 @RunWith(AllTests.class)
-public class VSCodeTextMateTest {
+public class GrammarSuiteTest {
 
 	private static final File REPO_ROOT = new File("src/test/resources");
 

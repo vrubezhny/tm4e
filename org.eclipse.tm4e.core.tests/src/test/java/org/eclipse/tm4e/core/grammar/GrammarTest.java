@@ -22,7 +22,7 @@ import org.junit.Test;
  * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/tests/grammar.test.ts
  *
  */
-public class VSCodeGrammarTest {
+public class GrammarTest {
 
 	@Test
 	public void testWorks() {
