@@ -12,34 +12,37 @@
  * Contributors:
  *  - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
+ *  - Fabio Zadrozny <fabiofz@gmail.com> - Convert uniqueId to Object (for identity compare)
  */
- 
+
 package org.eclipse.tm4e.core.internal.oniguruma;
 
 import java.nio.charset.Charset;
-import java.util.UUID;
 
 /**
  * Oniguruma string.
- * 
+ *
  * @see https://github.com/atom/node-oniguruma/blob/master/src/onig-string.cc
  *
  */
 public class OnigString {
 
 	private static final String UTF_8 = "UTF-8";
-	
+
 	private final String str;
 	private byte[] value;
-	private UUID uniqueId;
+	private Object uniqueId;
 
 	public OnigString(String str) {
 		this.str = str;
 		this.value = str.getBytes(Charset.forName(UTF_8));
-		this.uniqueId = UUID.randomUUID();
+		this.uniqueId = new Object();
 	}
 
-	public UUID uniqueId() {
+	/**
+	 * An object to be compared by identity.
+	 */
+	public Object uniqueId() {
 		return uniqueId;
 	}
 
