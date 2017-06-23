@@ -51,8 +51,7 @@ public class GrammarRegistryManager extends AbstractGrammarRegistryManager {
 	private GrammarRegistryManager() {
 	}
 
-	@Override
-	public void load() {
+	private void load() {
 		loadGrammarsFromExtensionPoints();
 		loadGrammarsFromPreferences();
 	}
@@ -86,7 +85,7 @@ public class GrammarRegistryManager extends AbstractGrammarRegistryManager {
 		// Load grammar definitions from the
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.registry.prefs"
 		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
-		String json = prefs.get(PreferenceConstants.GRAMMAR, null);
+		String json = prefs.get(PreferenceConstants.GRAMMARS, null);
 		if (json != null) {
 			IGrammarDefinition[] definitions = PreferenceHelper.loadGrammars(json);
 			for (IGrammarDefinition definition : definitions) {
@@ -101,7 +100,7 @@ public class GrammarRegistryManager extends AbstractGrammarRegistryManager {
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.registry.prefs"
 		String json = PreferenceHelper.toJson(userCache.getDefinitions());
 		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMEclipseRegistryPlugin.PLUGIN_ID);
-		prefs.put(PreferenceConstants.GRAMMAR, json);
+		prefs.put(PreferenceConstants.GRAMMARS, json);
 		prefs.flush();
 	}
 

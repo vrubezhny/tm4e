@@ -65,10 +65,17 @@ public class TMUIMessages extends NLS {
 	public static String SelectGrammarWizardPage_file_error_load;
 	public static String SelectGrammarWizardPage_file_error_invalid;
 
+	public static String CreateThemeAssociationWizardPage_title;
+	public static String CreateThemeAssociationWizardPage_description;
+	public static String CreateThemeAssociationWizardPage_theme_text;
+	public static String CreateThemeAssociationWizardPage_grammar_text;
+	public static String CreateThemeAssociationWizardPage_e4Theme_text;
+	public static String CreateThemeAssociationWizardPage_theme_error_required;
+	public static String CreateThemeAssociationWizardPage_grammar_error_required;
+	
 	// TMPresentationReconciler register dialog confirmation
 	public static String TMPresentationReconciler_register_dialog_title;
 	public static String TMPresentationReconciler_register_dialog_message;
-
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, TMUIMessages.class);

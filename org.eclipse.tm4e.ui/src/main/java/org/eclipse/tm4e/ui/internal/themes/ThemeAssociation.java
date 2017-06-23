@@ -8,11 +8,29 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
+/**
+ *  Copyright (c) 2015-2017 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
 package org.eclipse.tm4e.ui.internal.themes;
-
-import org.eclipse.tm4e.ui.themes.ITheme;
+/**
+ *  Copyright (c) 2015-2017 Angelo ZERR.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ */
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
-import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
  * Theme association implementation.
@@ -20,19 +38,40 @@ import org.eclipse.tm4e.ui.themes.IThemeManager;
  */
 public class ThemeAssociation implements IThemeAssociation {
 
-	private final String themeId;
-	private final String eclipseThemeId;
-	private final String scopeName;
-	private final boolean defaultAssociation;
-	private final IThemeManager themeManager;
+	private static final String ECLIPSE_THEME_ID_ATTR = "eclipseThemeId"; //$NON-NLS-1$
+	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
+	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
+	private static final String DEFAULT_ATTR = "default"; //$NON-NLS-1$
 
-	public ThemeAssociation(String themeId, String eclipseThemeId, String scopeName, boolean defaultAssociation,
-			IThemeManager themeManager) {
+	private String themeId;
+	private String eclipseThemeId;
+	private String scopeName;
+	private boolean defaultAssociation;
+	private String pluginId;
+
+	/**
+	 * Constructor for user preferences (loaded from Json with Gson).
+	 */
+	public ThemeAssociation() {
+		super();
+	}
+
+	public ThemeAssociation(String themeId, String eclipseThemeId, String scopeName, boolean defaultAssociation) {
 		this.themeId = themeId;
 		this.eclipseThemeId = eclipseThemeId;
 		this.scopeName = scopeName;
-		this.themeManager = themeManager;
 		this.defaultAssociation = defaultAssociation;
+	}
+
+	public ThemeAssociation(IConfigurationElement ce) {
+		this(ce.getAttribute(THEME_ID_ATTR), ce.getAttribute(ECLIPSE_THEME_ID_ATTR), ce.getAttribute(SCOPE_NAME_ATTR),
+				"true".equals(ce.getAttribute(DEFAULT_ATTR)));
+		this.pluginId = ce.getNamespaceIdentifier();
+	}
+
+	@Override
+	public String getPluginId() {
+		return pluginId;
 	}
 
 	@Override
@@ -48,11 +87,6 @@ public class ThemeAssociation implements IThemeAssociation {
 	@Override
 	public String getScopeName() {
 		return scopeName;
-	}
-
-	@Override
-	public ITheme getTheme() {
-		return themeManager.getThemeById(getThemeId());
 	}
 
 	@Override

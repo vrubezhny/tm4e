@@ -280,7 +280,7 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 		layout.marginRight = 0;
 		parent.setLayout(layout);
 
-		themeAssociationsWidget = new ThemeAssociationsWidget(parent, SWT.NONE);
+		themeAssociationsWidget = new ThemeAssociationsWidget(themeManager, parent, SWT.NONE);
 		themeAssociationsWidget.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		themeAssociationsWidget.addSelectionChangedListener(new ISelectionChangedListener() {
 			@Override

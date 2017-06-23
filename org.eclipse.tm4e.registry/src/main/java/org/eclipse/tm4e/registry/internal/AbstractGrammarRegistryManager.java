@@ -117,20 +117,6 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	}
 
 	/**
-	 * Register a grammar definition.
-	 * 
-	 * @param definition
-	 *            the grammar definition to register.
-	 */
-	public void registerGrammarDefinition(IGrammarDefinition definition) {
-		if (definition.getPluginId() == null) {
-			userCache.registerGrammarDefinition(definition);
-		} else {
-			pluginCache.registerGrammarDefinition(definition);
-		}
-	}
-
-	/**
 	 * Returns the whole registered grammar definition.
 	 * 
 	 * @return
@@ -220,12 +206,20 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	}
 
 	@Override
-	public void addGrammarDefinition(IGrammarDefinition definition) {
-		userCache.registerGrammarDefinition(definition);
+	public void registerGrammarDefinition(IGrammarDefinition definition) {
+		if (definition.getPluginId() == null) {
+			userCache.registerGrammarDefinition(definition);
+		} else {
+			pluginCache.registerGrammarDefinition(definition);
+		}
 	}
 	
 	@Override
-	public void removeGrammarDefinition(IGrammarDefinition definition) {
-		userCache.unregisterGrammarDefinition(definition);	
+	public void unregisterGrammarDefinition(IGrammarDefinition definition) {
+		if (definition.getPluginId() == null) {
+			userCache.unregisterGrammarDefinition(definition);
+		} else {
+			pluginCache.unregisterGrammarDefinition(definition);
+		}	
 	}
 }

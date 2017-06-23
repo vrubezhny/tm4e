@@ -13,7 +13,10 @@ package org.eclipse.tm4e.ui.internal.widgets;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
+import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
  * Label provider for TextMate theme association.
@@ -35,7 +38,8 @@ public class ThemeAssociationLabelProvider extends LabelProvider implements ITab
 		IThemeAssociation association = (IThemeAssociation) element;
 		switch (columnIndex) {
 		case 0:
-			StringBuilder label = new StringBuilder(association.getTheme().getName());
+			ITheme theme = getTheme(association);
+			StringBuilder label = new StringBuilder(theme != null ? theme.getName() : association.getThemeId());
 			if (association.isDefault()) {
 				label.append(" (default)");
 			}
@@ -49,4 +53,11 @@ public class ThemeAssociationLabelProvider extends LabelProvider implements ITab
 			return ""; //$NON-NLS-1$
 		}
 	}
+
+	private ITheme getTheme(IThemeAssociation association) {
+		String themeId = association.getThemeId();
+		IThemeManager themeManager = TMUIPlugin.getThemeManager();
+		return themeManager.getThemeById(themeId);
+	}
+
 }

@@ -10,11 +10,13 @@
  */
 package org.eclipse.tm4e.ui.themes;
 
+import org.eclipse.tm4e.registry.ITMDefinition;
+
 /**
  * Theme association API.
  *
  */
-public interface IThemeAssociation {
+public interface IThemeAssociation extends ITMDefinition {
 
 	/**
 	 * Returns the TextMate theme id.
@@ -37,13 +39,6 @@ public interface IThemeAssociation {
 	 * @return the TextMate grammar scope to the theme id and null otherwise.
 	 */
 	String getScopeName();
-
-	/**
-	 * Returns the TextMate theme.
-	 * 
-	 * @return the TextMate theme.
-	 */
-	ITheme getTheme();
 
 	/**
 	 * Returns true if the theme association is the default and false otherwise.

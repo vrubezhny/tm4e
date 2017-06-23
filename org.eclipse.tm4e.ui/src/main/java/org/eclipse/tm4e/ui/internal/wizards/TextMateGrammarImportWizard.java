@@ -60,7 +60,7 @@ public class TextMateGrammarImportWizard extends Wizard implements IImportWizard
 	@Override
 	public boolean performFinish() {
 		IGrammarDefinition definition = mainPage.getGrammarDefinition();
-		grammarRegistryManager.addGrammarDefinition(definition);
+		grammarRegistryManager.registerGrammarDefinition(definition);
 		if (save) {
 			try {
 				grammarRegistryManager.save();

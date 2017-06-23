@@ -51,6 +51,7 @@ import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.registry.WorkingCopyGrammarRegistryManager;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
+import org.eclipse.tm4e.ui.internal.themes.WorkingCopyThemeManager;
 import org.eclipse.tm4e.ui.internal.widgets.ColumnSelectionAdapter;
 import org.eclipse.tm4e.ui.internal.widgets.ColumnViewerComparator;
 import org.eclipse.tm4e.ui.internal.widgets.ContentTypesBindingWidget;
@@ -78,7 +79,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	public final static String PAGE_ID = "org.eclipse.tm4e.internal.ui.GrammarPreferencePage";
 
 	// Managers
-	private IGrammarRegistryManager workingCopyGrammarRegistryManager;
+	private IGrammarRegistryManager grammarRegistryManager;
 	private IThemeManager themeManager;
 	private ISnippetManager snippetManager;
 
@@ -101,7 +102,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		setDescription(TMUIMessages.GrammarPreferencePage_description);
 		setGrammarRegistryManager(
 				new WorkingCopyGrammarRegistryManager(TMEclipseRegistryPlugin.getGrammarRegistryManager()));
-		setThemeManager(TMUIPlugin.getThemeManager());
+		setThemeManager(new WorkingCopyThemeManager(TMUIPlugin.getThemeManager()));
 		setSnippetManager(TMUIPlugin.getSnippetManager());
 	}
 
@@ -111,7 +112,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	 * @return the grammar registry manager.
 	 */
 	public IGrammarRegistryManager getGrammarRegistryManager() {
-		return workingCopyGrammarRegistryManager;
+		return grammarRegistryManager;
 	}
 
 	/**
@@ -120,7 +121,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	 * @param grammarRegistryManager
 	 */
 	public void setGrammarRegistryManager(IGrammarRegistryManager grammarRegistryManager) {
-		this.workingCopyGrammarRegistryManager = grammarRegistryManager;
+		this.grammarRegistryManager = grammarRegistryManager;
 	}
 
 	/**
@@ -172,7 +173,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		createGrammarDetailContent(innerParent);
 
 		previewViewer = doCreateViewer(innerParent);
-		grammarViewer.setInput(workingCopyGrammarRegistryManager);
+		grammarViewer.setInput(grammarRegistryManager);
 
 		updateButtons();
 		Dialog.applyDialogFont(parent);
@@ -242,7 +243,8 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				}
 				IGrammarDefinition definition = (IGrammarDefinition) (selection).getFirstElement();
 				// Update button
-				grammarRemoveButton.setEnabled(!getSelectedUserGrammarDefinitions().isEmpty());
+				grammarRemoveButton.setEnabled(definition.getPluginId() != null);
+				themeAssociationsWidget.getNewButton().setEnabled(true);
 				// Select grammar
 				selectGrammar(definition);
 			}
@@ -254,28 +256,27 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				// Fill "Content type" tab
 				fillContentTypeTab(scopeName);
 				// Fill "Theme" tab
-				IThemeAssociation selectedAssociation = fillThemeTab(scopeName);
+				IThemeAssociation selectedAssociation = fillThemeTab(definition);
 				// Fill preview
 				fillPreview(scopeName, selectedAssociation);
 			}
 
 			private void fillGeneralTab(String scopeName) {
-				IGrammar grammar = workingCopyGrammarRegistryManager.getGrammarForScope(scopeName);
+				IGrammar grammar = grammarRegistryManager.getGrammarForScope(scopeName);
 				grammarInfoWidget.refresh(grammar);
 			}
 
 			private void fillContentTypeTab(String scopeName) {
 				// Load the content type binding for the given grammar
-				String[] contentTypes = workingCopyGrammarRegistryManager.getContentTypesForScope(scopeName);
+				String[] contentTypes = grammarRegistryManager.getContentTypesForScope(scopeName);
 				contentTypesWidget.setInput(contentTypes);
 			}
 
-			private IThemeAssociation fillThemeTab(String scopeName) {
+			private IThemeAssociation fillThemeTab(IGrammarDefinition definition) {
 				IThemeAssociation selectedAssociation = null;
 				IStructuredSelection oldSelection = (IStructuredSelection) themeAssociationsWidget.getSelection();
 				// Load the theme associations for the given grammar
-				IThemeAssociation[] themeAssociations = themeManager.getThemeAssociationsForScope(scopeName);
-				themeAssociationsWidget.setInput(themeAssociations);
+				IThemeAssociation[] themeAssociations = themeAssociationsWidget.setGrammarDefinition(definition);
 				// Try to keep selection
 				if (!oldSelection.isEmpty()
 						&& Arrays.asList(themeAssociations).contains(oldSelection.getFirstElement())) {
@@ -293,7 +294,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 
 			private void fillPreview(String scopeName, IThemeAssociation selectedAssociation) {
 				// Preview the grammar
-				IGrammar grammar = workingCopyGrammarRegistryManager.getGrammarForScope(scopeName);
+				IGrammar grammar = grammarRegistryManager.getGrammarForScope(scopeName);
 				if (selectedAssociation != null) {
 					previewViewer.setThemeId(selectedAssociation.getThemeId(), selectedAssociation.getEclipseThemeId());
 				}
@@ -335,7 +336,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 			private void add() {
 				// Open import wizard for TextMate grammar.
 				TextMateGrammarImportWizard wizard = new TextMateGrammarImportWizard(false);
-				wizard.setGrammarRegistryManager(workingCopyGrammarRegistryManager);
+				wizard.setGrammarRegistryManager(grammarRegistryManager);
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				if (dialog.open() == Window.OK) {
 					// User grammar was saved, refresh the list of grammar and
@@ -361,7 +362,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				Collection<IGrammarDefinition> definitions = getSelectedUserGrammarDefinitions();
 				if (!definitions.isEmpty()) {
 					for (IGrammarDefinition definition : definitions) {
-						workingCopyGrammarRegistryManager.removeGrammarDefinition(definition);
+						grammarRegistryManager.unregisterGrammarDefinition(definition);
 					}
 					grammarViewer.refresh();
 				}
@@ -439,8 +440,8 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 		Composite parent = new Composite(folder, SWT.NONE);
 		parent.setLayout(new GridLayout());
 		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
-		themeAssociationsWidget = new ThemeAssociationsWidget(parent, SWT.NONE);
+
+		themeAssociationsWidget = new ThemeAssociationsWidget(themeManager, parent, SWT.NONE);
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
 		themeAssociationsWidget.setLayoutData(data);
@@ -450,7 +451,9 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 			public void selectionChanged(SelectionChangedEvent e) {
 				IThemeAssociation association = (IThemeAssociation) ((IStructuredSelection) e.getSelection())
 						.getFirstElement();
-				selectTheme(association);
+				if (association != null) {
+					selectTheme(association);
+				}
 			}
 
 			private void selectTheme(IThemeAssociation association) {
@@ -471,13 +474,13 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	private void createInjectionTab(TabFolder folder) {
 		TabItem tab = new TabItem(folder, SWT.NONE);
 		tab.setText(TMUIMessages.GrammarPreferencePage_tab_injection_text);
-		
+
 		Composite parent = new Composite(folder, SWT.NONE);
 		parent.setLayout(new GridLayout());
 		parent.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		
+
 		// TODO: manage UI injection
-		
+
 		tab.setControl(parent);
 	}
 
@@ -488,6 +491,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 
 	private void updateButtons() {
 		grammarRemoveButton.setEnabled(false);
+
 	}
 
 	@Override
@@ -541,7 +545,8 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	public boolean performOk() {
 		try {
 			// Save the working copy if there are some changed.
-			workingCopyGrammarRegistryManager.save();
+			grammarRegistryManager.save();
+			themeManager.save();
 		} catch (BackingStoreException e) {
 			e.printStackTrace();
 			return false;

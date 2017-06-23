@@ -10,6 +10,10 @@
  */
 package org.eclipse.tm4e.ui.themes;
 
+import java.util.List;
+
+import org.osgi.service.prefs.BackingStoreException;
+
 /**
  * TextMate theme manager API.
  *
@@ -81,5 +85,22 @@ public interface IThemeManager {
 	 * @return the list of TextMate themes.
 	 */
 	ITheme[] getThemes();
+
+	/**
+	 * Save the themes definitions.
+	 * 
+	 * @throws BackingStoreException
+	 */
+	void save() throws BackingStoreException;
+
+	void registerThemeAssociation(IThemeAssociation association);
+
+	void unregisterThemeAssociation(IThemeAssociation association);
+
+	List<IThemeAssociation> getThemeAssociations();
+	
+	void registerTheme(ITheme theme);
+
+	void unregisterTheme(ITheme theme);
 
 }

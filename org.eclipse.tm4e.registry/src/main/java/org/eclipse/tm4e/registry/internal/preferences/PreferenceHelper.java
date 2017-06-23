@@ -21,7 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 
 /**
- * Helper class load, save preferences with Json format.
+ * Helper class load, save grammar preferences with Json format.
  *
  */
 public class PreferenceHelper {
@@ -46,14 +46,4 @@ public class PreferenceHelper {
 		return DEFAULT_GSON.toJson(definitions);
 	}
 
-	/*
-	 * public static void main(String[] args) { Collection<IGrammarDefinition>
-	 * definitions = new ArrayList<>(); definitions.add(new
-	 * GrammarDefinition("source.ts", "ts.json", null, null));
-	 * 
-	 * String json = toJson(definitions); System.err.println(json);
-	 * 
-	 * IGrammarDefinition[] defs = loadGrammars(json); System.err.println(defs);
-	 * }
-	 */
 }

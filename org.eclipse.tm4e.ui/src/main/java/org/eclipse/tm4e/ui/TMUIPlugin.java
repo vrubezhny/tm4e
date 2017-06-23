@@ -40,12 +40,10 @@ public class TMUIPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
-		ThemeManager.getInstance().initialize();
 	}
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		ThemeManager.getInstance().destroy();
 		plugin = null;
 		super.stop(context);
 	}

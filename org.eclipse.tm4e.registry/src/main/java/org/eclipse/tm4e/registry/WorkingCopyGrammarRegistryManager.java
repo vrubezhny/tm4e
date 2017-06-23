@@ -34,8 +34,7 @@ public class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryMa
 		load();
 	}
 
-	@Override
-	public void load() {
+	private void load() {
 		// Copy grammar definitions
 		IGrammarDefinition[] definitions = manager.getDefinitions();
 		for (IGrammarDefinition definition : definitions) {
@@ -59,8 +58,8 @@ public class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryMa
 	}
 
 	@Override
-	public void addGrammarDefinition(IGrammarDefinition definition) {
-		super.addGrammarDefinition(definition);
+	public void registerGrammarDefinition(IGrammarDefinition definition) {
+		super.registerGrammarDefinition(definition);
 		if (added == null) {
 			added = new ArrayList<>();
 		}
@@ -68,8 +67,8 @@ public class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryMa
 	}
 
 	@Override
-	public void removeGrammarDefinition(IGrammarDefinition definition) {
-		super.removeGrammarDefinition(definition);
+	public void unregisterGrammarDefinition(IGrammarDefinition definition) {
+		super.unregisterGrammarDefinition(definition);
 		if (added != null && added.contains(definition)) {
 			added.remove(definition);
 		} else {
@@ -84,12 +83,12 @@ public class WorkingCopyGrammarRegistryManager extends AbstractGrammarRegistryMa
 	public void save() throws BackingStoreException {
 		if (added != null) {
 			for (IGrammarDefinition definition : added) {
-				manager.addGrammarDefinition(definition);
+				manager.registerGrammarDefinition(definition);
 			}
 		}
 		if (removed != null) {
 			for (IGrammarDefinition definition : removed) {
-				manager.removeGrammarDefinition(definition);
+				manager.unregisterGrammarDefinition(definition);
 			}
 		}
 		if (added != null || removed != null) {

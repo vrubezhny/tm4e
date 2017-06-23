@@ -17,7 +17,7 @@ import java.io.InputStream;
  * TextMate resource definition API.
  *
  */
-public interface ITMResource {
+public interface ITMResource extends ITMDefinition {
 
 	/**
 	 * Returns the TextMate resource path.
@@ -25,13 +25,6 @@ public interface ITMResource {
 	 * @return the TextMate resource path.
 	 */
 	String getPath();
-
-	/**
-	 * Returns the plugin id which has registered the TextMate resource.
-	 * 
-	 * @return the plugin id which has registered the TextMate resource.
-	 */
-	String getPluginId();
 
 	/**
 	 * Returns the stream of the TextMate resource.

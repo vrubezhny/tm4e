@@ -39,7 +39,7 @@ public interface IGrammarRegistryManager {
 	 * 
 	 * @param definition
 	 */
-	void addGrammarDefinition(IGrammarDefinition definition);
+	void registerGrammarDefinition(IGrammarDefinition definition);
 
 	/**
 	 * Remove grammar definition from the registry.
@@ -48,12 +48,7 @@ public interface IGrammarRegistryManager {
 	 * 
 	 * @param definition
 	 */
-	void removeGrammarDefinition(IGrammarDefinition definition);
-
-	/**
-	 * Load the grammar definitions.
-	 */
-	void load();
+	void unregisterGrammarDefinition(IGrammarDefinition definition);
 
 	/**
 	 * Save the grammar definitions.

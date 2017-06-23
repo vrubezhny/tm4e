@@ -10,175 +10,121 @@
  */
 package org.eclipse.tm4e.ui.internal.themes;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IRegistryChangeEvent;
-import org.eclipse.core.runtime.IRegistryChangeListener;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
+import org.eclipse.tm4e.ui.internal.preferences.PreferenceHelper;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
-import org.eclipse.tm4e.ui.themes.IThemeManager;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * TextMate theme manager implementation.
- *
+ * Theme manager singleton.
  */
-public class ThemeManager implements IThemeManager, IRegistryChangeListener {
-
-	// Theme for E4 CSS Engine
-	private static final String E4_CSS_THEME_PREFERENCE_ID = "org.eclipse.e4.ui.css.swt.theme"; //$NON-NLS-1$
-	public static final String E4_THEME_ID = "themeid"; //$NON-NLS-1$
+public class ThemeManager extends AbstractThemeManager {
 
 	// "themes" extension point
 	private static final String EXTENSION_THEMES = "themes"; //$NON-NLS-1$
 
 	// "theme" declaration
 	private static final String THEME_ELT = "theme"; //$NON-NLS-1$
-	private static final String ECLIPSE_THEME_ID_ATTR = "eclipseThemeId"; //$NON-NLS-1$
 
 	// "themeAssociation" declaration
 	private static final String THEME_ASSOCIATION_ELT = "themeAssociation"; //$NON-NLS-1$
-	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
-	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
-	private static final String DEFAULT_ATTR = "default"; //$NON-NLS-1$
 
-	private static final ThemeManager INSTANCE = new ThemeManager();
+	private static ThemeManager INSTANCE;
 
 	public static ThemeManager getInstance() {
+		if (INSTANCE != null) {
+			return INSTANCE;
+		}
+		INSTANCE = createInstance();
 		return INSTANCE;
 	}
 
-	private Map<String /* theme id */ , ITheme> themes;
-	private ThemeAssociationRegistry themeAssociationRegistry;
+	private static synchronized ThemeManager createInstance() {
+		if (INSTANCE != null) {
+			return INSTANCE;
+		}
+		ThemeManager manager = new ThemeManager();
+		manager.load();
+		return manager;
+	}
 
 	private ThemeManager() {
 	}
 
-	@Override
-	public ITheme getDefaultTheme() {
-		String themeIdForE4Theme = getPreferenceE4CSSThemeId();
-		return getThemeForScope(null, themeIdForE4Theme);
-	}
-
-	@Override
-	public ITheme getThemeForScope(String scopeName, String eclipseThemeId) {
-		loadThemesIfNeeded();
-		IThemeAssociation association = themeAssociationRegistry.getThemeAssociationFor(scopeName, eclipseThemeId);
-		String themeId = association.getThemeId();
-		return getThemeById(themeId);
-	}
-
-	@Override
-	public ITheme getThemeForScope(String scopeName) {
-		return getThemeForScope(scopeName, getPreferenceE4CSSThemeId());
-	}
-
-	@Override
-	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
-		loadThemesIfNeeded();
-		return themeAssociationRegistry.getThemeAssociationsForScope(scopeName);
-	}
-
-	@Override
-	public IThemeAssociation[] getThemeAssociationsForTheme(String themeId) {
-		loadThemesIfNeeded();
-		return themeAssociationRegistry.getThemeAssociationsForTheme(themeId);
-	}
-
-	@Override
-	public ITheme[] getThemes() {
-		loadThemesIfNeeded();
-		Collection<ITheme> themes = this.themes.values();
-		return themes.toArray(new ITheme[themes.size()]);
-	}
-
-	@Override
-	public ITheme getThemeById(String themeId) {
-		loadThemesIfNeeded();
-		return themes.get(themeId);
-	}
-
-	@Override
-	public void registryChanged(IRegistryChangeEvent event) {
-		// TODO : implement that.
-	}
-
-	public void initialize() {
-
-	}
-
-	public void destroy() {
-		Platform.getExtensionRegistry().removeRegistryChangeListener(this);
+	private void load() {
+		loadThemesFromExtensionPoints();
+		loadThemesFromPreferences();
 	}
 
 	/**
-	 * Load the themes.
+	 * Load TextMate Themes from extension point.
 	 */
-	private void loadThemesIfNeeded() {
-		if (themes != null) {
-			// Themes are already loaded from plugin extension.
-			return;
-		}
-		// Load themes from plugin extension.
-		loadThemes();
-	}
-
-	private synchronized void loadThemes() {
-		if (themes != null) {
-			return;
-		}
+	private void loadThemesFromExtensionPoints() {
 		IConfigurationElement[] cf = Platform.getExtensionRegistry().getConfigurationElementsFor(TMUIPlugin.PLUGIN_ID,
 				EXTENSION_THEMES);
-		Map<String, ITheme> themes = new HashMap<>();
-		ThemeAssociationRegistry themeAssociationRegistry = new ThemeAssociationRegistry();
-		Map<String, ITheme> defaultThemes = new HashMap<>();
-		loadThemes(cf, themes, themeAssociationRegistry, defaultThemes);
-		addRegistryListener();
-		this.themeAssociationRegistry = themeAssociationRegistry;
-		this.themes = themes;
-	}
-
-	private void addRegistryListener() {
-		IExtensionRegistry registry = Platform.getExtensionRegistry();
-		registry.addRegistryChangeListener(this, TMUIPlugin.PLUGIN_ID);
-	}
-
-	/**
-	 * Load TextMate themes declared from the extension point.
-	 */
-	private void loadThemes(IConfigurationElement[] cf, Map<String, ITheme> themes, ThemeAssociationRegistry registry,
-			Map<String, ITheme> defaultThemes) {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
 			if (THEME_ELT.equals(name)) {
 				// theme
 				Theme theme = new Theme(ce);
-				themes.put(theme.getId(), theme);
+				super.registerTheme(theme);
 			} else if (THEME_ASSOCIATION_ELT.equals(name)) {
 				// themeAssociation
-				String themeId = ce.getAttribute(THEME_ID_ATTR);
-				String eclipseThemeId = ce.getAttribute(ECLIPSE_THEME_ID_ATTR);
-				String scopeName = ce.getAttribute(SCOPE_NAME_ATTR);
-				boolean defaultAssociation = "true".equals(ce.getAttribute(DEFAULT_ATTR));
-				registry.register(new ThemeAssociation(themeId, eclipseThemeId, scopeName, defaultAssociation, this));
+				super.registerThemeAssociation(new ThemeAssociation(ce));
 			}
 		}
 	}
 
-	private String getPreferenceE4CSSThemeId() {
-		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
-		return preferences != null ? preferences.get(E4_THEME_ID, null) : null;
+	/**
+	 * Load TextMate Themes from preferences.
+	 */
+	private void loadThemesFromPreferences() {
+		// Load Theme definitions from the
+		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
+		String json = prefs.get(PreferenceConstants.THEMES, null);
+		if (json != null) {
+			ITheme[] themes = PreferenceHelper.loadThemes(json);
+			for (ITheme theme : themes) {
+				super.registerTheme(theme);
+			}
+		}
+
+		json = prefs.get(PreferenceConstants.THEME_ASSOCIATIONS, null);
+		if (json != null) {
+			IThemeAssociation[] themeAssociations = PreferenceHelper.loadThemeAssociations(json);
+			for (IThemeAssociation association : themeAssociations) {
+				super.registerThemeAssociation(association);
+			}
+		}
 	}
 
-	public IEclipsePreferences getPreferenceE4CSSTheme() {
-		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
+	@Override
+	public void save() throws BackingStoreException {
+		// Save Themes in the
+		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
+		String json = PreferenceHelper.toJsonThemes(
+				Arrays.stream(getThemes()).filter(t -> t.getPluginId() == null).collect(Collectors.toList()));
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
+		prefs.put(PreferenceConstants.THEMES, json);
+
+		// Save Theme associations in the
+		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
+		json = PreferenceHelper.toJsonThemeAssociations(
+				getThemeAssociations().stream().filter(t -> t.getPluginId() == null).collect(Collectors.toList()));
+		prefs.put(PreferenceConstants.THEME_ASSOCIATIONS, json);
+
+		// Save preferences
+		prefs.flush();
 	}
 
 }

@@ -18,24 +18,18 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.tm4e.ui.internal.TMUIMessages;
 
 /**
  * Widget which display a table on the left and buttons on the right.
  *
  */
-public class TableAndButtonsWidget extends Composite {
+public abstract class TableAndButtonsWidget extends Composite {
 
 	private TableViewer viewer;
-	private Button newButton;
-	private Button removeButton;
-
+	
 	public TableAndButtonsWidget(Composite parent, int style, String title) {
 		super(parent, style);
 		GridLayout layout = new GridLayout();
@@ -75,6 +69,8 @@ public class TableAndButtonsWidget extends Composite {
 		createButtons(buttonsComposite);
 	}
 
+	protected abstract void createButtons(Composite parent);
+
 	private void createTitle(String title, Composite ancestor) {
 		if (title == null) {
 			return;
@@ -94,30 +90,6 @@ public class TableAndButtonsWidget extends Composite {
 		viewer = new TableViewer(table);
 		table.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
-	}
-
-	private void createButtons(Composite parent) {
-		newButton = new Button(parent, SWT.PUSH);
-		newButton.setText(TMUIMessages.Button_new);
-		newButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		newButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				// add();
-			}
-		});
-		newButton.setEnabled(false);
-
-		removeButton = new Button(parent, SWT.PUSH);
-		removeButton.setText(TMUIMessages.Button_remove);
-		removeButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		removeButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-
-			}
-		});
-		removeButton.setEnabled(false);
 	}
 
 	public void setInput(Object input) {
