@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 
@@ -75,11 +76,37 @@ public class ThemeAssociationRegistry extends BaseThemeAssociationRegistry {
 	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
 		BaseThemeAssociationRegistry registry = scopes.get(scopeName);
 		if (registry != null) {
-			return registry.getThemeAssociations().toArray(new IThemeAssociation[0]);
+			// Get the user associations (from preferences)
+			List<IThemeAssociation> userAssociations = registry.getThemeAssociations();
+			// Get the default associations (from plugin)
+			List<IThemeAssociation> defaultAssociations = getThemeAssociations().stream()
+					.filter(theme -> theme.isDefault()).collect(Collectors.toList());
+			// Add default association if user associations doesn't define it.
+			for (IThemeAssociation defaultAssociation : defaultAssociations) {
+				if (!(contains(userAssociations, defaultAssociation))) {
+					userAssociations.add(defaultAssociation);
+				}
+			}
+			return userAssociations.toArray(new IThemeAssociation[0]);
 		}
 		return getThemeAssociations(true);
 	}
-	
+
+	private boolean contains(List<IThemeAssociation> userAssociations, IThemeAssociation defaultAssociation) {
+		for (IThemeAssociation userAssociation : userAssociations) {
+			if (defaultAssociation.getEclipseThemeId() == null) {
+				if (userAssociation.getEclipseThemeId() == null) {
+					return true;
+				}
+			} else {
+				if (defaultAssociation.getEclipseThemeId().equals(userAssociation.getEclipseThemeId())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public List<IThemeAssociation> getThemeAssociations() {
 		List<IThemeAssociation> allAssociations = new ArrayList<>(super.getThemeAssociations());
