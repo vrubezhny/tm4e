@@ -15,6 +15,7 @@ import java.util.Iterator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -60,7 +61,8 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 			wizard.setThemeManager(themeManager);
 			WizardDialog dialog = new WizardDialog(getShell(), wizard);
 			if (dialog.open() == Window.OK) {
-				refresh();
+				IThemeAssociation association = wizard.getCreatedThemeAssociation();
+				refresh(association);
 			}
 		});
 		newButton.setEnabled(false);
@@ -78,7 +80,7 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 					IThemeAssociation association = it.next();
 					themeManager.unregisterThemeAssociation(association);
 				}
-				refresh();
+				refresh(null);
 			}
 
 		});
@@ -95,12 +97,20 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 
 	public IThemeAssociation[] setGrammarDefinition(IGrammarDefinition definition) {
 		this.definition = definition;
-		return refresh();
+		return refresh(null);
 	}
 
-	private IThemeAssociation[] refresh() {
+	private IThemeAssociation[] refresh(IThemeAssociation association) {
 		IThemeAssociation[] themeAssociations = themeManager.getThemeAssociationsForScope(definition.getScopeName());
+		// Refresh the list of associations
 		super.setInput(themeAssociations);
+		// Select the first of given association
+		if (association == null && themeAssociations.length > 0) {
+			association = themeAssociations[0];
+		}
+		if (association != null) {
+			super.setSelection(new StructuredSelection(association));
+		}
 		return themeAssociations;
 	}
 
