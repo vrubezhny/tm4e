@@ -10,7 +10,11 @@
  */
 package org.eclipse.tm4e.ui.internal.widgets;
 
+import java.util.Iterator;
+
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
@@ -50,6 +54,7 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 		newButton.setText(TMUIMessages.Button_new);
 		newButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		newButton.addListener(SWT.Selection, (e) -> {
+			// Open the wizard to create association between theme and grammar.
 			CreateThemeAssociationWizard wizard = new CreateThemeAssociationWizard(false);
 			wizard.setInitialDefinition(definition);
 			wizard.setThemeManager(themeManager);
@@ -64,6 +69,17 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 		removeButton.setText(TMUIMessages.Button_remove);
 		removeButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		removeButton.addListener(SWT.Selection, (e) -> {
+
+			if (MessageDialog.openConfirm(getShell(), TMUIMessages.ThemeAssociationsWidget_remove_dialog_title,
+					TMUIMessages.ThemeAssociationsWidget_remove_dialog_message)) {
+				IStructuredSelection selection = super.getSelection();
+				Iterator<IThemeAssociation> it = selection.iterator();
+				while (it.hasNext()) {
+					IThemeAssociation association = it.next();
+					themeManager.unregisterThemeAssociation(association);
+				}
+				refresh();
+			}
 
 		});
 		removeButton.setEnabled(false);

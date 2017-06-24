@@ -245,6 +245,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				// Update button
 				grammarRemoveButton.setEnabled(definition.getPluginId() != null);
 				themeAssociationsWidget.getNewButton().setEnabled(true);
+				themeAssociationsWidget.getRemoveButton().setEnabled(false);
 				// Select grammar
 				selectGrammar(definition);
 			}
@@ -451,15 +452,17 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 			public void selectionChanged(SelectionChangedEvent e) {
 				IThemeAssociation association = (IThemeAssociation) ((IStructuredSelection) e.getSelection())
 						.getFirstElement();
-				if (association != null) {
-					selectTheme(association);
-				}
+				selectTheme(association);
 			}
 
 			private void selectTheme(IThemeAssociation association) {
-				String themeId = association.getThemeId();
-				String eclipseThemeId = association.getEclipseThemeId();
-				previewViewer.setThemeId(themeId, eclipseThemeId);
+				themeAssociationsWidget.getRemoveButton()
+						.setEnabled(association != null && association.getPluginId() == null);
+				if (association != null) {
+					String themeId = association.getThemeId();
+					String eclipseThemeId = association.getEclipseThemeId();
+					previewViewer.setThemeId(themeId, eclipseThemeId);
+				}
 			}
 		});
 
