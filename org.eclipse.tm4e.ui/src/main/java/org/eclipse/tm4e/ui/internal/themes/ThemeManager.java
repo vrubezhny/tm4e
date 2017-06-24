@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
@@ -125,6 +126,44 @@ public class ThemeManager extends AbstractThemeManager {
 
 		// Save preferences
 		prefs.flush();
+	}
+
+	/**
+	 * Add preference change listener to observe changed of Eclipse E4 Theme and
+	 * TextMate theme association with grammar.
+	 * 
+	 * @param themeChangeListener
+	 */
+	public void addPreferenceChangeListener(IPreferenceChangeListener themeChangeListener) {
+		// Observe change of Eclipse E4 Theme
+		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
+		if (preferences != null) {
+			preferences.addPreferenceChangeListener(themeChangeListener);
+		}
+		// Observe change of TextMate Theme association
+		preferences = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
+		if (preferences != null) {
+			preferences.addPreferenceChangeListener(themeChangeListener);
+		}
+	}
+
+	/**
+	 * Remove preference change listener to observe changed of Eclipse E4 Theme
+	 * and TextMate theme association with grammar.
+	 * 
+	 * @param themeChangeListener
+	 */
+	public void removePreferenceChangeListener(IPreferenceChangeListener themeChangeListener) {
+		// Observe change of Eclipse E4 Theme
+		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
+		if (preferences != null) {
+			preferences.removePreferenceChangeListener(themeChangeListener);
+		}
+		// Observe change of TextMate Theme association
+		preferences = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
+		if (preferences != null) {
+			preferences.removePreferenceChangeListener(themeChangeListener);
+		}
 	}
 
 }

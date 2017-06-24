@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.content.IContentType;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -60,6 +59,7 @@ import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
+import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
@@ -105,7 +105,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private final TextAttribute fDefaultTextAttribute;
 
-	private IPreferenceChangeListener e4CSSThemeChangeListener;
+	private IPreferenceChangeListener themeChangeListener;
 
 	private List<ITMPresentationReconcilerListener> listeners;
 
@@ -123,14 +123,15 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Listener to recolorize editors when E4 Theme from General / Appearance
-	 * preferences changed.
+	 * preferences changed or TextMate theme changed..
 	 *
 	 */
-	private class E4CSSThemeChangeListener implements IPreferenceChangeListener {
+	private class ThemeChangeListener implements IPreferenceChangeListener {
 
 		@Override
 		public void preferenceChange(PreferenceChangeEvent event) {
-			if (ThemeManager.E4_THEME_ID.equals(event.getKey())) {
+			if (ThemeManager.E4_THEME_ID.equals(event.getKey())
+					|| PreferenceConstants.THEME_ASSOCIATIONS.equals(event.getKey())) {
 				IDocument document = viewer.getDocument();
 				if (document == null) {
 					return;
@@ -403,11 +404,8 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (document != null) {
 			internalListener.inputDocumentChanged(null, document);
 		}
-		IEclipsePreferences preferences = ThemeManager.getInstance().getPreferenceE4CSSTheme();
-		if (preferences != null) {
-			e4CSSThemeChangeListener = new E4CSSThemeChangeListener();
-			preferences.addPreferenceChangeListener(e4CSSThemeChangeListener);
-		}
+		themeChangeListener = new ThemeChangeListener();
+		ThemeManager.getInstance().addPreferenceChangeListener(themeChangeListener);
 	}
 
 	@Override
@@ -415,11 +413,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		viewer.removeTextInputListener(internalListener);
 		// Ensure we uninstall all listeners
 		internalListener.inputDocumentAboutToBeChanged(viewer.getDocument(), null);
-		if (e4CSSThemeChangeListener != null) {
-			ThemeManager.getInstance().getPreferenceE4CSSTheme()
-					.removePreferenceChangeListener(e4CSSThemeChangeListener);
+		if (themeChangeListener != null) {
+			ThemeManager.getInstance().removePreferenceChangeListener(themeChangeListener);
 		}
-		e4CSSThemeChangeListener = null;
+		themeChangeListener = null;
 	}
 
 	@Override

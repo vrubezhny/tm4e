@@ -83,7 +83,7 @@ public abstract class AbstractThemeManager implements IThemeManager {
 		return preferences != null ? preferences.get(E4_THEME_ID, null) : null;
 	}
 
-	public IEclipsePreferences getPreferenceE4CSSTheme() {
+	protected IEclipsePreferences getPreferenceE4CSSTheme() {
 		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
 	}
 
