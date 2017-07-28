@@ -44,7 +44,7 @@ public class WorkingCopyThemeManager extends AbstractThemeManager {
 			super.registerTheme(theme);
 		}
 		// Copy theme associations
-		List<IThemeAssociation> associations = manager.getThemeAssociations();
+		IThemeAssociation[] associations = manager.getAllThemeAssociations();
 		for (IThemeAssociation association : associations) {
 			super.registerThemeAssociation(association);
 		}

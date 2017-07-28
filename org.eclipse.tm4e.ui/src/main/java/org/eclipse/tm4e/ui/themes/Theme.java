@@ -8,7 +8,7 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.internal.themes;
+package org.eclipse.tm4e.ui.themes;
 
 import java.io.InputStream;
 
@@ -16,8 +16,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.tm4e.registry.TMResource;
 import org.eclipse.tm4e.registry.XMLConstants;
-import org.eclipse.tm4e.ui.themes.ITheme;
-import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
 
 /**
@@ -26,10 +24,15 @@ import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
  */
 public class Theme extends TMResource implements ITheme {
 
+	private static final String DARK_ATTR = "dark";
+	private static final String DEFAULT_ATTR = "default";
+
 	private ITokenProvider tokenProvider;
 
 	private String id;
 	private String name;
+	private boolean dark;
+	private boolean isDefault;
 
 	/**
 	 * Constructor for user preferences (loaded from Json with Gson).
@@ -43,16 +46,20 @@ public class Theme extends TMResource implements ITheme {
 	 * 
 	 * @param element
 	 */
-	public Theme(String id, String path, String name) {
+	public Theme(String id, String path, String name, boolean dark, boolean isDefault) {
 		super(path);
 		this.id = id;
 		this.name = name;
+		this.dark = dark;
+		this.isDefault = isDefault;
 	}
 
 	public Theme(IConfigurationElement ce) {
 		super(ce);
 		id = ce.getAttribute(XMLConstants.ID_ATTR);
 		name = ce.getAttribute(XMLConstants.NAME_ATTR);
+		dark = "true".equals(ce.getAttribute(DARK_ATTR));
+		isDefault = "true".equals(ce.getAttribute(DEFAULT_ATTR));
 	}
 
 	@Override
@@ -90,4 +97,13 @@ public class Theme extends TMResource implements ITheme {
 		return super.getResourceContent();
 	}
 
+	@Override
+	public boolean isDark() {
+		return dark;
+	}
+
+	@Override
+	public boolean isDefault() {
+		return isDefault;
+	}
 }

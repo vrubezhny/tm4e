@@ -10,8 +10,6 @@
  */
 package org.eclipse.tm4e.ui.themes;
 
-import java.util.List;
-
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
@@ -21,12 +19,51 @@ import org.osgi.service.prefs.BackingStoreException;
 public interface IThemeManager {
 
 	/**
+	 * Register the given theme.
+	 * 
+	 * @param theme
+	 *            to unregister.
+	 */
+	void registerTheme(ITheme theme);
+
+	/**
+	 * Unregister the given theme.
+	 * 
+	 * @param theme
+	 *            to unregister.
+	 */
+	void unregisterTheme(ITheme theme);
+
+	/**
+	 * Returns the {@link ITheme} by the theme id.
+	 * 
+	 * @param themeId
+	 *            the theme id.
+	 * @return the {@link ITheme} by the theme id.
+	 */
+	ITheme getThemeById(String themeId);
+
+	/**
+	 * Returns the list of TextMate themes.
+	 * 
+	 * @return the list of TextMate themes.
+	 */
+	ITheme[] getThemes();
+
+	/**
 	 * Returns the default theme.
 	 * 
 	 * @return the default theme.
 	 */
 	ITheme getDefaultTheme();
 
+	/**
+	 * Returns the list of TextMate themes for the given eclipse theme id.
+	 * 
+	 * @return the list of TextMate themes for the given eclipse theme id.
+	 */
+	ITheme[] getThemes(boolean dark);
+	
 	/**
 	 * Returns the TextMate theme {@link ITheme} for the given TextMate grammar
 	 * <code>scopeName</code> and E4 Theme <code>eclipseThemeId</code>.
@@ -38,7 +75,7 @@ public interface IThemeManager {
 	 * @return the TextMate theme {@link ITheme} for the given TextMate grammar
 	 *         <code>scopeName</code> and E4 Theme <code>eclipseThemeId</code>.
 	 */
-	ITheme getThemeForScope(String scopeName, String eclipseThemeId);
+	ITheme getThemeForScope(String scopeName, boolean dark);
 
 	/**
 	 * Returns the TextMate theme {@link ITheme} for the given TextMate grammar
@@ -49,6 +86,29 @@ public interface IThemeManager {
 	 *         <code>scopeName</code> and default E4 Theme.
 	 */
 	ITheme getThemeForScope(String scopeName);
+
+	/**
+	 * Register the given theme association.
+	 * 
+	 * @param association
+	 *            to register.
+	 */
+	void registerThemeAssociation(IThemeAssociation association);
+
+	/**
+	 * Unregister the given theme association.
+	 * 
+	 * @param association
+	 *            to unregister.
+	 */
+	void unregisterThemeAssociation(IThemeAssociation association);
+
+	/**
+	 * Returns list of all theme associations.
+	 * 
+	 * @return list of all theme associations.
+	 */
+	IThemeAssociation[] getAllThemeAssociations();
 
 	/**
 	 * Returns the theme associations for the given TextMate grammar
@@ -71,20 +131,11 @@ public interface IThemeManager {
 	IThemeAssociation[] getThemeAssociationsForTheme(String themeId);
 
 	/**
-	 * Returns the {@link ITheme} by the theme id.
+	 * Returns the Eclipse E4 CSS Theme Id.
 	 * 
-	 * @param themeId
-	 *            the theme id.
-	 * @return the {@link ITheme} by the theme id.
+	 * @return the Eclipse E4 CSS Theme Id.
 	 */
-	ITheme getThemeById(String themeId);
-
-	/**
-	 * Returns the list of TextMate themes.
-	 * 
-	 * @return the list of TextMate themes.
-	 */
-	ITheme[] getThemes();
+	String getPreferenceE4CSSThemeId();
 
 	/**
 	 * Save the themes definitions.
@@ -93,14 +144,7 @@ public interface IThemeManager {
 	 */
 	void save() throws BackingStoreException;
 
-	void registerThemeAssociation(IThemeAssociation association);
+	boolean isDarkEclipseTheme();
 
-	void unregisterThemeAssociation(IThemeAssociation association);
-
-	List<IThemeAssociation> getThemeAssociations();
-	
-	void registerTheme(ITheme theme);
-
-	void unregisterTheme(ITheme theme);
-
+	boolean isDarkEclipseTheme(String eclipseThemeId);
 }

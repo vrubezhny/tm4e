@@ -26,25 +26,10 @@ public interface IThemeAssociation extends ITMDefinition {
 	String getThemeId();
 
 	/**
-	 * Returns the E4 Theme id linked to the theme id and null otherwise.
-	 * 
-	 * @return the E4 Theme id linked to the theme id and null otherwise.
-	 */
-	String getEclipseThemeId();
-
-	/**
-	 * Returns the TextMate grammar scope linked to the theme id and null
-	 * otherwise.
+	 * Returns the TextMate grammar scope linked to the theme id and null otherwise.
 	 * 
 	 * @return the TextMate grammar scope to the theme id and null otherwise.
 	 */
 	String getScopeName();
-
-	/**
-	 * Returns true if the theme association is the default and false otherwise.
-	 * 
-	 * @return true if the theme association is the default and false otherwise.
-	 */
-	boolean isDefault();
 
 }

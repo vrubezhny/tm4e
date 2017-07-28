@@ -23,6 +23,8 @@ import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceHelper;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
+import org.eclipse.tm4e.ui.themes.Theme;
+import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
@@ -120,8 +122,8 @@ public class ThemeManager extends AbstractThemeManager {
 
 		// Save Theme associations in the
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
-		json = PreferenceHelper.toJsonThemeAssociations(
-				getThemeAssociations().stream().filter(t -> t.getPluginId() == null).collect(Collectors.toList()));
+		json = PreferenceHelper.toJsonThemeAssociations(Arrays.stream(getAllThemeAssociations())
+				.filter(t -> t.getPluginId() == null).collect(Collectors.toList()));
 		prefs.put(PreferenceConstants.THEME_ASSOCIATIONS, json);
 
 		// Save preferences
@@ -148,8 +150,8 @@ public class ThemeManager extends AbstractThemeManager {
 	}
 
 	/**
-	 * Remove preference change listener to observe changed of Eclipse E4 Theme
-	 * and TextMate theme association with grammar.
+	 * Remove preference change listener to observe changed of Eclipse E4 Theme and
+	 * TextMate theme association with grammar.
 	 * 
 	 * @param themeChangeListener
 	 */

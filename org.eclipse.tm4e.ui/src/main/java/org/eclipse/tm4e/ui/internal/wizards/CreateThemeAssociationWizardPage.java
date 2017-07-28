@@ -12,10 +12,7 @@ package org.eclipse.tm4e.ui.internal.wizards;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.e4.ui.css.swt.theme.IThemeEngine;
-import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -27,15 +24,13 @@ import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
-import org.eclipse.tm4e.ui.internal.themes.ThemeAssociation;
-import org.eclipse.tm4e.ui.internal.widgets.EclipseThemeLabelProvider;
 import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionContentProvider;
 import org.eclipse.tm4e.ui.internal.widgets.GrammarDefinitionLabelProvider;
 import org.eclipse.tm4e.ui.internal.widgets.ThemeContentProvider;
 import org.eclipse.tm4e.ui.internal.widgets.ThemeLabelProvider;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 
 /**
  * Wizard page to create association between grammar and theme.
@@ -47,7 +42,6 @@ public class CreateThemeAssociationWizardPage extends AbstractWizardPage {
 
 	private ComboViewer themeViewer;
 	private ComboViewer grammarViewer;
-	private ComboViewer eclipseThemeViewer;
 	private final IGrammarDefinition initialDefinition;
 
 	protected CreateThemeAssociationWizardPage(IGrammarDefinition initialDefinition) {
@@ -86,19 +80,6 @@ public class CreateThemeAssociationWizardPage extends AbstractWizardPage {
 		if (initialDefinition != null) {
 			grammarViewer.setSelection(new StructuredSelection(initialDefinition));
 		}
-		
-		IThemeEngine themeEngine = PlatformUI.getWorkbench().getService(IThemeEngine.class);
-		if (themeEngine != null) {
-			label = new Label(parent, SWT.NONE);
-			label.setText(TMUIMessages.CreateThemeAssociationWizardPage_e4Theme_text);
-			eclipseThemeViewer = new ComboViewer(parent);
-			eclipseThemeViewer.setLabelProvider(new EclipseThemeLabelProvider());
-			eclipseThemeViewer.setContentProvider(ArrayContentProvider.getInstance());
-			eclipseThemeViewer.setInput(themeEngine.getThemes());
-			GridData data = new GridData(GridData.FILL_HORIZONTAL);
-			data.horizontalSpan = 3;
-			eclipseThemeViewer.getControl().setLayoutData(data);
-		}
 	}
 
 	@Override
@@ -121,16 +102,9 @@ public class CreateThemeAssociationWizardPage extends AbstractWizardPage {
 
 	public IThemeAssociation getThemeAssociation() {
 		String themeId = ((ITheme) themeViewer.getStructuredSelection().getFirstElement()).getId();
-		String eclipseThemeId = null;
 		String scopeName = ((IGrammarDefinition) grammarViewer.getStructuredSelection().getFirstElement())
 				.getScopeName();
-		if (eclipseThemeViewer != null) {
-			IStructuredSelection selection = eclipseThemeViewer.getStructuredSelection();
-			if (!selection.isEmpty()) {
-				eclipseThemeId = ((org.eclipse.e4.ui.css.swt.theme.ITheme) selection.getFirstElement()).getId();
-			}
-		}
-		return new ThemeAssociation(themeId, eclipseThemeId, scopeName, false);
+		return new ThemeAssociation(themeId, scopeName);
 	}
 
 }

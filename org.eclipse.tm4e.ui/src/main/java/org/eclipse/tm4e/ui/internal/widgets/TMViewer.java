@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
+import org.eclipse.tm4e.ui.themes.ITheme;
 
 /**
  * Simple TextMate Viewer.
@@ -66,11 +67,11 @@ public class TMViewer extends SourceViewer {
 		}
 	}
 
-	public void setThemeId(String themeId, String eclipseThemeId) {
-		reconciler.setThemeId(themeId);
+	public void setTheme(ITheme theme) {
+		reconciler.setThemeId(theme.getId());
 		// Hard code background color according the E4 Theme.
 		// TODO: use ITheme E4 Theme to manage that.
-		if ("org.eclipse.e4.ui.css.theme.e4_dark".equals(eclipseThemeId)) {
+		if (theme.isDark()) {
 			Display display = Display.getCurrent();
 			Color black = display.getSystemColor(SWT.COLOR_BLACK);
 			getTextWidget().setBackground(black);

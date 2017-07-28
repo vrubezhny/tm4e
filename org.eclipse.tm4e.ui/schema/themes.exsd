@@ -83,6 +83,20 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="dark" type="boolean">
+            <annotation>
+               <documentation>
+                  Dark theme?
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="default" type="boolean">
+            <annotation>
+               <documentation>
+                  Default theme?
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
@@ -111,23 +125,6 @@
                <appinfo>
                   <meta.attribute kind="identifier" basedOn="org.eclipse.tm4e.registry.grammars/grammar/@scopeName"/>
                </appinfo>
-            </annotation>
-         </attribute>
-         <attribute name="eclipseThemeId" type="string">
-            <annotation>
-               <documentation>
-                  Use the TextMate theme &lt;code&gt;themeId&lt;/code&gt; when the Eclipse CSS theme id is activated.
-               </documentation>
-               <appinfo>
-                  <meta.attribute kind="identifier" basedOn="org.eclipse.e4.ui.css.swt.theme/theme/@id"/>
-               </appinfo>
-            </annotation>
-         </attribute>
-         <attribute name="default" type="boolean">
-            <annotation>
-               <documentation>
-                  Is default theme association?
-               </documentation>
             </annotation>
          </attribute>
       </complexType>

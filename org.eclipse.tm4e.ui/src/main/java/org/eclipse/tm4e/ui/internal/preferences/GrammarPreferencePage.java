@@ -63,6 +63,7 @@ import org.eclipse.tm4e.ui.internal.widgets.ThemeAssociationsWidget;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
 import org.eclipse.tm4e.ui.snippets.ISnippet;
 import org.eclipse.tm4e.ui.snippets.ISnippetManager;
+import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.ui.IWorkbench;
@@ -285,7 +286,8 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 					themeAssociationsWidget.setSelection(oldSelection);
 				} else {
 					selectedAssociation = themeAssociations != null && themeAssociations.length > 0
-							? themeAssociations[0] : null;
+							? themeAssociations[0]
+							: null;
 					if (selectedAssociation != null) {
 						themeAssociationsWidget.setSelection(new StructuredSelection(selectedAssociation));
 					}
@@ -297,7 +299,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				// Preview the grammar
 				IGrammar grammar = grammarRegistryManager.getGrammarForScope(scopeName);
 				if (selectedAssociation != null) {
-					previewViewer.setThemeId(selectedAssociation.getThemeId(), selectedAssociation.getEclipseThemeId());
+					setPreviewTheme(selectedAssociation.getThemeId());
 				}
 				previewViewer.setGrammar(grammar);
 
@@ -372,8 +374,8 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	}
 
 	/**
-	 * Create detail grammar content which is filled when a grammar is selected
-	 * in the grammar list.
+	 * Create detail grammar content which is filled when a grammar is selected in
+	 * the grammar list.
 	 * 
 	 * @param parent
 	 */
@@ -459,14 +461,19 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				themeAssociationsWidget.getRemoveButton()
 						.setEnabled(association != null && association.getPluginId() == null);
 				if (association != null) {
-					String themeId = association.getThemeId();
-					String eclipseThemeId = association.getEclipseThemeId();
-					previewViewer.setThemeId(themeId, eclipseThemeId);
+					setPreviewTheme(association.getThemeId());
 				}
 			}
 		});
 
 		tab.setControl(parent);
+	}
+
+	private void setPreviewTheme(String themeId) {
+		ITheme theme = themeManager.getThemeById(themeId);
+		if (theme != null) {
+			previewViewer.setTheme(theme);
+		}
 	}
 
 	/**
@@ -558,11 +565,9 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 	}
 
 	/**
-	 * Returns list of selected grammar definitions which was created by the
-	 * user.
+	 * Returns list of selected grammar definitions which was created by the user.
 	 * 
-	 * @return list of selected grammar definitions which was created by the
-	 *         user.
+	 * @return list of selected grammar definitions which was created by the user.
 	 */
 	private Collection<IGrammarDefinition> getSelectedUserGrammarDefinitions() {
 		IStructuredSelection selection = grammarViewer.getStructuredSelection();

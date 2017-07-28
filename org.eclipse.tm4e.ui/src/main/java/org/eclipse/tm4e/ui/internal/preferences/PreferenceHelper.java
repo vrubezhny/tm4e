@@ -13,10 +13,10 @@ package org.eclipse.tm4e.ui.internal.preferences;
 import java.lang.reflect.Type;
 import java.util.Collection;
 
-import org.eclipse.tm4e.ui.internal.themes.Theme;
-import org.eclipse.tm4e.ui.internal.themes.ThemeAssociation;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
+import org.eclipse.tm4e.ui.themes.Theme;
+import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

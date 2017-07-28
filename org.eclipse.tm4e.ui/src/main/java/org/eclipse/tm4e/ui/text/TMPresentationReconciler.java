@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.ui.text;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextInputListener;
 import org.eclipse.jface.text.ITextListener;
+import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension5;
 import org.eclipse.jface.text.Region;
@@ -37,6 +39,7 @@ import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.IPresentationRepairer;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
@@ -64,7 +67,9 @@ import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
+import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
 /**
@@ -87,8 +92,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			"org.eclipse.tm4e.ui/debug/log/TMPresentationReconciler");
 
 	/**
-	 * The default text attribute if non is returned as data by the current
-	 * token
+	 * The default text attribute if non is returned as data by the current token
 	 */
 	private final Token defaultToken;
 
@@ -130,26 +134,32 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void preferenceChange(PreferenceChangeEvent event) {
-			if (ThemeManager.E4_THEME_ID.equals(event.getKey())
-					|| PreferenceConstants.THEME_ASSOCIATIONS.equals(event.getKey())) {
-				IDocument document = viewer.getDocument();
-				if (document == null) {
-					return;
-				}
-				IGrammar grammar = TMPresentationReconciler.this.grammar;
-				if (grammar == null) {
-					return;
-				}
-				if (forcedTheme) {
-					// The theme was forced, don't update it.
-					return;
-				}
-				ITokenProvider oldTheme = tokenProvider;
-				// Select the well TextMate theme from the given E4 theme id.
-				ITokenProvider newTheme = ThemeManager.getInstance().getThemeForScope(grammar.getScopeName(),
-						event.getNewValue() != null ? event.getNewValue().toString() : null);
-				themeChange(oldTheme, newTheme, document);
+			IThemeManager themeManager = TMUIPlugin.getThemeManager();
+			if (ThemeManager.E4_THEME_ID.equals(event.getKey())) {
+				preferenceThemeChange((String) event.getNewValue(), themeManager);
+			} else if (PreferenceConstants.THEME_ASSOCIATIONS.equals(event.getKey())) {
+				preferenceThemeChange(themeManager.getPreferenceE4CSSThemeId(), themeManager);
 			}
+		}
+
+		private void preferenceThemeChange(String eclipseThemeId, IThemeManager themeManager) {
+			IDocument document = viewer.getDocument();
+			if (document == null) {
+				return;
+			}
+			IGrammar grammar = TMPresentationReconciler.this.grammar;
+			if (grammar == null) {
+				return;
+			}
+			if (forcedTheme) {
+				// The theme was forced, don't update it.
+				return;
+			}
+			ITokenProvider oldTheme = tokenProvider;
+			// Select the well TextMate theme from the given E4 theme id.
+			boolean dark = themeManager.isDarkEclipseTheme(eclipseThemeId);
+			ITokenProvider newTheme = themeManager.getThemeForScope(grammar.getScopeName(), dark);
+			themeChange(oldTheme, newTheme, document);
 		}
 	};
 
@@ -291,13 +301,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		}
 
 		/**
-		 * Translates the given text event into the corresponding range of the
-		 * viewer's document.
+		 * Translates the given text event into the corresponding range of the viewer's
+		 * document.
 		 * 
 		 * @param e
 		 *            the text event
-		 * @return the widget region corresponding the region of the given event
-		 *         or <code>null</code> if none
+		 * @return the widget region corresponding the region of the given event or
+		 *         <code>null</code> if none
 		 * @since 2.1
 		 */
 		private IRegion widgetRegion2ModelRegion(TextEvent e) {
@@ -548,8 +558,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	/**
-	 * Return true if the given token is after the given region and false
-	 * otherwise.
+	 * Return true if the given token is after the given region and false otherwise.
 	 * 
 	 * @param t
 	 * @param startLineOffset
@@ -577,10 +586,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	/**
-	 * Returns a text attribute encoded in the given token. If the token's data
-	 * is not <code>null</code> and a text attribute it is assumed that it is
-	 * the encoded text attribute. It returns the default text attribute if
-	 * there is no encoded text attribute found.
+	 * Returns a text attribute encoded in the given token. If the token's data is
+	 * not <code>null</code> and a text attribute it is assumed that it is the
+	 * encoded text attribute. It returns the default text attribute if there is no
+	 * encoded text attribute found.
 	 *
 	 * @param token
 	 *            the token whose text attribute is to be determined
@@ -712,4 +721,36 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return logger;
 	}
 
+	public static TMPresentationReconciler getTMPresentationReconciler(IEditorPart editorPart) {
+		ITextOperationTarget target = editorPart.getAdapter(ITextOperationTarget.class);
+		if (target instanceof ITextViewer) {
+			ITextViewer textViewer = ((ITextViewer) target);
+			return TMPresentationReconciler.getTMPresentationReconciler(textViewer);
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the {@link TMPresentationReconciler} of the given text viewer and
+	 * null otherwise.
+	 * 
+	 * @param textViewer
+	 * @return the {@link TMPresentationReconciler} of the given text viewer and
+	 *         null otherwise.
+	 */
+	public static TMPresentationReconciler getTMPresentationReconciler(ITextViewer textViewer) {
+		try {
+			Field field = SourceViewer.class.getDeclaredField("fPresentationReconciler");
+			if (field != null) {
+				field.setAccessible(true);
+				IPresentationReconciler presentationReconciler = (IPresentationReconciler) field.get(textViewer);
+				return presentationReconciler instanceof TMPresentationReconciler
+						? (TMPresentationReconciler) presentationReconciler
+						: null;
+			}
+		} catch (Exception e) {
+
+		}
+		return null;
+	}
 }

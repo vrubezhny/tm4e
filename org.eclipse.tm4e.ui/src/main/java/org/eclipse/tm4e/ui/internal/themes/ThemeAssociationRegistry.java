@@ -11,109 +11,162 @@
 package org.eclipse.tm4e.ui.internal.themes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
+import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
  * Theme association registry.
  *
  */
-public class ThemeAssociationRegistry extends BaseThemeAssociationRegistry {
+public class ThemeAssociationRegistry {
 
-	private final Map<String, BaseThemeAssociationRegistry> scopes;
+	private final IThemeManager themeManager;
+	private final Map<String, EclipseThemeAssociation> scopes;
 
-	public ThemeAssociationRegistry() {
+	private class EclipseThemeAssociation {
+
+		private IThemeAssociation light;
+		private IThemeAssociation dark;
+
+		public IThemeAssociation getLight() {
+			return light;
+		}
+
+		public void setLight(IThemeAssociation light) {
+			this.light = light;
+		}
+
+		public IThemeAssociation getDark() {
+			return dark;
+		}
+
+		public void setDark(IThemeAssociation dark) {
+			this.dark = dark;
+		}
+
+	}
+
+	public ThemeAssociationRegistry(IThemeManager themeManager) {
+		this.themeManager = themeManager;
 		scopes = new HashMap<>();
 	}
 
-	@Override
+	public IThemeAssociation getThemeAssociationFor(String scopeName, boolean dark) {
+		// From theme assiocations
+		IThemeAssociation userAssociation = null;
+		EclipseThemeAssociation registry = scopes.get(scopeName);
+		if (registry != null) {
+			userAssociation = dark ? registry.getDark() : registry.getLight();
+		}
+		if (userAssociation != null) {
+			return userAssociation;
+		}
+		return null;
+	}
+
 	public void register(IThemeAssociation association) {
 		String scopeName = association.getScopeName();
-		if (scopeName == null) {
-			super.register(association);
+		EclipseThemeAssociation registry = scopes.get(scopeName);
+		if (registry == null) {
+			registry = new EclipseThemeAssociation();
+			scopes.put(scopeName, registry);
+		}
+		ITheme theme = themeManager.getThemeById(association.getThemeId());
+		boolean dark = theme != null && theme.isDark();
+		if (dark) {
+			registry.setDark(association);
 		} else {
-			BaseThemeAssociationRegistry registry = scopes.get(scopeName);
-			if (registry == null) {
-				registry = new BaseThemeAssociationRegistry();
-				scopes.put(scopeName, registry);
-			}
-			registry.register(association);
+			registry.setLight(association);
 		}
 	}
 
-	@Override
 	public void unregister(IThemeAssociation association) {
 		String scopeName = association.getScopeName();
-		if (scopeName == null) {
-			super.unregister(association);
-		} else {
-			BaseThemeAssociationRegistry registry = scopes.get(scopeName);
-			if (registry != null) {
-				registry.unregister(association);
-			}
-		}
-	}
-
-	public IThemeAssociation getThemeAssociationFor(String scopeName, String eclipseThemeId) {
-		IThemeAssociation association = null;
-		BaseThemeAssociationRegistry registry = scopes.get(scopeName);
+		EclipseThemeAssociation registry = scopes.get(scopeName);
 		if (registry != null) {
-			association = registry.getThemeAssociationFor(eclipseThemeId);
-			if (association == null) {
-				association = registry.getDefaultAssociation();
-			}
-		}
-		if (association == null) {
-			association = super.getThemeAssociationFor(eclipseThemeId);
-		}
-		return association != null ? association : getDefaultAssociation();
-	}
-
-	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
-		BaseThemeAssociationRegistry registry = scopes.get(scopeName);
-		if (registry != null) {
-			// Get the user associations (from preferences)
-			List<IThemeAssociation> userAssociations = registry.getThemeAssociations();
-			// Get the default associations (from plugin)
-			List<IThemeAssociation> defaultAssociations = getThemeAssociations().stream()
-					.filter(theme -> theme.isDefault()).collect(Collectors.toList());
-			// Add default association if user associations doesn't define it.
-			for (IThemeAssociation defaultAssociation : defaultAssociations) {
-				if (!(contains(userAssociations, defaultAssociation))) {
-					userAssociations.add(defaultAssociation);
-				}
-			}
-			return userAssociations.toArray(new IThemeAssociation[0]);
-		}
-		return getThemeAssociations(true);
-	}
-
-	private boolean contains(List<IThemeAssociation> userAssociations, IThemeAssociation defaultAssociation) {
-		for (IThemeAssociation userAssociation : userAssociations) {
-			if (defaultAssociation.getEclipseThemeId() == null) {
-				if (userAssociation.getEclipseThemeId() == null) {
-					return true;
-				}
+			ITheme theme = themeManager.getThemeById(association.getThemeId());
+			boolean dark = theme != null && theme.isDark();
+			if (dark) {
+				registry.setDark(null);
 			} else {
-				if (defaultAssociation.getEclipseThemeId().equals(userAssociation.getEclipseThemeId())) {
-					return true;
-				}
+				registry.setLight(null);
 			}
 		}
-		return false;
 	}
 
-	@Override
+	// public IThemeAssociation getThemeAssociationFor(String scopeName, String
+	// eclipseThemeId) {
+	// IThemeAssociation association = null;
+	// BaseThemeAssociationRegistry registry = scopes.get(scopeName);
+	// if (registry != null) {
+	// association = registry.getThemeAssociationFor(eclipseThemeId);
+	// if (association == null) {
+	// association = registry.getDefaultAssociation();
+	// }
+	// }
+	// if (association == null) {
+	// association = super.getThemeAssociationFor(eclipseThemeId);
+	// }
+	// return association != null ? association : getDefaultAssociation();
+	// }
+
+	// public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
+	// BaseThemeAssociationRegistry registry = scopes.get(scopeName);
+	// if (registry != null) {
+	// // Get the user associations (from preferences)
+	// List<IThemeAssociation> userAssociations = registry.getThemeAssociations();
+	// // Get the default associations (from plugin)
+	// /*List<IThemeAssociation> defaultAssociations =
+	// getThemeAssociations().stream()
+	// .filter().collect(Collectors.toList());
+	// // Add default association if user associations doesn't define it.
+	// for (IThemeAssociation defaultAssociation : defaultAssociations) {
+	// if (!(contains(userAssociations, defaultAssociation))) {
+	// userAssociations.add(defaultAssociation);
+	// }
+	// }*/
+	// return userAssociations.toArray(new IThemeAssociation[0]);
+	// }
+	// return getThemeAssociations(true);
+	// }
+	//
+	// private boolean contains(List<IThemeAssociation> userAssociations,
+	// IThemeAssociation defaultAssociation) {
+	//// for (IThemeAssociation userAssociation : userAssociations) {
+	//// if (defaultAssociation.getEclipseThemeId() == null) {
+	//// if (userAssociation.getEclipseThemeId() == null) {
+	//// return true;
+	//// }
+	//// } else {
+	//// if
+	// (defaultAssociation.getEclipseThemeId().equals(userAssociation.getEclipseThemeId()))
+	// {
+	//// return true;
+	//// }
+	//// }
+	//// }
+	// return false;
+	// }
+	//
+	// @Override
 	public List<IThemeAssociation> getThemeAssociations() {
-		List<IThemeAssociation> allAssociations = new ArrayList<>(super.getThemeAssociations());
-		for (BaseThemeAssociationRegistry registry : scopes.values()) {
-			allAssociations.addAll(registry.getThemeAssociations());
+		List<IThemeAssociation> associations = new ArrayList<>();
+		Collection<EclipseThemeAssociation> eclipseAssociations = scopes.values();
+		for (EclipseThemeAssociation eclipseAssociation : eclipseAssociations) {
+			if (eclipseAssociation.getLight() != null) {
+				associations.add(eclipseAssociation.getLight());
+			}
+			if (eclipseAssociation.getDark() != null) {
+				associations.add(eclipseAssociation.getDark());
+			}
 		}
-		return allAssociations;
+		return associations;
 	}
 
 }

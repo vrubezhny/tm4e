@@ -50,4 +50,8 @@ public interface ITheme extends ITokenProvider {
 	 * @return the theme content as CSS style sheet.
 	 */
 	String toCSSStyleSheet();
+	
+	boolean isDark();
+	
+	boolean isDefault();
 }

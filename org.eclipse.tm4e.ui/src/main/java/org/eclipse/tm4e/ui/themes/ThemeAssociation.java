@@ -18,7 +18,8 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.internal.themes;
+package org.eclipse.tm4e.ui.themes;
+
 /**
  *  Copyright (c) 2015-2017 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
@@ -30,7 +31,6 @@ package org.eclipse.tm4e.ui.internal.themes;
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 
 /**
  * Theme association implementation.
@@ -38,15 +38,11 @@ import org.eclipse.tm4e.ui.themes.IThemeAssociation;
  */
 public class ThemeAssociation implements IThemeAssociation {
 
-	private static final String ECLIPSE_THEME_ID_ATTR = "eclipseThemeId"; //$NON-NLS-1$
 	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
 	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
-	private static final String DEFAULT_ATTR = "default"; //$NON-NLS-1$
 
 	private String themeId;
-	private String eclipseThemeId;
 	private String scopeName;
-	private boolean defaultAssociation;
 	private String pluginId;
 
 	/**
@@ -56,16 +52,20 @@ public class ThemeAssociation implements IThemeAssociation {
 		super();
 	}
 
-	public ThemeAssociation(String themeId, String eclipseThemeId, String scopeName, boolean defaultAssociation) {
+	/**
+	 * Constructor to register theme associations for a given scope name.
+	 * 
+	 * @param themeId
+	 * @param eclipseThemeId
+	 * @param scopeName
+	 */
+	public ThemeAssociation(String themeId, String scopeName) {
 		this.themeId = themeId;
-		this.eclipseThemeId = eclipseThemeId;
 		this.scopeName = scopeName;
-		this.defaultAssociation = defaultAssociation;
 	}
 
 	public ThemeAssociation(IConfigurationElement ce) {
-		this(ce.getAttribute(THEME_ID_ATTR), ce.getAttribute(ECLIPSE_THEME_ID_ATTR), ce.getAttribute(SCOPE_NAME_ATTR),
-				"true".equals(ce.getAttribute(DEFAULT_ATTR)));
+		this(ce.getAttribute(THEME_ID_ATTR), ce.getAttribute(SCOPE_NAME_ATTR));
 		this.pluginId = ce.getNamespaceIdentifier();
 	}
 
@@ -80,17 +80,45 @@ public class ThemeAssociation implements IThemeAssociation {
 	}
 
 	@Override
-	public String getEclipseThemeId() {
-		return eclipseThemeId;
-	}
-
-	@Override
 	public String getScopeName() {
 		return scopeName;
 	}
 
 	@Override
-	public boolean isDefault() {
-		return defaultAssociation;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((pluginId == null) ? 0 : pluginId.hashCode());
+		result = prime * result + ((scopeName == null) ? 0 : scopeName.hashCode());
+		result = prime * result + ((themeId == null) ? 0 : themeId.hashCode());
+		return result;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ThemeAssociation other = (ThemeAssociation) obj;
+		if (pluginId == null) {
+			if (other.pluginId != null)
+				return false;
+		} else if (!pluginId.equals(other.pluginId))
+			return false;
+		if (scopeName == null) {
+			if (other.scopeName != null)
+				return false;
+		} else if (!scopeName.equals(other.scopeName))
+			return false;
+		if (themeId == null) {
+			if (other.themeId != null)
+				return false;
+		} else if (!themeId.equals(other.themeId))
+			return false;
+		return true;
+	}
+
 }

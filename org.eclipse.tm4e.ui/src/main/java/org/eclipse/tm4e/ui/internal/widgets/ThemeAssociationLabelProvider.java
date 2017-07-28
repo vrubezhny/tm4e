@@ -40,14 +40,11 @@ public class ThemeAssociationLabelProvider extends LabelProvider implements ITab
 		case 0:
 			ITheme theme = getTheme(association);
 			StringBuilder label = new StringBuilder(theme != null ? theme.getName() : association.getThemeId());
-			if (association.isDefault()) {
-				label.append(" (default)");
-			}
-			if (association.getEclipseThemeId() != null) {
-				label.append(" when '");
-				label.append(association.getEclipseThemeId());
-				label.append("'");
-			}
+//			if (association.getEclipseThemeId() != null) {
+//				label.append(" when '");
+//				label.append(association.getEclipseThemeId());
+//				label.append("'");
+//			}
 			return label.toString();
 		default:
 			return ""; //$NON-NLS-1$

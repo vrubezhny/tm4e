@@ -51,8 +51,10 @@ public class TMUIMessages extends NLS {
 	public static String ThemePreferencePage_column_name;
 	public static String ThemePreferencePage_column_path;
 	public static String ThemePreferencePage_column_pluginId;
+	public static String ThemePreferencePage_darkThemeButton_label;
+	public static String ThemePreferencePage_defaultThemeButton_label;
 	public static String ThemePreferencePage_preview;
-
+	
 	// Widgets
 	public static String ContentTypesBindingWidget_description;
 	public static String ThemeAssociationsWidget_description;
@@ -71,7 +73,6 @@ public class TMUIMessages extends NLS {
 	public static String CreateThemeAssociationWizardPage_description;
 	public static String CreateThemeAssociationWizardPage_theme_text;
 	public static String CreateThemeAssociationWizardPage_grammar_text;
-	public static String CreateThemeAssociationWizardPage_e4Theme_text;
 	public static String CreateThemeAssociationWizardPage_theme_error_required;
 	public static String CreateThemeAssociationWizardPage_grammar_error_required;
 	

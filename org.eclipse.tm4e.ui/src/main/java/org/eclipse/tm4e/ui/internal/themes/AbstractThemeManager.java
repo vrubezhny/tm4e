@@ -10,16 +10,19 @@
  */
 package org.eclipse.tm4e.ui.internal.themes;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
+import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 
 /**
  * TextMate theme manager implementation.
@@ -30,76 +33,14 @@ public abstract class AbstractThemeManager implements IThemeManager {
 	// Theme for E4 CSS Engine
 	private static final String E4_CSS_THEME_PREFERENCE_ID = "org.eclipse.e4.ui.css.swt.theme"; //$NON-NLS-1$
 	public static final String E4_THEME_ID = "themeid"; //$NON-NLS-1$
+	private final static String E4_DARK = "org.eclipse.e4.ui.css.theme.e4_dark";
 
 	private final Map<String /* theme id */ , ITheme> themes;
 	private final ThemeAssociationRegistry themeAssociationRegistry;
 
 	public AbstractThemeManager() {
-		this.themes = new HashMap<>();
-		this.themeAssociationRegistry = new ThemeAssociationRegistry();
-	}
-
-	@Override
-	public ITheme getDefaultTheme() {
-		String themeIdForE4Theme = getPreferenceE4CSSThemeId();
-		return getThemeForScope(null, themeIdForE4Theme);
-	}
-
-	@Override
-	public ITheme getThemeForScope(String scopeName, String eclipseThemeId) {
-		IThemeAssociation association = themeAssociationRegistry.getThemeAssociationFor(scopeName, eclipseThemeId);
-		String themeId = association.getThemeId();
-		return getThemeById(themeId);
-	}
-
-	@Override
-	public ITheme getThemeForScope(String scopeName) {
-		return getThemeForScope(scopeName, getPreferenceE4CSSThemeId());
-	}
-
-	@Override
-	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
-		return themeAssociationRegistry.getThemeAssociationsForScope(scopeName);
-	}
-
-	@Override
-	public IThemeAssociation[] getThemeAssociationsForTheme(String themeId) {
-		return themeAssociationRegistry.getThemeAssociationsForTheme(themeId);
-	}
-
-	@Override
-	public ITheme[] getThemes() {
-		Collection<ITheme> themes = this.themes.values();
-		return themes.toArray(new ITheme[themes.size()]);
-	}
-
-	@Override
-	public ITheme getThemeById(String themeId) {
-		return themes.get(themeId);
-	}
-
-	private String getPreferenceE4CSSThemeId() {
-		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
-		return preferences != null ? preferences.get(E4_THEME_ID, null) : null;
-	}
-
-	protected IEclipsePreferences getPreferenceE4CSSTheme() {
-		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
-	}
-
-	@Override
-	public void registerThemeAssociation(IThemeAssociation association) {
-		themeAssociationRegistry.register(association);
-	}
-
-	@Override
-	public void unregisterThemeAssociation(IThemeAssociation association) {
-		themeAssociationRegistry.unregister(association);
-	}
-	
-	@Override
-	public List<IThemeAssociation> getThemeAssociations() {
-		return themeAssociationRegistry.getThemeAssociations();
+		this.themes = new LinkedHashMap<>();
+		this.themeAssociationRegistry = new ThemeAssociationRegistry(this);
 	}
 
 	@Override
@@ -111,4 +52,111 @@ public abstract class AbstractThemeManager implements IThemeManager {
 	public void unregisterTheme(ITheme theme) {
 		themes.remove(theme.getId());
 	}
+
+	@Override
+	public ITheme getThemeById(String themeId) {
+		return themes.get(themeId);
+	}
+
+	@Override
+	public ITheme[] getThemes() {
+		Collection<ITheme> themes = this.themes.values();
+		return themes.toArray(new ITheme[themes.size()]);
+	}
+
+	@Override
+	public ITheme getDefaultTheme() {
+		boolean dark = isDarkEclipseTheme();
+		return getDefaultTheme(dark);
+	}
+
+	public ITheme getDefaultTheme(boolean dark) {
+		for (ITheme theme : this.themes.values()) {
+			if (theme.isDark() == dark && theme.isDefault()) {
+				return theme;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public ITheme[] getThemes(boolean dark) {
+		Collection<ITheme> themes = this.themes.values();
+		return themes.stream().filter(theme -> {
+			return theme.isDark() == dark;
+		}).collect(Collectors.toList()).toArray(new ITheme[0]);
+	}
+
+	@Override
+	public String getPreferenceE4CSSThemeId() {
+		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
+		return preferences != null ? preferences.get(E4_THEME_ID, null) : null;
+	}
+
+	@Override
+	public boolean isDarkEclipseTheme() {
+		return isDarkEclipseTheme(getPreferenceE4CSSThemeId());
+	}
+
+	@Override
+	public boolean isDarkEclipseTheme(String eclipseThemeId) {
+		return E4_DARK.equals(eclipseThemeId);
+	}
+
+	protected IEclipsePreferences getPreferenceE4CSSTheme() {
+		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
+	}
+
+	@Override
+	public ITheme getThemeForScope(String scopeName, boolean dark) {
+		IThemeAssociation association = themeAssociationRegistry.getThemeAssociationFor(scopeName, dark);
+		if (association != null) {
+			String themeId = association.getThemeId();
+			return getThemeById(themeId);
+		}
+		return getDefaultTheme(dark);
+	}
+
+	@Override
+	public ITheme getThemeForScope(String scopeName) {
+		return getThemeForScope(scopeName, isDarkEclipseTheme());
+	}
+
+	@Override
+	public IThemeAssociation[] getThemeAssociationsForScope(String scopeName) {
+		List<IThemeAssociation> associations = new ArrayList<>();
+		IThemeAssociation light = themeAssociationRegistry.getThemeAssociationFor(scopeName, false);
+		if (light == null) {
+			light = new ThemeAssociation(getDefaultTheme(false).getId(), scopeName);
+		}
+		associations.add(light);
+		IThemeAssociation dark = themeAssociationRegistry.getThemeAssociationFor(scopeName, true);
+		if (dark == null) {
+			dark = new ThemeAssociation(getDefaultTheme(true).getId(), scopeName);
+		}
+		associations.add(dark);
+		return associations.toArray(new IThemeAssociation[associations.size()]);
+	}
+
+	@Override
+	public IThemeAssociation[] getThemeAssociationsForTheme(String themeId) {
+		return null;// themeAssociationRegistry.getThemeAssociationsForTheme(themeId);
+	}
+
+	@Override
+	public void registerThemeAssociation(IThemeAssociation association) {
+		themeAssociationRegistry.register(association);
+	}
+
+	@Override
+	public void unregisterThemeAssociation(IThemeAssociation association) {
+		themeAssociationRegistry.unregister(association);
+	}
+
+	@Override
+	public IThemeAssociation[] getAllThemeAssociations() {
+		List<IThemeAssociation> associations = themeAssociationRegistry.getThemeAssociations();
+		return associations.toArray(new IThemeAssociation[associations.size()]);
+	}
+
 }

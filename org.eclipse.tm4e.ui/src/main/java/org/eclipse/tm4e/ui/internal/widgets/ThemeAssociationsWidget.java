@@ -105,7 +105,7 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 		// Refresh the list of associations
 		super.setInput(themeAssociations);
 		// Select the first of given association
-		if (association == null && themeAssociations.length > 0) {
+		if (association == null && themeAssociations != null && themeAssociations.length > 0) {
 			association = themeAssociations[0];
 		}
 		if (association != null) {

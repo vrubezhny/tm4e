@@ -24,43 +24,32 @@
    <!-- Register default TextMate Themes -->
    <extension
          point="org.eclipse.tm4e.ui.themes">
-      <!-- Default theme used for any Eclipse E4 theme  -->
+      <!-- "Light" themes -->
       <theme
             id="org.eclipse.tm4e.ui.themes.SolarizedLight"
       		name="%Theme.SolarizedLight.name"
-            path="./themes/Solarized-light.css" >
-      </theme>      
-      <themeAssociation
-            themeId="org.eclipse.tm4e.ui.themes.SolarizedLight"
+            path="./themes/Solarized-light.css"
             default="true" >
-      </themeAssociation>
-      <!-- Dark theme bound with Eclipse E4 Dark theme -->
-      <theme
-            id="org.eclipse.tm4e.ui.themes.Dark"
-      		name="%Theme.Dark.name"
-            path="./themes/Dark.css" >
       </theme>
-      <themeAssociation
-            themeId="org.eclipse.tm4e.ui.themes.Dark"
-            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark"
-            default="true" >
-      </themeAssociation>
-      
-      <!-- Other themes -->         
       <theme
             id="org.eclipse.tm4e.ui.themes.Light"
       		name="%Theme.Light.name"
             path="./themes/Light.css" >
-      </theme>
+      </theme>      
+      <!-- "Dark" themes -->
+      <theme
+            id="org.eclipse.tm4e.ui.themes.Dark"
+      		name="%Theme.Dark.name"
+            path="./themes/Dark.css"
+            dark="true"
+            default="true" >
+      </theme>         
       <theme
             id="org.eclipse.tm4e.ui.themes.Monokai"
       		name="%Theme.Monokai.name"
-            path="./themes/Monokai.css" >
+            path="./themes/Monokai.css"
+            dark="true" >
       </theme>
-      <themeAssociation
-            themeId="org.eclipse.tm4e.ui.themes.Monokai"
-            eclipseThemeId="org.eclipse.e4.ui.css.theme.e4_dark" >
-      </themeAssociation>      
    </extension>
 
    <!-- Preference Pages -->
@@ -99,6 +88,53 @@
 		   category="org.eclipse.tm4e.ui.wizards">
 	       <description>%TextMateGrammarImportWizard.desc</description>
 		</wizard>
+   </extension>
+
+   <!-- Property tester contributions -->
+   <extension point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="org.eclipse.tm4e.ui.internal.TMPropertyTester"
+            id="org.eclipse.tm4e.ui.TMPropertyTester"
+            namespace="org.eclipse.tm4e.ui"
+            properties="canSupportTextMate"
+            type="org.eclipse.ui.IEditorPart">
+      </propertyTester>
+   </extension>
+   
+   <!-- Contextual Menu -->
+   <extension
+	      point="org.eclipse.ui.menus">
+	  <!-- Editor "TextMate" contribution -->
+      <menuContribution allPopups="true" 
+      					locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <menu
+               id="org.eclipse.tm4e.ui.internal.menus.Theme"
+               label="%menu.textmate.theme.label" >
+             <separator name="additions" visible="false"/>
+	         <dynamic
+	               class="org.eclipse.tm4e.ui.internal.menus.ThemeContribution"
+	               id="org.eclipse.tm4e.ui.menus.ThemeContribution">	               
+	            <visibleWhen
+	                  checkEnabled="false">
+	                  	  <and>
+						    <with
+					          variable="activePart">
+					       		<instanceof
+					              value="org.eclipse.ui.IEditorPart">
+					             </instanceof>
+					        </with>
+					       <with
+					          variable="activePart">
+					          	<adapt type="org.eclipse.ui.IEditorPart">
+					       			<test property="org.eclipse.tm4e.ui.canSupportTextMate">
+					      			</test>
+					      		</adapt>
+					      	</with>
+					      </and>
+	            </visibleWhen>
+	         </dynamic>
+         </menu>
+      </menuContribution>
    </extension>
 
 </plugin>
