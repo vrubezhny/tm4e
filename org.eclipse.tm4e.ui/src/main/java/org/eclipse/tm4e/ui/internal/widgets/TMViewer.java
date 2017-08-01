@@ -18,10 +18,8 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
 import org.eclipse.tm4e.ui.themes.ITheme;
@@ -69,18 +67,10 @@ public class TMViewer extends SourceViewer {
 
 	public void setTheme(ITheme theme) {
 		reconciler.setThemeId(theme.getId());
-		// Hard code background color according the E4 Theme.
-		// TODO: use ITheme E4 Theme to manage that.
-		if (theme.isDark()) {
-			Display display = Display.getCurrent();
-			Color black = display.getSystemColor(SWT.COLOR_BLACK);
-			getTextWidget().setBackground(black);
-			Color gray = display.getSystemColor(SWT.COLOR_GRAY);
-			getTextWidget().setForeground(gray);
-		} else {
-			getTextWidget().setBackground(null);
-			getTextWidget().setForeground(null);
-		}
+		StyledText styledText = getTextWidget();
+		styledText.setForeground(null);
+		styledText.setBackground(null);
+		theme.initializeViewerColors(styledText);
 		getTextWidget().setFont(JFaceResources.getTextFont());
 	}
 

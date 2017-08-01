@@ -40,9 +40,11 @@ public class ThemeAssociation implements IThemeAssociation {
 
 	private static final String THEME_ID_ATTR = "themeId"; //$NON-NLS-1$
 	private static final String SCOPE_NAME_ATTR = "scopeName"; //$NON-NLS-1$
+	private static final String WHEN_DARK_ATTR = "whenDark"; //$NON-NLS-1$
 
 	private String themeId;
 	private String scopeName;
+	private boolean whenDark;
 	private String pluginId;
 
 	/**
@@ -59,13 +61,15 @@ public class ThemeAssociation implements IThemeAssociation {
 	 * @param eclipseThemeId
 	 * @param scopeName
 	 */
-	public ThemeAssociation(String themeId, String scopeName) {
+	public ThemeAssociation(String themeId, String scopeName, boolean whenDark) {
 		this.themeId = themeId;
 		this.scopeName = scopeName;
+		this.whenDark = whenDark;
 	}
 
 	public ThemeAssociation(IConfigurationElement ce) {
-		this(ce.getAttribute(THEME_ID_ATTR), ce.getAttribute(SCOPE_NAME_ATTR));
+		this(ce.getAttribute(THEME_ID_ATTR), ce.getAttribute(SCOPE_NAME_ATTR),
+				"true".equals(ce.getAttribute(WHEN_DARK_ATTR)));
 		this.pluginId = ce.getNamespaceIdentifier();
 	}
 
@@ -85,12 +89,18 @@ public class ThemeAssociation implements IThemeAssociation {
 	}
 
 	@Override
+	public boolean isWhenDark() {
+		return whenDark;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((pluginId == null) ? 0 : pluginId.hashCode());
 		result = prime * result + ((scopeName == null) ? 0 : scopeName.hashCode());
 		result = prime * result + ((themeId == null) ? 0 : themeId.hashCode());
+		result = prime * result + (whenDark ? 1231 : 1237);
 		return result;
 	}
 
@@ -117,6 +127,8 @@ public class ThemeAssociation implements IThemeAssociation {
 			if (other.themeId != null)
 				return false;
 		} else if (!themeId.equals(other.themeId))
+			return false;
+		if (whenDark != other.whenDark)
 			return false;
 		return true;
 	}

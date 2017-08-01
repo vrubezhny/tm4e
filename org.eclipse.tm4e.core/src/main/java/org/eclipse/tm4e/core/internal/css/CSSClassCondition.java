@@ -10,19 +10,23 @@
  */
 package org.eclipse.tm4e.core.internal.css;
 
-import java.util.List;
-
 public class CSSClassCondition extends CSSAttributeCondition {
 
 	public CSSClassCondition(String localName, String namespaceURI, String value) {
 		super(localName, namespaceURI, true, value);
 	}
-	
+
 	@Override
-	public int nbMatch(List<String> names) {
-		return names.contains(getValue()) ? 1 : 0;
+	public int nbMatch(String... names) {
+		String value = getValue();
+		for (String name : names) {
+			if (name.equals(value)) {
+				return 1;
+			}
+		}
+		return 0;
 	}
-	
+
 	@Override
 	public int nbClass() {
 		return 1;

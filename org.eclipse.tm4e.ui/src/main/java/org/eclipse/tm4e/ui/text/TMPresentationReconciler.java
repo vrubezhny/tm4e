@@ -45,6 +45,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tm4e.core.grammar.IGrammar;
@@ -67,6 +68,7 @@ import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
+import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.ui.IEditorPart;
@@ -220,6 +222,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					String scopeName = grammar.getScopeName();
 					if (tokenProvider == null) {
 						tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
+						initializeViewerColors();
 					}
 					Assert.isNotNull(tokenProvider, "Cannot find Theme for the given grammar '" + scopeName + "'");
 
@@ -398,9 +401,21 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (newTheme != null && !newTheme.equals(oldTheme)) {
 			// Theme has changed, recolorize
 			tokenProvider = newTheme;
+			initializeViewerColors();
 			ITMModel model = getTMModelManager().connect(document);
 			colorize(0, document.getNumberOfLines() - 1, null, (TMDocumentModel) model);
 		}
+	}
+
+	/**
+	 * Initialize foreground, background color from the given theme.
+	 * 
+	 * @param tokenProvider
+	 * @param textWidget
+	 */
+	private void initializeViewerColors() {
+		StyledText styledText = viewer.getTextWidget();
+		((ITheme) tokenProvider).initializeViewerColors(styledText);
 	}
 
 	@Override

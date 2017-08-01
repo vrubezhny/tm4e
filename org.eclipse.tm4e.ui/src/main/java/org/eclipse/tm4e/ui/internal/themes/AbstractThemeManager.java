@@ -40,7 +40,7 @@ public abstract class AbstractThemeManager implements IThemeManager {
 
 	public AbstractThemeManager() {
 		this.themes = new LinkedHashMap<>();
-		this.themeAssociationRegistry = new ThemeAssociationRegistry(this);
+		this.themeAssociationRegistry = new ThemeAssociationRegistry();
 	}
 
 	@Override
@@ -127,20 +127,15 @@ public abstract class AbstractThemeManager implements IThemeManager {
 		List<IThemeAssociation> associations = new ArrayList<>();
 		IThemeAssociation light = themeAssociationRegistry.getThemeAssociationFor(scopeName, false);
 		if (light == null) {
-			light = new ThemeAssociation(getDefaultTheme(false).getId(), scopeName);
+			light = new ThemeAssociation(getDefaultTheme(false).getId(), scopeName, false);
 		}
 		associations.add(light);
 		IThemeAssociation dark = themeAssociationRegistry.getThemeAssociationFor(scopeName, true);
 		if (dark == null) {
-			dark = new ThemeAssociation(getDefaultTheme(true).getId(), scopeName);
+			dark = new ThemeAssociation(getDefaultTheme(true).getId(), scopeName, true);
 		}
 		associations.add(dark);
 		return associations.toArray(new IThemeAssociation[associations.size()]);
-	}
-
-	@Override
-	public IThemeAssociation[] getThemeAssociationsForTheme(String themeId) {
-		return null;// themeAssociationRegistry.getThemeAssociationsForTheme(themeId);
 	}
 
 	@Override

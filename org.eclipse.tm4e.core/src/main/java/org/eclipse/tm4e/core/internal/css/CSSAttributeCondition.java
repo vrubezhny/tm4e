@@ -10,8 +10,6 @@
  */
 package org.eclipse.tm4e.core.internal.css;
 
-import java.util.List;
-
 public class CSSAttributeCondition extends AbstractAttributeCondition {
 
 	/**
@@ -57,7 +55,7 @@ public class CSSAttributeCondition extends AbstractAttributeCondition {
 	}
 
 	@Override
-	public int nbMatch(List<String> names) {
+	public int nbMatch(String... names) {
 //		String val = getValue();
 //		if (val == null) {
 //			return !e.getAttribute(getLocalName()).equals("");

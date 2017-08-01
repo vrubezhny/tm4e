@@ -10,8 +10,6 @@
  */
 package org.eclipse.tm4e.core.internal.css;
 
-import java.util.List;
-
 public class CSSElementSelector extends AbstractElementSelector {
 
 	public CSSElementSelector(String uri, String name) {
@@ -29,7 +27,7 @@ public class CSSElementSelector extends AbstractElementSelector {
 	}
 
 	@Override
-	public int nbMatch(List<String> names) {		
+	public int nbMatch(String... names) {		
 		return 0;
 	}
 	

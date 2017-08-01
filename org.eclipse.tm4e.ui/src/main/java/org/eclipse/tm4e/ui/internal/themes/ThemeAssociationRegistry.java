@@ -16,9 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
-import org.eclipse.tm4e.ui.themes.IThemeManager;
 
 /**
  * Theme association registry.
@@ -26,7 +24,6 @@ import org.eclipse.tm4e.ui.themes.IThemeManager;
  */
 public class ThemeAssociationRegistry {
 
-	private final IThemeManager themeManager;
 	private final Map<String, EclipseThemeAssociation> scopes;
 
 	private class EclipseThemeAssociation {
@@ -52,8 +49,7 @@ public class ThemeAssociationRegistry {
 
 	}
 
-	public ThemeAssociationRegistry(IThemeManager themeManager) {
-		this.themeManager = themeManager;
+	public ThemeAssociationRegistry() {
 		scopes = new HashMap<>();
 	}
 
@@ -77,8 +73,7 @@ public class ThemeAssociationRegistry {
 			registry = new EclipseThemeAssociation();
 			scopes.put(scopeName, registry);
 		}
-		ITheme theme = themeManager.getThemeById(association.getThemeId());
-		boolean dark = theme != null && theme.isDark();
+		boolean dark = association.isWhenDark();
 		if (dark) {
 			registry.setDark(association);
 		} else {
@@ -90,8 +85,7 @@ public class ThemeAssociationRegistry {
 		String scopeName = association.getScopeName();
 		EclipseThemeAssociation registry = scopes.get(scopeName);
 		if (registry != null) {
-			ITheme theme = themeManager.getThemeById(association.getThemeId());
-			boolean dark = theme != null && theme.isDark();
+			boolean dark = association.isWhenDark();
 			if (dark) {
 				registry.setDark(null);
 			} else {

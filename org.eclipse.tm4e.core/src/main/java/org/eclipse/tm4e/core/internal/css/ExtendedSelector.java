@@ -10,8 +10,6 @@
  */
 package org.eclipse.tm4e.core.internal.css;
 
-import java.util.List;
-
 import org.w3c.css.sac.Selector;
 
 public interface ExtendedSelector extends Selector {
@@ -21,7 +19,7 @@ public interface ExtendedSelector extends Selector {
 	 */
 	int getSpecificity();
 
-	int nbMatch(List<String> names);
+	int nbMatch(String... names);
 	
 	int nbClass();
 }

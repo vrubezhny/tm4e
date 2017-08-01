@@ -53,13 +53,13 @@ public class ThemeContribution extends CompoundContributionItem implements IWork
 			if (editorPart != null) {
 				IThemeManager manager = TMUIPlugin.getThemeManager();
 				boolean dark = manager.isDarkEclipseTheme();
-				ITheme[] themes = manager.getThemes(dark);
+				ITheme[] themes = manager.getThemes();
 				if (themes != null) {
 					String scopeName = TMPresentationReconciler.getTMPresentationReconciler(editorPart).getGrammar()
 							.getScopeName();
 					ITheme selectedTheme = manager.getThemeForScope(scopeName, dark);
 					for (ITheme theme : themes) {
-						IAction action = createAction(scopeName, theme);
+						IAction action = createAction(scopeName, theme, dark);
 						if (theme.equals(selectedTheme)) {
 							action.setChecked(true);
 						}
@@ -73,12 +73,12 @@ public class ThemeContribution extends CompoundContributionItem implements IWork
 		return items.toArray(new IContributionItem[items.size()]);
 	}
 
-	private Action createAction(final String scopeName, final ITheme theme) {
+	private Action createAction(final String scopeName, final ITheme theme, boolean whenDark) {
 		return new Action(theme.getName()) {
 			@Override
 			public void run() {
 				IThemeManager manager = TMUIPlugin.getThemeManager();
-				IThemeAssociation association = new ThemeAssociation(theme.getId(), scopeName);
+				IThemeAssociation association = new ThemeAssociation(theme.getId(), scopeName, whenDark);
 				manager.registerThemeAssociation(association);
 				try {
 					manager.save();

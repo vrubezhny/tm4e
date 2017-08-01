@@ -39,3 +39,5 @@
 .markup.inline.raw { color: rgba(42, 161, 152, 1); }
 .markup.heading { color: rgba(38, 139, 210, 1); }
 .markup.heading.setext { color: rgba(38, 139, 210, 1); }
+
+.editor { background-color: rgba(255, 255, 255, 1); color: rgba(0, 0, 0, 1); }

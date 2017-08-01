@@ -86,7 +86,15 @@ public class TMResource implements ITMResource {
 	}
 
 	private static String convertStreamToString(InputStream is) {
-		Scanner s = new Scanner(is).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
+		Scanner s = null;
+		try {
+			s = new Scanner(is);
+			s.useDelimiter("\\A");
+			return s.hasNext() ? s.next() : "";
+		} finally {
+			if (s != null) {
+				s.close();
+			}
+		}
 	}
 }

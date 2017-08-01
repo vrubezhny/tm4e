@@ -32,4 +32,5 @@ public interface IThemeAssociation extends ITMDefinition {
 	 */
 	String getScopeName();
 
+	boolean isWhenDark();
 }

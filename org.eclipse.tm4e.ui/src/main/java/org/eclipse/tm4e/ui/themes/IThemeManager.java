@@ -63,7 +63,7 @@ public interface IThemeManager {
 	 * @return the list of TextMate themes for the given eclipse theme id.
 	 */
 	ITheme[] getThemes(boolean dark);
-	
+
 	/**
 	 * Returns the TextMate theme {@link ITheme} for the given TextMate grammar
 	 * <code>scopeName</code> and E4 Theme <code>eclipseThemeId</code>.
@@ -119,16 +119,6 @@ public interface IThemeManager {
 	 *         <code>scopeName</code>.
 	 */
 	IThemeAssociation[] getThemeAssociationsForScope(String scopeName);
-
-	/**
-	 * Returns the theme associations for the given TextMate theme
-	 * <code>themeId</code>.
-	 * 
-	 * @param themeId
-	 * @return the theme associations for the given TextMate theme
-	 *         <code>themeId</code>.
-	 */
-	IThemeAssociation[] getThemeAssociationsForTheme(String themeId);
 
 	/**
 	 * Returns the Eclipse E4 CSS Theme Id.

@@ -32,7 +32,9 @@ public class CreateThemeAssociationWizard extends Wizard {
 	private final boolean save;
 
 	private IGrammarDefinition initialDefinition;
-	
+
+	private IThemeAssociation initialAssociation;
+
 	public CreateThemeAssociationWizard() {
 		this(true);
 	}
@@ -53,7 +55,7 @@ public class CreateThemeAssociationWizard extends Wizard {
 
 	@Override
 	public void addPages() {
-		mainPage = new CreateThemeAssociationWizardPage(initialDefinition);
+		mainPage = new CreateThemeAssociationWizardPage(initialDefinition, initialAssociation);
 		addPage(mainPage);
 	}
 
@@ -76,9 +78,14 @@ public class CreateThemeAssociationWizard extends Wizard {
 	public IThemeAssociation getCreatedThemeAssociation() {
 		return createdThemeAssociation;
 	}
-	
+
 	public void setInitialDefinition(IGrammarDefinition definition) {
 		this.initialDefinition = definition;
+	}
+
+	public void setInitialAssociation(IThemeAssociation association) {
+		this.initialAssociation = association;
+
 	}
 
 }

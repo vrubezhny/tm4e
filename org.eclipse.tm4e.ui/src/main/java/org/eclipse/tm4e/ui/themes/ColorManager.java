@@ -20,12 +20,16 @@ import org.eclipse.tm4e.core.theme.RGB;
 
 public class ColorManager {
 
-	protected Map fColorTable = new HashMap(10);
+	private static final ColorManager INSTANCE = new ColorManager();
 
-	public void dispose() {
-		Iterator e = fColorTable.values().iterator();
-		while (e.hasNext())
-			((Color) e.next()).dispose();
+	public static ColorManager getInstance() {
+		return INSTANCE;
+	}
+
+	private final Map<RGB, Color> fColorTable;
+
+	private ColorManager() {
+		fColorTable = new HashMap<RGB, Color>(10);
 	}
 
 	public Color getColor(RGB rgb) {
@@ -35,5 +39,12 @@ public class ColorManager {
 			fColorTable.put(rgb, color);
 		}
 		return color;
+	}
+
+	public void dispose() {
+		Iterator<Color> e = fColorTable.values().iterator();
+		while (e.hasNext()) {
+			e.next().dispose();
+		}
 	}
 }

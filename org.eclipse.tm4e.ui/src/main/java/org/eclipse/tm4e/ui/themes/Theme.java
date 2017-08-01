@@ -14,6 +14,8 @@ import java.io.InputStream;
 
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.tm4e.registry.TMResource;
 import org.eclipse.tm4e.registry.XMLConstants;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
@@ -77,6 +79,26 @@ public class Theme extends TMResource implements ITheme {
 		return getTokenProvider().getToken(type);
 	}
 
+	@Override
+	public Color getEditorForeground() {
+		return getTokenProvider().getEditorForeground();
+	}
+
+	@Override
+	public Color getEditorBackground() {
+		return getTokenProvider().getEditorBackground();
+	}
+
+	@Override
+	public Color getEditorSelectionForeground() {
+		return getTokenProvider().getEditorSelectionForeground();
+	}
+
+	@Override
+	public Color getEditorSelectionBackground() {
+		return getTokenProvider().getEditorSelectionBackground();
+	}
+
 	private ITokenProvider getTokenProvider() {
 		if (tokenProvider == null) {
 			try {
@@ -105,5 +127,27 @@ public class Theme extends TMResource implements ITheme {
 	@Override
 	public boolean isDefault() {
 		return isDefault;
+	}
+
+	@Override
+	public void initializeViewerColors(StyledText styledText) {
+		ITokenProvider tokenProvider = getTokenProvider();
+		Color background = tokenProvider.getEditorBackground();
+		if (background != null) {
+			styledText.setBackground(background);
+		}
+		Color foreground = tokenProvider.getEditorForeground();
+		if (foreground != null) {
+			styledText.setForeground(foreground);
+		}
+		Color selectionBackground = tokenProvider.getEditorSelectionBackground();
+		if (selectionBackground != null) {
+			styledText.setSelectionBackground(selectionBackground);
+		}
+		Color selectionForeground = tokenProvider.getEditorSelectionForeground();
+		styledText.setSelectionForeground(null);
+		if (selectionForeground != null) {
+			styledText.setSelectionForeground(selectionForeground);
+		}
 	}
 }

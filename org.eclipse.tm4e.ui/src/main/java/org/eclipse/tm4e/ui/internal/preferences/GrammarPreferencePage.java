@@ -245,7 +245,7 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 				IGrammarDefinition definition = (IGrammarDefinition) (selection).getFirstElement();
 				// Update button
 				grammarRemoveButton.setEnabled(definition.getPluginId() != null);
-				themeAssociationsWidget.getNewButton().setEnabled(true);
+				themeAssociationsWidget.getNewButton().setEnabled(false);
 				themeAssociationsWidget.getRemoveButton().setEnabled(false);
 				// Select grammar
 				selectGrammar(definition);
@@ -458,8 +458,10 @@ public class GrammarPreferencePage extends PreferencePage implements IWorkbenchP
 			}
 
 			private void selectTheme(IThemeAssociation association) {
+				themeAssociationsWidget.getNewButton()
+						.setEnabled(association != null /* && association.getPluginId() == null */);
 				themeAssociationsWidget.getRemoveButton()
-						.setEnabled(association != null && association.getPluginId() == null);
+						.setEnabled(association != null /* && association.getPluginId() == null */);
 				if (association != null) {
 					setPreviewTheme(association.getThemeId());
 				}

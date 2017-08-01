@@ -22,6 +22,7 @@ public class TMUIMessages extends NLS {
 
 	// Buttons
 	public static String Button_new;
+	public static String Button_edit;
 	public static String Button_remove;
 	public static String Button_browse_FileSystem;
 	public static String Button_browse_Workspace;
@@ -54,12 +55,14 @@ public class TMUIMessages extends NLS {
 	public static String ThemePreferencePage_darkThemeButton_label;
 	public static String ThemePreferencePage_defaultThemeButton_label;
 	public static String ThemePreferencePage_preview;
-	
+
 	// Widgets
 	public static String ContentTypesBindingWidget_description;
 	public static String ThemeAssociationsWidget_description;
 	public static String ThemeAssociationsWidget_remove_dialog_title;
 	public static String ThemeAssociationsWidget_remove_dialog_message;
+	public static String ThemeAssociationLabelProvider_light;
+	public static String ThemeAssociationLabelProvider_dark;
 
 	// Wizards
 	public static String SelectGrammarWizardPage_title;
@@ -75,7 +78,8 @@ public class TMUIMessages extends NLS {
 	public static String CreateThemeAssociationWizardPage_grammar_text;
 	public static String CreateThemeAssociationWizardPage_theme_error_required;
 	public static String CreateThemeAssociationWizardPage_grammar_error_required;
-	
+	public static String CreateThemeAssociationWizardPage_whenDark_text;
+
 	// TMPresentationReconciler register dialog confirmation
 	public static String TMPresentationReconciler_register_dialog_title;
 	public static String TMPresentationReconciler_register_dialog_message;

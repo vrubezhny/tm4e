@@ -15,6 +15,7 @@ import org.eclipse.tm4e.ui.internal.snippets.SnippetManager;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 import org.eclipse.tm4e.ui.snippets.ISnippetManager;
+import org.eclipse.tm4e.ui.themes.ColorManager;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -44,6 +45,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
+		ColorManager.getInstance().dispose();
 		plugin = null;
 		super.stop(context);
 	}

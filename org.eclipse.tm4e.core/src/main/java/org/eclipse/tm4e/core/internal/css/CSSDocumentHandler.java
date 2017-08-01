@@ -90,17 +90,32 @@ public class CSSDocumentHandler implements DocumentHandler {
 	public void property(String name, LexicalUnit value, boolean arg2) throws CSSException {
 		if (currentStyle != null) {
 			if ("color".equals(name)) {
-				RGBColor rgbColor = new RGBColorImpl(value);
-				int green = ((int) rgbColor.getGreen().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
-				int red = ((int) rgbColor.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
-				int blue = ((int) rgbColor.getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
-				currentStyle.setColor(new RGB(red, green, blue));
+				currentStyle.setColor(createRGB(value));
+			} else if ("background-color".equals(name)) {
+				currentStyle.setBackgroundColor(createRGB(value));
 			} else if ("font-weight".equals(name)) {
 				currentStyle.setBold(value.getStringValue().toUpperCase().contains("BOLD"));
 			} else if ("font-style".equals(name)) {
 				currentStyle.setItalic(value.getStringValue().toUpperCase().contains("ITALIC"));
 			}
+			if ("text-decoration".equals(name)) {
+				String decoration = value.getStringValue().toUpperCase();
+				if (decoration.contains("UNDERLINE")) {
+					currentStyle.setUnderline(true);
+				}
+				if (decoration.contains("LINE-THROUGH")) {
+					currentStyle.setStrikeThrough(true);
+				}
+			}
 		}
+	}
+
+	private RGB createRGB(LexicalUnit value) {
+		RGBColor rgbColor = new RGBColorImpl(value);
+		int green = ((int) rgbColor.getGreen().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
+		int red = ((int) rgbColor.getRed().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
+		int blue = ((int) rgbColor.getBlue().getFloatValue(CSSPrimitiveValue.CSS_NUMBER));
+		return new RGB(red, green, blue);
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -43,12 +44,17 @@ public class CreateThemeAssociationWizardPage extends AbstractWizardPage {
 	private ComboViewer themeViewer;
 	private ComboViewer grammarViewer;
 	private final IGrammarDefinition initialDefinition;
+	private final IThemeAssociation initialAssociation;
 
-	protected CreateThemeAssociationWizardPage(IGrammarDefinition initialDefinition) {
+	private Button whenDarkButton;
+
+	protected CreateThemeAssociationWizardPage(IGrammarDefinition initialDefinition,
+			IThemeAssociation initialAssociation) {
 		super(PAGE_NAME);
 		super.setTitle(TMUIMessages.CreateThemeAssociationWizardPage_title);
 		super.setDescription(TMUIMessages.CreateThemeAssociationWizardPage_description);
 		this.initialDefinition = initialDefinition;
+		this.initialAssociation = initialAssociation;
 	}
 
 	@Override
@@ -80,6 +86,19 @@ public class CreateThemeAssociationWizardPage extends AbstractWizardPage {
 		if (initialDefinition != null) {
 			grammarViewer.setSelection(new StructuredSelection(initialDefinition));
 		}
+
+		whenDarkButton = new Button(parent, SWT.CHECK);
+		whenDarkButton.setText(TMUIMessages.CreateThemeAssociationWizardPage_whenDark_text);
+		GridData data = new GridData();
+		data.horizontalSpan = 4;
+		whenDarkButton.setLayoutData(data);
+		if (initialAssociation != null) {
+			ITheme selectedTheme = TMUIPlugin.getThemeManager().getThemeById(initialAssociation.getThemeId());
+			if (selectedTheme != null) {
+				themeViewer.setSelection(new StructuredSelection(selectedTheme));
+			}
+			whenDarkButton.setSelection(initialAssociation.isWhenDark());
+		}
 	}
 
 	@Override
@@ -104,7 +123,8 @@ public class CreateThemeAssociationWizardPage extends AbstractWizardPage {
 		String themeId = ((ITheme) themeViewer.getStructuredSelection().getFirstElement()).getId();
 		String scopeName = ((IGrammarDefinition) grammarViewer.getStructuredSelection().getFirstElement())
 				.getScopeName();
-		return new ThemeAssociation(themeId, scopeName);
+		boolean whenDark = whenDarkButton.getSelection();
+		return new ThemeAssociation(themeId, scopeName, whenDark);
 	}
 
 }

@@ -12,9 +12,16 @@ package org.eclipse.tm4e.core.theme;
 
 public interface IStyle {
 
+	RGB getColor();
+
+	RGB getBackgroundColor();
+
 	boolean isBold();
 
 	boolean isItalic();
 
-	public RGB getColor();
+	boolean isUnderline();
+
+	boolean isStrikeThrough();
+
 }

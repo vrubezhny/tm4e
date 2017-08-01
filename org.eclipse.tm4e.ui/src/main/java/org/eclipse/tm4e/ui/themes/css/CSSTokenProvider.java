@@ -11,7 +11,6 @@
 package org.eclipse.tm4e.ui.themes.css;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +18,7 @@ import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.tm4e.core.theme.IStyle;
 import org.eclipse.tm4e.core.theme.RGB;
 import org.eclipse.tm4e.core.theme.css.CSSParser;
@@ -31,7 +31,6 @@ public class CSSTokenProvider extends AbstractTokenProvider {
 	private CSSParser parser;
 
 	public CSSTokenProvider(InputStream in) {
-		ColorManager manager = new ColorManager();
 		tokenMaps = new HashMap<>();
 		try {
 			parser = new CSSParser(in);
@@ -45,11 +44,17 @@ public class CSSTokenProvider extends AbstractTokenProvider {
 					if (style.isItalic()) {
 						s = s | SWT.ITALIC;
 					}
-					tokenMaps.put(style, new Token(new TextAttribute(manager.getColor(color), null, s)));
+					if (style.isUnderline()) {
+						s = s | TextAttribute.UNDERLINE;
+					}
+					if (style.isStrikeThrough()) {
+						s = s | TextAttribute.STRIKETHROUGH;
+					}
+					tokenMaps.put(style,
+							new Token(new TextAttribute(ColorManager.getInstance().getColor(color), null, s)));
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -59,12 +64,48 @@ public class CSSTokenProvider extends AbstractTokenProvider {
 		if (type == null) {
 			return null;
 		}
-		IStyle style = parser.getBestStyle(Arrays.asList(type.split("[.]")));
+		IStyle style = parser.getBestStyle(type.split("[.]"));
 		if (style != null) {
 			IToken t = tokenMaps.get(style);
 			if (t != null) {
 				return t;
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public Color getEditorForeground() {
+		IStyle style = parser.getBestStyle("editor");
+		if (style != null && style.getColor() != null) {
+			return ColorManager.getInstance().getColor(style.getColor());
+		}
+		return null;
+	}
+
+	@Override
+	public Color getEditorBackground() {
+		IStyle style = parser.getBestStyle("editor");
+		if (style != null && style.getBackgroundColor() != null) {
+			return ColorManager.getInstance().getColor(style.getBackgroundColor());
+		}
+		return null;
+	}
+
+	@Override
+	public Color getEditorSelectionForeground() {
+		IStyle style = parser.getBestStyle("editor", "selection");
+		if (style != null && style.getColor() != null) {
+			return ColorManager.getInstance().getColor(style.getColor());
+		}
+		return null;
+	}
+
+	@Override
+	public Color getEditorSelectionBackground() {
+		IStyle style = parser.getBestStyle("editor", "selection");
+		if (style != null && style.getBackgroundColor() != null) {
+			return ColorManager.getInstance().getColor(style.getBackgroundColor());
 		}
 		return null;
 	}

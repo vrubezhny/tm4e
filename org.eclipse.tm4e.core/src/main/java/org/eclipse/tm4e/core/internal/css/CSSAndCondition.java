@@ -10,8 +10,6 @@
  */
 package org.eclipse.tm4e.core.internal.css;
 
-import java.util.List;
-
 import org.w3c.css.sac.Condition;
 
 public class CSSAndCondition extends AbstractCombinatorCondition {
@@ -29,7 +27,7 @@ public class CSSAndCondition extends AbstractCombinatorCondition {
 	}
 
 	@Override
-	public int nbMatch(List<String> names) {
+	public int nbMatch(String... names) {
 		return ((ExtendedCondition) getFirstCondition()).nbMatch(names)
 				+ ((ExtendedCondition) getSecondCondition()).nbMatch(names);
 	}

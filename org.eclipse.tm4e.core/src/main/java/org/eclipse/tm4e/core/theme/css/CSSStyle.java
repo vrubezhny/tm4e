@@ -18,8 +18,12 @@ public class CSSStyle implements IStyle {
 
 	private final SelectorList selector;
 	private RGB color;
+	private RGB backgroundColor;
+	
 	private boolean bold;
 	private boolean italic;
+	private boolean underline;
+	private boolean strikeThrough;
 
 	public CSSStyle(SelectorList selector) {
 		this.selector = selector;
@@ -34,6 +38,15 @@ public class CSSStyle implements IStyle {
 		return color;
 	}
 
+	@Override
+	public RGB getBackgroundColor() {
+		return backgroundColor;
+	}
+	
+	public void setBackgroundColor(RGB backgroundColor) {
+		this.backgroundColor = backgroundColor;		
+	}
+	
 	public SelectorList getSelectorList() {
 		return selector;
 	}
@@ -55,4 +68,23 @@ public class CSSStyle implements IStyle {
 	public boolean isItalic() {
 		return italic;
 	}
+
+	@Override
+	public boolean isUnderline() {
+		return underline;
+	}
+
+	public void setUnderline(boolean underline) {
+		this.underline = underline;
+	}
+
+	@Override
+	public boolean isStrikeThrough() {
+		return strikeThrough;
+	}
+	
+	public void setStrikeThrough(boolean strikeThrough) {
+		this.strikeThrough = strikeThrough;
+	}
+
 }

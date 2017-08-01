@@ -37,7 +37,7 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 
 	private IThemeManager themeManager;
 
-	private Button newButton;
+	private Button editButton;
 	private Button removeButton;
 
 	private IGrammarDefinition definition;
@@ -51,13 +51,15 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 
 	@Override
 	protected void createButtons(Composite parent) {
-		newButton = new Button(parent, SWT.PUSH);
-		newButton.setText(TMUIMessages.Button_new);
-		newButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		newButton.addListener(SWT.Selection, (e) -> {
+		editButton = new Button(parent, SWT.PUSH);
+		editButton.setText(TMUIMessages.Button_edit);
+		editButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		editButton.addListener(SWT.Selection, (e) -> {
 			// Open the wizard to create association between theme and grammar.
 			CreateThemeAssociationWizard wizard = new CreateThemeAssociationWizard(false);
 			wizard.setInitialDefinition(definition);
+			IStructuredSelection selection = super.getSelection();
+			wizard.setInitialAssociation(selection.isEmpty() ? null : (IThemeAssociation) selection.getFirstElement());
 			wizard.setThemeManager(themeManager);
 			WizardDialog dialog = new WizardDialog(getShell(), wizard);
 			if (dialog.open() == Window.OK) {
@@ -65,7 +67,7 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 				refresh(association);
 			}
 		});
-		newButton.setEnabled(false);
+		editButton.setEnabled(false);
 
 		removeButton = new Button(parent, SWT.PUSH);
 		removeButton.setText(TMUIMessages.Button_remove);
@@ -88,7 +90,7 @@ public class ThemeAssociationsWidget extends TableAndButtonsWidget {
 	}
 
 	public Button getNewButton() {
-		return newButton;
+		return editButton;
 	}
 
 	public Button getRemoveButton() {

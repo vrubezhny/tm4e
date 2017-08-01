@@ -10,6 +10,8 @@
  */
 package org.eclipse.tm4e.ui.themes;
 
+import org.eclipse.swt.custom.StyledText;
+
 /**
  * TextMate theme.
  *
@@ -43,15 +45,24 @@ public interface ITheme extends ITokenProvider {
 	 * @return the plugin id
 	 */
 	String getPluginId();
-	
+
 	/**
 	 * Returns the theme content as CSS style sheet.
 	 * 
 	 * @return the theme content as CSS style sheet.
 	 */
 	String toCSSStyleSheet();
-	
+
 	boolean isDark();
-	
+
 	boolean isDefault();
+
+	/**
+	 * Initialize foreground, background color of the given {@link StyledText} with
+	 * theme.
+	 * 
+	 * @param textWidget
+	 */
+	void initializeViewerColors(StyledText styledText);
+
 }

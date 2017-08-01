@@ -60,7 +60,7 @@ public class CSSParser {
 		parser.parseStyleSheet(source);
 	}
 
-	public IStyle getBestStyle(List<String> names) {
+	public IStyle getBestStyle(String... names) {
 		int bestSpecificity = 0;
 		IStyle bestStyle = null;
 		for (IStyle style : handler.getList()) {

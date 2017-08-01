@@ -12,8 +12,10 @@ package org.eclipse.tm4e.ui.internal.widgets;
 
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.internal.TMUIMessages;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
@@ -39,13 +41,11 @@ public class ThemeAssociationLabelProvider extends LabelProvider implements ITab
 		switch (columnIndex) {
 		case 0:
 			ITheme theme = getTheme(association);
-			StringBuilder label = new StringBuilder(theme != null ? theme.getName() : association.getThemeId());
-//			if (association.getEclipseThemeId() != null) {
-//				label.append(" when '");
-//				label.append(association.getEclipseThemeId());
-//				label.append("'");
-//			}
-			return label.toString();
+			String themeName = theme != null ? theme.getName() : association.getThemeId();
+			if (association.isWhenDark()) {
+				return NLS.bind(TMUIMessages.ThemeAssociationLabelProvider_dark, themeName);
+			}
+			return NLS.bind(TMUIMessages.ThemeAssociationLabelProvider_light, themeName);
 		default:
 			return ""; //$NON-NLS-1$
 		}

@@ -28,7 +28,7 @@
 .markup.deleted { color: rgba(249, 38, 114, 1); }
 .markup.inserted { color: rgba(166, 226, 46, 1); }
 .markup.changed { color: rgba(230, 219, 116, 1); }
-.constant.numeric.line-number.find-in-files.-.match { color: rgba(174, 129, 255, 0.63); }
+.constant.numeric.line-number.find-in-files.match { color: rgba(174, 129, 255, 0.63); }
 .entity.name.filename.find-in-files { color: rgba(230, 219, 116, 1); }
 .markup.quote { color: rgba(249, 38, 114, 1); }
 .markup.list { color: rgba(230, 219, 116, 1); }
@@ -37,3 +37,6 @@
 .markup.inline.raw { color: rgba(253, 151, 31, 1); }
 .markup.heading { color: rgba(166, 226, 46, 1); }
 .markup.heading.setext { color: rgba(166, 226, 46, 1); }
+
+.editor { background-color: rgba(39, 40, 34, 1); color: rgba(248,248,242, 1); }
+/**.editor.selection { background-color: rgba(73, 72, 62, 0.5); }**/
