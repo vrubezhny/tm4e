@@ -127,6 +127,13 @@
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="whenDark" type="boolean">
+            <annotation>
+               <documentation>
+                  true if theme is a &quot;Dark&quot; theme and false otherwise.
+               </documentation>
+            </annotation>
+         </attribute>
       </complexType>
    </element>
 
