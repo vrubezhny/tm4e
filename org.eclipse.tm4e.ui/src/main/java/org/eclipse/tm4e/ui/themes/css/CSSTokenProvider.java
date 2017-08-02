@@ -109,5 +109,14 @@ public class CSSTokenProvider extends AbstractTokenProvider {
 		}
 		return null;
 	}
+	
+	@Override
+	public Color getEditorCurrentLineHighlight() {
+		IStyle style = parser.getBestStyle("editor", "lineHighlight");
+		if (style != null && style.getBackgroundColor() != null) {
+			return ColorManager.getInstance().getColor(style.getBackgroundColor());
+		}
+		return null;
+	}
 
 }

@@ -99,6 +99,11 @@ public class Theme extends TMResource implements ITheme {
 		return getTokenProvider().getEditorSelectionBackground();
 	}
 
+	@Override
+	public Color getEditorCurrentLineHighlight() {
+		return getTokenProvider().getEditorCurrentLineHighlight();
+	}
+
 	private ITokenProvider getTokenProvider() {
 		if (tokenProvider == null) {
 			try {

@@ -22,18 +22,22 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChang
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.CursorLinePainter;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IPainter;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextInputListener;
 import org.eclipse.jface.text.ITextListener;
 import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension5;
+import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.TextEvent;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.presentation.IPresentationDamager;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.IPresentationRepairer;
@@ -46,6 +50,7 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tm4e.core.grammar.IGrammar;
@@ -59,6 +64,7 @@ import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
+import org.eclipse.tm4e.ui.internal.model.ClassHelper;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
@@ -116,6 +122,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private List<ITMPresentationReconcilerListener> listeners;
 
 	private ILogger logger;
+
+	private boolean initializeViewerColors;
+
+	private boolean updateTextDecorations;
 
 	public TMPresentationReconciler() {
 		this.defaultToken = new Token(null);
@@ -222,7 +232,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					String scopeName = grammar.getScopeName();
 					if (tokenProvider == null) {
 						tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
-						initializeViewerColors();
+						applyThemeEditor();
 					}
 					Assert.isNotNull(tokenProvider, "Cannot find Theme for the given grammar '" + scopeName + "'");
 
@@ -401,21 +411,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (newTheme != null && !newTheme.equals(oldTheme)) {
 			// Theme has changed, recolorize
 			tokenProvider = newTheme;
-			initializeViewerColors();
+			applyThemeEditor();
 			ITMModel model = getTMModelManager().connect(document);
 			colorize(0, document.getNumberOfLines() - 1, null, (TMDocumentModel) model);
 		}
-	}
-
-	/**
-	 * Initialize foreground, background color from the given theme.
-	 * 
-	 * @param tokenProvider
-	 * @param textWidget
-	 */
-	private void initializeViewerColors() {
-		StyledText styledText = viewer.getTextWidget();
-		((ITheme) tokenProvider).initializeViewerColors(styledText);
 	}
 
 	@Override
@@ -465,6 +464,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMDocumentModel model) {
+		applyThemeEditorIfNeeded();
 		ILogger logger = getLogger();
 		// Refresh the UI Presentation
 		if (logger.isEnabled()) {
@@ -767,5 +767,56 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		}
 		return null;
+	}
+
+	/**
+	 * Initialize foreground, background color, current line highlight from the
+	 * current theme.
+	 * 
+	 */
+	private void applyThemeEditor() {
+		this.initializeViewerColors = false;
+		this.updateTextDecorations = false;
+		applyThemeEditorIfNeeded();
+	}
+
+	/**
+	 * Initialize foreground, background color, current line highlight from the
+	 * current theme if needed.
+	 * 
+	 */
+	private void applyThemeEditorIfNeeded() {
+		if (!initializeViewerColors) {
+			StyledText styledText = viewer.getTextWidget();
+			((ITheme) tokenProvider).initializeViewerColors(styledText);
+			initializeViewerColors = true;
+		}
+		if (!updateTextDecorations) {
+			try {
+				// Ugly code to update "current line highlight" :
+				// - get the PaintManager from the ITextViewer with reflection.
+				// - get the list of IPainter of PaintManager with reflection
+				// - loop for IPainter to retrieve CursorLinePainter which manages "current line
+				// highlight".
+				PaintManager paintManager = ClassHelper.getFieldValue(viewer, "fPaintManager", TextViewer.class);
+				if (paintManager != null) {
+					List<IPainter> painters = ClassHelper.getFieldValue(paintManager, "fPainters", PaintManager.class);
+					if (painters != null) {
+						for (IPainter painter : painters) {
+							if (painter instanceof CursorLinePainter) {
+								// Update current line highlight
+								Color background = tokenProvider.getEditorCurrentLineHighlight();
+								if (background != null) {
+									((CursorLinePainter) painter).setHighlightColor(background);
+								}
+								updateTextDecorations = true;
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

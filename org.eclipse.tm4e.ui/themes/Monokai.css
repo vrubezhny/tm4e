@@ -39,4 +39,6 @@
 .markup.heading.setext { color: rgba(166, 226, 46, 1); }
 
 .editor { background-color: rgba(39, 40, 34, 1); color: rgba(248,248,242, 1); }
+.editor.lineHighlight { background-color: rgba(62, 61, 50, 1); }
+.editor.selection {}
 /**.editor.selection { background-color: rgba(73, 72, 62, 0.5); }**/

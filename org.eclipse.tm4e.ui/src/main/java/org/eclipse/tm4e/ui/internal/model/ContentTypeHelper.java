@@ -12,7 +12,6 @@ package org.eclipse.tm4e.ui.internal.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -56,8 +55,7 @@ public class ContentTypeHelper {
 	}
 
 	/**
-	 * Find the content types from the given {@link IDocument} and null
-	 * otherwise.
+	 * Find the content types from the given {@link IDocument} and null otherwise.
 	 * 
 	 * @param document
 	 * @return the content types from the given {@link IDocument} and null
@@ -177,7 +175,8 @@ public class ContentTypeHelper {
 					IStorage storage = ((IStorageEditorInput) editorInput).getStorage();
 					String fileName = storage.getName();
 					input = storage.getContents();
-					return new ContentTypeInfo(fileName, Platform.getContentTypeManager().findContentTypesFor(input, fileName));
+					return new ContentTypeInfo(fileName,
+							Platform.getContentTypeManager().findContentTypesFor(input, fileName));
 				} catch (Exception e) {
 					return null;
 				} finally {
@@ -195,12 +194,10 @@ public class ContentTypeHelper {
 	}
 
 	/**
-	 * Returns the {@link IEditorInput} from the given document and null
-	 * otherwise.
+	 * Returns the {@link IEditorInput} from the given document and null otherwise.
 	 * 
 	 * @param document
-	 * @return the {@link IEditorInput} from the given document and null
-	 *         otherwise.
+	 * @return the {@link IEditorInput} from the given document and null otherwise.
 	 */
 	private static IEditorInput getEditorInput(IDocument document) {
 		try {
@@ -214,7 +211,7 @@ public class ContentTypeHelper {
 			// ISorageEditorInput, see StorageDocumentProvider)
 
 			// get list of IDocumentListener
-			ListenerList listeners = getFieldValue(document, "fDocumentListeners");
+			ListenerList listeners = ClassHelper.getFieldValue(document, "fDocumentListeners");
 			if (listeners != null) {
 				// Get AbstractDocumentProvider#ElementInfo
 				Object[] l = listeners.getListeners();
@@ -222,7 +219,7 @@ public class ContentTypeHelper {
 					Object /* AbstractDocumentProvider#ElementInfo */ info = l[i];
 					try {
 						/* The element for which the info is stored */
-						Object input = getFieldValue(info, "fElement");
+						Object input = ClassHelper.getFieldValue(info, "fElement");
 						if (input instanceof IEditorInput) {
 							return (IEditorInput) input;
 						}
@@ -235,33 +232,6 @@ public class ContentTypeHelper {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	private static <T> T getFieldValue(Object object, String name) {
-		Field f = getDeclaredField(object.getClass(), name);
-		if (f != null) {
-			try {
-				return (T) f.get(object);
-			} catch (Exception e) {
-				return null;
-			}
-		}
-		return null;
-	}
-
-	private static Field getDeclaredField(Class clazz, String name) {
-		if (clazz == null) {
-			return null;
-		}
-		try {
-			Field f = clazz.getDeclaredField(name);
-			f.setAccessible(true);
-			return f;
-		} catch (NoSuchFieldException e) {
-			return getDeclaredField(clazz.getSuperclass(), name);
-		} catch (SecurityException e) {
-			return null;
-		}
 	}
 
 }

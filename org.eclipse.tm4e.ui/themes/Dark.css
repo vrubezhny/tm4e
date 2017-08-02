@@ -75,4 +75,6 @@
 .entity.name.function.tag { color: rgba(86, 156, 214, 1); }
 
 .editor { background-color: rgba(30, 30, 30, 1); color: rgb(212, 212, 212); }
+.editor.lineHighlight  {background-color:  rgba(40, 40, 40, 1); }
+.editor.selection {}
 /**.editor.selection { background-color: rgba(73, 72, 62, 0.5); }**/

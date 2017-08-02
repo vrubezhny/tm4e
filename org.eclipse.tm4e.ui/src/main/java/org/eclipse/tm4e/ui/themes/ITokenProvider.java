@@ -34,4 +34,6 @@ public interface ITokenProvider {
 	Color getEditorSelectionBackground();
 
 	Color getEditorSelectionForeground();
+	
+	Color getEditorCurrentLineHighlight();
 }
