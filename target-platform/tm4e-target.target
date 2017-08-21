@@ -10,7 +10,7 @@
 <unit id="org.jcodings" version="1.0.18.v20170306-1742"/>
 <unit id="org.joni" version="2.1.11.v20170306-1742"/>
 <unit id="org.junit" version="4.12.0.v201504281640"/>
-<repository location="http://download.eclipse.org/tools/orbit/S-builds/S20170306214312/repository/"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20170804160030/repository"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.platform.feature.group" version="4.7.0.v20170308-2000"/>
