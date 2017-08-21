@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="tm4e" sequenceNumber="6">
+<?pde version="3.8"?><target name="tm4e" sequenceNumber="7">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 <unit id="org.eclipse.license.feature.group" version="1.0.1.v20140414-1359"/>
@@ -13,9 +13,9 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20170804160030/repository"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.feature.group" version="4.7.0.v20170308-2000"/>
-<unit id="org.eclipse.ui.tests.harness" version="1.4.0.v20160830-0648"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.7milestones/S-4.7M6-201703082000/"/>
+<unit id="org.eclipse.platform.feature.group" version="4.7.0.v20170612-1255"/>
+<unit id="org.eclipse.ui.tests.harness" version="1.4.100.v20170515-1127"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7/"/>
 </location>
 </locations>
 </target>
