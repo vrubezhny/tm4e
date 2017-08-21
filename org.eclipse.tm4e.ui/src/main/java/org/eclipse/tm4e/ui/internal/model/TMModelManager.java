@@ -13,9 +13,10 @@ package org.eclipse.tm4e.ui.internal.model;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.core.model.ITMModel;
-import org.eclipse.tm4e.core.model.TMModel;
+import org.eclipse.tm4e.ui.model.ContentTypeInfo;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 
 /**
@@ -53,5 +54,10 @@ public class TMModelManager implements ITMModelManager {
 		if (model != null) {
 			model.dispose();
 		}
+	}
+
+	@Override
+	public ContentTypeInfo findContentTypes(IDocument document) throws CoreException {
+		return ContentTypeHelper.findContentTypes(document);
 	}
 }

@@ -213,7 +213,6 @@ public class ThemePreferencePage extends PreferencePage implements IWorkbenchPre
 			public void selectionChanged(SelectionChangedEvent e) {
 				// Fill Theme details
 				ITheme theme = ((ITheme) ((IStructuredSelection) themeViewer.getSelection()).getFirstElement());
-				;
 				darkThemeButton.setSelection(theme.isDark());
 				defaultThemeButton.setSelection(theme.isDefault());
 				preview();

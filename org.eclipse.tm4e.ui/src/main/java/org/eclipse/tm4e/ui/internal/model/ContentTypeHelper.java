@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.tm4e.ui.model.ContentTypeInfo;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IStorageEditorInput;
 
@@ -34,25 +35,6 @@ import org.eclipse.ui.IStorageEditorInput;
  *
  */
 public class ContentTypeHelper {
-
-	public static class ContentTypeInfo {
-
-		private final String fileName;
-		private final IContentType[] contentTypes;
-
-		public ContentTypeInfo(String fileName, IContentType[] contentTypes) {
-			this.fileName = fileName;
-			this.contentTypes = contentTypes;
-		}
-
-		public String getFileName() {
-			return fileName;
-		}
-
-		public IContentType[] getContentTypes() {
-			return contentTypes;
-		}
-	}
 
 	/**
 	 * Find the content types from the given {@link IDocument} and null otherwise.
