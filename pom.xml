@@ -18,7 +18,7 @@
 	</properties>
 	<organization>
 		<name>Eclipse TM4E project</name>
-		<url>https://projects.eclipse.org/projects/technology.lsp4e</url>
+		<url>https://projects.eclipse.org/projects/technology.tm4e</url>
 	</organization>
 	<inceptionYear>2016</inceptionYear>
 
@@ -218,7 +218,6 @@
 					<destFile>${sonar.jacoco.reportPath}</destFile>
 					<includes>
 						<include>org.eclipse.tm4e.*</include>
-						<include>org.eclipse.textmate4e.*</include>
 					</includes>
 				</configuration>
 			</plugin>
@@ -235,7 +234,7 @@
 						</goals>
 						<configuration>
 							<baselines>
-								<url>http://download.eclipse.org/lsp4e/releases/latest</url>
+								<url>http://download.eclipse.org/tm4e/releases/latest</url>
 							</baselines>
 						</configuration>
 					</execution>
