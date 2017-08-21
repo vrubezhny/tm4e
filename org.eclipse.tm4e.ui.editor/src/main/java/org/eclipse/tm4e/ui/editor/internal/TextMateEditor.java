@@ -10,9 +10,6 @@
  */
 package org.eclipse.tm4e.ui.editor.internal;
 
-import org.eclipse.jface.text.presentation.IPresentationReconciler;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
 import org.eclipse.ui.editors.text.TextEditor;
 
@@ -23,11 +20,6 @@ import org.eclipse.ui.editors.text.TextEditor;
 public class TextMateEditor extends TextEditor {
 
 	public TextMateEditor() {
-		setSourceViewerConfiguration(new SourceViewerConfiguration() {
-			@Override
-			public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-				return new TMPresentationReconciler();
-			}
-		});
+		setSourceViewerConfiguration(new TextMateSourceViewerConfiguration());
 	}
 }

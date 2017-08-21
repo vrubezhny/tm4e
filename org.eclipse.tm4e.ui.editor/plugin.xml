@@ -19,7 +19,11 @@
       <editor
             name="%TextMateEditor.name"
             class="org.eclipse.tm4e.ui.editor.internal.TextMateEditor"
-            id="org.eclipse.tm4e.ui.editor.TextMateEditor">
+            id="org.eclipse.tm4e.ui.editor.TextMateEditor"
+            default="false" >
+         <contentTypeBinding
+            contentTypeId="org.eclipse.core.runtime.text">
+         </contentTypeBinding>
       </editor>
    </extension>
    
