@@ -9,8 +9,8 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.languageconfiguration.internal.IAutoClosingPair;
 import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationRegistry;
-import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper;
-import org.eclipse.tm4e.ui.internal.model.ContentTypeHelper.ContentTypeInfo;
+import org.eclipse.tm4e.ui.TMUIPlugin;
+import org.eclipse.tm4e.ui.model.ContentTypeInfo;
 
 public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy {
 
@@ -51,17 +51,18 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		// e.printStackTrace();
 		// }
 
-//		if (registry.shouldAutoClosePair(command.text, ".java")) {
-//			List<IAutoClosingPair> autoClosingPairs = registry.getAutoClosingPairs(".java");
-//			for (IAutoClosingPair autoClosingPair : autoClosingPairs) {
-//				if (command.text.equals(autoClosingPair.getOpen())) {
-//					command.text += autoClosingPair.getClose();
-//					command.caretOffset = command.offset + 1;
-//					command.shiftsCaret = false;
-//					break;
-//				}
-//			}
-//		}
+		// if (registry.shouldAutoClosePair(command.text, ".java")) {
+		// List<IAutoClosingPair> autoClosingPairs =
+		// registry.getAutoClosingPairs(".java");
+		// for (IAutoClosingPair autoClosingPair : autoClosingPairs) {
+		// if (command.text.equals(autoClosingPair.getOpen())) {
+		// command.text += autoClosingPair.getClose();
+		// command.caretOffset = command.offset + 1;
+		// command.shiftsCaret = false;
+		// break;
+		// }
+		// }
+		// }
 	}
 
 	private IContentType[] findContentTypes(IDocument document) {
@@ -69,7 +70,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			return contentTypes;
 		}
 		try {
-			ContentTypeInfo info = ContentTypeHelper.findContentTypes(document);
+			ContentTypeInfo info = TMUIPlugin.getTMModelManager().findContentTypes(document);
 			this.contentTypes = info.getContentTypes();
 			this.document = document;
 		} catch (CoreException e) {

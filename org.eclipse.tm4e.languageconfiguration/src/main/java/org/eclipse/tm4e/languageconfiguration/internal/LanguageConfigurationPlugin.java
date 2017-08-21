@@ -14,12 +14,13 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
- * OSGi Activator for TextMate Eclipse registry bundle.
+ * OSGi Activator for Language Configuration (VSCode
+ * language-configuration.json) Eclipse bundle.
  *
  */
 public class LanguageConfigurationPlugin implements BundleActivator {
 
-	public static final String PLUGIN_ID = "org.eclipse.tm4e.languages";
+	public static final String PLUGIN_ID = "org.eclipse.tm4e.languageconfiguration";
 
 	private static BundleContext context;
 

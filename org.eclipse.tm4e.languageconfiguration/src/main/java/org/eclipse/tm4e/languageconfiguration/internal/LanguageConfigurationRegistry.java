@@ -9,10 +9,6 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.tm4e.languageconfiguration.internal.support.CharacterPairSupport;
 import org.eclipse.tm4e.languageconfiguration.internal.support.RichEditSupport;
-import org.eclipse.tm4e.ui.TMUIPlugin;
-import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
-import org.eclipse.tm4e.ui.themes.Theme;
-import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 
 public class LanguageConfigurationRegistry {
 
