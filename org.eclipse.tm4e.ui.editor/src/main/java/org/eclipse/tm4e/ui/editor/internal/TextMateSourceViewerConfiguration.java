@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.ui.editor.internal;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -22,6 +23,10 @@ import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
  *
  */
 public class TextMateSourceViewerConfiguration extends TextSourceViewerConfiguration {
+
+	public TextMateSourceViewerConfiguration(IPreferenceStore preferenceStore) {
+		super(preferenceStore);
+	}
 
 	@Override
 	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {

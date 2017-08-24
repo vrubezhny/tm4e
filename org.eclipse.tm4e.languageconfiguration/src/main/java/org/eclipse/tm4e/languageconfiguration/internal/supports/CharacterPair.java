@@ -8,18 +8,18 @@
  *  Contributors:
  *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
-package org.eclipse.tm4e.ui.editor.internal;
+package org.eclipse.tm4e.languageconfiguration.internal.supports;
 
-import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
-import org.eclipse.ui.editors.text.TextEditor;
+import java.util.AbstractMap.SimpleEntry;
 
 /**
- * Basic TextMate TextEditor to consume the {@link TMPresentationReconciler}.
- *
+ * A tuple of two characters, like a pair of opening and closing brackets.
  */
-public class TextMateEditor extends TextEditor {
+@SuppressWarnings("serial")
+public class CharacterPair extends SimpleEntry<String, String> {
 
-	public TextMateEditor() {
-		setSourceViewerConfiguration(new TextMateSourceViewerConfiguration(super.getPreferenceStore()));
+	public CharacterPair(String key, String value) {
+		super(key, value);
 	}
+
 }

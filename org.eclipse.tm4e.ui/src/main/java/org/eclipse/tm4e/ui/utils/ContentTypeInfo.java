@@ -1,4 +1,4 @@
-package org.eclipse.tm4e.ui.model;
+package org.eclipse.tm4e.ui.utils;
 
 import org.eclipse.core.runtime.content.IContentType;
 

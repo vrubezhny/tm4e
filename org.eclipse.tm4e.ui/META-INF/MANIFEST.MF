@@ -23,7 +23,8 @@ Export-Package: org.eclipse.tm4e.ui,
  org.eclipse.tm4e.ui.model,
  org.eclipse.tm4e.ui.text,
  org.eclipse.tm4e.ui.themes,
- org.eclipse.tm4e.ui.themes.css
+ org.eclipse.tm4e.ui.themes.css,
+ org.eclipse.tm4e.ui.utils
 Bundle-Activator: org.eclipse.tm4e.ui.TMUIPlugin
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.core.filebuffers

@@ -57,4 +57,6 @@ public interface ITMModel {
 
 	List<TMToken> getLineTokens(int line);
 
+	void forceTokenization(int lineNumber);
+
 }

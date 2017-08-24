@@ -64,18 +64,19 @@ import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.TMUIMessages;
-import org.eclipse.tm4e.ui.internal.model.ClassHelper;
 import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
 import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
-import org.eclipse.tm4e.ui.model.ContentTypeInfo;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
+import org.eclipse.tm4e.ui.utils.ClassHelper;
+import org.eclipse.tm4e.ui.utils.ContentTypeHelper;
+import org.eclipse.tm4e.ui.utils.ContentTypeInfo;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
@@ -201,7 +202,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// Update the grammar
 					IGrammar grammar = forcedGrammar ? TMPresentationReconciler.this.grammar : null;
 					if (grammar == null) {
-						ContentTypeInfo info = getTMModelManager().findContentTypes(newDocument);
+						ContentTypeInfo info = ContentTypeHelper.findContentTypes(newDocument);
 						if (info != null) {
 							grammar = findGrammar(info);
 							if (grammar == null && isOpenImportDialogWhenGrammarNotFound()) {

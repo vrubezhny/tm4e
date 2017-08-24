@@ -25,4 +25,5 @@
           contentType="org.eclipse.core.runtime.text">
     </autoEditStrategy>
 	</extension>
+	
 </plugin>

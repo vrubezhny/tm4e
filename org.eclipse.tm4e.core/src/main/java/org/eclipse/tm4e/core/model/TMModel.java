@@ -334,6 +334,21 @@ public class TMModel implements ITMModel {
 		}
 	}
 
+	public void forceTokenization(int lineNumber) {
+//		if (lineNumber < 1 || lineNumber > this.getLineCount()) {
+//			throw new TMException("Illegal value " + lineNumber + " for `lineNumber`");
+//		}
+
+		this._withModelTokensChangedEventBuilder((eventBuilder) -> {
+			//this._updateTokensUntilLine(eventBuilder, lineNumber);
+			this.fThread._updateTokensInRange(eventBuilder, lineNumber, lineNumber, false);
+		});
+	}
+	
+	private int getLineCount() {
+		return lines.getSize();
+	}
+
 	@Override
 	public List<TMToken> getLineTokens(int lineNumber) {
 		return lines.get(lineNumber).tokens;
