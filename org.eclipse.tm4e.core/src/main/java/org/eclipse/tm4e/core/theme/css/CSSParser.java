@@ -71,7 +71,7 @@ public class CSSParser {
 					ExtendedSelector s = ((ExtendedSelector) selector);
 					int nbMatch = s.nbMatch(names);
 					if (nbMatch > 0 && nbMatch == s.nbClass()) {
-						if (bestStyle == null || (nbMatch > bestSpecificity)) {
+						if (bestStyle == null || (nbMatch >= bestSpecificity)) {
 							bestStyle = style;
 							bestSpecificity = nbMatch;
 						}
