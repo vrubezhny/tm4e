@@ -549,6 +549,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					}
 				}
 			}
+			if (damage != null) {
+				// adjust the length
+				length = Math.min(length, damage.getOffset() + damage.getLength() - lastStart);
+			}
 			addRange(presentation, lastStart, length, lastAttribute);
 			applyTextRegionCollection(presentation);
 		} catch (Throwable e) {
