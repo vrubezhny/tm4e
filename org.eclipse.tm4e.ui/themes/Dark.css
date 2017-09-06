@@ -7,6 +7,7 @@
 .constant.regexp { color: rgba(100, 102, 149, 1); }
 .constant.rgb-value { color: rgba(212, 212, 212, 1); }
 .entity.name.tag { color: rgba(86, 156, 214, 1); }
+.entity.name.tag.css { color: rgba(215, 186, 125, 1); }
 .entity.name.selector { color: rgba(215, 186, 125, 1); }
 .entity.other.attribute-name { color: rgba(156, 220, 254, 1); }
 .entity.other.attribute-name.css { color: rgba(215, 186, 125, 1); }
