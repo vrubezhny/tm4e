@@ -18,12 +18,24 @@
    					name="%LanguageConfigurations.extension.name"
 					schema="schema/languageConfigurations.exsd" />
 					   					
-	<extension
+   <!-- Preference Pages -->
+   <extension
+         point="org.eclipse.ui.preferencePages">              
+      <page
+            name="%LanguageConfigurationPage.name"        
+            class="org.eclipse.tm4e.languageconfiguration.internal.preferences.LanguageConfigurationPreferencePage"
+            id="org.eclipse.tm4e.languageconfiguration.preferences.LanguageConfigurationPreferencePage"
+            category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
+      </page>
+   </extension>
+  
+  <!-- Generic Editor auto edit stragies for language configuration --> 
+  <extension
 	      point="org.eclipse.ui.genericeditor.autoEditStrategies">
-    <autoEditStrategy
+      <autoEditStrategy
           class="org.eclipse.tm4e.languageconfiguration.LanguageConfigurationAutoEditStrategy"
           contentType="org.eclipse.core.runtime.text">
-    </autoEditStrategy>
-	</extension>
+      </autoEditStrategy>
+  </extension>
 	
 </plugin>

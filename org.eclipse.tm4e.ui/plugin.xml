@@ -63,13 +63,13 @@
       <page
             name="%GrammarPreferencePage.name"        
             class="org.eclipse.tm4e.ui.internal.preferences.GrammarPreferencePage"
-            id="org.eclipse.tm4e.internal.ui.GrammarPreferencePage"
+            id="org.eclipse.tm4e.ui.preferences.GrammarPreferencePage"
             category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
       </page>
       <page
             name="%ThemePreferencePage.name"        
             class="org.eclipse.tm4e.ui.internal.preferences.ThemePreferencePage"
-            id="org.eclipse.tm4e.internal.ui.ThemePreferencePage"
+            id="org.eclipse.tm4e.ui.preferences.ThemePreferencePage"
             category="org.eclipse.tm4e.ui.preferences.TextMatePreferencePage">
       </page>
    </extension>
