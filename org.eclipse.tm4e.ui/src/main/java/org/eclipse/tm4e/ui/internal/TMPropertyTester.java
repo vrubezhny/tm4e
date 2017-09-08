@@ -28,7 +28,8 @@ public class TMPropertyTester extends PropertyTester {
 		if (CAN_SUPPORT_TEXT_MATE.equals(property)) {
 			if (receiver instanceof IEditorPart) {
 				IEditorPart editorPart = (IEditorPart) receiver;
-				return TMPresentationReconciler.getTMPresentationReconciler(editorPart) != null;
+				TMPresentationReconciler reconciler = TMPresentationReconciler.getTMPresentationReconciler(editorPart);
+				return reconciler != null  && reconciler.isEnabled();
 			}
 		}
 		return false;

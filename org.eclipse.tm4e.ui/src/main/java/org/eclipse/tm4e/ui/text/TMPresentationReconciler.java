@@ -53,6 +53,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.tm4e.core.TMException;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.model.IModelTokensChangedListener;
@@ -96,6 +97,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private static boolean GENERATE_TEST = TMEclipseRegistryPlugin
 			.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/GenerateTest");
 
+	private static boolean THROW_ERROR = TMEclipseRegistryPlugin
+			.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/ThrowError");
+
 	private static final ILogger RECONCILER_LOGGER = new EclipseSystemLogger(
 			"org.eclipse.tm4e.ui/debug/log/TMPresentationReconciler");
 
@@ -129,6 +133,18 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private boolean openImportDialogWhenGrammarNotFound;
 
+	/**
+	 * true if the presentation reconciler is enabled (grammar and theme are
+	 * available) and false otherwise.
+	 */
+	private boolean enabled;
+
+	/**
+	 * true if a {@link TMException} should be thrown if grammar or theme cannot be
+	 * found and false otherwise.
+	 */
+	private boolean throwError;
+
 	public TMPresentationReconciler() {
 		this.defaultToken = new Token(null);
 		this.internalListener = new InternalListener();
@@ -137,6 +153,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (GENERATE_TEST) {
 			addTMPresentationReconcilerListener(new TMPresentationReconcilerTestGenerator());
 		}
+		setThrowError(THROW_ERROR);
 	}
 
 	/**
@@ -195,8 +212,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		public void inputDocumentChanged(IDocument oldDocument, IDocument newDocument) {
 			if (newDocument != null) {
 				fireInstall(viewer, newDocument);
-				// Connect a TextModel to the new document.
-				ITMModel model = getTMModelManager().connect(newDocument);
 				try {
 					viewer.addTextListener(this);
 					// Update the grammar
@@ -226,20 +241,34 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						}
 					}
 
-					Assert.isNotNull(grammar, "Cannot find TextMate grammar for the given document");
-					TMPresentationReconciler.this.grammar = grammar;
-					model.setGrammar(grammar);
+					if (grammar != null) {
+						TMPresentationReconciler.this.grammar = grammar;
+					} else if (isThrowError()) {
+						throw new TMException("Cannot find TextMate grammar for the given document");
+					}
 
 					// Update the theme
-					String scopeName = grammar.getScopeName();
-					if (tokenProvider == null) {
-						tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
-						applyThemeEditor();
+					if (grammar != null) {
+						String scopeName = grammar.getScopeName();
+						if (tokenProvider == null) {
+							tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
+						}
+						if (tokenProvider != null) {
+							applyThemeEditor();
+						} else if (isThrowError()) {
+							throw new TMException("Cannot find Theme for the given grammar '" + scopeName + "'");
+						}
 					}
-					Assert.isNotNull(tokenProvider, "Cannot find Theme for the given grammar '" + scopeName + "'");
 
-					// Add model listener
-					model.addModelTokensChangedListener(this);
+					boolean enable = TMPresentationReconciler.this.enabled = grammar != null && tokenProvider != null;
+					if (enable) {
+						// Connect a TextModel to the new document.
+						ITMModel model = getTMModelManager().connect(newDocument);
+						model.setGrammar(grammar);
+
+						// Add model listener
+						model.addModelTokensChangedListener(this);
+					}
 				} catch (CoreException e) {
 					if (logger.isEnabled()) {
 						logger.log("Error while initializing TextMate model.", e);
@@ -266,7 +295,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void textChanged(TextEvent e) {
-			if (!e.getViewerRedrawState()) {
+			if (!enabled || !e.getViewerRedrawState()) {
 				return;
 			}
 			// changed text: propagate previous style, which will be overridden
@@ -844,5 +873,38 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 */
 	public boolean isOpenImportDialogWhenGrammarNotFound() {
 		return openImportDialogWhenGrammarNotFound;
+	}
+
+	/**
+	 * Set true if a {@link TMException} should be thrown if grammar or theme cannot
+	 * be found and false otherwise.
+	 * 
+	 * @param throwError
+	 */
+	public void setThrowError(boolean throwError) {
+		this.throwError = throwError;
+	}
+
+	/**
+	 * Return true if a {@link TMException} should be thrown if grammar or theme
+	 * cannot be found and false otherwise.
+	 * 
+	 * @return true if a {@link TMException} should be thrown if grammar or theme
+	 *         cannot be found and false otherwise.
+	 */
+	public boolean isThrowError() {
+		return throwError;
+	}
+
+	/**
+	 * Returns true if the presentation reconciler is enabled (grammar and theme are
+	 * available) and false otherwise.
+	 * 
+	 * @return true if the presentation reconciler is enabled (grammar and theme are
+	 *         available) and false otherwise.
+	 */
+
+	public boolean isEnabled() {
+		return enabled;
 	}
 }
