@@ -37,7 +37,8 @@ Here are some projects that use tm4e:
 
  * [Eclipse BlueSky](https://github.com/mickaelistria/eclipse-bluesky) a simple and productive Web Development Tools in the Eclipse IDE.
  * [aCute](https://github.com/eclipse/aCute) C# edition in Eclipse IDE.
-
+ * [typescript.java](https://github.com/angelozerr/typescript.java) TypeScript IDE for Eclipse with JSDT & tsserver.
+ 
 ## Get support and contribute
 
 * **License and community**: `tm4e` is a community open-source project licensed under the Eclipse Public License 1.0.
