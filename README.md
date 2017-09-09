@@ -3,7 +3,10 @@
 [![Eclipse License](http://img.shields.io/badge/license-Eclipse-brightgreen.svg)](https://github.com/eclipse/tm4e/blob/master/LICENSE)
 [![Build Status](https://secure.travis-ci.org/eclipse/tm4e.png)](http://travis-ci.org/eclipse/tm4e)
 
-`tm4e` provides the capability to support TextMate tokenizer with Java and integrates it with Eclipse IDE.
+`tm4e` provides the capability to support : 
+
+ * `TextMate tokenizer` with Java and integrates it with Eclipse IDE.
+ * VSCode [Language Configuration](https://code.visualstudio.com/docs/extensionAPI/extension-points#_contributeslanguages) to support matching bracket, auto close, on enter support.
 
 `tm4e` is an [official Eclipse.org project](https://projects.eclipse.org/projects/technology.tm4e) so it conforms to typical Eclipse.org requirements and guarantees.
 
@@ -22,10 +25,18 @@ It provides:
 
  * [org.eclipse.tm4e.ui](https://github.com/eclipse/tm4e/tree/master/org.eclipse.tm4e.ui) provides the Eclipse **org.eclipse.jface.text.presentation.IPresentationReconciler** [TMPresentationReconciler](https://github.com/eclipse/tm4e/blob/master/org.eclipse.tm4e.ui/src/main/java/org/eclipse/tm4e/ui/text/TMPresentationReconciler.java) which is able to tokenize an editor content by using a given JSON, PList TextMate grammar and do syntax coloration. See [UI](https://github.com/eclipse/tm4e/wiki/UI) section for more information.
 
+ * [org.eclipse.tm4e.languageconfiguration](https://github.com/eclipse/tm4e/tree/master/org.eclipse.tm4e.languageconfiguration) provides the VSCode [Language Configuration](https://code.visualstudio.com/docs/extensionAPI/extension-points#_contributeslanguages) to support matching bracket, auto close, on enter support with a simple **language-configuration.json**.
+ 
 Here a sample with TypeScript:
 
 ![TypeScript Editor](https://github.com/eclipse/tm4e/wiki/images/TypeScriptEditor.png)
 
+## Who is using tm4e?
+
+Here are some projects that use tm4e:
+
+ * [Eclipse BlueSky](https://github.com/mickaelistria/eclipse-bluesky) a simple and productive Web Development Tools in the Eclipse IDE.
+ * [aCute](https://github.com/eclipse/aCute) C# edition in Eclipse IDE.
 
 ## Get support and contribute
 
