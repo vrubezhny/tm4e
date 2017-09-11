@@ -77,7 +77,7 @@ import org.osgi.service.prefs.BackingStoreException;
  */
 public class GrammarPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	public final static String PAGE_ID = "org.eclipse.tm4e.ui.GrammarPreferencePage";
+	public final static String PAGE_ID = "org.eclipse.tm4e.ui.preferences.GrammarPreferencePage";
 
 	// Managers
 	private IGrammarRegistryManager grammarRegistryManager;

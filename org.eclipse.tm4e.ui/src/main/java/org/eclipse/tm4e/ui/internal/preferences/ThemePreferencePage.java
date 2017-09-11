@@ -60,7 +60,7 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  */
 public class ThemePreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	public final static String PAGE_ID = "org.eclipse.tm4e.ui.ThemePreferencePage";
+	public final static String PAGE_ID = "org.eclipse.tm4e.ui.preferences.ThemePreferencePage";
 
 	// Theme content
 	private TableViewer themeViewer;
