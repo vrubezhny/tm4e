@@ -37,6 +37,7 @@ Here are some projects that use tm4e:
 
  * [BlueSky for Eclipse IDE](https://github.com/mickaelistria/eclipse-bluesky) a simple and productive Web Development Tools in the Eclipse IDE.
  * [Eclipse aCute](https://github.com/eclipse/aCute) C# edition in Eclipse IDE.
+ * [LiClipseText](http://www.liclipse.com/text/) enables Eclipse to be used as a general-purpose text editor, providing support for several languages out of the box.
  * [typescript.java](https://github.com/angelozerr/typescript.java) TypeScript IDE for Eclipse with JSDT & tsserver.
  
 ## Get support and contribute
