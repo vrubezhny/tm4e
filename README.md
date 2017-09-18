@@ -39,6 +39,7 @@ Here are some projects that use tm4e:
  * [Eclipse aCute](https://github.com/eclipse/aCute) C# edition in Eclipse IDE.
  * [LiClipseText](http://www.liclipse.com/text/) enables Eclipse to be used as a general-purpose text editor, providing support for several languages out of the box.
  * [typescript.java](https://github.com/angelozerr/typescript.java) TypeScript IDE for Eclipse with JSDT & tsserver.
+ * [EditorConfig for Eclipse](https://github.com/angelozerr/ec4e) EditorConfig for Eclipse with GenericEditor.
  
 ## Get support and contribute
 
