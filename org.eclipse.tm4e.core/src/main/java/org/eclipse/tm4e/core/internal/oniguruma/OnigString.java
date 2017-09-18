@@ -17,7 +17,7 @@
 
 package org.eclipse.tm4e.core.internal.oniguruma;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Oniguruma string.
@@ -27,15 +27,13 @@ import java.nio.charset.Charset;
  */
 public class OnigString {
 
-	private static final String UTF_8 = "UTF-8";
-
 	private final String str;
 	private byte[] value;
 	private Object uniqueId;
 
 	public OnigString(String str) {
 		this.str = str;
-		this.value = str.getBytes(Charset.forName(UTF_8));
+		this.value = str.getBytes(StandardCharsets.UTF_8);
 		this.uniqueId = new Object();
 	}
 
