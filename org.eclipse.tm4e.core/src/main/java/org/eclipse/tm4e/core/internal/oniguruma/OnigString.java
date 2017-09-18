@@ -18,10 +18,10 @@
 
 package org.eclipse.tm4e.core.internal.oniguruma;
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.jcodings.specific.UTF8Encoding;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Oniguruma string.
@@ -30,8 +30,6 @@ import org.jcodings.specific.UTF8Encoding;
  *
  */
 public class OnigString {
-
-	private static final String UTF_8 = "UTF-8";
 
 	private final String str;
 	private final Object uniqueId;
@@ -43,7 +41,7 @@ public class OnigString {
 
 	public OnigString(String str) {
 		this.str = str;
-		this.value = str.getBytes(Charset.forName(UTF_8));
+		this.value = str.getBytes(StandardCharsets.UTF_8);
 		this.uniqueId = new Object();
 	}
 

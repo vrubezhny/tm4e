@@ -18,7 +18,7 @@
 
 package org.eclipse.tm4e.core.internal.oniguruma;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.jcodings.specific.UTF8Encoding;
 import org.joni.Matcher;
@@ -44,12 +44,7 @@ public class OnigRegExp {
 		lastSearchStrUniqueId = null;
 		lastSearchPosition = -1;
 		lastSearchResult = null;
-		byte[] pattern;
-		try {
-			pattern = source.getBytes("utf-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		byte[] pattern = source.getBytes(StandardCharsets.UTF_8);
 		this.regex = new Regex(pattern, 0, pattern.length, Option.CAPTURE_GROUP, UTF8Encoding.INSTANCE, Syntax.DEFAULT,
 				WarnCallback.DEFAULT);
 	}

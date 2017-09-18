@@ -13,6 +13,7 @@ package org.eclipse.tm4e.core.internal.parser.json;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.tm4e.core.internal.parser.PList;
 
@@ -29,7 +30,7 @@ public class JSONPListParser<T> {
 
 	public T parse(InputStream contents) throws Exception {
 		PList<T> pList = new PList<T>(theme);
-		JsonReader reader = new JsonReader(new InputStreamReader(contents, Charset.forName("UTF-8")));
+		JsonReader reader = new JsonReader(new InputStreamReader(contents, StandardCharsets.UTF_8));
 		// reader.setLenient(true);
 		boolean parsing = true;
 		while (parsing) {
