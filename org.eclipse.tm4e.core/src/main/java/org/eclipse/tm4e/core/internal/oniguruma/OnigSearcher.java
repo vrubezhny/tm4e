@@ -31,7 +31,7 @@ public class OnigSearcher {
 	}
 
 	public OnigResult search(OnigString source, int charOffset) {
-		int byteOffset = charOffset;
+		int byteOffset = source.convertUtf16OffsetToUtf8(charOffset);
 
 		int bestLocation = 0;
 		OnigResult bestResult = null;

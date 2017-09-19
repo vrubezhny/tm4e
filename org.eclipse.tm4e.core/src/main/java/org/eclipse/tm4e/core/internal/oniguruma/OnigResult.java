@@ -13,23 +13,21 @@
  *  - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
  */
- 
+
 package org.eclipse.tm4e.core.internal.oniguruma;
 
 import org.joni.Region;
 
-public class OnigResult implements IOnigNextMatchResult {
+public class OnigResult {
 
 	private int indexInScanner;
 	private final Region region;
-	private IOnigCaptureIndex[] captureIndices;
 
 	public OnigResult(Region region, int indexInScanner) {
 		this.region = region;
 		this.indexInScanner = indexInScanner;
 	}
 
-	@Override
 	public int getIndex() {
 		return indexInScanner;
 	}
@@ -38,52 +36,24 @@ public class OnigResult implements IOnigNextMatchResult {
 		this.indexInScanner = index;
 	}
 
-	@Override
-	public IOnigCaptureIndex[] getCaptureIndices() {
-		if (captureIndices == null) {
-			captureIndices = new IOnigCaptureIndex[region.beg.length];
-			int captureStart = -1, captureEnd = -1;
-			for (int i = 0; i < region.beg.length; i++) {
-				captureStart = region.beg[i];
-				captureEnd = region.end[i];
-				captureIndices[i] = new OnigCaptureIndex(i, captureStart, captureEnd);
-			}
-		}
-		return captureIndices;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder result = new StringBuilder();
-		result.append("{\n");
-		result.append("  \"index\": ");
-		result.append(getIndex());
-		result.append(",\n");
-		result.append("  \"captureIndices\": [\n");
-		int i = 0;
-		for (IOnigCaptureIndex captureIndex : getCaptureIndices()) {
-			if (i > 0) {
-				result.append(",\n");
-			}
-			result.append("    ");
-			result.append(captureIndex);
-			i++;
-		}
-		result.append("\n");
-		result.append("  ]\n");
-		result.append("}");
-		return result.toString();
-	}
-
 	public int LocationAt(int index) {
-		if (region.beg.length > 0) {
-			return region.beg[0] + index;
-		}
-		return 0;
+		int bytes = region.beg[index];
+		if (bytes > 0)
+			return bytes;
+		else
+			return 0;
 	}
 
 	public int count() {
-		return region.beg.length;
+		return region.numRegs;
+	}
+
+	public int LengthAt(int index) {
+		int bytes = region.end[index] - region.beg[index];
+		if (bytes > 0)
+			return bytes;
+		else
+			return 0;
 	}
 
 }

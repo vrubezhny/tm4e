@@ -13,7 +13,7 @@
  *  - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
  */
- 
+
 package org.eclipse.tm4e.core.internal.oniguruma;
 
 public class OnigScanner {
@@ -24,12 +24,16 @@ public class OnigScanner {
 		this.searcher = new OnigSearcher(regexps);
 	}
 
-	public IOnigNextMatchResult _findNextMatchSync(OnigString lin, int pos) {
-		OnigResult bestResult = searcher.search(lin, pos);
-		return bestResult;
+	public IOnigNextMatchResult _findNextMatchSync(OnigString source, int charOffset) {
+		OnigResult bestResult = searcher.search(source, charOffset);
+		if (bestResult != null) {
+			return new OnigNextMatchResult(bestResult, source);
+		}
+		return null;
 	}
 
 	public IOnigNextMatchResult _findNextMatchSync(String lin, int pos) {
 		return _findNextMatchSync(new OnigString(lin), pos);
 	}
+
 }
