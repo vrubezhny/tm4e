@@ -13,9 +13,9 @@ package org.eclipse.tm4e.core.grammar.internal;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.tm4e.core.internal.matcher.IMatcher;
 import org.eclipse.tm4e.core.internal.matcher.IMatchesName;
 import org.eclipse.tm4e.core.internal.matcher.Matcher;
+import org.eclipse.tm4e.core.internal.matcher.MatcherWithPriority;
 import org.junit.Assert;
 import org.junit.runner.Describable;
 import org.junit.runner.Description;
@@ -72,8 +72,8 @@ public class MatcherTestImpl implements Test, Describable {
 	}
 
 	private void executeTest() {
-		IMatcher<List<String>> matcher = Matcher.createMatcher(expression, nameMatcher);
-		boolean result = matcher.match(input);
+		Collection<MatcherWithPriority<List<String>>> matcher = Matcher.createMatchers(expression, nameMatcher);
+		boolean result = matcher.stream().anyMatch( m -> m.matcher.match(input));
 		Assert.assertEquals(result, this.result);
 	}
 

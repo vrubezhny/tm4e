@@ -17,13 +17,12 @@
 package org.eclipse.tm4e.core.internal.grammar;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import org.eclipse.tm4e.core.grammar.GrammarHelper;
 import org.eclipse.tm4e.core.grammar.IGrammar;
@@ -33,6 +32,7 @@ import org.eclipse.tm4e.core.grammar.ITokenizeLineResult2;
 import org.eclipse.tm4e.core.grammar.Injection;
 import org.eclipse.tm4e.core.grammar.StackElement;
 import org.eclipse.tm4e.core.internal.grammar.parser.Raw;
+import org.eclipse.tm4e.core.internal.matcher.MatcherWithPriority;
 import org.eclipse.tm4e.core.internal.matcher.Matcher;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigString;
 import org.eclipse.tm4e.core.internal.rule.IRuleFactory;
@@ -82,7 +82,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return this._scopeMetadataProvider.getMetadataForScope(scope);
 	}
 
-	public List<Injection> getInjections(StackElement states) {
+	public List<Injection> getInjections() {
 		if (this._injections == null) {
 			this._injections = new ArrayList<Injection>();
 			// add injections from the current grammar
@@ -112,22 +112,22 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 					});
 				}
 			}
+			Collections.sort(this._injections, (i1, i2) -> i1.priority - i2.priority); // sort by priority
 		}
 		if (this._injections.size() == 0) {
 			return this._injections;
 		}
-		return this._injections.stream().filter(injection -> injection.match(states)).collect(Collectors.toList());
+		return this._injections;
 	}
 
 	private void collectInjections(List<Injection> result, String selector, IRawRule rule,
 			IRuleFactoryHelper ruleFactoryHelper, IRawGrammar grammar) {
-		String[] subExpressions = selector.split(",");
-		Arrays.stream(subExpressions).forEach(subExpression -> {
-			String expressionString = subExpression.replaceAll("L:", "");
-			result.add(new Injection(Matcher.createMatcher(expressionString),
-					RuleFactory.getCompiledRuleId(rule, ruleFactoryHelper, grammar.getRepository()), grammar,
-					expressionString.length() < subExpression.length()));
-		});
+		Collection<MatcherWithPriority<List<String>>> matchers = Matcher.createMatchers(selector);
+		int ruleId = RuleFactory.getCompiledRuleId(rule, ruleFactoryHelper, grammar.getRepository());
+
+		for (MatcherWithPriority<List<String>> matcher : matchers) {
+			result.add(new Injection(matcher.matcher, ruleId, grammar, matcher.priority));
+		}
 	}
 
 	public Rule registerRule(IRuleFactory factory) {
@@ -213,7 +213,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			isFirstLine = true;
 			ScopeMetadata rawDefaultMetadata = this._scopeMetadataProvider.getDefaultMetadata();
 			ThemeTrieElementRule defaultTheme = rawDefaultMetadata.themeData.get(0);
-			int defaultMetadata = StackElementMetadata.set(0, rawDefaultMetadata.languageId, rawDefaultMetadata.tokenType, defaultTheme.fontStyle, defaultTheme.foreground, defaultTheme.background);
+			int defaultMetadata = StackElementMetadata.set(0, rawDefaultMetadata.languageId,
+					rawDefaultMetadata.tokenType, defaultTheme.fontStyle, defaultTheme.foreground,
+					defaultTheme.background);
 
 			String rootScopeName = this.getRule(this._rootId).getName(null, null);
 			ScopeMetadata rawRootMetadata = this._scopeMetadataProvider.getMetadataForScope(rootScopeName);
@@ -227,7 +229,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 			prevState.reset();
 		}
 
-		if(lineText.isEmpty() || lineText.charAt(lineText.length()-1) != '\n') {
+		if (lineText.isEmpty() || lineText.charAt(lineText.length() - 1) != '\n') {
 			// Only add \n if the passed lineText didn't have it.
 			lineText += '\n';
 		}

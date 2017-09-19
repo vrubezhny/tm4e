@@ -15,24 +15,26 @@
  */
 package org.eclipse.tm4e.core.grammar;
 
+import java.util.List;
+
 import org.eclipse.tm4e.core.internal.matcher.IMatcher;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 
 public class Injection {
 
-	private final IMatcher<StackElement> matcher;
-	public final boolean priorityMatch;
+	private final IMatcher<List<String>> matcher;
+	public final int priority; // -1 | 0 | 1; // 0 is the default. -1 for 'L' and 1 for 'R'
 	public final int ruleId;
 	public final IRawGrammar grammar;
 
-	public Injection(IMatcher<StackElement> matcher, int ruleId, IRawGrammar grammar, boolean priorityMatch) {
+	public Injection(IMatcher<List<String>> matcher, int ruleId, IRawGrammar grammar, int priority) {
 		this.matcher = matcher;
 		this.ruleId = ruleId;
 		this.grammar = grammar;
-		this.priorityMatch = priorityMatch;
+		this.priority = priority;
 	}
 
-	public boolean match(StackElement states) {
+	public boolean match(List<String> states) {
 		return matcher.match(states);
 	}
 }

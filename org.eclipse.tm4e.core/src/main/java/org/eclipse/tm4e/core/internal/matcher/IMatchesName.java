@@ -18,33 +18,35 @@ package org.eclipse.tm4e.core.internal.matcher;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.tm4e.core.grammar.StackElement;
-
 public interface IMatchesName<T> {
 
-	public static final IMatchesName<StackElement> NAME_MATCHER = new IMatchesName<StackElement>() {
+	class IntegerHolder {
+
+		public int value;
+
+		public IntegerHolder() {
+			this.value = 0;
+		}
+	}
+
+	public static final IMatchesName<List<String>> NAME_MATCHER = new IMatchesName<List<String>>() {
 
 		@Override
-		public boolean match(Collection<String> identifers, StackElement stackElements) {
-			List<String> scopes = stackElements.contentNameScopesList.generateScopes();
-			int lastIndex = 0;
+		public boolean match(Collection<String> identifers, List<String> scopes) {
+			if (scopes.size() < identifers.size()) {
+				return false;
+			}
+			IntegerHolder lastIndex = new IntegerHolder();
 			// every
-			for (String identifier : identifers) {
-				lastIndex = match(identifier, scopes, lastIndex);
-				if (lastIndex == -1) {
-					return false;
+			return identifers.stream().allMatch(identifier -> {
+				for (int i = lastIndex.value; i < scopes.size(); i++) {
+					if (scopesAreMatching(scopes.get(i), identifier)) {
+						lastIndex.value = i + 1;
+						return true;
+					}
 				}
-			}
-			return true;
-		}
-
-		private int match(String identifier, List<String> scopes, int lastIndex) {
-			for (int i = lastIndex; i < scopes.size(); i++) {
-				if (scopesAreMatching(scopes.get(i), identifier)) {
-					return i;
-				}
-			}
-			return -1;
+				return false;
+			});
 		}
 
 		private boolean scopesAreMatching(String thisScopeName, String scopeName) {
@@ -61,6 +63,6 @@ public interface IMatchesName<T> {
 
 	};
 
-	boolean match(Collection<String> names, T matcherInput);
+	boolean match(Collection<String> names, T scopes);
 
 }

@@ -20,8 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.eclipse.tm4e.core.grammar.StackElement;
-
 /**
  * Matcher utilities.
  * 
@@ -32,40 +30,61 @@ public class Matcher<T> implements IMatcher<T> {
 
 	private static final Pattern IDENTIFIER_REGEXP = Pattern.compile("[\\w\\.:]+");
 
-	public static IMatcher<StackElement> createMatcher(String expression) {
-		return createMatcher(expression, IMatchesName.NAME_MATCHER);
+	public static Collection<MatcherWithPriority<List<String>>> createMatchers(String expression) {
+		return createMatchers(expression, IMatchesName.NAME_MATCHER);
 	}
 
-	public static <T> IMatcher<T> createMatcher(String expression, IMatchesName<T> matchesName) {
-		return new Matcher<T>(expression, matchesName);
+	public static <T> Collection<MatcherWithPriority<T>> createMatchers(String selector, IMatchesName<T> matchesName) {
+		return new Matcher<T>(selector, matchesName).results;
 	}
 
+	private final List<MatcherWithPriority<T>> results;
 	private final Tokenizer tokenizer;
 	private final IMatchesName<T> matchesName;
 	private String token;
-	private IMatcher<T> matcherRoot;
 
 	public Matcher(String expression, IMatchesName<T> matchesName) {
+		this.results = new ArrayList<>();
 		this.tokenizer = newTokenizer(expression);
-		this.token = tokenizer.next();
 		this.matchesName = matchesName;
-		this.matcherRoot = parseExpression();
+
+		this.token = tokenizer.next();
+		while (token != null) {
+			int priority = 0;
+			if (token.length() == 2 && token.charAt(1) == ':') {
+				switch (token.charAt(0)) {
+				case 'R':
+					priority = 1;
+					break;
+				case 'L':
+					priority = -1;
+					break;
+				default:
+					// console.log(`Unknown priority ${token} in scope selector`);
+				}
+				token = tokenizer.next();
+			}
+			IMatcher<T> matcher = parseConjunction();
+			if (matcher != null) {
+				results.add(new MatcherWithPriority<T>(matcher, priority));
+			}
+			if (!",".equals(token)) {
+				break;
+			}
+			token = tokenizer.next();
+		}
 	}
 
-	private IMatcher<T> parseExpression() {
-		return parseExpression(",");
-	}
-
-	private IMatcher<T> parseExpression(String orOperatorToken) {
+	private IMatcher<T> parseInnerExpression() {
 		List<IMatcher<T>> matchers = new ArrayList<>();
 		IMatcher<T> matcher = parseConjunction();
 		while (matcher != null) {
 			matchers.add(matcher);
-			if (orOperatorToken.equals(token)) {
+			if (token.equals("|") || token.equals(",")) {
 				do {
 					token = tokenizer.next();
-				} while (orOperatorToken.equals(token)); // ignore subsequent
-															// commas
+				} while (token.equals("|") || token.equals(",")); // ignore subsequent
+				// commas
 			} else {
 				break;
 			}
@@ -122,7 +141,7 @@ public class Matcher<T> implements IMatcher<T> {
 		}
 		if ("(".equals(token)) {
 			token = tokenizer.next();
-			IMatcher<T> expressionInParents = parseExpression("|");
+			IMatcher<T> expressionInParents = parseInnerExpression();
 			if (")".equals(token)) {
 				token = tokenizer.next();
 			}
@@ -150,15 +169,12 @@ public class Matcher<T> implements IMatcher<T> {
 
 	@Override
 	public boolean match(T matcherInput) {
-		if (matcherRoot != null) {
-			return matcherRoot.match(matcherInput);
-		}
 		return false;
 	}
 
 	private static class Tokenizer {
 
-		private static final Pattern REGEXP = Pattern.compile("([\\w\\.:]+|[\\,\\|\\-\\(\\)])");
+		private static final Pattern REGEXP = Pattern.compile("([LR]:|[\\w\\.:]+|[\\,\\|\\-\\(\\)])");
 
 		private java.util.regex.Matcher regex;
 
