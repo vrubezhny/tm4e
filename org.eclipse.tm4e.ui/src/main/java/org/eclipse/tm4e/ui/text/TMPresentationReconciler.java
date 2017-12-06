@@ -295,7 +295,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void textChanged(TextEvent e) {
-			if (!enabled || !e.getViewerRedrawState()) {
+			if (!e.getViewerRedrawState()) {
 				return;
 			}
 			// changed text: propagate previous style, which will be overridden
@@ -338,8 +338,21 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 							}
 						}
 					}
-					ITMModel model = getTMModelManager().connect(document);
-					colorize(fromLineNumber, toLineNumber, region, (TMDocumentModel) model);
+					if (enabled) {
+						// case where there is grammar & theme -> update text presentation with the
+						// grammar tokens
+						ITMModel model = getTMModelManager().connect(document);
+						colorize(fromLineNumber, toLineNumber, region, (TMDocumentModel) model);
+					} else {
+						if (region != null) {
+							// case where there is no grammar & theme -> update text presentation with the
+							// default styles (ex: to support highlighting with GenericEditor)
+							TextPresentation presentation = new TextPresentation(region, 100);
+							presentation.setDefaultStyleRange(
+									new StyleRange(region.getOffset(), region.getLength(), null, null));
+							applyTextRegionCollection(presentation);
+						}
+					}
 				}
 			}
 		}
@@ -604,7 +617,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * @return
 	 */
 	private boolean isBeforeRegion(TMToken token, int startLineOffset, IRegion damage) {
-		return token.startIndex + startLineOffset <= damage.getOffset();
+		return token.startIndex + startLineOffset < damage.getOffset();
 	}
 
 	/**
