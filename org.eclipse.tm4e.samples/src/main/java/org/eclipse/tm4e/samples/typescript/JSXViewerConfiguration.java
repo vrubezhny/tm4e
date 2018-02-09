@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ *  Copyright (c) 2015-2018 Angelo ZERR.
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
@@ -16,8 +16,6 @@ import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
-import org.eclipse.tm4e.ui.themes.ITokenProvider;
-import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
 
 public class JSXViewerConfiguration extends SourceViewerConfiguration {
 

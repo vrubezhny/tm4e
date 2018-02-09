@@ -3,7 +3,6 @@ package org.eclipse.tm4e.core.internal.theme;
 import java.util.Collection;
 import java.util.HashMap;
 
-import org.eclipse.tm4e.core.theme.FontStyle;
 import org.eclipse.tm4e.core.theme.IRawTheme;
 import org.eclipse.tm4e.core.theme.IRawThemeSetting;
 import org.eclipse.tm4e.core.theme.IThemeSetting;
