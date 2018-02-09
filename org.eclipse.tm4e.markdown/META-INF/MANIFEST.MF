@@ -13,3 +13,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.tm4e.markdown,
  org.eclipse.tm4e.markdown.marked
 Bundle-ActivationPolicy: lazy
+Automatic-Module-Name: org.eclipse.tm4e.markdown
