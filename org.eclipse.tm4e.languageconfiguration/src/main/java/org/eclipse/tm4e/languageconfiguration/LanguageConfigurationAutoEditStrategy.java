@@ -17,11 +17,10 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextOperationTarget;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextUtilities;
-import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationRegistry;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.AutoClosingPair;
+import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationRegistryManager;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPair;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterActionAndIndent;
 import org.eclipse.tm4e.languageconfiguration.internal.utils.TabSpacesInfo;
@@ -59,13 +58,16 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		}
 
 		// Auto close pair
-		LanguageConfigurationRegistry registry = LanguageConfigurationRegistry.getInstance();
+		LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
 		for (IContentType contentType : contentTypes) {
-			List<AutoClosingPair> autoClosingPairs = registry.getAutoClosingPairs(contentType.getId());
+			if (!registry.shouldAutoClosePair(command.text, contentType)) {
+				continue;
+			}
+			List<CharacterPair> autoClosingPairs = registry.getAutoClosingPairs(contentType);
 			if (autoClosingPairs != null && autoClosingPairs.size() > 0) {
-				for (AutoClosingPair autoClosingPair : autoClosingPairs) {
-					if (command.text.equals(autoClosingPair.getOpen())) {
-						command.text += autoClosingPair.getClose();
+				for (CharacterPair autoClosingPair : autoClosingPairs) {
+					if (command.text.equals(autoClosingPair.getKey())) {
+						command.text += autoClosingPair.getValue();
 						command.caretOffset = command.offset + 1;
 						command.shiftsCaret = false;
 						break;
@@ -100,9 +102,12 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 	}
 
 	private void onEnter(IDocument document, DocumentCommand command, boolean keepPosition) {
-		LanguageConfigurationRegistry registry = LanguageConfigurationRegistry.getInstance();
+		LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
 		for (IContentType contentType : contentTypes) {
-			EnterActionAndIndent r = registry.getEnterAction(document, command.offset, contentType.getId());
+			if (!registry.shouldEnterAction(document, command.offset, contentType)) {
+				continue;
+			}
+			EnterActionAndIndent r = registry.getEnterAction(document, command.offset, contentType);
 			if (r != null) {
 				EnterAction enterAction = r.getEnterAction();
 				String indentation = r.getIndentation();
@@ -198,8 +203,10 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 
 	private TabSpacesInfo getTabSpaces() {
 		// For performance reason, tab spaces info are cached.
-		// If user change preferences (tab size, insert spaces), he must close the editor
-		// FIXME : how to detect changes of (tab size, insert spaces) with a generic mean?
+		// If user change preferences (tab size, insert spaces), he must close the
+		// editor
+		// FIXME : how to detect changes of (tab size, insert spaces) with a generic
+		// mean?
 		if (tabSpacesInfo != null) {
 			return tabSpacesInfo;
 		}
@@ -211,10 +218,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		if (viewer == null) {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IEditorPart editorPart = page.getActiveEditor();
-			ITextOperationTarget target = (ITextOperationTarget) editorPart.getAdapter(ITextOperationTarget.class);
-			if (target instanceof ITextViewer) {
-				viewer = (ITextViewer) target;
-			}
+			viewer = editorPart.getAdapter(ITextViewer.class);
 		}
 	}
 

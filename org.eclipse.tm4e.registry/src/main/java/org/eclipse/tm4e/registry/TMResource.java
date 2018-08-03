@@ -38,7 +38,7 @@ public class TMResource implements ITMResource {
 
 	/**
 	 * Constructor for extension point.
-	 * 
+	 *
 	 * @param element
 	 */
 	public TMResource(String path) {
@@ -48,6 +48,11 @@ public class TMResource implements ITMResource {
 	public TMResource(IConfigurationElement ce) {
 		this(ce.getAttribute(XMLConstants.PATH_ATTR));
 		this.pluginId = ce.getNamespaceIdentifier();
+	}
+
+	public TMResource(String path, String pluginId) {
+		this.path = path;
+		this.pluginId = pluginId;
 	}
 
 	@Override

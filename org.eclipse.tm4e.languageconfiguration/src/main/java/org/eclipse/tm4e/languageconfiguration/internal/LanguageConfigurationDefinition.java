@@ -15,33 +15,123 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.tm4e.languageconfiguration.ILanguageConfiguration;
+import org.eclipse.tm4e.languageconfiguration.ILanguageConfigurationDefinition;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPairSupport;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.OnEnterSupport;
 import org.eclipse.tm4e.registry.TMResource;
 import org.eclipse.tm4e.registry.XMLConstants;
+import org.eclipse.tm4e.ui.utils.ContentTypeHelper;
 
 /**
  * Language configuration definition.
  *
  */
-public class LanguageConfigurationDefinition extends TMResource {
+public class LanguageConfigurationDefinition extends TMResource implements ILanguageConfigurationDefinition {
 
-	private String contentTypeId;
+	private IContentType contentType;
+	private boolean onEnterEnabled = true;
+	private boolean bracketAutoClosingEnabled = true;
+	private boolean matchingPairsEnabled = true;
+
+	private CharacterPairSupport characterPair;
+	private OnEnterSupport onEnter;
+
+	public LanguageConfigurationDefinition(IContentType contentType, String path) {
+		super(path);
+		this.contentType = contentType;
+	}
 
 	public LanguageConfigurationDefinition(IConfigurationElement ce) {
 		super(ce);
-		this.contentTypeId = ce.getAttribute(XMLConstants.CONTENT_TYPE_ID_ATTR);
+		this.contentType = ContentTypeHelper.getContentTypeById(ce.getAttribute(XMLConstants.CONTENT_TYPE_ID_ATTR));
 	}
 
-	public String getContentTypeId() {
-		return contentTypeId;
+	/**
+	 * Constructor for user preferences (loaded from Json with Gson).
+	 */
+	public LanguageConfigurationDefinition(IContentType contentType, String path, String pluginId,
+			boolean onEnterEnabled, boolean bracketAutoClosingEnabled, boolean matchingPairsEnabled) {
+		super(path, pluginId);
+		this.contentType = contentType;
+		this.onEnterEnabled = onEnterEnabled;
+		this.bracketAutoClosingEnabled = bracketAutoClosingEnabled;
+		this.matchingPairsEnabled = matchingPairsEnabled;
 	}
 
-	public LanguageConfiguration getLanguageConfiguration() {
+	/**
+	 * Returns the "character pair" support and null otherwise.
+	 *
+	 * @return the "character pair" support and null otherwise.
+	 */
+	public CharacterPairSupport getCharacterPair() {
+		if (this.characterPair == null) {
+			ILanguageConfiguration conf = getLanguageConfiguration();
+			this.characterPair = new CharacterPairSupport(conf.getBrackets(), conf.getAutoClosingPairs(),
+					conf.getSurroundingPairs());
+		}
+		return characterPair;
+	}
+
+	/**
+	 * Returns the "on enter" support and null otherwise.
+	 *
+	 * @return the "on enter" support and null otherwise.
+	 */
+	public OnEnterSupport getOnEnter() {
+		if (this.onEnter == null) {
+			ILanguageConfiguration conf = getLanguageConfiguration();
+			if (conf.getBrackets() != null || conf.getOnEnterRules() != null) {
+				this.onEnter = new OnEnterSupport(conf.getBrackets(), conf.getOnEnterRules());
+			}
+		}
+		return onEnter;
+	}
+
+	@Override
+	public IContentType getContentType() {
+		return contentType;
+	}
+
+	@Override
+	public ILanguageConfiguration getLanguageConfiguration() {
 		try {
 			return LanguageConfiguration.load(new InputStreamReader(getInputStream(), Charset.defaultCharset()));
 		} catch (IOException e) {
 			// TODO: log it!!!
 			return null;
 		}
+	}
+
+	@Override
+	public Boolean isOnEnterEnabled() {
+		return onEnterEnabled;
+	}
+
+	@Override
+	public void setOnEnterEnabled(boolean onEnterEnabled) {
+		this.onEnterEnabled = onEnterEnabled;
+	}
+
+	@Override
+	public Boolean isBracketAutoClosingEnabled() {
+		return bracketAutoClosingEnabled;
+	}
+
+	@Override
+	public void setBracketAutoClosingEnabled(boolean bracketAutoClosingEnabled) {
+		this.bracketAutoClosingEnabled = bracketAutoClosingEnabled;
+	}
+
+	@Override
+	public Boolean isMatchingPairsEnabled() {
+		return matchingPairsEnabled;
+	}
+
+	@Override
+	public void setMatchingPairsEnabled(boolean matchingPairsEnabled) {
+		this.matchingPairsEnabled = matchingPairsEnabled;
 	}
 
 }

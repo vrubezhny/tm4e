@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.tm4e.ui.internal.model.DocumentInputStream;
 import org.eclipse.ui.IEditorInput;
@@ -52,6 +53,17 @@ public class ContentTypeHelper {
 		}
 		// Find content types from the IEditorInput
 		return findContentTypesFromEditorInput(document);
+	}
+
+	/**
+	 * Find the content type with the given contentTypeId
+	 * 
+	 * @param contentTypeId
+	 * @return matching content type or null
+	 */
+	public static IContentType getContentTypeById(String contentTypeId) {
+		IContentTypeManager manager = Platform.getContentTypeManager();
+		return manager.getContentType(contentTypeId);
 	}
 
 	// ------------------------- Find content types from FileBuffers

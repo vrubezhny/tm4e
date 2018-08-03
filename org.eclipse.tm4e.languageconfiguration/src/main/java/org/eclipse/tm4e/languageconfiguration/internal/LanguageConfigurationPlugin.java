@@ -20,7 +20,7 @@ import org.osgi.framework.BundleContext;
  */
 public class LanguageConfigurationPlugin implements BundleActivator {
 
-	public static final String PLUGIN_ID = "org.eclipse.tm4e.languageconfiguration";
+	public static final String PLUGIN_ID = "org.eclipse.tm4e.languageconfiguration"; //$NON-NLS-1$
 
 	private static BundleContext context;
 

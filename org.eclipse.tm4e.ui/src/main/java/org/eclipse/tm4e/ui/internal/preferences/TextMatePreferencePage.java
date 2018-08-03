@@ -24,7 +24,7 @@ import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 /**
  * TextMate Global preferences page.
- * 
+ *
  */
 public class TextMatePreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -32,6 +32,7 @@ public class TextMatePreferencePage extends PreferencePage implements IWorkbench
 
 	}
 
+	@Override
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(1, false);
@@ -41,6 +42,11 @@ public class TextMatePreferencePage extends PreferencePage implements IWorkbench
 		// Add link to grammar preference page
 		addRelatedLink(composite, GrammarPreferencePage.PAGE_ID,
 				TMUIMessages.TextMatePreferencePage_GrammarRelatedLink);
+
+		// Add link to language configuration preference page
+		addRelatedLink(composite,
+				"org.eclipse.tm4e.languageconfiguration.preferences.LanguageConfigurationPreferencePage", //$NON-NLS-1$
+				TMUIMessages.TextMatePreferencePage_LanguageConfigurationRelatedLink);
 
 		// Add link to theme preference page
 		addRelatedLink(composite, ThemePreferencePage.PAGE_ID, TMUIMessages.TextMatePreferencePage_ThemeRelatedLink);

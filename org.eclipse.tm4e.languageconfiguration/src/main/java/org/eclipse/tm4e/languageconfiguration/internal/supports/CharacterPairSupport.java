@@ -20,36 +20,38 @@ import java.util.stream.Collectors;
  */
 public class CharacterPairSupport {
 
-	private List<AutoClosingPair> autoClosingPairs;
-	private List<AutoClosingPair> surroundingPairs;
+	private List<CharacterPair> autoClosingPairs;
+	private List<CharacterPair> surroundingPairs;
 
 	public CharacterPairSupport(List<CharacterPair> brackets, List<AutoClosingPairConditional> autoClosingPairs,
-			List<AutoClosingPair> surroundingPairs) {
+			List<CharacterPair> surroundingPairs) {
 		if (autoClosingPairs != null) {
-			this.autoClosingPairs = autoClosingPairs.stream()
-					.map(el -> new StandardAutoClosingPairConditional(el.getOpen(), el.getClose(), el.getNotIn()))
+			this.autoClosingPairs = autoClosingPairs.stream().filter(el -> el != null)
+					.map(el -> new AutoClosingPairConditional(el.getKey(), el.getValue(), el.getNotIn()))
 					.collect(Collectors.toList());
 		} else if (brackets != null) {
-			this.autoClosingPairs = brackets.stream()
-					.map(el -> new StandardAutoClosingPairConditional(el.getKey(), el.getValue(), null))
+			this.autoClosingPairs = brackets.stream().filter(el -> el != null)
+					.map(el -> new AutoClosingPairConditional(el.getKey(), el.getValue(), null))
 					.collect(Collectors.toList());
 		} else {
 			this.autoClosingPairs = new ArrayList<>();
 		}
 
-		this.surroundingPairs = surroundingPairs != null ? surroundingPairs : this.autoClosingPairs;
+		this.surroundingPairs = surroundingPairs != null
+				? surroundingPairs.stream().filter(el -> el != null).collect(Collectors.toList())
+				: this.autoClosingPairs;
 	}
 
 	public boolean shouldAutoClosePair(String character/* : string, context: ScopedLineTokens, column: number */) {
-		for (AutoClosingPair autoClosingPair : autoClosingPairs) {
-			if (character.equals(autoClosingPair.getOpen())) {
+		for (CharacterPair autoClosingPair : autoClosingPairs) {
+			if (character.equals(autoClosingPair.getKey())) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public List<AutoClosingPair> getAutoClosingPairs() {
+	public List<CharacterPair> getAutoClosingPairs() {
 		return autoClosingPairs;
 	}
 }
