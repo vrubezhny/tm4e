@@ -122,11 +122,11 @@ public class ContentTypeHelper {
 				return new ContentTypeInfo(fileName,
 						Platform.getContentTypeManager().findContentTypesFor(contents, fileName));
 			} catch (Throwable e) {
+				return null;
+			} finally {
 				if (contents != null) {
 					contents.close();
 				}
-				e.printStackTrace();
-				return null;
 			}
 		} catch (IOException x) {
 			x.printStackTrace();
