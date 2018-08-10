@@ -96,7 +96,7 @@ public class TextUtils {
 		} catch (BadLocationException excp) {
 			// stop work
 		}
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -127,9 +127,9 @@ public class TextUtils {
 	}
 
 	public static TabSpacesInfo getTabSpaces(ITextViewer viewer) {
-		TabsToSpacesConverter converter = ClassHelper.getFieldValue(viewer, "fTabsToSpacesConverter", TextViewer.class);
+		TabsToSpacesConverter converter = ClassHelper.getFieldValue(viewer, "fTabsToSpacesConverter", TextViewer.class); //$NON-NLS-1$
 		if (converter != null) {
-			int tabSize = ClassHelper.getFieldValue(converter, "fTabRatio", TabsToSpacesConverter.class);
+			int tabSize = ClassHelper.getFieldValue(converter, "fTabRatio", TabsToSpacesConverter.class); //$NON-NLS-1$
 			return new TabSpacesInfo(tabSize, true);
 		}
 		return new TabSpacesInfo(-1, false);

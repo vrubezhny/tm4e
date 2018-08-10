@@ -22,12 +22,12 @@ public class RegExpUtils {
 	 * Escapes regular expression characters in a given string
 	 */
 	public static String escapeRegExpCharacters(String value) {
-		return value.replaceAll("[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\[\\]\\(\\)\\#]", "\\\\$0");
+		return value.replaceAll("[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\[\\]\\(\\)\\#]", "\\\\$0"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
 	 * Create Java Regexp and null otherwise.
-	 * 
+	 *
 	 * @param regex
 	 * @return Java Regexp and null otherwise.
 	 */
