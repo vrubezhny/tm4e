@@ -54,4 +54,8 @@ public class CharacterPairSupport {
 	public List<CharacterPair> getAutoClosingPairs() {
 		return autoClosingPairs;
 	}
+
+	public List<CharacterPair> getSurroundingPairs() {
+		return surroundingPairs;
+	}
 }
