@@ -37,5 +37,45 @@
           contentType="org.eclipse.core.runtime.text">
       </autoEditStrategy>
   </extension>
-	
+  <extension
+        point="org.eclipse.ui.genericeditor.highlightReconcilers">
+     <highlightReconciler
+           class="org.eclipse.tm4e.languageconfiguration.LanguageConfigurationBracketMatchingReconciler"
+           contentType="org.eclipse.core.runtime.text">
+     </highlightReconciler>
+  </extension>
+  <extension
+        point="org.eclipse.ui.editors.annotationTypes">
+     <type
+           name="org.eclipse.tm4e.languageconfiguration.bracketmatching">
+     </type>
+  </extension>
+  <extension
+        point="org.eclipse.ui.editors.markerAnnotationSpecification">
+     <specification
+           annotationType="org.eclipse.tm4e.languageconfiguration.bracketmatching"
+           label="Matching Pair"
+			textPreferenceKey="TM4EMatchingPair" textPreferenceValue="false"
+			highlightPreferenceKey="TM4EMatchingPairHighlighting"
+			highlightPreferenceValue="true" contributesToHeader="false"
+			overviewRulerPreferenceKey="TM4EMatchingPairInOverviewRuler"
+			overviewRulerPreferenceValue="true"
+			verticalRulerPreferenceKey="TM4EMatchingPairInVerticalRuler"
+			verticalRulerPreferenceValue="false" colorPreferenceKey="TM4EMatchingPairColor"
+			colorPreferenceValue="212,212,212" presentationLayer="4"
+			showInNextPrevDropdownToolbarAction="true"
+			textStylePreferenceKey="TM4EMatchingPairTextStyle"
+			textStylePreferenceValue="NONE"
+           includeOnPreferencePage="true">
+     </specification>
+  </extension>
+  <extension
+        point="org.eclipse.e4.ui.css.swt.theme">
+     <stylesheet
+           uri="resources/css/dark.css">
+        <themeid
+              refid="org.eclipse.e4.ui.css.theme.e4_dark">
+        </themeid>
+     </stylesheet>
+  </extension>
 </plugin>

@@ -91,6 +91,23 @@ public class LanguageConfigurationRegistryManager extends AbstractLanguageConfig
 		return characterPairSupport != null && characterPairSupport.shouldAutoClosePair(character);
 	}
 
+	public List<CharacterPair> getSurroundingPairs(IContentType contentType) {
+		CharacterPairSupport characterPairSupport = this._getCharacterPairSupport(contentType);
+		if (characterPairSupport == null) {
+			return Collections.emptyList();
+		}
+		return characterPairSupport.getSurroundingPairs();
+	}
+
+	public boolean shouldSurroundingPairs(IDocument document, int offset, IContentType contentType) {
+		LanguageConfigurationDefinition definition = getDefinition(contentType);
+		if (definition == null || !definition.isMatchingPairsEnabled()) {
+			return false;
+		}
+		CharacterPairSupport characterPairSupport = this._getCharacterPairSupport(contentType);
+		return characterPairSupport != null;
+	}
+
 	public EnterActionAndIndent getEnterAction(IDocument document, int offset, IContentType contentType) {
 		String indentation = TextUtils.getIndentationAtPosition(document, offset);
 		// let scopedLineTokens = this.getScopedLineTokens(model, range.startLineNumber,
