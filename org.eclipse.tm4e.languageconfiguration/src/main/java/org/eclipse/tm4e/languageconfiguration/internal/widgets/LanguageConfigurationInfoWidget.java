@@ -65,6 +65,9 @@ public class LanguageConfigurationInfoWidget extends Composite {
 	protected TabItem wordPatternTab;
 	private Text wordPatternText;
 
+	protected TabItem onEnterRulesTab;
+	private OnEnterRuleTableWidget onEnterRuleTable;
+
 	private void createUI(Composite ancestor) {
 		TabFolder folder = new TabFolder(ancestor, SWT.NONE);
 
@@ -77,6 +80,7 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		createSurroundingPairsTab(folder);
 		createFoldingTab(folder);
 		createWordPatternTab(folder);
+		createOnEnterRulesTab(folder);
 	}
 
 	public void refresh(ILanguageConfiguration configuration) {
@@ -90,6 +94,7 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		markersStartText.setText(""); //$NON-NLS-1$
 		markersEndText.setText(""); //$NON-NLS-1$
 		wordPatternText.setText(""); //$NON-NLS-1$
+		onEnterRuleTable.setInput(null);
 
 		if (configuration == null) {
 			return;
@@ -120,9 +125,11 @@ public class LanguageConfigurationInfoWidget extends Composite {
 		if (wordPattern != null) {
 			wordPatternText.setText(wordPattern);
 		}
+
+		onEnterRuleTable.setInput(removeNullElements(configuration.getOnEnterRules()));
 	}
 
-	private List<? extends CharacterPair> removeNullElements(List<? extends CharacterPair> list) {
+	private List<?> removeNullElements(List<?> list) {
 		if (list == null) {
 			return null;
 		}
@@ -178,6 +185,11 @@ public class LanguageConfigurationInfoWidget extends Composite {
 
 		wordPatternText = createText(parent,
 				LanguageConfigurationMessages.LanguageConfigurationInfoWidget_wordPattern_message);
+	}
+
+	protected void createOnEnterRulesTab(TabFolder folder) {
+		onEnterRulesTab = createTab(folder, LanguageConfigurationMessages.LanguageConfigurationInfoWidget_onEnterRules);
+		onEnterRuleTable = new OnEnterRuleTableWidget(createTable((Composite) onEnterRulesTab.getControl()));
 	}
 
 	private Table createTable(Composite parent) {

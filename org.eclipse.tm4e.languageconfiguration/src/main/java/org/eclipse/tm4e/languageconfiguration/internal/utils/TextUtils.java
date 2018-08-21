@@ -10,6 +10,8 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.utils;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IDocument;
@@ -82,7 +84,31 @@ public class TextUtils {
 		return -1;
 	}
 
-	public static String getIndentationAtPosition(IDocument d, int offset) {
+	public static String getIndentationFromWhitespace(String whitespace, TabSpacesInfo tabSpaces) {
+		String tab = "\t"; //$NON-NLS-1$
+		String spaces = null;
+		int indentOffset = 0;
+		boolean startsWithTab = true;
+		boolean startsWithSpaces = true;
+		if (tabSpaces.isInsertSpaces()) {
+			char[] chars = new char[tabSpaces.getTabSize()];
+			Arrays.fill(chars, ' ');
+			spaces = new String(chars);
+		}
+		while (startsWithTab || startsWithSpaces) {
+			startsWithTab = whitespace.startsWith(tab, indentOffset);
+			startsWithSpaces = tabSpaces.isInsertSpaces() && whitespace.startsWith(spaces, indentOffset);
+			if (startsWithTab) {
+				indentOffset += tab.length();
+			}
+			if (startsWithSpaces) {
+				indentOffset += spaces.length();
+			}
+		}
+		return whitespace.substring(0, indentOffset);
+	}
+
+	public static String getLinePrefixingWhitespaceAtPosition(IDocument d, int offset) {
 		try {
 			// find start of line
 			int p = offset;

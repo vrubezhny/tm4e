@@ -34,6 +34,7 @@ public class LanguageConfigurationMessages extends NLS {
 	public static String LanguageConfigurationInfoWidget_markers;
 	public static String LanguageConfigurationInfoWidget_offSide;
 	public static String LanguageConfigurationInfoWidget_offSide_tooltip;
+	public static String LanguageConfigurationInfoWidget_onEnterRules;
 	public static String LanguageConfigurationInfoWidget_start;
 	public static String LanguageConfigurationInfoWidget_surroundingPairs;
 	public static String LanguageConfigurationInfoWidget_wordPattern_message;
@@ -46,6 +47,11 @@ public class LanguageConfigurationMessages extends NLS {
 	public static String LanguageConfigurationPreferencePage_path;
 	public static String LanguageConfigurationPreferencePage_pluginId;
 	public static String LanguageConfigurationPreferencePage_remove;
+	public static String OnEnterRuleTableWidget_beforeText;
+	public static String OnEnterRuleTableWidget_afterText;
+	public static String OnEnterRuleTableWidget_indentAction;
+	public static String OnEnterRuleTableWidget_appendText;
+	public static String OnEnterRuleTableWidget_removeText;
 	public static String SelectLanguageConfigurationWizardPage_browse_fileSystem;
 	public static String SelectLanguageConfigurationWizardPage_browse_workspace;
 	public static String SelectLanguageConfigurationWizardPage_contentType;

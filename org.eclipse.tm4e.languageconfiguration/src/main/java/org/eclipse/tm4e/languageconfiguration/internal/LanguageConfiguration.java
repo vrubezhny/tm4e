@@ -18,6 +18,8 @@ import org.eclipse.tm4e.languageconfiguration.ILanguageConfiguration;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.AutoClosingPairConditional;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPair;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.Comments;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction.IndentAction;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.Folding;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.OnEnterRule;
 
@@ -44,7 +46,33 @@ public class LanguageConfiguration implements ILanguageConfiguration {
 	 */
 	public static LanguageConfiguration load(Reader reader) {
 		return new GsonBuilder()
-				.registerTypeAdapter(Comments.class, (JsonDeserializer<Comments>) (json, typeOfT, context) -> {
+				.registerTypeAdapter(OnEnterRule.class, (JsonDeserializer<OnEnterRule>) (json, typeOfT, context) -> {
+					String beforeText = null;
+					String afterText = null;
+					EnterAction action = null;
+					if (json.isJsonObject()) {
+						JsonObject object = json.getAsJsonObject();
+						beforeText = getAsString(object.get("beforeText")); //$NON-NLS-1$
+						afterText = getAsString(object.get("afterText")); //$NON-NLS-1$
+						JsonElement actionElement = object.get("action"); //$NON-NLS-1$
+						if (actionElement != null && actionElement.isJsonObject()) {
+							JsonObject actionObject = actionElement.getAsJsonObject();
+							IndentAction indentAction = IndentAction
+									.valueOf(getAsString(actionObject.get("indentAction"))); //$NON-NLS-1$
+							Integer removeText = getAsInt(actionObject.get("removeText")); //$NON-NLS-1$
+							String appendText = getAsString(actionObject.get("appendText")); //$NON-NLS-1$
+							if (indentAction != null) {
+								action = new EnterAction(indentAction);
+								action.setAppendText(appendText);
+								action.setRemoveText(removeText);
+							}
+						}
+					}
+					if (beforeText == null || action == null) {
+						return null;
+					}
+					return new OnEnterRule(beforeText, afterText, action);
+				}).registerTypeAdapter(Comments.class, (JsonDeserializer<Comments>) (json, typeOfT, context) -> {
 					// ex: {"lineComment": "//","blockComment": [ "/*", "*/" ]}
 					String lineComment = null;
 					CharacterPair blockComment = null;
@@ -158,6 +186,17 @@ public class LanguageConfiguration implements ILanguageConfiguration {
 			return element.getAsBoolean();
 		} catch (Exception e) {
 			return defaultValue;
+		}
+	}
+
+	private static Integer getAsInt(JsonElement element) {
+		if (element == null) {
+			return null;
+		}
+		try {
+			return element.getAsInt();
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
