@@ -14,9 +14,9 @@
 <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20180302171354/repository"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.feature.group" version="4.7.0.v20170612-1255"/>
-<unit id="org.eclipse.ui.tests.harness" version="1.4.100.v20170515-1127"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.7/"/>
+<unit id="org.eclipse.platform.feature.group" version="4.8.0.v20180611-0656"/>
+<unit id="org.eclipse.ui.tests.harness" version="1.4.200.v20180512-1133"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.8/"/>
 </location>
 </locations>
 </target>
