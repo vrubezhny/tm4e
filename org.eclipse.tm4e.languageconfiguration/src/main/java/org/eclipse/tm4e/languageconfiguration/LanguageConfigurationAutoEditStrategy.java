@@ -10,6 +10,7 @@
  */
 package org.eclipse.tm4e.languageconfiguration;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -110,7 +111,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			EnterActionAndIndent r = registry.getEnterAction(document, command.offset, contentType);
 			if (r != null) {
 				EnterAction enterAction = r.getEnterAction();
-				String indentation = r.getIndentation();
+				String indentation = TextUtils.getIndentationFromWhitespace(r.getIndentation(), getTabSpaces());
 				String delim = command.text;
 				switch (enterAction.getIndentAction()) {
 				case None: {
@@ -130,7 +131,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				}
 				case Indent: {
 					// Indent once
-					String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
+					String increasedIndent = normalizeIndentation(indentation + "\t" + enterAction.getAppendText());
 					String typeText = delim + increasedIndent;
 
 					command.text = typeText;
@@ -146,7 +147,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				case IndentOutdent: {
 					// Ultra special
 					String normalIndent = normalizeIndentation(indentation);
-					String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
+					String increasedIndent = normalizeIndentation(indentation + "\t" + enterAction.getAppendText());
 
 					String typeText = delim + increasedIndent + delim + normalIndent;
 					command.text = typeText;
@@ -160,6 +161,15 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 					break;
 				}
 				case Outdent:
+					String outdentedText = outdentString(
+							normalizeIndentation(indentation + enterAction.getAppendText()));
+					command.text = delim + outdentedText;
+					command.shiftsCaret = false;
+					if (keepPosition) {
+
+					} else {
+						command.caretOffset = command.offset + (delim + outdentedText).length();
+					}
 					break;
 				}
 				return;
@@ -167,7 +177,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		}
 
 		// no enter rules applied, we should check indentation rules then.
-		String indentation = TextUtils.getIndentationAtPosition(document, command.offset);
+		String indentation = TextUtils.getLinePrefixingWhitespaceAtPosition(document, command.offset);
 		String increasedIndent = normalizeIndentation(indentation);
 		String delim = TextUtilities.getDefaultLineDelimiter(document);
 		String typeText = delim + increasedIndent;
@@ -194,6 +204,22 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			e.printStackTrace();
 		}
 		return contentTypes;
+	}
+
+	private String outdentString(String str) {
+		if (str.startsWith("\t")) {//$NON-NLS-1$
+			return str.substring(1);
+		}
+		TabSpacesInfo tabSpaces = getTabSpaces();
+		if (tabSpaces.isInsertSpaces()) {
+			char[] chars = new char[tabSpaces.getTabSize()];
+			Arrays.fill(chars, ' ');
+			String spaces = new String(chars);
+			if (str.startsWith(spaces)) {
+				return str.substring(spaces.length());
+			}
+		}
+		return str;
 	}
 
 	private String normalizeIndentation(String str) {

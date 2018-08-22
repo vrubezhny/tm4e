@@ -1,3 +1,13 @@
+/**
+ *  Copyright (c) 2018 Red Hat Inc. and others.
+ *  All rights reserved. This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License v1.0
+ *  which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ *  Contributors:
+ *  Lucas Bullen (Red Hat Inc.) - initial API and implementation
+ */
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
@@ -45,9 +55,9 @@ public class LanguageConfigurationPreferencesWidget extends LanguageConfiguratio
 	}
 
 	@Override
-	protected void createBracketsTab(TabFolder folder) {
-		super.createBracketsTab(folder);
-		Composite parent = (Composite) bracketsTab.getControl();
+	protected void createOnEnterRulesTab(TabFolder folder) {
+		super.createOnEnterRulesTab(folder);
+		Composite parent = (Composite) onEnterRulesTab.getControl();
 		toggleOnEnterButton = new Button(parent, SWT.CHECK);
 		toggleOnEnterButton.setText("Enable on enter actions");
 		toggleOnEnterButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

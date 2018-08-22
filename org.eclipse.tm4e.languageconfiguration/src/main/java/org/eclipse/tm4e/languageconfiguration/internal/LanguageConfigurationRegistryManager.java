@@ -109,7 +109,7 @@ public class LanguageConfigurationRegistryManager extends AbstractLanguageConfig
 	}
 
 	public EnterActionAndIndent getEnterAction(IDocument document, int offset, IContentType contentType) {
-		String indentation = TextUtils.getIndentationAtPosition(document, offset);
+		String indentation = TextUtils.getLinePrefixingWhitespaceAtPosition(document, offset);
 		// let scopedLineTokens = this.getScopedLineTokens(model, range.startLineNumber,
 		// range.startColumn);
 		OnEnterSupport onEnterSupport = this._getOnEnterSupport(contentType /* scopedLineTokens.languageId */);
