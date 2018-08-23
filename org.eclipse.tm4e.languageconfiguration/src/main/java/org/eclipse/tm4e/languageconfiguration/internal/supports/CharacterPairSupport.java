@@ -42,13 +42,25 @@ public class CharacterPairSupport {
 				: this.autoClosingPairs;
 	}
 
-	public boolean shouldAutoClosePair(String character/* : string, context: ScopedLineTokens, column: number */) {
-		for (CharacterPair autoClosingPair : autoClosingPairs) {
-			if (character.equals(autoClosingPair.getKey())) {
-				return true;
-			}
+	public CharacterPair getAutoClosePair(String text, Integer offset,
+			String newCharacter/* : string, context: ScopedLineTokens, column: number */) {
+		if (newCharacter.isEmpty()) {
+			return null;
 		}
-		return false;
+		for (CharacterPair autoClosingPair : autoClosingPairs) {
+			String openning = autoClosingPair.getKey();
+			if (!openning.endsWith(newCharacter)) {
+				continue;
+			}
+			if (openning.length() > 1) {
+				String offsetPrefix = text.substring(0, offset);
+				if (!offsetPrefix.endsWith(openning.substring(0, openning.length() - 1))) {
+					continue;
+				}
+			}
+			return autoClosingPair;
+		}
+		return null;
 	}
 
 	public List<CharacterPair> getAutoClosingPairs() {

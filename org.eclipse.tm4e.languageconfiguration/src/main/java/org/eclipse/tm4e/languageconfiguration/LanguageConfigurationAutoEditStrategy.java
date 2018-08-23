@@ -11,7 +11,6 @@
 package org.eclipse.tm4e.languageconfiguration;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.content.IContentType;
@@ -47,7 +46,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 	@Override
 	public void customizeDocumentCommand(IDocument document, DocumentCommand command) {
 		IContentType[] contentTypes = findContentTypes(document);
-		if (contentTypes == null) {
+		if (contentTypes == null || command.text.isEmpty()) {
 			return;
 		}
 		installViewer();
@@ -61,20 +60,15 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		// Auto close pair
 		LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
 		for (IContentType contentType : contentTypes) {
-			if (!registry.shouldAutoClosePair(command.text, contentType)) {
+			CharacterPair autoClosingPair = registry.getAutoClosePair(document.get(), command.offset, command.text,
+					contentType);
+			if (autoClosingPair == null) {
 				continue;
 			}
-			List<CharacterPair> autoClosingPairs = registry.getAutoClosingPairs(contentType);
-			if (autoClosingPairs != null && autoClosingPairs.size() > 0) {
-				for (CharacterPair autoClosingPair : autoClosingPairs) {
-					if (command.text.equals(autoClosingPair.getKey())) {
-						command.text += autoClosingPair.getValue();
-						command.caretOffset = command.offset + 1;
-						command.shiftsCaret = false;
-						break;
-					}
-				}
-			}
+			command.text += autoClosingPair.getValue();
+			command.caretOffset = command.offset + autoClosingPair.getValue().length();
+			command.shiftsCaret = false;
+			break;
 		}
 
 		// ITMModel model = TMUIPlugin.getTMModelManager().connect(document);
@@ -131,7 +125,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				}
 				case Indent: {
 					// Indent once
-					String increasedIndent = normalizeIndentation(indentation + "\t" + enterAction.getAppendText());
+					String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
 					String typeText = delim + increasedIndent;
 
 					command.text = typeText;
@@ -147,7 +141,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				case IndentOutdent: {
 					// Ultra special
 					String normalIndent = normalizeIndentation(indentation);
-					String increasedIndent = normalizeIndentation(indentation + "\t" + enterAction.getAppendText());
+					String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
 
 					String typeText = delim + increasedIndent + delim + normalIndent;
 					command.text = typeText;

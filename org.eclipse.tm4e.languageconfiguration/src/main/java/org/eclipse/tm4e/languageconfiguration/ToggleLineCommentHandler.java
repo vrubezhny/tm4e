@@ -36,7 +36,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-public class ToggleLineCommentHandle extends AbstractHandler {
+public class ToggleLineCommentHandler extends AbstractHandler {
 	public static final String TOGGLE_LINE_COMMENT_COMMAND_ID = "org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand";
 	public static final String TOGGLE_BLOCK_COMMENT_COMMAND_ID = "org.eclipse.tm4e.languageconfiguration.toggleblockcommentcommand";
 
@@ -184,7 +184,7 @@ public class ToggleLineCommentHandle extends AbstractHandler {
 		Boolean isStartBeforeComment = false;
 
 		while (lineNumber <= endLineNumber) {
-			int commentOffset = oldText.indexOf(comment, document.getLineOffset(lineNumber));
+			int commentOffset = oldText.indexOf(comment, document.getLineOffset(lineNumber) + deletedChars);
 			document.replace(commentOffset - deletedChars, comment.length(), "");
 			if (deletedChars == 0) {
 				isStartBeforeComment = commentOffset > selection.getOffset();

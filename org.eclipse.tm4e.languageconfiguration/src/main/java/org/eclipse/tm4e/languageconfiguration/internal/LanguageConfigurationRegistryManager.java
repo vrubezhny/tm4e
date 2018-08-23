@@ -75,13 +75,13 @@ public class LanguageConfigurationRegistryManager extends AbstractLanguageConfig
 		return bestFit;
 	}
 
-	public boolean shouldAutoClosePair(String character, IContentType contentType) {
+	public CharacterPair getAutoClosePair(String text, Integer offset, String newCharacter, IContentType contentType) {
 		LanguageConfigurationDefinition definition = getDefinition(contentType);
 		if (definition == null || !definition.isBracketAutoClosingEnabled()) {
-			return false;
+			return null;
 		}
 		CharacterPairSupport characterPairSupport = this._getCharacterPairSupport(contentType);
-		return characterPairSupport != null && characterPairSupport.shouldAutoClosePair(character);
+		return characterPairSupport == null ? null : characterPairSupport.getAutoClosePair(text, offset, newCharacter);
 	}
 
 	public boolean shouldSurroundingPairs(IDocument document, int offset, IContentType contentType) {
