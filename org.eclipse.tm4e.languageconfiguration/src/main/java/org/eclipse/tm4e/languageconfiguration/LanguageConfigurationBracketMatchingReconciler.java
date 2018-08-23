@@ -14,6 +14,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.reconciler.MonoReconciler;
 
+@Deprecated
+// Remove this class when https://git.eclipse.org/r/#/c/127756/ will be merged
 public class LanguageConfigurationBracketMatchingReconciler extends MonoReconciler {
 	public LanguageConfigurationBracketMatchingReconciler() {
 		super(new LanguageConfigurationBracketMatchingReconcilingStrategy(), false);
