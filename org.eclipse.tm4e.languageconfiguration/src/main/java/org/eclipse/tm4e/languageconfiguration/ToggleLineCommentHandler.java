@@ -38,7 +38,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 public class ToggleLineCommentHandler extends AbstractHandler {
 	public static final String TOGGLE_LINE_COMMENT_COMMAND_ID = "org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand";
-	public static final String TOGGLE_BLOCK_COMMENT_COMMAND_ID = "org.eclipse.tm4e.languageconfiguration.toggleblockcommentcommand";
+	public static final String ADD_BLOCK_COMMENT_COMMAND_ID = "org.eclipse.tm4e.languageconfiguration.addblockcommentcommand";
+	public static final String REMOVE_BLOCK_COMMENT_COMMAND_ID = "org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -85,9 +86,14 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 				}
 				if (TOGGLE_LINE_COMMENT_COMMAND_ID.equals(command.getId()) && commentSupport.getLineComment() != null) {
 					updateLineComment(document, textSelection, commentSupport.getLineComment(), editor);
-				} else if (TOGGLE_BLOCK_COMMENT_COMMAND_ID.equals(command.getId())
-						&& commentSupport.getBlockComment() != null) {
-					updateBlockComment(document, textSelection, commentSupport, editor);
+				} else {
+					IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
+					if (ADD_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()) && existingBlock == null) {
+						addBlockComment(document, textSelection, commentSupport.getBlockComment(), editor);
+					} else if (REMOVE_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()) && existingBlock != null) {
+						removeBlockComment(document, textSelection, existingBlock, commentSupport.getBlockComment(),
+								editor);
+					}
 				}
 			}
 		} catch (BadLocationException e) {
@@ -107,18 +113,6 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		} else {
 			addLineComments(document, selection, comment, editor);
 		}
-	}
-
-	private void updateBlockComment(IDocument document, ITextSelection selection, CommentSupport commentSupport,
-			ITextEditor editor) throws BadLocationException {
-
-		IRegion existingBlock = getBlockComment(document, selection, commentSupport);
-		if (existingBlock != null) {
-			removeBlockComment(document, selection, existingBlock, commentSupport.getBlockComment(), editor);
-		} else {
-			addBlockComment(document, selection, commentSupport.getBlockComment(), editor);
-		}
-
 	}
 
 	private boolean areLinesCommented(IDocument document, ITextSelection selection, String comment)

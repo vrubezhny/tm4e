@@ -59,16 +59,36 @@
   <extension
         point="org.eclipse.ui.bindings">
      <key
-           commandId="org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand"
+           commandId="org.eclipse.tm4e.languageconfiguration.addblockcommentcommand"
            contextId="org.eclipse.ui.textEditorScope"
            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-           sequence="Ctrl+/">
+           sequence="M1+M2+/">
      </key>
      <key
-           commandId="org.eclipse.tm4e.languageconfiguration.toggleblockcommentcommand"
+           commandId="org.eclipse.tm4e.languageconfiguration.addblockcommentcommand"
            contextId="org.eclipse.ui.textEditorScope"
            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-           sequence="Shift+Ctrl+/">
+           platform="carbon"
+           sequence="M1+/">
+     </key>
+     <key
+           commandId="org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand"
+           contextId="org.eclipse.ui.textEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+M2+\">
+     </key>
+     <key
+           commandId="org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand"
+           contextId="org.eclipse.ui.textEditorScope"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           platform="carbon"
+           sequence="M1+\">
+     </key>
+     <key
+           contextId="org.eclipse.ui.textEditorScope"
+           commandId="org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand"
+           schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+           sequence="M1+M2+C">
      </key>
   </extension>
   <extension
@@ -84,8 +104,13 @@
      </command>
      <command
            categoryId="org.eclipse.tm4e.languageconfiguration.category"
-           id="org.eclipse.tm4e.languageconfiguration.toggleblockcommentcommand"
-           name="%LanguageConfiguration.toggleBlockComment.name">
+           id="org.eclipse.tm4e.languageconfiguration.addblockcommentcommand"
+           name="%LanguageConfiguration.addBlockComment.name">
+     </command>
+     <command
+           categoryId="org.eclipse.tm4e.languageconfiguration.category"
+           id="org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand"
+           name="%LanguageConfiguration.removeBlockComment.name">
      </command>
   </extension>
   <extension
@@ -105,7 +130,20 @@
      </handler>
      <handler
            class="org.eclipse.tm4e.languageconfiguration.ToggleLineCommentHandler"
-           commandId="org.eclipse.tm4e.languageconfiguration.toggleblockcommentcommand">
+           commandId="org.eclipse.tm4e.languageconfiguration.addblockcommentcommand">
+        <enabledWhen>
+           <with
+                 variable="activeEditor">
+              <test
+                    property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"
+                    forcePluginActivation="true">
+              </test>
+           </with>
+        </enabledWhen>
+     </handler>
+     <handler
+           class="org.eclipse.tm4e.languageconfiguration.ToggleLineCommentHandler"
+           commandId="org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand">
         <enabledWhen>
            <with
                  variable="activeEditor">
