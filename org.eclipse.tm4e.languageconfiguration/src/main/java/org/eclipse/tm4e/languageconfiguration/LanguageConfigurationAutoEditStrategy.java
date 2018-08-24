@@ -66,7 +66,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				continue;
 			}
 			command.text += autoClosingPair.getValue();
-			command.caretOffset = command.offset + autoClosingPair.getValue().length();
+			command.caretOffset = command.offset + 1;
 			command.shiftsCaret = false;
 			break;
 		}

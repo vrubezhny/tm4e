@@ -119,39 +119,21 @@
            class="org.eclipse.tm4e.languageconfiguration.ToggleLineCommentHandler"
            commandId="org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand">
         <enabledWhen>
-           <with
-                 variable="activeEditor">
-              <test
-                    property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"
-                    forcePluginActivation="true">
-              </test>
-           </with>
+           <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
         </enabledWhen>
      </handler>
      <handler
            class="org.eclipse.tm4e.languageconfiguration.ToggleLineCommentHandler"
            commandId="org.eclipse.tm4e.languageconfiguration.addblockcommentcommand">
         <enabledWhen>
-           <with
-                 variable="activeEditor">
-              <test
-                    property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"
-                    forcePluginActivation="true">
-              </test>
-           </with>
+           <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
         </enabledWhen>
      </handler>
      <handler
            class="org.eclipse.tm4e.languageconfiguration.ToggleLineCommentHandler"
            commandId="org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand">
         <enabledWhen>
-           <with
-                 variable="activeEditor">
-              <test
-                    property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"
-                    forcePluginActivation="true">
-              </test>
-           </with>
+           <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
         </enabledWhen>
      </handler>
   </extension>
@@ -165,4 +147,45 @@
            type="java.lang.Object">
      </propertyTester>
   </extension>
+  <extension
+        point="org.eclipse.ui.menus">
+     <menuContribution
+           allPopups="true"
+       locationURI="popup:org.eclipse.ui.genericeditor.source.menu?after=additions">
+       <command
+             commandId="org.eclipse.tm4e.languageconfiguration.togglelinecommentcommand"
+             style="push">
+          <visibleWhen>
+             <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
+          </visibleWhen>
+       </command>
+       <command
+             commandId="org.eclipse.tm4e.languageconfiguration.addblockcommentcommand"
+             style="push">
+          <visibleWhen>
+             <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
+          </visibleWhen>
+       </command>
+       <command
+             commandId="org.eclipse.tm4e.languageconfiguration.removeblockcommentcommand"
+             style="push">
+          <visibleWhen>
+             <reference definitionId="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"/>
+          </visibleWhen>
+       </command>
+     </menuContribution>
+  </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration">
+         <with
+               variable="activeEditor">
+            <test
+                  property="org.eclipse.tm4e.languageconfiguration.hasLanguageConfiguration"
+                  forcePluginActivation="true">
+            </test>
+         </with>
+      </definition>
+   </extension>
 </plugin>
