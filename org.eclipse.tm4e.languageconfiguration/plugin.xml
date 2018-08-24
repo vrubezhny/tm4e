@@ -165,39 +165,4 @@
            type="java.lang.Object">
      </propertyTester>
   </extension>
-
-  <!-- // START Remove  when https://git.eclipse.org/r/#/c/127756/ will be merged -->
-    <extension
-        point="org.eclipse.ui.genericeditor.highlightReconcilers">
-     <highlightReconciler
-           class="org.eclipse.tm4e.languageconfiguration.LanguageConfigurationBracketMatchingReconciler"
-           contentType="org.eclipse.core.runtime.text">
-     </highlightReconciler>
-  </extension>
-  <extension
-        point="org.eclipse.ui.editors.annotationTypes">
-     <type
-           name="org.eclipse.tm4e.languageconfiguration.bracketmatching">
-     </type>
-  </extension>
-  <extension
-        point="org.eclipse.ui.editors.markerAnnotationSpecification">
-     <specification
-           annotationType="org.eclipse.tm4e.languageconfiguration.bracketmatching"
-           label="Matching Pair"
-			textPreferenceKey="TM4EMatchingPair" textPreferenceValue="false"
-			highlightPreferenceKey="TM4EMatchingPairHighlighting"
-			highlightPreferenceValue="true" contributesToHeader="false"
-			overviewRulerPreferenceKey="TM4EMatchingPairInOverviewRuler"
-			overviewRulerPreferenceValue="true"
-			verticalRulerPreferenceKey="TM4EMatchingPairInVerticalRuler"
-			verticalRulerPreferenceValue="false" colorPreferenceKey="TM4EMatchingPairColor"
-			colorPreferenceValue="212,212,212" presentationLayer="4"
-			showInNextPrevDropdownToolbarAction="true"
-			textStylePreferenceKey="TM4EMatchingPairTextStyle"
-			textStylePreferenceValue="NONE"
-           includeOnPreferencePage="true">
-     </specification>
-  </extension>
-  <!-- // END Remove  when https://git.eclipse.org/r/#/c/127756/ will be merged -->
 </plugin>
