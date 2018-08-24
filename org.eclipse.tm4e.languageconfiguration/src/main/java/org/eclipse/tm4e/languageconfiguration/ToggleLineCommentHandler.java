@@ -72,28 +72,29 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		}
 		IContentType[] contentTypes = info.getContentTypes();
 		Command command = event.getCommand();
+		CommentSupport commentSupport = getCommentSupport(contentTypes);
+		if (commentSupport == null) {
+			return null;
+		}
+		// Check if comment support is valid according the command to do.
+		if (!isValid(commentSupport, command)) {
+			return null;
+		}
 
 		IRewriteTarget target = editor.getAdapter(IRewriteTarget.class);
 		if (target != null) {
 			target.beginCompoundChange();
 		}
 		try {
-			LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
-			for (IContentType contentType : contentTypes) {
-				CommentSupport commentSupport = registry.getCommentSupport(contentType);
-				if (!registry.shouldComment(contentType)) {
-					continue;
-				}
-				if (TOGGLE_LINE_COMMENT_COMMAND_ID.equals(command.getId()) && commentSupport.getLineComment() != null) {
-					updateLineComment(document, textSelection, commentSupport.getLineComment(), editor);
-				} else {
-					IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
-					if (ADD_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()) && existingBlock == null) {
-						addBlockComment(document, textSelection, commentSupport.getBlockComment(), editor);
-					} else if (REMOVE_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()) && existingBlock != null) {
-						removeBlockComment(document, textSelection, existingBlock, commentSupport.getBlockComment(),
-								editor);
-					}
+			if (TOGGLE_LINE_COMMENT_COMMAND_ID.equals(command.getId()) && commentSupport.getLineComment() != null) {
+				updateLineComment(document, textSelection, commentSupport.getLineComment(), editor);
+			} else {
+				IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
+				if (ADD_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()) && existingBlock == null) {
+					addBlockComment(document, textSelection, commentSupport.getBlockComment(), editor);
+				} else if (REMOVE_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()) && existingBlock != null) {
+					removeBlockComment(document, textSelection, existingBlock, commentSupport.getBlockComment(),
+							editor);
 				}
 			}
 		} catch (BadLocationException e) {
@@ -101,6 +102,48 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		} finally {
 			if (target != null) {
 				target.endCompoundChange();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns true if comment support is valid according the command to do and
+	 * false otherwise.
+	 * 
+	 * @param commentSupport
+	 * @param command
+	 * @return true if comment support is valid according the command to do and
+	 *         false otherwise.
+	 */
+	private boolean isValid(CommentSupport commentSupport, Command command) {
+		if (TOGGLE_LINE_COMMENT_COMMAND_ID.equals(command.getId())) {
+			// check if line comment is valid.
+			return commentSupport.getLineComment() != null && !commentSupport.getLineComment().isEmpty();
+		}
+		// check if block comment is valid
+		CharacterPair characterPair = commentSupport.getBlockComment();
+		return characterPair != null && characterPair.getKey() != null && !characterPair.getKey().isEmpty()
+				&& characterPair.getValue() != null && !characterPair.getValue().isEmpty();
+	}
+
+	/**
+	 * Returns the comment support from the given list of content types and null
+	 * otherwise.
+	 * 
+	 * @param contentTypes
+	 * @return the comment support from the given list of content types and null
+	 *         otherwise.
+	 */
+	private CommentSupport getCommentSupport(IContentType[] contentTypes) {
+		LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
+		for (IContentType contentType : contentTypes) {
+			if (!registry.shouldComment(contentType)) {
+				continue;
+			}
+			CommentSupport commentSupport = registry.getCommentSupport(contentType);
+			if (commentSupport != null) {
+				return commentSupport;
 			}
 		}
 		return null;
