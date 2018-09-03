@@ -6,10 +6,10 @@
    <feature id="tm-feature.source">
       <category name="Sources"/>
    </feature>
-   <bundle id="org.eclipse.tm4e.samples" version="0.1.0.qualifier">
+   <bundle id="org.eclipse.tm4e.samples" version="0.0.0">
       <category name="Samples"/>
    </bundle>
-   <bundle id="org.eclipse.tm4e.samples.source" version="0.1.0.qualifier">
+   <bundle id="org.eclipse.tm4e.samples.source" version="0.0.0">
       <category name="Sources"/>
    </bundle>
    <bundle id="org.joni" version="0.0.0">
@@ -18,7 +18,7 @@
    <bundle id="org.jcodings" version="0.0.0">
       <category name="Dependencies"/>
    </bundle>
-   <bundle id="org.eclipse.tm4e.ui.editor" version="0.1.0.qualifier">
+   <bundle id="org.eclipse.tm4e.ui.editor" version="0.0.0">
       <category name="TextMate Editor"/>
    </bundle>
    <category-def name="TextMate" label="TextMate"/>

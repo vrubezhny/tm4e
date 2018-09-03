@@ -2,7 +2,7 @@
 <feature
       id="tm-feature"
       label="%featureName"
-      version="0.1.0.qualifier"
+      version="0.2.0.qualifier"
       provider-name="%featureProvider"
       license-feature="org.eclipse.license"
       license-feature-version="1.0.1.qualifier">
@@ -33,7 +33,6 @@
          version="0.0.0"
          unpack="false"/>
 
-
    <plugin
          id="org.eclipse.tm4e.ui"
          download-size="0"
@@ -54,5 +53,5 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
 </feature>
