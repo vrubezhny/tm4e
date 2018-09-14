@@ -10,7 +10,7 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal;
 
-import org.osgi.framework.BundleActivator;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -18,23 +18,23 @@ import org.osgi.framework.BundleContext;
  * language-configuration.json) Eclipse bundle.
  *
  */
-public class LanguageConfigurationPlugin implements BundleActivator {
+public class LanguageConfigurationPlugin extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "org.eclipse.tm4e.languageconfiguration"; //$NON-NLS-1$
 
-	private static BundleContext context;
+	private static LanguageConfigurationPlugin INSTANCE = null;
 
-	static BundleContext getContext() {
-		return context;
+	public static LanguageConfigurationPlugin getInstance() {
+		return INSTANCE;
 	}
 
-	@Override
-	public void start(BundleContext bundleContext) throws Exception {
-		LanguageConfigurationPlugin.context = bundleContext;
+	@Override public void start(BundleContext context) throws Exception {
+		super.start(context);
+		INSTANCE = this;
 	}
 
-	@Override
-	public void stop(BundleContext bundleContext) throws Exception {
-		LanguageConfigurationPlugin.context = null;
+	@Override public void stop(BundleContext context) throws Exception {
+		INSTANCE = null;
+		super.stop(context);
 	}
 }

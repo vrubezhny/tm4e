@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.languageconfiguration.ILanguageConfiguration;
 import org.eclipse.tm4e.languageconfiguration.ILanguageConfigurationDefinition;
@@ -70,8 +72,10 @@ public class LanguageConfigurationDefinition extends TMResource implements ILang
 	public CharacterPairSupport getCharacterPair() {
 		if (this.characterPair == null) {
 			ILanguageConfiguration conf = getLanguageConfiguration();
-			this.characterPair = new CharacterPairSupport(conf.getBrackets(), conf.getAutoClosingPairs(),
-					conf.getSurroundingPairs());
+			if (conf != null) {
+				this.characterPair = new CharacterPairSupport(conf.getBrackets(), conf.getAutoClosingPairs(),
+						conf.getSurroundingPairs());
+			}
 		}
 		return characterPair;
 	}
@@ -84,7 +88,7 @@ public class LanguageConfigurationDefinition extends TMResource implements ILang
 	public OnEnterSupport getOnEnter() {
 		if (this.onEnter == null) {
 			ILanguageConfiguration conf = getLanguageConfiguration();
-			if (conf.getBrackets() != null || conf.getOnEnterRules() != null) {
+			if (conf != null && (conf.getBrackets() != null || conf.getOnEnterRules() != null)) {
 				this.onEnter = new OnEnterSupport(conf.getBrackets(), conf.getOnEnterRules());
 			}
 		}
@@ -99,7 +103,9 @@ public class LanguageConfigurationDefinition extends TMResource implements ILang
 	public CommentSupport getCommentSupport() {
 		if (this.comment == null) {
 			ILanguageConfiguration conf = getLanguageConfiguration();
-			this.comment = new CommentSupport(conf.getComments());
+			if (conf != null) {
+				this.comment = new CommentSupport(conf.getComments());
+			}
 		}
 		return comment;
 	}
@@ -114,7 +120,7 @@ public class LanguageConfigurationDefinition extends TMResource implements ILang
 		try {
 			return LanguageConfiguration.load(new InputStreamReader(getInputStream(), Charset.defaultCharset()));
 		} catch (IOException e) {
-			// TODO: log it!!!
+			LanguageConfigurationPlugin.getInstance().getLog().log(new Status(IStatus.ERROR, LanguageConfigurationPlugin.PLUGIN_ID, e.getMessage(), e));
 			return null;
 		}
 	}
