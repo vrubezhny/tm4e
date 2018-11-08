@@ -121,13 +121,6 @@ public interface IThemeManager {
 	IThemeAssociation[] getThemeAssociationsForScope(String scopeName);
 
 	/**
-	 * Returns the Eclipse E4 CSS Theme Id.
-	 * 
-	 * @return the Eclipse E4 CSS Theme Id.
-	 */
-	String getPreferenceE4CSSThemeId();
-
-	/**
 	 * Save the themes definitions.
 	 * 
 	 * @throws BackingStoreException

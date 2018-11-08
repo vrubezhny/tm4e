@@ -18,7 +18,9 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.tm4e.registry.TMResource;
 import org.eclipse.tm4e.registry.XMLConstants;
+import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 
 /**
  * {@link ITheme} implementation.
@@ -60,8 +62,8 @@ public class Theme extends TMResource implements ITheme {
 		super(ce);
 		id = ce.getAttribute(XMLConstants.ID_ATTR);
 		name = ce.getAttribute(XMLConstants.NAME_ATTR);
-		dark = "true".equals(ce.getAttribute(DARK_ATTR));
-		isDefault = "true".equals(ce.getAttribute(DEFAULT_ATTR));
+		dark = Boolean.parseBoolean(ce.getAttribute(DARK_ATTR));
+		isDefault = Boolean.parseBoolean(ce.getAttribute(DEFAULT_ATTR));
 	}
 
 	@Override
@@ -76,32 +78,50 @@ public class Theme extends TMResource implements ITheme {
 
 	@Override
 	public IToken getToken(String type) {
-		return getTokenProvider().getToken(type);
+		ITokenProvider provider = getTokenProvider();
+		return provider != null ? provider.getToken(type) : null;
 	}
 
 	@Override
 	public Color getEditorForeground() {
-		return getTokenProvider().getEditorForeground();
+		ITokenProvider provider = getTokenProvider();
+		Color themeColor = provider != null ? provider.getEditorForeground() : null;
+		return ColorManager.getInstance()
+				.getPriorityColor(themeColor, AbstractTextEditor.PREFERENCE_COLOR_FOREGROUND);
 	}
 
 	@Override
 	public Color getEditorBackground() {
-		return getTokenProvider().getEditorBackground();
+		ITokenProvider provider = getTokenProvider();
+		Color themeColor = provider != null ? provider.getEditorBackground() : null;
+		return ColorManager.getInstance()
+				.getPriorityColor(themeColor, AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND);
 	}
 
 	@Override
 	public Color getEditorSelectionForeground() {
-		return getTokenProvider().getEditorSelectionForeground();
+		ITokenProvider provider = getTokenProvider();
+		Color themeColor = provider != null ? provider.getEditorSelectionForeground() : null;
+		return ColorManager.getInstance()
+				.getPriorityColor(themeColor, AbstractTextEditor.PREFERENCE_COLOR_SELECTION_FOREGROUND);
 	}
 
 	@Override
 	public Color getEditorSelectionBackground() {
-		return getTokenProvider().getEditorSelectionBackground();
+		ITokenProvider provider = getTokenProvider();
+		Color themeColor = provider != null ? provider.getEditorSelectionBackground() : null;
+		return ColorManager.getInstance()
+				.getPriorityColor(themeColor, AbstractTextEditor.PREFERENCE_COLOR_SELECTION_BACKGROUND);
 	}
 
 	@Override
 	public Color getEditorCurrentLineHighlight() {
-		return getTokenProvider().getEditorCurrentLineHighlight();
+		ITokenProvider provider = getTokenProvider();
+		Color themeColor = provider != null ? provider.getEditorCurrentLineHighlight() : null;
+		ColorManager manager = ColorManager.getInstance();
+		return manager.isColorUserDefined(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND)
+				? manager.getPreferenceEditorColor(PreferenceConstants.EDITOR_CURRENTLINE_HIGHLIGHT)
+				: themeColor;
 	}
 
 	private ITokenProvider getTokenProvider() {
@@ -136,23 +156,24 @@ public class Theme extends TMResource implements ITheme {
 
 	@Override
 	public void initializeViewerColors(StyledText styledText) {
-		ITokenProvider tokenProvider = getTokenProvider();
-		Color background = tokenProvider.getEditorBackground();
-		if (background != null) {
-			styledText.setBackground(background);
+		Color color = getEditorBackground();
+		if (color != null) {
+			styledText.setBackground(color);
 		}
-		Color foreground = tokenProvider.getEditorForeground();
-		if (foreground != null) {
-			styledText.setForeground(foreground);
+
+		color = getEditorForeground();
+		if (color != null) {
+			styledText.setForeground(color);
 		}
-		Color selectionBackground = tokenProvider.getEditorSelectionBackground();
-		if (selectionBackground != null) {
-			styledText.setSelectionBackground(selectionBackground);
+
+		color = getEditorSelectionBackground();
+		if (color != null) {
+			styledText.setSelectionBackground(color);
 		}
-		Color selectionForeground = tokenProvider.getEditorSelectionForeground();
-		styledText.setSelectionForeground(null);
-		if (selectionForeground != null) {
-			styledText.setSelectionForeground(selectionForeground);
+
+		color = getEditorSelectionForeground();
+		if (color != null) {
+			styledText.setSelectionForeground(color);
 		}
 	}
 }
