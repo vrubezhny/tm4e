@@ -78,6 +78,7 @@ import org.eclipse.tm4e.ui.themes.ITokenProvider;
 import org.eclipse.tm4e.ui.utils.ClassHelper;
 import org.eclipse.tm4e.ui.utils.ContentTypeHelper;
 import org.eclipse.tm4e.ui.utils.ContentTypeInfo;
+import org.eclipse.tm4e.ui.utils.PreferenceUtils;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
@@ -166,10 +167,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		@Override
 		public void preferenceChange(PreferenceChangeEvent event) {
 			IThemeManager themeManager = TMUIPlugin.getThemeManager();
-			if (ThemeManager.E4_THEME_ID.equals(event.getKey())) {
+			if (PreferenceConstants.E4_THEME_ID.equals(event.getKey())) {
 				preferenceThemeChange((String) event.getNewValue(), themeManager);
 			} else if (PreferenceConstants.THEME_ASSOCIATIONS.equals(event.getKey())) {
-				preferenceThemeChange(themeManager.getPreferenceE4CSSThemeId(), themeManager);
+				preferenceThemeChange(PreferenceUtils.getE4PreferenceCSSThemeId(), themeManager);
 			}
 		}
 

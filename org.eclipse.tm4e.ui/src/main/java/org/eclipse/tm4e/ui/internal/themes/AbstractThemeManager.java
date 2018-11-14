@@ -17,23 +17,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ThemeAssociation;
+import org.eclipse.tm4e.ui.utils.PreferenceUtils;
 
 /**
  * TextMate theme manager implementation.
  *
  */
 public abstract class AbstractThemeManager implements IThemeManager {
-
-	// Theme for E4 CSS Engine
-	private static final String E4_CSS_THEME_PREFERENCE_ID = "org.eclipse.e4.ui.css.swt.theme"; //$NON-NLS-1$
-	public static final String E4_THEME_ID = "themeid"; //$NON-NLS-1$
-	private final static String E4_DARK = "org.eclipse.e4.ui.css.theme.e4_dark";
 
 	private final Map<String /* theme id */ , ITheme> themes;
 	private final ThemeAssociationRegistry themeAssociationRegistry;
@@ -88,23 +82,13 @@ public abstract class AbstractThemeManager implements IThemeManager {
 	}
 
 	@Override
-	public String getPreferenceE4CSSThemeId() {
-		IEclipsePreferences preferences = getPreferenceE4CSSTheme();
-		return preferences != null ? preferences.get(E4_THEME_ID, null) : null;
-	}
-
-	@Override
 	public boolean isDarkEclipseTheme() {
-		return isDarkEclipseTheme(getPreferenceE4CSSThemeId());
+		return isDarkEclipseTheme(PreferenceUtils.getE4PreferenceCSSThemeId());
 	}
 
 	@Override
 	public boolean isDarkEclipseTheme(String eclipseThemeId) {
-		return E4_DARK.equals(eclipseThemeId);
-	}
-
-	protected IEclipsePreferences getPreferenceE4CSSTheme() {
-		return InstanceScope.INSTANCE.getNode(E4_CSS_THEME_PREFERENCE_ID);
+		return eclipseThemeId != null && eclipseThemeId.toLowerCase().contains("dark");
 	}
 
 	@Override

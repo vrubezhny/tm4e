@@ -27,5 +27,6 @@ Export-Package: org.eclipse.tm4e.ui,
  org.eclipse.tm4e.ui.utils
 Bundle-Activator: org.eclipse.tm4e.ui.TMUIPlugin
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.core.filebuffers
+Import-Package: org.eclipse.core.filebuffers,
+ org.eclipse.ui.texteditor
 
