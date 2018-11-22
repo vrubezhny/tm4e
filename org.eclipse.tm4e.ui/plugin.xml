@@ -35,7 +35,12 @@
             id="org.eclipse.tm4e.ui.themes.Light"
               name="%Theme.Light.name"
             path="./themes/Light.css" >
-      </theme>      
+      </theme>
+      <theme
+            id="org.eclipse.tm4e.ui.themes.EclipseLight"
+            name="%Theme.EclipseLight.name"
+            path="./themes/Eclipse-light.css" >
+      </theme>   
       <!-- "Dark" themes -->
       <theme
             id="org.eclipse.tm4e.ui.themes.Dark"
