@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -65,9 +66,13 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			if (autoClosingPair == null) {
 				continue;
 			}
-			command.text += autoClosingPair.getValue();
 			command.caretOffset = command.offset + 1;
 			command.shiftsCaret = false;
+			if (isFollowedBy(document, command.offset, autoClosingPair.getValue())) {
+				command.text = "";
+			} else {
+				command.text += autoClosingPair.getValue();
+			}
 			break;
 		}
 
@@ -94,6 +99,33 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		// }
 		// }
 		// }
+	}
+
+	/**
+	 * Returns <code>true</code> if the content after the given offset is followed
+	 * by the given <code>value</code> and false otherwise.
+	 * 
+	 * @param document the document
+	 * @param offset   the offset
+	 * @param value    the content value to check
+	 * @return <code>true</code> if the content after the given offset is followed
+	 *         by the given <code>value</code> and false otherwise.
+	 */
+	private static boolean isFollowedBy(IDocument document, int offset, String value) {
+		for (int i = 0; i < value.length(); i++) {
+			if (document.getLength() <= offset) {
+				return false;
+			}
+			try {
+				if (document.getChar(offset) != value.charAt(i)) {
+					return false;
+				}
+			} catch (BadLocationException e) {
+				return false;
+			}
+			offset++;
+		}
+		return true;
 	}
 
 	private void onEnter(IDocument document, DocumentCommand command, boolean keepPosition) {
