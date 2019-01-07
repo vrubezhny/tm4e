@@ -20,7 +20,7 @@ public class ParsingTest {
 
 	@Test
 	public void testCanLoadRustLanguageConfig() throws Exception {
-		LanguageConfiguration languageConfiguration = LanguageConfiguration.load(new InputStreamReader(getClass().getResourceAsStream("rust-language-configuration.json")));
+		LanguageConfiguration languageConfiguration = LanguageConfiguration.load(new InputStreamReader(getClass().getResourceAsStream("/rust-language-configuration.json")));
 		assertNotNull(languageConfiguration);
 	}
 

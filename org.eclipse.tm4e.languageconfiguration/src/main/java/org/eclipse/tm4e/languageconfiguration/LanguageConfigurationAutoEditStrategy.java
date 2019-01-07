@@ -67,9 +67,11 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			if (autoClosingPair == null) {
 				continue;
 			}
-			command.caretOffset = command.offset + 1;
+			command.caretOffset = command.offset + command.text.length();
 			command.shiftsCaret = false;
-			if (isFollowedBy(document, command.offset, autoClosingPair.getValue())) {
+			if (command.text.equals(autoClosingPair.getKey()) && isFollowedBy(document, command.offset, autoClosingPair.getKey())) {
+				command.text = "";
+			} else if (command.text.equals(autoClosingPair.getValue()) && isFollowedBy(document, command.offset, autoClosingPair.getValue())) {
 				command.text = "";
 			} else {
 				command.text += autoClosingPair.getValue();
@@ -105,7 +107,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 	/**
 	 * Returns <code>true</code> if the content after the given offset is followed
 	 * by the given <code>value</code> and false otherwise.
-	 * 
+	 *
 	 * @param document the document
 	 * @param offset   the offset
 	 * @param value    the content value to check
