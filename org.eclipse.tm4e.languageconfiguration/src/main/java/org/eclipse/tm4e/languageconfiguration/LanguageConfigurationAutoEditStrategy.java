@@ -76,32 +76,20 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			} else {
 				command.text += autoClosingPair.getValue();
 			}
-			break;
+			return;
 		}
 
-		// ITMModel model = TMUIPlugin.getTMModelManager().connect(document);
-		// try {
-		// int lineNumber = document.getLineOfOffset(command.offset);
-		// model.forceTokenization(lineNumber);
-		// List<TMToken> tokens = model.getLineTokens(lineNumber);
-		// System.err.println(tokens.size());
-		// } catch (BadLocationException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		Arrays.stream(contentTypes)
+			.flatMap(contentType -> registry.getAutoClosingPairs(contentType).stream())
+			.map(CharacterPair::getValue)
+			.filter(command.text::equals)
+			.findFirst()
+			.ifPresent(closing -> {
+				command.caretOffset = command.offset + command.text.length();
+				command.shiftsCaret = false;
+				command.text = "";
+			});
 
-		// if (registry.shouldAutoClosePair(command.text, ".java")) {
-		// List<IAutoClosingPair> autoClosingPairs =
-		// registry.getAutoClosingPairs(".java");
-		// for (IAutoClosingPair autoClosingPair : autoClosingPairs) {
-		// if (command.text.equals(autoClosingPair.getOpen())) {
-		// command.text += autoClosingPair.getClose();
-		// command.caretOffset = command.offset + 1;
-		// command.shiftsCaret = false;
-		// break;
-		// }
-		// }
-		// }
 	}
 
 	/**

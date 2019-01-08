@@ -59,5 +59,10 @@ public class TestAutoClosing {
 		text.replaceTextRange(0, 0, "(");
 		Assert.assertEquals("()", text.getText());
 		Assert.assertEquals(1, text.getSelection().x);
+		// ignore already closed
+		text.setText("()");
+		text.replaceTextRange(1, 0, ")");
+		Assert.assertEquals("()", text.getText());
+		Assert.assertEquals(2, text.getSelection().x);
 	}
 }
