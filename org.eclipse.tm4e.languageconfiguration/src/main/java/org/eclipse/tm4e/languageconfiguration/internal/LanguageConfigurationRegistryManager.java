@@ -115,7 +115,11 @@ public class LanguageConfigurationRegistryManager extends AbstractLanguageConfig
 		return true;
 	}
 
-	public List<CharacterPair> getAutoClosingPairs(IContentType contentType) {
+	public List<CharacterPair> getEnabledAutoClosingPairs(IContentType contentType) {
+		LanguageConfigurationDefinition definition = getDefinition(contentType);
+		if (definition == null || !definition.isBracketAutoClosingEnabled()) {
+			return null;
+		}
 		CharacterPairSupport characterPairSupport = this._getCharacterPairSupport(contentType);
 		if (characterPairSupport == null) {
 			return Collections.emptyList();

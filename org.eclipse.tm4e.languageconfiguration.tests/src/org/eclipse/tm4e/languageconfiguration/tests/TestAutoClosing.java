@@ -48,21 +48,38 @@ public class TestAutoClosing {
 		text.setText("");
 		text.replaceTextRange(0, 0, "(");
 		Assert.assertEquals("()", text.getText());
-		Assert.assertEquals(1, text.getSelection().x);
+		Assert.assertEquals(1, text.getCaretOffset());
 		// nested insert closing
 		text.setText("foo(String::from)");
 		text.replaceTextRange(16, 0, "(");
 		Assert.assertEquals("foo(String::from())", text.getText());
-		Assert.assertEquals(17, text.getSelection().x);
+		Assert.assertEquals(17, text.getCaretOffset());
 		// ignore already opened
 		text.setText("()");
 		text.replaceTextRange(0, 0, "(");
 		Assert.assertEquals("()", text.getText());
-		Assert.assertEquals(1, text.getSelection().x);
+		Assert.assertEquals(1, text.getCaretOffset());
 		// ignore already closed
 		text.setText("()");
 		text.replaceTextRange(1, 0, ")");
 		Assert.assertEquals("()", text.getText());
-		Assert.assertEquals(2, text.getSelection().x);
+		Assert.assertEquals(2, text.getCaretOffset());
+		//
+		text.setText("()");
+		text.replaceTextRange(2, 0, ")");
+		Assert.assertEquals("())", text.getText());
+		//
+		text.setText("");
+		text.replaceTextRange(0, 0, "\"");
+		Assert.assertEquals("\"\"", text.getText());
+		Assert.assertEquals(1, text.getCaretOffset());
+		// continued
+		text.replaceTextRange(1, 0, "\"");
+		Assert.assertEquals("\"\"", text.getText());
+		Assert.assertEquals(2, text.getCaretOffset());
+		// continued
+		text.replaceTextRange(2, 0, "\"");
+		Assert.assertEquals("\"\"\"\"", text.getText());
+		Assert.assertEquals(3, text.getCaretOffset());
 	}
 }

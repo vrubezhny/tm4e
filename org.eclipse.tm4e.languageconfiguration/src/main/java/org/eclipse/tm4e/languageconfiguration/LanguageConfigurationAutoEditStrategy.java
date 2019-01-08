@@ -80,9 +80,10 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		}
 
 		Arrays.stream(contentTypes)
-			.flatMap(contentType -> registry.getAutoClosingPairs(contentType).stream())
+			.flatMap(contentType -> registry.getEnabledAutoClosingPairs(contentType).stream())
 			.map(CharacterPair::getValue)
 			.filter(command.text::equals)
+			.filter(closing -> isFollowedBy(document, command.offset, closing))
 			.findFirst()
 			.ifPresent(closing -> {
 				command.caretOffset = command.offset + command.text.length();
