@@ -118,7 +118,7 @@ public class LanguageConfigurationRegistryManager extends AbstractLanguageConfig
 	public List<CharacterPair> getEnabledAutoClosingPairs(IContentType contentType) {
 		LanguageConfigurationDefinition definition = getDefinition(contentType);
 		if (definition == null || !definition.isBracketAutoClosingEnabled()) {
-			return null;
+			return Collections.emptyList();
 		}
 		CharacterPairSupport characterPairSupport = this._getCharacterPairSupport(contentType);
 		if (characterPairSupport == null) {
