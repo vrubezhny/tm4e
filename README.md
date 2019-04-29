@@ -42,6 +42,7 @@ Here are some projects that use tm4e:
  * [typescript.java](https://github.com/angelozerr/typescript.java) TypeScript IDE for Eclipse with JSDT & tsserver.
  * [EditorConfig for Eclipse](https://github.com/angelozerr/ec4e) EditorConfig for Eclipse with GenericEditor.
  * [Phaser Editor 2D](https://phasereditor2d.com) An IDE for the creation of HTML5 games.
+ * [Solargraph](https://github.com/PyvesB/eclipse-solargraph) Ruby edition in Eclipse IDE.
  
 ## Get support and contribute
 
