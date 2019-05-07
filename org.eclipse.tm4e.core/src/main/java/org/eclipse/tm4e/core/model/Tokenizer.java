@@ -17,6 +17,7 @@
 package org.eclipse.tm4e.core.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,8 +107,8 @@ public class Tokenizer implements ITokenizationSupport {
 
 			int[] tokens = decodeMap.getTokenIds(scope);
 			prevScopeTokensMaps = new LinkedHashMap<>(prevScopeTokensMaps);
-			for (int i = 0; i < tokens.length; i++) {
-				prevScopeTokensMaps.put(tokens[i], true);
+			for (int token : tokens) {
+				prevScopeTokensMaps.put(token, true);
 			}
 			scopeTokensMaps.put(level, prevScopeTokensMaps);
 		}

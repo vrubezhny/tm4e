@@ -29,6 +29,7 @@ public class IncludeOnlyRule extends Rule {
 		this._cachedCompiledPatterns = null;
 	}
 
+	@Override
 	public void collectPatternsRecursive(IRuleRegistry grammar, RegExpSourceList out, boolean isFirst) {
 		int i;
 		int len;
@@ -40,6 +41,7 @@ public class IncludeOnlyRule extends Rule {
 		}
 	}
 
+	@Override
 	public ICompiledRule compile(IRuleRegistry grammar, String endRegexSource, boolean allowA, boolean allowG) {
 		if (this._cachedCompiledPatterns == null) {
 			this._cachedCompiledPatterns = new RegExpSourceList();

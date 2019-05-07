@@ -20,7 +20,7 @@ import org.eclipse.tm4e.core.model.AbstractLineList;
 /**
  * TextMate {@link AbstractLineList} implementation with Eclipse
  * {@link IDocument}.
- * 
+ *
  * Goal of this class is to synchronize Eclipse {@link DocumentEvent} with
  * TextMate model lines.
  *
@@ -34,6 +34,9 @@ public class DocumentLineList extends AbstractLineList {
 		this.document = document;
 		this.listener = new InternalListener();
 		document.addDocumentListener(listener);
+		for (int i = 0; i < document.getNumberOfLines(); i++) {
+			addLine(i);
+		}
 	}
 
 	private class InternalListener implements IDocumentListener {
@@ -64,14 +67,12 @@ public class DocumentLineList extends AbstractLineList {
 			try {
 				int startLine = DocumentHelper.getStartLine(event);
 				if (!DocumentHelper.isRemove(event)) {
-					if (DocumentLineList.this.getSize() != DocumentHelper.getNumberOfLines(document)) {
-						int endLine = DocumentHelper.getEndLine(event, false);
-						// Insert new lines
-						for (int i = startLine; i < endLine; i++) {
-							DocumentLineList.this.addLine(i + 1);
-						}
-					} else {
-						// Update line
+					int endLine = DocumentHelper.getEndLine(event, false);
+					// Insert new lines
+					for (int i = startLine; i < endLine; i++) {
+						DocumentLineList.this.addLine(i + 1);
+					}
+					if (startLine == endLine) {
 						DocumentLineList.this.updateLine(startLine);
 					}
 				} else {
@@ -87,7 +88,7 @@ public class DocumentLineList extends AbstractLineList {
 
 	@Override
 	public int getNumberOfLines() {
-		return DocumentHelper.getNumberOfLines(document);
+		return document.getNumberOfLines();
 	}
 
 	@Override
@@ -97,7 +98,7 @@ public class DocumentLineList extends AbstractLineList {
 
 	@Override
 	public int getLineLength(int line) throws Exception {
-		return DocumentHelper.getLineLength(document, line);
+		return document.getLineLength(line);
 	}
 
 	@Override

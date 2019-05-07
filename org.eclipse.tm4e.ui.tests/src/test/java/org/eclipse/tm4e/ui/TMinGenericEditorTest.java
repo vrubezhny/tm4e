@@ -14,7 +14,7 @@ package org.eclipse.tm4e.ui;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,12 +33,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TMinGenericEditorTest {
-	
+
 	private IEditorDescriptor editorDescriptor;
 	private File f;
 	private IEditorPart editor;
 
-	private Collection<Thread> getTM4EThreads() {
+	private Set<Thread> getTM4EThreads() {
 		Set<Thread> threads = Thread.getAllStackTraces().keySet();
 		Set<Thread> res = new HashSet<>();
 		for (Thread thread : threads) {
@@ -48,14 +48,14 @@ public class TMinGenericEditorTest {
 		}
 		return res;
 	}
-	
+
 	@Before
 	public void checkHasGenericEditor() {
 		editorDescriptor = PlatformUI.getWorkbench().getEditorRegistry().findEditor("org.eclipse.ui.genericeditor.GenericEditor");
 		Assume.assumeNotNull(editorDescriptor);
 		Assert.assertTrue("TM4E threads still running", getTM4EThreads().isEmpty());
 	}
-	
+
 	@After
 	public void tearDown() {
 		editor.getEditorSite().getPage().closeEditor(editor, false);
@@ -82,7 +82,7 @@ public class TMinGenericEditorTest {
 		}.waitForCondition(text.getDisplay(), 3000);
 		Assert.assertTrue(text.getStyleRanges().length > 1);
 	}
-	
+
 	@Test
 	public void testTMHighlightInGenericEditorEdit() throws IOException, PartInitException {
 		f = File.createTempFile("test" + System.currentTimeMillis(), ".ts");
@@ -111,7 +111,7 @@ public class TMinGenericEditorTest {
 		testTMHighlightInGenericEditor();
 		editor.getEditorSite().getPage().closeEditor(editor, false);
 		Thread.sleep(500); // give time to dispose
-		Assert.assertTrue(getTM4EThreads().isEmpty());
+		Assert.assertEquals(Collections.emptySet(), getTM4EThreads());
 	}
 
 }

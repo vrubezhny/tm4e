@@ -33,8 +33,8 @@ import org.eclipse.tm4e.core.grammar.ITokenizeLineResult2;
 import org.eclipse.tm4e.core.grammar.Injection;
 import org.eclipse.tm4e.core.grammar.StackElement;
 import org.eclipse.tm4e.core.internal.grammar.parser.Raw;
-import org.eclipse.tm4e.core.internal.matcher.MatcherWithPriority;
 import org.eclipse.tm4e.core.internal.matcher.Matcher;
+import org.eclipse.tm4e.core.internal.matcher.MatcherWithPriority;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigString;
 import org.eclipse.tm4e.core.internal.rule.IRuleFactory;
 import org.eclipse.tm4e.core.internal.rule.IRuleFactoryHelper;
@@ -131,6 +131,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		}
 	}
 
+	@Override
 	public Rule registerRule(IRuleFactory factory) {
 		int id = (++this._lastRuleId);
 		Rule result = factory.create(id);
@@ -138,6 +139,7 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 		return result;
 	}
 
+	@Override
 	public Rule getRule(int patternId) {
 		return this._ruleId2desc.get(patternId);
 	}

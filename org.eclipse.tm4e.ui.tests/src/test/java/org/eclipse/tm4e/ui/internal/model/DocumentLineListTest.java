@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2019 Angelo ZERR, and others
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,18 +12,22 @@
 package org.eclipse.tm4e.ui.internal.model;
 
 import org.eclipse.jface.text.Document;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class DocumentLineListTest {
 
 	@Test
-	public void test() {
+	public void testMultiLineChange() {
 		Document document = new Document();
 		DocumentLineList lineList = new DocumentLineList(document);
-		
-		System.err.println(lineList.getSize());
-		document.set("var");
-		//document.set("var\nv");
-		System.err.println(lineList.getSize());
+
+		document.set("a\nb\nc\nd");
+		Assert.assertEquals(4, lineList.getNumberOfLines());
+		Assert.assertNotNull(lineList.get(3));
+
+		document.set("a\nb");
+		Assert.assertEquals(2, lineList.getNumberOfLines());
 	}
+
 }

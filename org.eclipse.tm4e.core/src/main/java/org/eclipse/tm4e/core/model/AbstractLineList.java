@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 /**
  * Abstract class for Model lines used by the TextMate model. Implementation
  * class must :
- * 
+ *
  * <ul>
  * <li>synchronizes lines with the lines of the editor content when it changed.</li>
  * <li>call {@link AbstractLineList#invalidateLine(int)} with the first changed line.</li>
@@ -68,11 +68,6 @@ public abstract class AbstractLineList implements IModelLines {
 	}
 
 	@Override
-	public int getSize() {
-		return this.list.size();
-	}
-
-	@Override
 	public void forEach(Consumer<ModelLine> consumer) {
 		this.list.forEach(consumer);
 	}
@@ -81,5 +76,11 @@ public abstract class AbstractLineList implements IModelLines {
 		if (model != null) {
 			model.invalidateLine(lineIndex);
 		}
+	}
+
+	@Override
+	@Deprecated
+	public int getSize() {
+		return getNumberOfLines();
 	}
 }

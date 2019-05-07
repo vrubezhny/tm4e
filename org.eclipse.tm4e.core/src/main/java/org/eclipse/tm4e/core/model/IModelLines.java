@@ -22,43 +22,53 @@ public interface IModelLines {
 
 	/**
 	 * Add a new line at specified index line.
-	 * 
-	 * @param line
+	 *
+	 * @param lineIndex (0-based)
 	 */
-	void addLine(int line);
+	void addLine(int lineIndex);
 
 	/**
 	 * Remove the line at specified index line.
-	 * 
-	 * @param line
+	 *
+	 * @param line (0-based)
 	 */
-	void removeLine(int line);
+	void removeLine(int lineIndex);
 
 	/**
 	 * Mark as line is updated.
-	 * 
-	 * @param line
+	 *
+	 * @param line (0-based)
 	 */
-	void updateLine(int line);
+	void updateLine(int lineIndex);
 
 	/**
-	 * Return lines size.
-	 * 
-	 * @return lines size.
+	 * @deprecated use {@link #getNumberOfLines()}
 	 */
+	@Deprecated
 	int getSize();
 
-	ModelLine get(int index);
-	
+	/**
+	 *
+	 * @param lineIndex (0-based)
+	 * @return
+	 */
+	ModelLine get(int lineIndex);
+
 	void forEach(Consumer<ModelLine> consumer);
-	
+
 	int getNumberOfLines();
 
-	String getLineText(int line) throws Exception;
+	/**
+	 *
+	 * @param line (0-based)
+	 * @return
+	 * @throws Exception
+	 */
+	String getLineText(int lineIndex) throws Exception;
 
-	int getLineLength(int line) throws Exception;
+	int getLineLength(int lineIndex) throws Exception;
 
 	void dispose();
-	
-	
+
+
 }

@@ -85,14 +85,14 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * TextMate presentation reconciler which must be initialized with:
- * 
+ *
  * <ul>
  * <li>a TextMate grammar {@link IGrammar} used to initialize the TextMate model
  * {@link ITMDocumentModel}.</li>
  * <li>a token provider {@link ITokenProvider} to retrieve the {@link IToken}
  * from a TextMate token type .</li>
  * </ul>
- * 
+ *
  */
 public class TMPresentationReconciler implements IPresentationReconciler {
 
@@ -362,7 +362,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		/**
 		 * Translates the given text event into the corresponding range of the viewer's
 		 * document.
-		 * 
+		 *
 		 * @param e
 		 *            the text event
 		 * @return the widget region corresponding the region of the given event or
@@ -388,12 +388,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		public void modelTokensChanged(ModelTokensChangedEvent e) {
 			Control control = viewer.getTextWidget();
 			if (control != null) {
-				control.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (viewer != null) {
-							colorize(e);
-						}
+				control.getDisplay().asyncExec(() -> {
+					if (viewer != null) {
+						colorize(e);
 					}
 				});
 			}
@@ -439,7 +436,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Force the TextMate theme id to use for the editor.
-	 * 
+	 *
 	 * @param themeId
 	 */
 	public void setThemeId(String themeId) {
@@ -448,7 +445,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Apply theme changed.
-	 * 
+	 *
 	 * @param oldTheme
 	 * @param newTheme
 	 * @param document
@@ -583,8 +580,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						length += getTokenLengh(tokenStartIndex, nextToken, line, document);
 						firstToken = false;
 					} else {
-						if (!firstToken)
+						if (!firstToken) {
 							addRange(presentation, lastStart, length, lastAttribute);
+						}
 						firstToken = false;
 						lastToken = token;
 						lastAttribute = attribute;
@@ -612,7 +610,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Return true if the given token is before the given region and false
 	 * otherwise.
-	 * 
+	 *
 	 * @param token
 	 * @param startLineOffset
 	 * @param damage
@@ -624,7 +622,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Return true if the given token is after the given region and false otherwise.
-	 * 
+	 *
 	 * @param t
 	 * @param startLineOffset
 	 * @param damage
@@ -647,7 +645,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		if (nextToken != null) {
 			return nextToken.startIndex - tokenStartIndex;
 		}
-		return DocumentHelper.getLineLength(document, line) - tokenStartIndex;
+		return document.getLineLength(line) - tokenStartIndex;
 	}
 
 	/**
@@ -662,8 +660,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 */
 	protected TextAttribute getTokenTextAttribute(IToken token) {
 		Object data = token.getData();
-		if (data instanceof TextAttribute)
+		if (data instanceof TextAttribute) {
 			return (TextAttribute) data;
+		}
 		return fDefaultTextAttribute;
 	}
 
@@ -706,7 +705,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Add a TextMate presentation reconciler listener.
-	 * 
+	 *
 	 * @param listener
 	 *            the TextMate presentation reconciler listener to add.
 	 */
@@ -723,7 +722,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Remove a TextMate presentation reconciler listener.
-	 * 
+	 *
 	 * @param listener
 	 *            the TextMate presentation reconciler listener to remove.
 	 */
@@ -760,7 +759,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	/**
 	 * Fire colorize.
-	 * 
+	 *
 	 * @param presentation
 	 * @param error
 	 */
@@ -798,7 +797,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Returns the {@link TMPresentationReconciler} of the given text viewer and
 	 * null otherwise.
-	 * 
+	 *
 	 * @param textViewer
 	 * @return the {@link TMPresentationReconciler} of the given text viewer and
 	 *         null otherwise.
@@ -822,7 +821,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Initialize foreground, background color, current line highlight from the
 	 * current theme.
-	 * 
+	 *
 	 */
 	private void applyThemeEditor() {
 		this.initializeViewerColors = false;
@@ -833,7 +832,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Initialize foreground, background color, current line highlight from the
 	 * current theme if needed.
-	 * 
+	 *
 	 */
 	private void applyThemeEditorIfNeeded() {
 		if (!initializeViewerColors) {
@@ -873,7 +872,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Set to true when the "Import Grammar" wizard dialog must be opened when
 	 * grammar is not found and false otherwise.
-	 * 
+	 *
 	 * @param openImportDialogWhenGrammarNotFound
 	 */
 	public void setOpenImportDialogWhenGrammarNotFound(boolean openImportDialogWhenGrammarNotFound) {
@@ -883,7 +882,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Returns true when the "Import Grammar" wizard dialog must be opened when
 	 * grammar is not found and false otherwise.
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean isOpenImportDialogWhenGrammarNotFound() {
@@ -893,7 +892,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Set true if a {@link TMException} should be thrown if grammar or theme cannot
 	 * be found and false otherwise.
-	 * 
+	 *
 	 * @param throwError
 	 */
 	public void setThrowError(boolean throwError) {
@@ -903,7 +902,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Return true if a {@link TMException} should be thrown if grammar or theme
 	 * cannot be found and false otherwise.
-	 * 
+	 *
 	 * @return true if a {@link TMException} should be thrown if grammar or theme
 	 *         cannot be found and false otherwise.
 	 */
@@ -914,7 +913,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	/**
 	 * Returns true if the presentation reconciler is enabled (grammar and theme are
 	 * available) and false otherwise.
-	 * 
+	 *
 	 * @return true if the presentation reconciler is enabled (grammar and theme are
 	 *         available) and false otherwise.
 	 */

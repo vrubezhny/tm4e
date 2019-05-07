@@ -23,18 +23,6 @@ import org.eclipse.jface.text.Region;
  */
 public class DocumentHelper {
 
-	/**
-	 * Returns the number of lines in this document.
-	 * <p>
-	 * Note that a document always has at least one line.
-	 * </p>
-	 * 
-	 * @return the number of lines in this document.
-	 */
-	public static int getNumberOfLines(IDocument document) {
-		return document.getNumberOfLines();
-	}
-
 	public static int getStartLine(DocumentEvent event) throws BadLocationException {
 		return event.getDocument().getLineOfOffset(event.getOffset());
 	}
@@ -61,12 +49,6 @@ public class DocumentHelper {
 			ll = ll - (delim != null ? delim.length() : 0);
 		}
 		return document.get(lo, ll);
-	}
-
-	public static int getLineLength(IDocument document, int line) throws BadLocationException {
-		// String delim = document.getLineDelimiter(line);
-		return document.getLineLength(line); // - (delim != null ?
-												// delim.length() : 0);
 	}
 
 	public static IRegion getRegion(IDocument document, int fromLine, int toLine) throws BadLocationException {
