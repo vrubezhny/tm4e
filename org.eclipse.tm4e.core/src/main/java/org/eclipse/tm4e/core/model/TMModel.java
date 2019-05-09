@@ -91,6 +91,9 @@ public class TMModel implements ITMModel {
 					}
 				} catch (InterruptedException e) {
 					interrupt();
+				} catch (Throwable t) {
+					// some unexpected error happen, can be because of changes on the underlying model, so log and ignore
+					System.err.println();
 				}
 			} while (!isInterrupted() && model.fThread != null);
 		}
