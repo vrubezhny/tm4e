@@ -11,11 +11,14 @@
  */
 package org.eclipse.tm4e.ui.internal.model;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.tm4e.core.model.AbstractLineList;
+import org.eclipse.tm4e.ui.TMUIPlugin;
 
 /**
  * TextMate {@link AbstractLineList} implementation with Eclipse
@@ -81,7 +84,7 @@ public class DocumentLineList extends AbstractLineList {
 				}
 				invalidateLine(startLine);
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}
 		}
 	}

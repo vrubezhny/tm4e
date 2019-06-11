@@ -26,7 +26,6 @@ import org.eclipse.tm4e.ui.internal.text.DocumentReplaceCommand;
 import org.eclipse.tm4e.ui.internal.text.DocumentSetCommand;
 import org.eclipse.tm4e.ui.internal.text.StyleRangesCollector;
 import org.eclipse.tm4e.ui.internal.text.TextViewerInvalidateTextPresentationCommand;
-import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
 
 public class TMEditor {
@@ -52,7 +51,7 @@ public class TMEditor {
 		reconciler = new TMPresentationReconciler();
 		reconciler.addTMPresentationReconcilerListener(collector);
 		reconciler.setGrammar(grammar);
-		reconciler.setTokenProvider(tokenProvider);
+		reconciler.setTheme(tokenProvider);
 		reconciler.install(viewer);
 
 	}
@@ -78,30 +77,20 @@ public class TMEditor {
 	 *            the offset of the range to be invalidated
 	 * @param length
 	 *            the length of the range to be invalidated
-	 * 
+	 *
 	 */
 	public void invalidateTextPresentation(int offset, int length) {
 		commands.add(new TextViewerInvalidateTextPresentationCommand(offset, length, viewer));
 	}
 
-	public List<ICommand> execute() {		
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				for (ICommand command : commands) {
-					collector.executeCommand((Command) command);
-				}
-				shell.getDisplay().syncExec(new Runnable() {
-
-					@Override
-					public void run() {
-						shell.dispose();
-					}
-				});
+	public List<ICommand> execute() {
+		new Thread(() -> {
+			for (ICommand command : commands) {
+				collector.executeCommand((Command) command);
 			}
+			shell.getDisplay().syncExec(() -> shell.dispose());
 		}).start();
-		
+
 		Display display = shell.getDisplay();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {

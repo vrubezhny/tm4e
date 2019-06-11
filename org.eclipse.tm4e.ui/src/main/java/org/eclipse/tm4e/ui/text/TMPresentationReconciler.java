@@ -14,17 +14,20 @@ package org.eclipse.tm4e.ui.text;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.CursorLinePainter;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IPainter;
 import org.eclipse.jface.text.IRegion;
@@ -45,15 +48,11 @@ import org.eclipse.jface.text.presentation.IPresentationRepairer;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.tm4e.core.TMException;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.logger.ILogger;
@@ -65,13 +64,10 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
-import org.eclipse.tm4e.ui.internal.TMUIMessages;
-import org.eclipse.tm4e.ui.internal.model.DocumentHelper;
 import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
-import org.eclipse.tm4e.ui.internal.wizards.TextMateGrammarImportWizard;
 import org.eclipse.tm4e.ui.model.ITMModelManager;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
@@ -81,7 +77,6 @@ import org.eclipse.tm4e.ui.utils.ContentTypeHelper;
 import org.eclipse.tm4e.ui.utils.ContentTypeInfo;
 import org.eclipse.tm4e.ui.utils.PreferenceUtils;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * TextMate presentation reconciler which must be initialized with:
@@ -95,15 +90,6 @@ import org.eclipse.ui.PlatformUI;
  *
  */
 public class TMPresentationReconciler implements IPresentationReconciler {
-
-	private static boolean GENERATE_TEST = TMEclipseRegistryPlugin
-			.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/GenerateTest");
-
-	private static boolean THROW_ERROR = TMEclipseRegistryPlugin
-			.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/ThrowError");
-
-	private static final ILogger RECONCILER_LOGGER = new EclipseSystemLogger(
-			"org.eclipse.tm4e.ui/debug/log/TMPresentationReconciler");
 
 	/**
 	 * The default text attribute if non is returned as data by the current token
@@ -127,13 +113,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 	private List<ITMPresentationReconcilerListener> listeners;
 
-	private ILogger logger;
+	private @NonNull ILogger logger = new EclipseSystemLogger("org.eclipse.tm4e.ui/debug/log/TMPresentationReconciler");
 
 	private boolean initializeViewerColors;
 
 	private boolean updateTextDecorations;
-
-	private boolean openImportDialogWhenGrammarNotFound;
 
 	/**
 	 * true if the presentation reconciler is enabled (grammar and theme are
@@ -152,10 +136,10 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		this.internalListener = new InternalListener();
 		this.fDefaultTextAttribute = new TextAttribute(null);
 		listeners = null;
-		if (GENERATE_TEST) {
+		if (TMEclipseRegistryPlugin.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/GenerateTest")) {
 			addTMPresentationReconcilerListener(new TMPresentationReconcilerTestGenerator());
 		}
-		setThrowError(THROW_ERROR);
+		setThrowError(TMEclipseRegistryPlugin.isDebugOptionEnabled("org.eclipse.tm4e.ui/debug/log/ThrowError"));
 	}
 
 	/**
@@ -180,7 +164,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (document == null) {
 				return;
 			}
-			IGrammar grammar = TMPresentationReconciler.this.grammar;
 			if (grammar == null) {
 				return;
 			}
@@ -188,18 +171,39 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				// The theme was forced, don't update it.
 				return;
 			}
-			ITokenProvider oldTheme = tokenProvider;
 			// Select the well TextMate theme from the given E4 theme id.
 			boolean dark = themeManager.isDarkEclipseTheme(eclipseThemeId);
 			ITokenProvider newTheme = themeManager.getThemeForScope(grammar.getScopeName(), dark);
-			themeChange(oldTheme, newTheme, document);
+			setTheme(newTheme);
 		}
-	};
+	}
 
 	/**
 	 * Internal listener class.
 	 */
 	class InternalListener implements ITextInputListener, IModelTokensChangedListener, ITextListener {
+
+		private void fireInstall(ITextViewer viewer, IDocument document) {
+			if (listeners == null) {
+				return;
+			}
+			synchronized (listeners) {
+				for (ITMPresentationReconcilerListener listener : listeners) {
+					listener.install(viewer, document);
+				}
+			}
+		}
+
+		private void fireUninstall() {
+			if (listeners == null) {
+				return;
+			}
+			synchronized (listeners) {
+				for (ITMPresentationReconcilerListener listener : listeners) {
+					listener.uninstall();
+				}
+			}
+		}
 
 		@Override
 		public void inputDocumentAboutToBeChanged(IDocument oldDocument, IDocument newDocument) {
@@ -212,87 +216,66 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void inputDocumentChanged(IDocument oldDocument, IDocument newDocument) {
-			if (newDocument != null) {
-				fireInstall(viewer, newDocument);
-				try {
-					viewer.addTextListener(this);
-					// Update the grammar
-					IGrammar grammar = forcedGrammar ? TMPresentationReconciler.this.grammar : null;
-					if (grammar == null) {
-						ContentTypeInfo info = ContentTypeHelper.findContentTypes(newDocument);
-						if (info != null) {
-							grammar = findGrammar(info);
-							if (grammar == null && isOpenImportDialogWhenGrammarNotFound()) {
-								// Grammar cannot be found, suggest the user to
-								// register the grammar
-								Shell activeShell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-								if (MessageDialog.openConfirm(activeShell,
-										TMUIMessages.TMPresentationReconciler_register_dialog_title,
-										NLS.bind(TMUIMessages.TMPresentationReconciler_register_dialog_message,
-												info.getFileName()))) {
-									TextMateGrammarImportWizard wizard = new TextMateGrammarImportWizard();
-									WizardDialog dialog = new WizardDialog(activeShell, wizard);
-									if (dialog.open() == Window.OK) {
-										// User grammar was created in the
-										// registry, retry to find
-										// the grammar.
-										grammar = findGrammar(info);
-									}
-								}
-							}
-						}
-					}
+			if (newDocument == null) {
+				return;
+			}
+			fireInstall(viewer, newDocument);
+			try {
+				viewer.addTextListener(this);
+				// Update the grammar
+				IGrammar localGrammar = findGrammar(newDocument);
 
-					if (grammar != null) {
-						TMPresentationReconciler.this.grammar = grammar;
+				if (localGrammar != null) {
+					TMPresentationReconciler.this.grammar = localGrammar;
+				} else if (isThrowError()) {
+					throw new TMException("Cannot find TextMate grammar for the given document");
+				}
+
+				// Update the theme
+				if (localGrammar != null) {
+					String scopeName = localGrammar.getScopeName();
+					if (tokenProvider == null) {
+						tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
+					}
+					if (tokenProvider != null) {
+						applyThemeEditor();
 					} else if (isThrowError()) {
-						throw new TMException("Cannot find TextMate grammar for the given document");
+						throw new TMException("Cannot find Theme for the given grammar '" + scopeName + "'");
 					}
+				}
 
-					// Update the theme
-					if (grammar != null) {
-						String scopeName = grammar.getScopeName();
-						if (tokenProvider == null) {
-							tokenProvider = TMUIPlugin.getThemeManager().getThemeForScope(scopeName);
-						}
-						if (tokenProvider != null) {
-							applyThemeEditor();
-						} else if (isThrowError()) {
-							throw new TMException("Cannot find Theme for the given grammar '" + scopeName + "'");
-						}
-					}
+				boolean enable = TMPresentationReconciler.this.enabled = localGrammar != null && tokenProvider != null;
+				if (enable) {
+					// Connect a TextModel to the new document.
+					ITMModel model = getTMModelManager().connect(newDocument);
+					model.setGrammar(localGrammar);
 
-					boolean enable = TMPresentationReconciler.this.enabled = grammar != null && tokenProvider != null;
-					if (enable) {
-						// Connect a TextModel to the new document.
-						ITMModel model = getTMModelManager().connect(newDocument);
-						model.setGrammar(grammar);
-
-						// Add model listener
-						model.addModelTokensChangedListener(this);
-					}
-				} catch (CoreException e) {
-					if (logger.isEnabled()) {
-						logger.log("Error while initializing TextMate model.", e);
-					}
+					// Add model listener
+					model.addModelTokensChangedListener(this);
+				}
+			} catch (CoreException e) {
+				if (logger.isEnabled()) {
+					logger.log("Error while initializing TextMate model.", e);
 				}
 			}
 		}
 
-		private IGrammar findGrammar(ContentTypeInfo info) {
-			IGrammar grammar;
-			IContentType[] contentTypes = info.getContentTypes();
-			// Discover the well grammar from the contentTypes
-			grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
-			if (grammar == null) {
-				// Discover the well grammar from the filetype
-				String fileName = info.getFileName();
-				if (fileName != null) {
-					String fileType = new Path(fileName).getFileExtension();
-					grammar = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForFileType(fileType);
-				}
+		/**
+		 * Finds a grammar for the given document.
+		 * @param newDocument
+		 * @return
+		 * @throws CoreException
+		 */
+		protected IGrammar findGrammar(@NonNull IDocument newDocument) throws CoreException {
+			IGrammar localGrammar = forcedGrammar ? TMPresentationReconciler.this.grammar : null;
+			if (localGrammar != null) {
+				return localGrammar;
 			}
-			return grammar;
+			ContentTypeInfo info = ContentTypeHelper.findContentTypes(newDocument);
+			if (info == null) {
+				return null;
+			}
+			return findGrammar(info);
 		}
 
 		@Override
@@ -304,59 +287,60 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			// later asynchronously by TM
 			if (e.getDocumentEvent() != null) {
 				int diff = e.getText().length() - e.getLength();
-				if (diff > 0 && e.getOffset() > 0) {
-					StyleRange range = viewer.getTextWidget().getStyleRangeAtOffset(e.getOffset() - 1);
-					if (range != null) {
-						range.length += diff;
-						viewer.getTextWidget().setStyleRange(range);
-					}
+				if (diff == 0 || e.getOffset() <= 0) {
+					return;
 				}
-			} else { // TextViewer#invalidateTextPresentation is called (because
-						// of validation, folding, etc)
-				// case 2), do the colorization.
-				IDocument document = viewer.getDocument();
-				if (document != null) {
-					IRegion region = null;
-					int fromLineNumber = -1;
-					int toLineNumber = -1;
-					if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
-						// redraw state change, damage the whole document
-						fromLineNumber = 0;
-						toLineNumber = document.getNumberOfLines() - 1;
-					} else {
-						region = widgetRegion2ModelRegion(e);
-						if (region != null) {
-							if (region.getLength() == 0) {
-								// Some text was removed, don't colorize it.
-								return;
-							}
-							try {
-								String text = document.get(region.getOffset(), region.getLength());
-								DocumentEvent de = new DocumentEvent(document, region.getOffset(), region.getLength(),
-										text);
-								fromLineNumber = DocumentHelper.getStartLine(de);
-								toLineNumber = DocumentHelper.getEndLine(de, false);
-							} catch (BadLocationException x) {
-							}
-						}
-					}
-					if (enabled) {
-						// case where there is grammar & theme -> update text presentation with the
-						// grammar tokens
-						ITMModel model = getTMModelManager().connect(document);
-						colorize(fromLineNumber, toLineNumber, region, (TMDocumentModel) model);
-					} else {
-						if (region != null) {
-							// case where there is no grammar & theme -> update text presentation with the
-							// default styles (ex: to support highlighting with GenericEditor)
-							TextPresentation presentation = new TextPresentation(region, 100);
-							presentation.setDefaultStyleRange(
-									new StyleRange(region.getOffset(), region.getLength(), null, null));
-							applyTextRegionCollection(presentation);
-						}
-					}
+				StyleRange range = viewer.getTextWidget().getStyleRangeAtOffset(e.getOffset() - 1);
+				if (range == null) {
+					return;
 				}
+				range.length += diff;
+				viewer.getTextWidget().setStyleRange(range);
+				return;
 			}
+
+			// TextViewer#invalidateTextPresentation is called (because
+			// of validation, folding, etc)
+			// case 2), do the colorization.
+			IDocument document = viewer.getDocument();
+			if (document == null) {
+				return;
+			}
+			IRegion region = computeRegionToRedraw(e, document);
+			if (enabled) {
+				// case where there is grammar & theme -> update text presentation with the
+				// grammar tokens
+				ITMModel model = getTMModelManager().connect(document);
+				if (model == null) {
+					return;
+				}
+				try {
+					TMPresentationReconciler.this.colorize(region, (TMDocumentModel) model);
+				} catch (BadLocationException e1) {
+					TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e1.getMessage(), e1));
+				}
+			} else {
+				// case where there is no grammar & theme -> update text presentation with the
+				// default styles (ex: to support highlighting with GenericEditor)
+				TextPresentation presentation = new TextPresentation(region, 100);
+				presentation.setDefaultStyleRange(
+						new StyleRange(region.getOffset(), region.getLength(), null, null));
+				applyTextRegionCollection(presentation);
+			}
+		}
+
+		protected @NonNull IRegion computeRegionToRedraw(@NonNull TextEvent e, @NonNull IDocument document) {
+			IRegion region = null;
+			if (e.getOffset() == 0 && e.getLength() == 0 && e.getText() == null) {
+				// redraw state change, damage the whole document
+				region = new Region(0, document.getLength());
+			} else {
+				region = widgetRegion2ModelRegion(e);
+			}
+			if (region == null || region.getLength() == 0) {
+				return new Region(0, 0);
+			}
+			return region;
 		}
 
 		/**
@@ -370,30 +354,65 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		 * @since 2.1
 		 */
 		private IRegion widgetRegion2ModelRegion(TextEvent e) {
-
 			String text = e.getText();
 			int length = text == null ? 0 : text.length();
-
 			if (viewer instanceof ITextViewerExtension5) {
 				ITextViewerExtension5 extension = (ITextViewerExtension5) viewer;
 				return extension.widgetRange2ModelRange(new Region(e.getOffset(), length));
 			}
-
 			IRegion visible = viewer.getVisibleRegion();
-			IRegion region = new Region(e.getOffset() + visible.getOffset(), length);
-			return region;
+			return new Region(e.getOffset() + visible.getOffset(), length);
 		}
 
 		@Override
-		public void modelTokensChanged(ModelTokensChangedEvent e) {
+		public void modelTokensChanged(ModelTokensChangedEvent event) {
 			Control control = viewer.getTextWidget();
 			if (control != null) {
 				control.getDisplay().asyncExec(() -> {
 					if (viewer != null) {
-						colorize(e);
+						colorize(event);
 					}
 				});
 			}
+		}
+
+		private void colorize(ModelTokensChangedEvent event) {
+			IDocument document = viewer.getDocument();
+			if (document == null) {
+				return;
+			}
+			ITMModel model = event.getModel();
+			if (! (model instanceof TMDocumentModel)) {
+				return;
+			}
+			TMDocumentModel docModel = (TMDocumentModel) model;
+			for (Range range : event.getRanges()) {
+				try {
+					int length = document.getLineOffset(range.toLineNumber - 1) + document.getLineLength(range.toLineNumber - 1) - document.getLineOffset(range.fromLineNumber - 1);
+					IRegion region = new Region(document.getLineOffset(range.fromLineNumber -1), length);
+					TMPresentationReconciler.this.colorize(region, docModel);
+				} catch (BadLocationException ex) {
+					TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, ex.getMessage(), ex));
+				}
+			}
+		}
+
+		private IGrammar findGrammar(ContentTypeInfo info) {
+			if (info == null) {
+				return null;
+			}
+			IContentType[] contentTypes = info.getContentTypes();
+			// Discover the well grammar from the contentTypes
+			IGrammar res = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarFor(contentTypes);
+			if (res == null) {
+				// Discover the well grammar from the filetype
+				String fileName = info.getFileName();
+				if (fileName != null) {
+					String fileType = new Path(fileName).getFileExtension();
+					res = TMEclipseRegistryPlugin.getGrammarRegistryManager().getGrammarForFileType(fileType);
+				}
+			}
+			return res;
 		}
 	}
 
@@ -420,16 +439,22 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return tokenProvider;
 	}
 
-	public void setTokenProvider(ITokenProvider tokenProvider) {
-		ITokenProvider oldTheme = this.tokenProvider;
-		ITokenProvider newTheme = tokenProvider;
-		boolean changed = ((oldTheme == null) || !oldTheme.equals(newTheme));
-		this.tokenProvider = tokenProvider;
+	public void setTheme(final ITokenProvider newTheme) {
+		final ITokenProvider oldTheme = this.tokenProvider;
 		this.forcedTheme = true;
-		if (changed) {
-			IGrammar grammar = TMPresentationReconciler.this.grammar;
-			if (grammar != null) {
-				themeChange(oldTheme, newTheme, viewer.getDocument());
+		if (!Objects.equals(oldTheme, newTheme) && grammar != null) {
+			this.tokenProvider = newTheme;
+			applyThemeEditor();
+			IDocument document = viewer.getDocument();
+			ITMModel model = getTMModelManager().connect(document);
+			if (! (model instanceof TMDocumentModel)) {
+				return;
+			}
+			TMDocumentModel docModel = (TMDocumentModel) model;
+			try {
+				colorize(new Region(0, document.getLength()), docModel);
+			} catch (BadLocationException e) {
+				TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}
 		}
 	}
@@ -440,24 +465,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	 * @param themeId
 	 */
 	public void setThemeId(String themeId) {
-		setTokenProvider(TMUIPlugin.getThemeManager().getThemeById(themeId));
-	}
-
-	/**
-	 * Apply theme changed.
-	 *
-	 * @param oldTheme
-	 * @param newTheme
-	 * @param document
-	 */
-	private void themeChange(ITokenProvider oldTheme, ITokenProvider newTheme, IDocument document) {
-		if (newTheme != null && !newTheme.equals(oldTheme)) {
-			// Theme has changed, recolorize
-			tokenProvider = newTheme;
-			applyThemeEditor();
-			ITMModel model = getTMModelManager().connect(document);
-			colorize(0, document.getNumberOfLines() - 1, null, (TMDocumentModel) model);
-		}
+		setTheme(TMUIPlugin.getThemeManager().getThemeById(themeId));
 	}
 
 	@Override
@@ -500,15 +508,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return TMUIPlugin.getTMModelManager();
 	}
 
-	private void colorize(ModelTokensChangedEvent e) {
-		for (Range range : e.getRanges()) {
-			colorize(range.fromLineNumber - 1, range.toLineNumber - 1, null, ((TMDocumentModel) e.getModel()));
-		}
-	}
-
-	private void colorize(int fromLineNumber, int toLineNumber, IRegion damage, TMDocumentModel model) {
+	void colorize(@NonNull IRegion damage, @NonNull TMDocumentModel model) throws BadLocationException{
+		IDocument document = model.getDocument();
+		final int fromLineNumber = document.getLineOfOffset(damage.getOffset());
+		final int toLineNumber = document.getLineOfOffset(damage.getOffset() + damage.getLength());
 		applyThemeEditorIfNeeded();
-		ILogger logger = getLogger();
 		// Refresh the UI Presentation
 		if (logger.isEnabled()) {
 			logger.log("Render from: " + fromLineNumber + " to: " + toLineNumber);
@@ -516,9 +520,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		TextPresentation presentation = null;
 		Throwable error = null;
 		try {
-			IDocument document = model.getDocument();
-			presentation = new TextPresentation(
-					damage != null ? damage : DocumentHelper.getRegion(document, fromLineNumber, toLineNumber), 1000);
+			presentation = new TextPresentation(damage, 1000);
 
 			int lastStart = presentation.getExtent().getOffset();
 			int length = 0;
@@ -545,33 +547,28 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					TMToken nextToken = (i + 1 < tokens.size()) ? tokens.get(i + 1) : null;
 					int tokenStartIndex = currentToken.startIndex;
 
-					if (damage != null) {
-						// Damage region is setted (this case comes from when
-						// hyperlink, occurences, folding are processed and call
-						// TextViewer#invalidateTextPresentation)
-						if (isBeforeRegion(currentToken, startLineOffset, damage)) {
-							// The token is before the damage region
-							if (nextToken != null) {
-								if (isBeforeRegion(nextToken, startLineOffset, damage)) {
-									// ignore it
-									continue;
-								} else {
-									tokenStartIndex = damage.getOffset() - startLineOffset;
-								}
-							} else {
-								tokenStartIndex = damage.getOffset() - startLineOffset;
-								IToken token = toToken(currentToken);
-								lastAttribute = getTokenTextAttribute(token);
-								length += getTokenLengh(tokenStartIndex, nextToken, line, document);
-								firstToken = false;
+					if (isBeforeRegion(currentToken, startLineOffset, damage)) {
+						// The token is before the damage region
+						if (nextToken != null) {
+							if (isBeforeRegion(nextToken, startLineOffset, damage)) {
 								// ignore it
 								continue;
+							} else {
+								tokenStartIndex = damage.getOffset() - startLineOffset;
 							}
-						} else if (isAfterRegion(currentToken, startLineOffset, damage)) {
-							// The token is after the damage region, stop the
-							// colorization process
-							break;
+						} else {
+							tokenStartIndex = damage.getOffset() - startLineOffset;
+							IToken token = toToken(currentToken);
+							lastAttribute = getTokenTextAttribute(token);
+							length += getTokenLengh(tokenStartIndex, nextToken, line, document);
+							firstToken = false;
+							// ignore it
+							continue;
 						}
+					} else if (isAfterRegion(currentToken, startLineOffset, damage)) {
+						// The token is after the damage region, stop the
+						// colorization process
+						break;
 					}
 
 					IToken token = toToken(currentToken);
@@ -591,17 +588,16 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					}
 				}
 			}
-			if (damage != null) {
-				// adjust the length
-				length = Math.min(length, damage.getOffset() + damage.getLength() - lastStart);
-			}
+			// adjust the length
+			length = Math.min(length, damage.getOffset() + damage.getLength() - lastStart);
 			addRange(presentation, lastStart, length, lastAttribute);
 			applyTextRegionCollection(presentation);
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			error = e;
 			if (logger.isEnabled()) {
 				logger.log("Error while rendering from: " + fromLineNumber + " to: " + toLineNumber, e);
 			}
+			TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 		} finally {
 			fireColorize(presentation, error);
 		}
@@ -735,28 +731,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		}
 	}
 
-	private void fireInstall(ITextViewer viewer, IDocument document) {
-		if (listeners == null) {
-			return;
-		}
-		synchronized (listeners) {
-			for (ITMPresentationReconcilerListener listener : listeners) {
-				listener.install(viewer, document);
-			}
-		}
-	}
-
-	private void fireUninstall() {
-		if (listeners == null) {
-			return;
-		}
-		synchronized (listeners) {
-			for (ITMPresentationReconcilerListener listener : listeners) {
-				listener.uninstall();
-			}
-		}
-	}
-
 	/**
 	 * Fire colorize.
 	 *
@@ -775,18 +749,21 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	}
 
 	public void setLogger(ILogger logger) {
+		if (logger == null) {
+			return;
+		}
 		this.logger = logger;
 	}
 
-	public ILogger getLogger() {
-		if (logger == null) {
-			return RECONCILER_LOGGER;
-		}
+	public @NonNull ILogger getLogger() {
 		return logger;
 	}
 
 	public static TMPresentationReconciler getTMPresentationReconciler(IEditorPart editorPart) {
-		ITextOperationTarget target = editorPart.getAdapter(ITextOperationTarget.class);
+		if (editorPart == null) {
+			return null;
+		}
+		@Nullable ITextOperationTarget target = editorPart.getAdapter(ITextOperationTarget.class);
 		if (target instanceof ITextViewer) {
 			ITextViewer textViewer = ((ITextViewer) target);
 			return TMPresentationReconciler.getTMPresentationReconciler(textViewer);
@@ -813,7 +790,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						: null;
 			}
 		} catch (Exception e) {
-
+			TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 		}
 		return null;
 	}
@@ -840,53 +817,36 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			((ITheme) tokenProvider).initializeViewerColors(styledText);
 			initializeViewerColors = true;
 		}
-		if (!updateTextDecorations) {
-			try {
-				// Ugly code to update "current line highlight" :
-				// - get the PaintManager from the ITextViewer with reflection.
-				// - get the list of IPainter of PaintManager with reflection
-				// - loop for IPainter to retrieve CursorLinePainter which manages "current line
-				// highlight".
-				PaintManager paintManager = ClassHelper.getFieldValue(viewer, "fPaintManager", TextViewer.class);
-				if (paintManager != null) {
-					List<IPainter> painters = ClassHelper.getFieldValue(paintManager, "fPainters", PaintManager.class);
-					if (painters != null) {
-						for (IPainter painter : painters) {
-							if (painter instanceof CursorLinePainter) {
-								// Update current line highlight
-								Color background = tokenProvider.getEditorCurrentLineHighlight();
-								if (background != null) {
-									((CursorLinePainter) painter).setHighlightColor(background);
-								}
-								updateTextDecorations = true;
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		if (updateTextDecorations) {
+			return;
 		}
-	}
-
-	/**
-	 * Set to true when the "Import Grammar" wizard dialog must be opened when
-	 * grammar is not found and false otherwise.
-	 *
-	 * @param openImportDialogWhenGrammarNotFound
-	 */
-	public void setOpenImportDialogWhenGrammarNotFound(boolean openImportDialogWhenGrammarNotFound) {
-		this.openImportDialogWhenGrammarNotFound = openImportDialogWhenGrammarNotFound;
-	}
-
-	/**
-	 * Returns true when the "Import Grammar" wizard dialog must be opened when
-	 * grammar is not found and false otherwise.
-	 *
-	 * @return
-	 */
-	public boolean isOpenImportDialogWhenGrammarNotFound() {
-		return openImportDialogWhenGrammarNotFound;
+		try {
+			// Ugly code to update "current line highlight" :
+			// - get the PaintManager from the ITextViewer with reflection.
+			// - get the list of IPainter of PaintManager with reflection
+			// - loop for IPainter to retrieve CursorLinePainter which manages "current line
+			// highlight".
+			PaintManager paintManager = ClassHelper.getFieldValue(viewer, "fPaintManager", TextViewer.class);
+			if (paintManager == null) {
+				return;
+			}
+			List<IPainter> painters = ClassHelper.getFieldValue(paintManager, "fPainters", PaintManager.class);
+			if (painters == null) {
+				return;
+			}
+			for (IPainter painter : painters) {
+				if (painter instanceof CursorLinePainter) {
+					// Update current line highlight
+					Color background = tokenProvider.getEditorCurrentLineHighlight();
+					if (background != null) {
+						((CursorLinePainter) painter).setHighlightColor(background);
+					}
+					updateTextDecorations = true;
+				}
+			}
+		} catch (Exception e) {
+			TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
+		}
 	}
 
 	/**
@@ -921,4 +881,5 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	public boolean isEnabled() {
 		return enabled;
 	}
+
 }

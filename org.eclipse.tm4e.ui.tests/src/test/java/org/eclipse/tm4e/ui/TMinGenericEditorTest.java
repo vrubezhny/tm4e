@@ -22,6 +22,8 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -58,7 +60,16 @@ public class TMinGenericEditorTest {
 
 	@After
 	public void tearDown() {
-		editor.getEditorSite().getPage().closeEditor(editor, false);
+		final IEditorPart currentEditor = editor;
+		if (currentEditor != null) {
+			final IWorkbenchPartSite currentSite = currentEditor.getSite();
+			if (currentSite != null) {
+				final IWorkbenchPage currentPage = currentSite.getPage();
+				if (currentPage != null) {
+					currentPage.closeEditor(currentEditor, false);
+				}
+			}
+		}
 		editor = null;
 		f.delete();
 		f = null;
@@ -74,13 +85,12 @@ public class TMinGenericEditorTest {
 		editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
 				f.toURI(), editorDescriptor.getId(), true);
 		StyledText text = (StyledText)editor.getAdapter(Control.class);
-		new DisplayHelper() {
+		Assert.assertTrue(new DisplayHelper() {
 			@Override
 			protected boolean condition() {
 				return text.getStyleRanges().length > 1;
 			}
-		}.waitForCondition(text.getDisplay(), 3000);
-		Assert.assertTrue(text.getStyleRanges().length > 1);
+		}.waitForCondition(text.getDisplay(), 3000));
 	}
 
 	@Test
@@ -93,17 +103,19 @@ public class TMinGenericEditorTest {
 		editor = IDE.openEditor(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(),
 				f.toURI(), editorDescriptor.getId(), true);
 		StyledText text = (StyledText)editor.getAdapter(Control.class);
-		new DisplayHelper() {
+		Assert.assertTrue(new DisplayHelper() {
 			@Override
 			protected boolean condition() {
 				return text.getStyleRanges().length > 1;
 			}
-		}.waitForCondition(text.getDisplay(), 3000);
-		int numberOfRanges = text.getStyleRanges().length;
-		Assert.assertTrue(numberOfRanges > 1);
+		}.waitForCondition(text.getDisplay(), 3000));
+		int initialNumberOfRanges = text.getStyleRanges().length;
 		text.setText("let a = '';\nlet b = 10;\nlet c = true;");
-		DisplayHelper.runEventLoop(text.getDisplay(), 3000);
-		Assert.assertTrue("More styles should have been added", text.getStyleRanges().length > numberOfRanges + 3);
+		Assert.assertTrue("More styles should have been added", new DisplayHelper() {
+			@Override protected boolean condition() {
+				return text.getStyleRanges().length > initialNumberOfRanges + 3;
+			}
+		}.waitForCondition(text.getDisplay(), 300000));
 	}
 
 	@Test

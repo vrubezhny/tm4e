@@ -16,7 +16,8 @@ Require-Bundle: org.eclipse.tm4e.core,
  com.google.gson,
  org.eclipse.e4.ui.css.swt.theme,
  org.eclipse.core.expressions,
- org.eclipse.ui.workbench.texteditor
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jdt.annotation;bundle-version="2.2.0";resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.tm4e.ui,
  org.eclipse.tm4e.ui.internal.model;x-friends:="org.eclipse.tm4e.ui.tests",
