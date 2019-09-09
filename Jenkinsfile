@@ -23,11 +23,15 @@ pipeline {
 				// TODO deploy all branch from Eclipse.org Git repo
 			}
 			steps {
-				// TODO compute the target URL (snapshots) according to branch name (0.5-snapshots...)
-				sh 'rm -rf /home/data/httpd/download.eclipse.org/tm4e/snapshots'
-				sh 'mkdir -p /home/data/httpd/download.eclipse.org/tm4e/snapshots'
-				sh 'cp -r repository/target/repository/* /home/data/httpd/download.eclipse.org/tm4e/snapshots'
-				sh 'cp repository/target/repository-*-SNAPSHOT.zip /home/data/httpd/download.eclipse.org/tm4e/snapshots/repository.zip'
+				sshagent ( ['projects-storage.eclipse.org-bot-ssh']) {
+					// TODO compute the target URL (snapshots) according to branch name (0.5-snapshots...)
+					sh '''
+						ssh genie.projectname@projects-storage.eclipse.org rm -rf /home/data/httpd/download.eclipse.org/tm4e/snapshots
+						ssh genie.projectname@projects-storage.eclipse.org mkdir -p /home/data/httpd/download.eclipse.org/tm4e/snapshots
+						scp -r repository/target/repository/* genie.projectname@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/tm4e/snapshots
+						scp repository/target/repository-*-SNAPSHOT.zip genie.projectname@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/tm4e/snapshots/repository.zip
+					'''
+				}
 			}
 		}
 	}
