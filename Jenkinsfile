@@ -8,8 +8,10 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh 'mvn -Dmaven.repo.local=$WORKSPACE/.m2 clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -PpackAndSign'
+				withMaven(maven:'apache-maven-latest', mavenLocalRepo: '$WORKSPACE/.m2') {
+					wrap([$class: 'Xvnc', useXauthority: true]) {
+						sh 'mvn  clean verify -Dmaven.test.error.ignore=true -Dmaven.test.failure.ignore=true -PpackAndSign'
+					}
 				}
 			}
 			post {
