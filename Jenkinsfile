@@ -32,8 +32,8 @@ pipeline {
 					sh '''
 						ssh genie.tm4e@projects-storage.eclipse.org rm -rf /home/data/httpd/download.eclipse.org/tm4e/snapshots
 						ssh genie.tm4e@projects-storage.eclipse.org mkdir -p /home/data/httpd/download.eclipse.org/tm4e/snapshots
-						scp -r repository/target/repository/* genie.tm4e@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/tm4e/snapshots
-						scp repository/target/repository-*-SNAPSHOT.zip genie.tm4e@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/tm4e/snapshots/repository.zip
+						scp -r org.eclipse.tm4e.repository/target/repository/* genie.tm4e@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/tm4e/snapshots
+						scp org.eclipse.tm4e.repository/target/repository-*-SNAPSHOT.zip genie.tm4e@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/tm4e/snapshots/repository.zip
 					'''
 				}
 			}
