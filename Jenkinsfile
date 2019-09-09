@@ -1,5 +1,7 @@
 pipeline {
-	agent migration
+	agent {
+		label 'migration'
+	}
 	options {
 		buildDiscarder(logRotator(numToKeepStr:'10'))
 	}
