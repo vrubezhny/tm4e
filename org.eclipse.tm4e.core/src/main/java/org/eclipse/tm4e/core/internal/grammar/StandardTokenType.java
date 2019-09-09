@@ -17,6 +17,12 @@ package org.eclipse.tm4e.core.internal.grammar;
  */
 public class StandardTokenType {
 
+	/**
+	 * Content should be accessed statically
+	 */
+	private StandardTokenType() {
+	}
+
 	public static final int Other = 0;
 	public static final int Comment = 1;
 	public static final int String = 2;

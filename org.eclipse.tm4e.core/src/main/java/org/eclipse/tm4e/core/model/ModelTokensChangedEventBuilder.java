@@ -38,12 +38,12 @@ class ModelTokensChangedEventBuilder {
 			previousRange.toLineNumber++;
 		} else {
 			// insert new range
-			ranges.add(new Range(lineNumber, lineNumber));
+			ranges.add(new Range(lineNumber));
 		}
 	}
 
 	public ModelTokensChangedEvent build() {
-		if (this.ranges.size() == 0) {
+		if (this.ranges.isEmpty()) {
 			return null;
 		}
 		return new ModelTokensChangedEvent(ranges, model);

@@ -37,12 +37,13 @@ public class OnigResult {
 		this.indexInScanner = index;
 	}
 
-	public int LocationAt(int index) {
+	public int locationAt(int index) {
 		int bytes = region.beg[index];
-		if (bytes > 0)
+		if (bytes > 0) {
 			return bytes;
-		else
+		} else {
 			return 0;
+		}
 	}
 
 	public int count() {
@@ -51,10 +52,11 @@ public class OnigResult {
 
 	public int LengthAt(int index) {
 		int bytes = region.end[index] - region.beg[index];
-		if (bytes > 0)
+		if (bytes > 0) {
 			return bytes;
-		else
+		} else {
 			return 0;
+		}
 	}
 
 }

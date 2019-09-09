@@ -33,6 +33,12 @@ package org.eclipse.tm4e.core.internal.grammar;
  */
 public class MetadataConsts {
 
+	/**
+	 * content should be accessed statically
+	 */
+	private MetadataConsts() {
+	}
+
 	public static final int LANGUAGEID_MASK = 0b00000000000000000000000011111111;
 	public static final int TOKEN_TYPE_MASK = 0b00000000000000000000011100000000;
 	public static final int FONT_STYLE_MASK = 0b00000000000000000011100000000000;

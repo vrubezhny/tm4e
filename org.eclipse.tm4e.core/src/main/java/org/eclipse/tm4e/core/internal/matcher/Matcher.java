@@ -19,15 +19,16 @@ package org.eclipse.tm4e.core.internal.matcher;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
  * Matcher utilities.
- * 
+ *
  * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/matcher.ts
  *
  */
-public class Matcher<T> implements IMatcher<T> {
+public class Matcher<T> implements Predicate<T> {
 
 	private static final Pattern IDENTIFIER_REGEXP = Pattern.compile("[\\w\\.:]+");
 
@@ -35,7 +36,7 @@ public class Matcher<T> implements IMatcher<T> {
 		return createMatchers(expression, IMatchesName.NAME_MATCHER);
 	}
 
-	public static <T> Collection<MatcherWithPriority<T>> createMatchers(String selector, IMatchesName<T> matchesName) {
+	private static <T> Collection<MatcherWithPriority<T>> createMatchers(String selector, IMatchesName<T> matchesName) {
 		return new Matcher<T>(selector, matchesName).results;
 	}
 
@@ -65,7 +66,7 @@ public class Matcher<T> implements IMatcher<T> {
 				}
 				token = tokenizer.next();
 			}
-			IMatcher<T> matcher = parseConjunction();
+			Predicate<T> matcher = parseConjunction();
 			if (matcher != null) {
 				results.add(new MatcherWithPriority<T>(matcher, priority));
 			}
@@ -76,9 +77,9 @@ public class Matcher<T> implements IMatcher<T> {
 		}
 	}
 
-	private IMatcher<T> parseInnerExpression() {
-		List<IMatcher<T>> matchers = new ArrayList<>();
-		IMatcher<T> matcher = parseConjunction();
+	private Predicate<T> parseInnerExpression() {
+		List<Predicate<T>> matchers = new ArrayList<>();
+		Predicate<T> matcher = parseConjunction();
 		while (matcher != null) {
 			matchers.add(matcher);
 			if (token.equals("|") || token.equals(",")) {
@@ -92,57 +93,48 @@ public class Matcher<T> implements IMatcher<T> {
 			matcher = parseConjunction();
 		}
 		// some (or)
-		return new IMatcher<T>() {
-			@Override
-			public boolean match(T matcherInput) {
-				for (IMatcher<T> matcher : matchers) {
-					if (matcher.match(matcherInput)) {
-						return true;
-					}
+		return matcherInput -> {
+			for (Predicate<T> matcher1 : matchers) {
+				if (matcher1.test(matcherInput)) {
+					return true;
 				}
-				return false;
 			}
+			return false;
 		};
 	}
 
-	private IMatcher<T> parseConjunction() {
-		List<IMatcher<T>> matchers = new ArrayList<>();
-		IMatcher<T> matcher = parseOperand();
+	private Predicate<T> parseConjunction() {
+		List<Predicate<T>> matchers = new ArrayList<>();
+		Predicate<T> matcher = parseOperand();
 		while (matcher != null) {
 			matchers.add(matcher);
 			matcher = parseOperand();
 		}
 		// every (and)
-		return new IMatcher<T>() {
-			@Override
-			public boolean match(T matcherInput) {
-				for (IMatcher<T> matcher : matchers) {
-					if (!matcher.match(matcherInput)) {
-						return false;
-					}
+		return matcherInput -> {
+			for (Predicate<T> matcher1 : matchers) {
+				if (!matcher1.test(matcherInput)) {
+					return false;
 				}
-				return true;
 			}
+			return true;
 		};
 	}
 
-	private IMatcher<T> parseOperand() {
+	private Predicate<T> parseOperand() {
 		if ("-".equals(token)) {
 			token = tokenizer.next();
-			IMatcher<T> expressionToNegate = parseOperand();
-			return new IMatcher<T>() {
-				@Override
-				public boolean match(T matcherInput) {
-					if (expressionToNegate == null) {
-						return false;
-					}
-					return !expressionToNegate.match(matcherInput);
+			Predicate<T> expressionToNegate = parseOperand();
+			return matcherInput -> {
+				if (expressionToNegate == null) {
+					return false;
 				}
+				return !expressionToNegate.test(matcherInput);
 			};
 		}
 		if ("(".equals(token)) {
 			token = tokenizer.next();
-			IMatcher<T> expressionInParents = parseInnerExpression();
+			Predicate<T> expressionInParents = parseInnerExpression();
 			if (")".equals(token)) {
 				token = tokenizer.next();
 			}
@@ -154,12 +146,7 @@ public class Matcher<T> implements IMatcher<T> {
 				identifiers.add(token);
 				token = tokenizer.next();
 			} while (isIdentifier(token));
-			return new IMatcher<T>() {
-				@Override
-				public boolean match(T matcherInput) {
-					return Matcher.this.matchesName.match(identifiers, matcherInput);
-				}
-			};
+			return matcherInput -> Matcher.this.matchesName.match(identifiers, matcherInput);
 		}
 		return null;
 	}
@@ -169,7 +156,7 @@ public class Matcher<T> implements IMatcher<T> {
 	}
 
 	@Override
-	public boolean match(T matcherInput) {
+	public boolean test(T matcherInput) {
 		return false;
 	}
 

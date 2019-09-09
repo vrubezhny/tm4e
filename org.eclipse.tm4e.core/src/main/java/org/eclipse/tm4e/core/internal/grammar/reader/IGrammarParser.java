@@ -24,6 +24,7 @@ import org.eclipse.tm4e.core.internal.types.IRawGrammar;
  * TextMate Grammar parser.
  *
  */
+@FunctionalInterface
 public interface IGrammarParser {
 
 	IRawGrammar parse(InputStream contents) throws Exception;

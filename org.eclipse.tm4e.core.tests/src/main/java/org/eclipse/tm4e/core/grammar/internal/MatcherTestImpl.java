@@ -73,8 +73,8 @@ public class MatcherTestImpl implements Test, Describable {
 	}
 
 	private void executeTest() {
-		Collection<MatcherWithPriority<List<String>>> matcher = Matcher.createMatchers(expression, nameMatcher);
-		boolean result = matcher.stream().anyMatch( m -> m.matcher.match(input));
+		Collection<MatcherWithPriority<List<String>>> matcher = Matcher.createMatchers(expression);
+		boolean result = matcher.stream().anyMatch(m -> m.matcher.test(input));
 		Assert.assertEquals(result, this.result);
 	}
 

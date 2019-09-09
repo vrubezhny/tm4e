@@ -50,20 +50,19 @@ public class OnigRegExp {
 				WarnCallback.DEFAULT);
 	}
 
-	public OnigResult Search(OnigString str, int position) {
-		if (lastSearchStrUniqueId == str.uniqueId() && lastSearchPosition <= position) {
-			if (lastSearchResult == null || lastSearchResult.LocationAt(0) >= position) {
-				return lastSearchResult;
-			}
+	public OnigResult search(OnigString str, int position) {
+		if (lastSearchStrUniqueId == str.uniqueId() && lastSearchPosition <= position &&
+			(lastSearchResult == null || lastSearchResult.locationAt(0) >= position)) {
+			return lastSearchResult;
 		}
 
 		lastSearchStrUniqueId = str.uniqueId();
 		lastSearchPosition = position;
-		lastSearchResult = Search(str.utf8_value(), position, str.utf8_length());
+		lastSearchResult = search(str.utf8_value(), position, str.utf8_length());
 		return lastSearchResult;
 	}
 
-	private OnigResult Search(byte[] data, int position, int end) {
+	private OnigResult search(byte[] data, int position, int end) {
 		Matcher matcher = regex.matcher(data);
 		int status = matcher.search(position, end, Option.DEFAULT);
 		if (status != Matcher.FAILED) {

@@ -304,7 +304,6 @@
          point="org.eclipse.ui.editors">
       <editor
             name="YAML Editor"
-            icon="icons/yaml.png"
             class="org.eclipse.tm4e.samples.yaml.YAMLEditor"
             id="org.eclipse.tm4e.samples.yaml.YAMLEditor">
             <contentTypeBinding

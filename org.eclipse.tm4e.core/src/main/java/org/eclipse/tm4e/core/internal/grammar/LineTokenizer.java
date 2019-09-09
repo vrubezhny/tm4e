@@ -72,7 +72,7 @@ class LineTokenizer {
 	private StackElement stack;
 	private final LineTokens lineTokens;
 	private int anchorPosition = -1;
-	private boolean STOP;
+	private boolean stop;
 	private final int lineLength;
 
 	public LineTokenizer(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos, StackElement stack,
@@ -87,16 +87,16 @@ class LineTokenizer {
 	}
 
 	public StackElement scan() {
-		STOP = false;
+		stop = false;
 
-		WhileCheckResult whileCheckResult = _checkWhileConditions(grammar, lineText, isFirstLine, linePos, stack,
+		WhileCheckResult whileCheckResult = checkWhileConditions(grammar, lineText, isFirstLine, linePos, stack,
 				lineTokens);
 		stack = whileCheckResult.stack;
 		linePos = whileCheckResult.linePos;
 		isFirstLine = whileCheckResult.isFirstLine;
 		anchorPosition = whileCheckResult.anchorPosition;
 
-		while (!STOP) {
+		while (!stop) {
 			scanNext(); // potentially modifies linePos && anchorPosition
 		}
 
@@ -112,7 +112,7 @@ class LineTokenizer {
 			LOGGER.finest(" no more matches.");
 			// No match
 			lineTokens.produce(stack, lineLength);
-			STOP = true;
+			stop = true;
 			return;
 		}
 
@@ -150,23 +150,23 @@ class LineTokenizer {
 				stack = popped;
 
 				lineTokens.produce(stack, lineLength);
-				STOP = true;
+				stop = true;
 				return;
 			}
 		} else if (captureIndices != null && captureIndices.length > 0) {
 			// We matched a rule!
-			Rule _rule = grammar.getRule(matchedRuleId);
+			Rule rule = grammar.getRule(matchedRuleId);
 
 			lineTokens.produce(stack, captureIndices[0].getStart());
 
 			StackElement beforePush = stack;
 			// push it on the stack rule
-			String scopeName = _rule.getName(lineText.getString(), captureIndices);
+			String scopeName = rule.getName(lineText.getString(), captureIndices);
 			ScopeListElement nameScopesList = stack.contentNameScopesList.push(grammar, scopeName);
 			stack = stack.push(matchedRuleId, linePos, null, nameScopesList, nameScopesList);
 
-			if (_rule instanceof BeginEndRule) {
-				BeginEndRule pushedRule = (BeginEndRule) _rule;
+			if (rule instanceof BeginEndRule) {
+				BeginEndRule pushedRule = (BeginEndRule) rule;
 
 				// if (IN_DEBUG_MODE) {
 				// console.log(' pushing ' + pushedRule.debugName + ' - ' +
@@ -192,11 +192,11 @@ class LineTokenizer {
 					LOGGER.info("[2] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
-					STOP = true;
+					stop = true;
 					return;
 				}
-			} else if (_rule instanceof BeginWhileRule) {
-				BeginWhileRule pushedRule = (BeginWhileRule) _rule;
+			} else if (rule instanceof BeginWhileRule) {
+				BeginWhileRule pushedRule = (BeginWhileRule) rule;
 				// if (IN_DEBUG_MODE) {
 				// console.log(' pushing ' + pushedRule.debugName);
 				// }
@@ -220,11 +220,11 @@ class LineTokenizer {
 					LOGGER.info("[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
-					STOP = true;
+					stop = true;
 					return;
 				}
 			} else {
-				MatchRule matchingRule = (MatchRule) _rule;
+				MatchRule matchingRule = (MatchRule) rule;
 				// if (IN_DEBUG_MODE) {
 				// console.log(' matched ' + matchingRule.debugName + ' - ' +
 				// matchingRule.debugMatchRegExp);
@@ -242,13 +242,13 @@ class LineTokenizer {
 					LOGGER.info("[4] - Grammar is in an endless loop - Grammar is not advancing, nor is it pushing/popping");
 					stack = stack.safePop();
 					lineTokens.produce(stack, lineLength);
-					STOP = true;
+					stop = true;
 					return;
 				}
 			}
 		}
 
-		if (captureIndices[0].getEnd() > linePos) {
+		if (captureIndices != null && captureIndices.length > 0 && captureIndices[0].getEnd() > linePos) {
 			// Advance stream
 			linePos = captureIndices[0].getEnd();
 			isFirstLine = false;
@@ -386,7 +386,7 @@ class LineTokenizer {
 
 	private void handleCaptures(Grammar grammar, OnigString lineText, boolean isFirstLine, StackElement stack,
 			LineTokens lineTokens, List<CaptureRule> captures, IOnigCaptureIndex[] captureIndices) {
-		if (captures.size() == 0) {
+		if (captures.isEmpty()) {
 			return;
 		}
 
@@ -415,15 +415,14 @@ class LineTokenizer {
 			}
 
 			// pop captures while needed
-			while (localStack.size() > 0
-					&& localStack.get(localStack.size() - 1).getEndPos() <= captureIndex.getStart()) {
+			while (!localStack.isEmpty() && localStack.get(localStack.size() - 1).getEndPos() <= captureIndex.getStart()) {
 				// pop!
 				lineTokens.produceFromScopes(localStack.get(localStack.size() - 1).getScopes(),
 						localStack.get(localStack.size() - 1).getEndPos());
 				localStack.remove(localStack.size() - 1);
 			}
 
-			if (localStack.size() > 0) {
+			if (!localStack.isEmpty()) {
 				lineTokens.produceFromScopes(localStack.get(localStack.size() - 1).getScopes(),
 						captureIndex.getStart());
 			} else {
@@ -440,7 +439,7 @@ class LineTokenizer {
 				// the capture requires additional matching
 				StackElement stackClone = stack.push(captureRule.retokenizeCapturedWithRuleId, captureIndex.getStart(),
 						null, nameScopesList, contentNameScopesList);
-				_tokenizeString(grammar,
+				tokenizeString(grammar,
 						GrammarHelper.createOnigString(lineText.getString().substring(0, captureIndex.getEnd())),
 						(isFirstLine && captureIndex.getStart() == 0), captureIndex.getStart(), stackClone, lineTokens);
 				continue;
@@ -450,14 +449,14 @@ class LineTokenizer {
 			String captureRuleScopeName = captureRule.getName(lineText.getString(), captureIndices);
 			if (captureRuleScopeName != null) {
 				// push
-				ScopeListElement base = localStack.size() > 0 ? localStack.get(localStack.size() - 1).getScopes()
-						: stack.contentNameScopesList;
+				ScopeListElement base = localStack.isEmpty() ? stack.contentNameScopesList :
+					localStack.get(localStack.size() - 1).getScopes();
 				ScopeListElement captureRuleScopesList = base.push(grammar, captureRuleScopeName);
 				localStack.add(new LocalStackElement(captureRuleScopesList, captureIndex.getEnd()));
 			}
 		}
 
-		while (localStack.size() > 0) {
+		while (!localStack.isEmpty()) {
 			// pop!
 			lineTokens.produceFromScopes(localStack.get(localStack.size() - 1).getScopes(),
 					localStack.get(localStack.size() - 1).getEndPos());
@@ -470,9 +469,9 @@ class LineTokenizer {
 	 * order. If any fails, cut off the entire stack above the failed while
 	 * condition. While conditions may also advance the linePosition.
 	 */
-	private WhileCheckResult _checkWhileConditions(Grammar grammar, OnigString lineText, boolean isFirstLine,
+	private WhileCheckResult checkWhileConditions(Grammar grammar, OnigString lineText, boolean isFirstLine,
 			int linePos, StackElement stack, LineTokens lineTokens) {
-		int anchorPosition = -1;
+		int currentanchorPosition = -1;
 		List<WhileStack> whileRules = new ArrayList<>();
 		for (StackElement node = stack; node != null; node = node.pop()) {
 			Rule nodeRule = node.getRule(grammar);
@@ -483,7 +482,7 @@ class LineTokenizer {
 		for (int i = whileRules.size() - 1; i >= 0; i--) {
 			WhileStack whileRule = whileRules.get(i);
 			ICompiledRule ruleScanner = whileRule.rule.compileWhile(grammar, whileRule.stack.endRule, isFirstLine,
-					anchorPosition == linePos);
+					currentanchorPosition == linePos);
 			IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
 			// if (IN_DEBUG_MODE) {
 			// console.log(' scanning for while rule');
@@ -502,7 +501,7 @@ class LineTokenizer {
 					handleCaptures(grammar, lineText, isFirstLine, whileRule.stack, lineTokens,
 							whileRule.rule.whileCaptures, r.getCaptureIndices());
 					lineTokens.produce(whileRule.stack, r.getCaptureIndices()[0].getEnd());
-					anchorPosition = r.getCaptureIndices()[0].getEnd();
+					currentanchorPosition = r.getCaptureIndices()[0].getEnd();
 					if (r.getCaptureIndices()[0].getEnd() > linePos) {
 						linePos = r.getCaptureIndices()[0].getEnd();
 						isFirstLine = false;
@@ -514,10 +513,10 @@ class LineTokenizer {
 			}
 		}
 
-		return new WhileCheckResult(stack, linePos, anchorPosition, isFirstLine);
+		return new WhileCheckResult(stack, linePos, currentanchorPosition, isFirstLine);
 	}
 
-	public static StackElement _tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
+	public static StackElement tokenizeString(Grammar grammar, OnigString lineText, boolean isFirstLine, int linePos,
 			StackElement stack, LineTokens lineTokens) {
 		return new LineTokenizer(grammar, lineText, isFirstLine, linePos, stack, lineTokens).scan();
 	}

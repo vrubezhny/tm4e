@@ -15,11 +15,17 @@ import org.eclipse.tm4e.core.grammar.StackElement;
 import org.eclipse.tm4e.core.theme.FontStyle;
 
 /**
- * 
+ *
  * Metadata for {@link StackElement}.
  *
  */
 public class StackElementMetadata {
+
+	/**
+	 * Content should be referenced statically
+	 */
+	private StackElementMetadata() {
+	}
 
 	public static String toBinaryStr(int metadata) {
 		/*
@@ -31,9 +37,9 @@ public class StackElementMetadata {
 	}
 
 	public static void printMetadata(int metadata) {
-		int _languageId = StackElementMetadata.getLanguageId(metadata);
-		int _tokenType = StackElementMetadata.getTokenType(metadata);
-		int _fontStyle = StackElementMetadata.getFontStyle(metadata);
+		int languageId = StackElementMetadata.getLanguageId(metadata);
+		int tokenType = StackElementMetadata.getTokenType(metadata);
+		int fontStyle = StackElementMetadata.getFontStyle(metadata);
 		int foreground = StackElementMetadata.getForeground(metadata);
 		int background = StackElementMetadata.getBackground(metadata);
 
@@ -66,31 +72,14 @@ public class StackElementMetadata {
 	}
 
 	public static int set(int metadata, int languageId, int tokenType, int fontStyle, int foreground, int background) {
-		int _languageId = StackElementMetadata.getLanguageId(metadata);
-		int _tokenType = StackElementMetadata.getTokenType(metadata);
-		int _fontStyle = StackElementMetadata.getFontStyle(metadata);
-		int _foreground = StackElementMetadata.getForeground(metadata);
-		int _background = StackElementMetadata.getBackground(metadata);
-
-		if (languageId != 0) {
-			_languageId = languageId;
-		}
-		if (tokenType != StandardTokenType.Other) {
-			_tokenType = tokenType;
-		}
-		if (fontStyle != FontStyle.NotSet) {
-			_fontStyle = fontStyle;
-		}
-		if (foreground != 0) {
-			_foreground = foreground;
-		}
-		if (background != 0) {
-			_background = background;
-		}
-
-		return ((_languageId << MetadataConsts.LANGUAGEID_OFFSET) | (_tokenType << MetadataConsts.TOKEN_TYPE_OFFSET)
-				| (_fontStyle << MetadataConsts.FONT_STYLE_OFFSET) | (_foreground << MetadataConsts.FOREGROUND_OFFSET)
-				| (_background << MetadataConsts.BACKGROUND_OFFSET)) >>> 0;
+		languageId = languageId == 0 ? StackElementMetadata.getLanguageId(metadata) : languageId;
+		tokenType = tokenType == StandardTokenType.Other ? StackElementMetadata.getTokenType(metadata) : tokenType;
+		fontStyle = fontStyle == FontStyle.NotSet ? StackElementMetadata.getFontStyle(metadata) : fontStyle;
+		foreground = foreground == 0 ? StackElementMetadata.getForeground(metadata) : foreground;
+		background = background == 0 ? StackElementMetadata.getBackground(metadata) : background;
+		return ((languageId << MetadataConsts.LANGUAGEID_OFFSET) | (tokenType << MetadataConsts.TOKEN_TYPE_OFFSET)
+				| (fontStyle << MetadataConsts.FONT_STYLE_OFFSET) | (foreground << MetadataConsts.FOREGROUND_OFFSET)
+				| (background << MetadataConsts.BACKGROUND_OFFSET)) >>> 0;
 	}
 
 }

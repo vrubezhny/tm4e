@@ -25,6 +25,10 @@ import org.eclipse.tm4e.core.theme.IThemeProvider;
 
 public class GrammarHelper {
 
+	private GrammarHelper() {
+		// methods should be accessed statically
+	}
+
 	public static IGrammar createGrammar(IRawGrammar grammar, int initialLanguage,
 			Map<String, Integer> embeddedLanguages, IGrammarRepository repository, IThemeProvider themeProvider) {
 		return new Grammar(grammar, initialLanguage, embeddedLanguages, repository, themeProvider);

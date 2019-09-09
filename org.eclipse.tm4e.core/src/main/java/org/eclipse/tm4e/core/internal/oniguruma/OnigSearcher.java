@@ -14,21 +14,19 @@
  *  - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  *  - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
  */
- 
+
 package org.eclipse.tm4e.core.internal.oniguruma;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OnigSearcher {
 
 	private final List<OnigRegExp> regExps;
 
 	public OnigSearcher(String[] regexps) {
-		this.regExps = new ArrayList<OnigRegExp>();
-		for (int i = 0; i < regexps.length; i++) {
-			this.regExps.add(new OnigRegExp(regexps[i]));
-		}
+		this.regExps = Arrays.stream(regexps).map(OnigRegExp::new).collect(Collectors.toList());
 	}
 
 	public OnigResult search(OnigString source, int charOffset) {
@@ -39,10 +37,10 @@ public class OnigSearcher {
 		int index = 0;
 
 		for (OnigRegExp regExp : regExps) {
-			OnigResult result = regExp.Search(source, byteOffset);
+			OnigResult result = regExp.search(source, byteOffset);
 			if (result != null && result.count() > 0) {
-				int location = result.LocationAt(0);
-				
+				int location = result.locationAt(0);
+
 				if (bestResult == null || location < bestLocation) {
 					bestLocation = location;
 					bestResult = result;
