@@ -30,15 +30,14 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.internal.grammar.reader.GrammarReader;
 import org.eclipse.tm4e.core.internal.grammars.SyncRegistry;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
-import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.theme.IRawTheme;
 import org.eclipse.tm4e.core.theme.Theme;
 
 /**
  * The registry that will hold all grammars.
- * 
+ *
  * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/main.ts
- * 
+ *
  */
 public class Registry {
 
@@ -50,12 +49,8 @@ public class Registry {
 	}
 
 	public Registry(IRegistryOptions locator) {
-		this(locator, ILogger.DEFAULT_LOGGER);
-	}
-
-	public Registry(IRegistryOptions locator, ILogger logger) {
 		this._locator = locator;
-		this._syncRegistry = new SyncRegistry(Theme.createFromRawTheme(locator.getTheme()), logger);
+		this._syncRegistry = new SyncRegistry(Theme.createFromRawTheme(locator.getTheme()));
 	}
 
 	/**
@@ -147,7 +142,7 @@ public class Registry {
 
 	/**
 	 * Load the grammar at `path` synchronously.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public IGrammar loadGrammarFromPathSync(String path, InputStream in, int initialLanguage,

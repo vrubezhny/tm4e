@@ -31,22 +31,19 @@ import org.eclipse.tm4e.core.internal.grammar.Grammar;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
-import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.theme.IThemeProvider;
 import org.eclipse.tm4e.core.theme.Theme;
 import org.eclipse.tm4e.core.theme.ThemeTrieElementRule;
 
 public class SyncRegistry implements IGrammarRepository, IThemeProvider {
 
-	private final ILogger logger;
 	private final Map<String, IGrammar> _grammars;
 	private final Map<String, IRawGrammar> _rawGrammars;
 	private final Map<String, Collection<String>> _injectionGrammars;
 	private Theme _theme;
 
-	public SyncRegistry(Theme theme, ILogger logger) {
+	public SyncRegistry(Theme theme) {
 		this._theme = theme;
-		this.logger = logger;
 		this._grammars = new HashMap<>();
 		this._rawGrammars = new HashMap<>();
 		this._injectionGrammars = new HashMap<>();
@@ -121,11 +118,6 @@ public class SyncRegistry implements IGrammarRepository, IThemeProvider {
 					GrammarHelper.createGrammar(rawGrammar, initialLanguage, embeddedLanguages, this, this));
 		}
 		return this._grammars.get(scopeName);
-	}
-
-	@Override
-	public ILogger getLogger() {
-		return logger;
 	}
 
 	private static void collectIncludedScopes(Collection<String> result, IRawGrammar grammar) {

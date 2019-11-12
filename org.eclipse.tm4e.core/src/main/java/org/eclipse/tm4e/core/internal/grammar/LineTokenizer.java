@@ -18,6 +18,7 @@ package org.eclipse.tm4e.core.internal.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.eclipse.tm4e.core.grammar.GrammarHelper;
 import org.eclipse.tm4e.core.grammar.Injection;
@@ -33,9 +34,10 @@ import org.eclipse.tm4e.core.internal.rule.CaptureRule;
 import org.eclipse.tm4e.core.internal.rule.ICompiledRule;
 import org.eclipse.tm4e.core.internal.rule.MatchRule;
 import org.eclipse.tm4e.core.internal.rule.Rule;
-import org.eclipse.tm4e.core.logger.ILogger;
 
 class LineTokenizer {
+
+	private final static Logger LOGGER = Logger.getLogger(LineTokenizer.class.getName());
 
 	class WhileStack {
 
@@ -102,18 +104,12 @@ class LineTokenizer {
 	}
 
 	private void scanNext() {
-		ILogger logger = lineTokens.getLogger();
-		if (logger.isEnabled()) {
-			logger.log("");
-			logger.log("@@scanNext: |" + lineText.getString().replaceAll("\n", "\\n").substring(linePos) + '|');
-		}
+		LOGGER.finest("@@scanNext: |" + lineText.getString().replaceAll("\n", "\\n").substring(linePos) + '|');
 
 		IMatchResult r = matchRuleOrInjections(grammar, lineText, isFirstLine, linePos, stack, anchorPosition);
 
 		if (r == null) {
-			if (logger.isEnabled()) {
-				logger.log(" no more matches.");
-			}
+			LOGGER.finest(" no more matches.");
 			// No match
 			lineTokens.produce(stack, lineLength);
 			STOP = true;
@@ -147,10 +143,7 @@ class LineTokenizer {
 
 			if (!hasAdvanced && popped.getEnterPos() == linePos) {
 				// Grammar pushed & popped a rule without advancing
-				if (logger.isEnabled()) {
-					logger.log(
-							"[1] - Grammar is in an endless loop - Grammar pushed & popped a rule without advancing");
-				}
+				LOGGER.info("[1] - Grammar is in an endless loop - Grammar pushed & popped a rule without advancing");
 				// See https://github.com/Microsoft/vscode-textmate/issues/12
 				// Let's assume this was a mistake by the grammar author and the
 				// intent was to continue in this state
@@ -196,10 +189,7 @@ class LineTokenizer {
 
 				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
 					// Grammar pushed the same rule without advancing
-					if (logger.isEnabled()) {
-						logger.log(
-								"[2] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
-					}
+					LOGGER.info("[2] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
 					STOP = true;
@@ -227,10 +217,7 @@ class LineTokenizer {
 
 				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
 					// Grammar pushed the same rule without advancing
-					if (logger.isEnabled()) {
-						logger.log(
-								"[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
-					}
+					LOGGER.info("[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = stack.pop();
 					lineTokens.produce(stack, lineLength);
 					STOP = true;
@@ -252,10 +239,7 @@ class LineTokenizer {
 
 				if (!hasAdvanced) {
 					// Grammar is not advancing, nor is it pushing/popping
-					if (logger.isEnabled()) {
-						logger.log(
-								"[4] - Grammar is in an endless loop - Grammar is not advancing, nor is it pushing/popping");
-					}
+					LOGGER.info("[4] - Grammar is in an endless loop - Grammar is not advancing, nor is it pushing/popping");
 					stack = stack.safePop();
 					lineTokens.produce(stack, lineLength);
 					STOP = true;

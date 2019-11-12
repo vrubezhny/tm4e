@@ -18,35 +18,36 @@ package org.eclipse.tm4e.core.internal.grammar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.grammar.StackElement;
-import org.eclipse.tm4e.core.logger.ILogger;
 
 class LineTokens {
 
-	private final ILogger logger;
-	
+	private static final Logger LOGGER = Logger.getLogger(LineTokens.class.getName());
+
 	private final String _lineText;
-	
+
 	/**
 	 * used only if `_emitBinaryTokens` is false.
 	 */
 	private final List<IToken> _tokens;
-	
-	
+
+
 	private boolean _emitBinaryTokens;
-	
+
 	/**
 	 * used only if `_emitBinaryTokens` is true.
 	 */
 	private final List<Integer> _binaryTokens;
-	
+
 	private int _lastTokenEndIndex;
-	
-	LineTokens(boolean emitBinaryTokens, String lineText, ILogger logger) {
-		this._emitBinaryTokens = emitBinaryTokens;		
-		this._lineText = logger.isEnabled() ? lineText : null;		
+
+	LineTokens(boolean emitBinaryTokens, String lineText) {
+		this._emitBinaryTokens = emitBinaryTokens;
+		this._lineText = LOGGER.isLoggable(Level.FINEST) ? lineText : null; // store line only if it's logged
 		if (this._emitBinaryTokens) {
 			this._tokens = null;
 			this._binaryTokens = new ArrayList<>();
@@ -55,7 +56,6 @@ class LineTokens {
 			this._binaryTokens = null;
 		}
 		this._lastTokenEndIndex = 0;
-		this.logger = logger;
 	}
 
 	public void produce(StackElement stack, int endIndex) {
@@ -84,17 +84,17 @@ class LineTokens {
 
 		List<String> scopes = scopesList.generateScopes();
 
-		if (logger.isEnabled()) {
-			logger.log("  token: |" + this._lineText.substring(this._lastTokenEndIndex, endIndex).replaceAll("\n", "\\n") + '|');
-			for (int k = 0; k < scopes.size(); k++) {
-				logger.log("      * " + scopes.get(k));
+		if (this._lineText != null) {
+			LOGGER.info("  token: |" + this._lineText.substring(this._lastTokenEndIndex, endIndex).replaceAll("\n", "\\n") + '|');
+			for (String scope : scopes) {
+				LOGGER.info("      * " + scope);
 			}
 		}
 		this._tokens.add(new Token(this._lastTokenEndIndex, endIndex, scopes));
 
 		this._lastTokenEndIndex = endIndex;
 	}
-	
+
 	public IToken[] getResult(StackElement stack, int lineLength) {
 		if (this._tokens.size() > 0 && this._tokens.get(this._tokens.size() - 1).getStartIndex() == lineLength - 1) {
 			// pop produced token for newline
@@ -108,10 +108,6 @@ class LineTokens {
 		}
 
 		return this._tokens.toArray(new IToken[0]);
-	}
-	
-	public ILogger getLogger() {
-		return logger;
 	}
 
 	public int[] getBinaryResult(StackElement stack, int lineLength) {

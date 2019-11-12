@@ -11,6 +11,14 @@
  */
 package org.eclipse.tm4e.ui;
 
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.snippets.SnippetManager;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
@@ -28,6 +36,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
 	public static final String PLUGIN_ID = "org.eclipse.tm4e.ui"; //$NON-NLS-1$
+	private static final String TRACE_ID = PLUGIN_ID + "/trace"; //$NON-NLS-1$
 
 	// The shared instance
 	private static TMUIPlugin plugin;
@@ -38,10 +47,49 @@ public class TMUIPlugin extends AbstractUIPlugin {
 	public TMUIPlugin() {
 	}
 
+	public void trace(String message) {
+		if (Boolean.parseBoolean(Platform.getDebugOption(TRACE_ID))) {
+			getLog().log(new Status(IStatus.INFO, PLUGIN_ID, message));
+		}
+	}
+
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		boolean isDebugOn = Boolean.parseBoolean(Platform.getDebugOption(TRACE_ID));
+		if (isDebugOn) {
+			Logger tm4eCoreLogger = Logger.getLogger("org.eclipse.tm4e");
+			tm4eCoreLogger.setLevel(Level.FINEST);
+			tm4eCoreLogger.addHandler(new Handler() {
+
+				@Override public void publish(LogRecord record) {
+					TMUIPlugin.getDefault().getLog().log(new Status(
+						toSeverity(record.getLevel()),
+						"org.eclipse.tm4e.core",
+						record.getMessage()
+					));
+				}
+
+				private int toSeverity(Level level) {
+					if (level.intValue() >= Level.SEVERE.intValue()) {
+						return IStatus.ERROR;
+					}
+					if (level.intValue() >= Level.WARNING.intValue()) {
+						return IStatus.WARNING;
+					}
+					return IStatus.INFO;
+				}
+
+				@Override public void flush() {
+					// nothing to do
+				}
+
+				@Override public void close() throws SecurityException {
+					// nothing to do
+				}
+			});
+		}
 	}
 
 	@Override
@@ -62,7 +110,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the TextMate model manager.
-	 * 
+	 *
 	 * @return the TextMate model manager.
 	 */
 	public static ITMModelManager getTMModelManager() {
@@ -71,7 +119,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the TextMate themes manager.
-	 * 
+	 *
 	 * @return the TextMate themes manager.
 	 */
 	public static IThemeManager getThemeManager() {
@@ -80,7 +128,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Returns the Snippet manager.
-	 * 
+	 *
 	 * @return the Snippet manager.
 	 */
 	public static ISnippetManager getSnippetManager() {

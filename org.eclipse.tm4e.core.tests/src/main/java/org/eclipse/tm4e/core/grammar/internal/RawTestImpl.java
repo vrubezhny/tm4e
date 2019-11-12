@@ -23,7 +23,6 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.grammar.ITokenizeLineResult;
 import org.eclipse.tm4e.core.grammar.StackElement;
-import org.eclipse.tm4e.core.logger.SystemLogger;
 import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Assert;
@@ -106,7 +105,7 @@ public class RawTestImpl implements Test, Describable {
 			}
 		};
 
-		Registry registry = new Registry(locator, SystemLogger.INSTANCE);
+		Registry registry = new Registry(locator);
 		IGrammar grammar = getGrammar(test, registry, testLocation.getParentFile());
 
 		if (test.getGrammarScopeName() != null) {
@@ -168,8 +167,7 @@ public class RawTestImpl implements Test, Describable {
 
 	private static List<RawToken> getActualTokens(IToken[] tokens, RawTestLine testCase) {
 		List<RawToken> actualTokens = new ArrayList<>();
-		for (int i = 0; i < tokens.length; i++) {
-			IToken token = tokens[i];
+		for (IToken token : tokens) {
 			String value = testCase.getLine().substring(token.getStartIndex(),
 					token.getEndIndex() < testCase.getLine().length() ? token.getEndIndex()
 							: testCase.getLine().length());

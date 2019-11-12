@@ -1,5 +1,3 @@
-package org.eclipse.tm4e.ui.internal.model;
-
 /**
  * Copyright (c) 2019 Red Hat Inc., and others
  * This program and the accompanying materials are made
@@ -11,6 +9,8 @@ package org.eclipse.tm4e.ui.internal.model;
  * Contributors:
  * - Mickael Istria (Red Hat Inc.)
  */
+package org.eclipse.tm4e.ui.internal.model;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class DocumentTMModelTest {
 	@Test
 	public void testMultiLineChange() throws Exception {
 		Document document = new Document();
-		TMDocumentModel model = new TMDocumentModel(document, null);
+		TMDocumentModel model = new TMDocumentModel(document);
 		try {
 			model.setGrammar(new Registry().loadGrammarFromPathSync("TypeScript.tmLanguage.json", getClass().getClassLoader().getResourceAsStream("/grammars/TypeScript.tmLanguage.json")));
 			document.set("a\nb\nc\nd");

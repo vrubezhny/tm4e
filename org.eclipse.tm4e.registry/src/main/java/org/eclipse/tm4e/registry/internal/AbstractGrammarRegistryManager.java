@@ -19,10 +19,8 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.registry.IRegistryOptions;
 import org.eclipse.tm4e.core.registry.Registry;
-import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.IGrammarDefinition;
 import org.eclipse.tm4e.registry.IGrammarRegistryManager;
 
@@ -31,9 +29,6 @@ import org.eclipse.tm4e.registry.IGrammarRegistryManager;
  *
  */
 public abstract class AbstractGrammarRegistryManager extends Registry implements IGrammarRegistryManager {
-
-	private static final ILogger GRAMMAR_LOGGER = new EclipseSystemLogger(
-			"org.eclipse.tm4e.registry/debug/log/Grammar");
 
 	protected final GrammarCache pluginCache;
 	protected final GrammarCache userCache;
@@ -65,12 +60,12 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	};
 
 	public AbstractGrammarRegistryManager() {
-		this(new EclipseRegistryOptions(), GRAMMAR_LOGGER);
+		this(new EclipseRegistryOptions());
 		((EclipseRegistryOptions) getLocator()).setRegistry(this);
 	}
 
-	public AbstractGrammarRegistryManager(IRegistryOptions locator, ILogger logger) {
-		super(locator, logger);
+	public AbstractGrammarRegistryManager(IRegistryOptions locator) {
+		super(locator);
 		this.pluginCache = new GrammarCache();
 		this.userCache = new GrammarCache();
 	}
@@ -103,8 +98,9 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 		// TODO: cache grammar by file types
 		IGrammarDefinition[] definitions = getDefinitions();
 		// #202
-		if(fileType.startsWith("."))
+		if(fileType.startsWith(".")) {
 			fileType=fileType.substring(1);
+		}
 		for (IGrammarDefinition definition : definitions) {
 			// Not very optimized because it forces the load of the whole
 			// grammar.
@@ -123,7 +119,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 
 	/**
 	 * Returns the whole registered grammar definition.
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -138,7 +134,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	/**
 	 * Returns the loaded grammar from the given <code>scopeName</code> and null
 	 * otherwise.
-	 * 
+	 *
 	 * @param scopeName
 	 * @return the loaded grammar from the given <code>scopeName</code> and null
 	 *         otherwise.
@@ -157,7 +153,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	/**
 	 * Returns the grammar definition from the given <code>scopeName</code> and
 	 * null otherwise.
-	 * 
+	 *
 	 * @param scopeName
 	 * @return the grammar definition from the given <code>scopeName</code> and
 	 *         null otherwise.
@@ -173,7 +169,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	/**
 	 * Returns list of scope names to inject for the given
 	 * <code>scopeName</code> and null otheriwse.
-	 * 
+	 *
 	 * @param scopeName
 	 * @return list of scope names to inject for the given
 	 *         <code>scopeName</code> and null otheriwse.
@@ -186,7 +182,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 	/**
 	 * Register the given <code>scopeName</code> to inject to the given scope
 	 * name <code>injectTo</code>.
-	 * 
+	 *
 	 * @param scopeName
 	 * @param injectTo
 	 */
@@ -196,7 +192,7 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 
 	/**
 	 * Returns scope name bound with the given content type and null otherwise.
-	 * 
+	 *
 	 * @param contentTypeId
 	 * @return scope name bound with the given content type and null otherwise.
 	 */
@@ -221,13 +217,13 @@ public abstract class AbstractGrammarRegistryManager extends Registry implements
 			pluginCache.registerGrammarDefinition(definition);
 		}
 	}
-	
+
 	@Override
 	public void unregisterGrammarDefinition(IGrammarDefinition definition) {
 		if (definition.getPluginId() == null) {
 			userCache.unregisterGrammarDefinition(definition);
 		} else {
 			pluginCache.unregisterGrammarDefinition(definition);
-		}	
+		}
 	}
 }

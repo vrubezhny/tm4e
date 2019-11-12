@@ -4,7 +4,7 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-SymbolicName: org.eclipse.tm4e.core
-Bundle-Version: 0.3.4.qualifier
+Bundle-Version: 0.4.0.qualifier
 Require-Bundle: org.apache.batik.css;bundle-version="1.9.1";resolution:=optional,
  org.apache.batik.util;bundle-version="1.9.1";resolution:=optional,
  com.google.gson;resolution:=optional,
@@ -21,7 +21,6 @@ Export-Package: org.eclipse.tm4e.core,
  org.eclipse.tm4e.core.internal.theme.reader;x-friends:="org.eclipse.tm4e.core.tests",
  org.eclipse.tm4e.core.internal.types;x-internal:=true,
  org.eclipse.tm4e.core.internal.utils;x-friends:="org.eclipse.tm4e.core.tests",
- org.eclipse.tm4e.core.logger,
  org.eclipse.tm4e.core.model,
  org.eclipse.tm4e.core.registry,
  org.eclipse.tm4e.core.theme,

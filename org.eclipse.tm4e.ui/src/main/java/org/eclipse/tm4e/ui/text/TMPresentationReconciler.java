@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
@@ -56,13 +57,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.tm4e.core.TMException;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.logger.ILogger;
 import org.eclipse.tm4e.core.model.IModelTokensChangedListener;
 import org.eclipse.tm4e.core.model.ITMModel;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.Range;
 import org.eclipse.tm4e.core.model.TMToken;
-import org.eclipse.tm4e.registry.EclipseSystemLogger;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
@@ -112,8 +111,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	private IPreferenceChangeListener themeChangeListener;
 
 	private List<ITMPresentationReconcilerListener> listeners;
-
-	private @NonNull ILogger logger = new EclipseSystemLogger("org.eclipse.tm4e.ui/debug/log/TMPresentationReconciler");
 
 	private boolean initializeViewerColors;
 
@@ -250,9 +247,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					model.addModelTokensChangedListener(this);
 				}
 			} catch (CoreException e) {
-				if (logger.isEnabled()) {
-					logger.log("Error while initializing TextMate model.", e);
-				}
+				Platform.getLog(Platform.getBundle(TMEclipseRegistryPlugin.PLUGIN_ID)).log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, "Error while initializing TextMate model.", e));
 			}
 		}
 
@@ -509,9 +504,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		final int toLineNumber = document.getLineOfOffset(damage.getOffset() + damage.getLength());
 		applyThemeEditorIfNeeded();
 		// Refresh the UI Presentation
-		if (logger.isEnabled()) {
-			logger.log("Render from: " + fromLineNumber + " to: " + toLineNumber);
-		}
+		TMUIPlugin.getDefault().trace("Render from: " + fromLineNumber + " to: " + toLineNumber);
 		TextPresentation presentation = null;
 		Throwable error = null;
 		try {
@@ -531,9 +524,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					// This case comes from when the viewer is invalidated (by
 					// validation for instance) and textChanged is called.
 					// see https://github.com/eclipse/tm4e/issues/78
-					if (logger.isEnabled()) {
-						logger.log("TextMate tokens not available for line " + line);
-					}
+					TMUIPlugin.getDefault().trace("TextMate tokens not available for line " + line);
 					break;
 				}
 				int startLineOffset = document.getLineOffset(line);
@@ -588,10 +579,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			addRange(presentation, lastStart, length, lastAttribute);
 			applyTextRegionCollection(presentation);
 		} catch (Exception e) {
-			error = e;
-			if (logger.isEnabled()) {
-				logger.log("Error while rendering from: " + fromLineNumber + " to: " + toLineNumber, e);
-			}
 			TMUIPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 		} finally {
 			fireColorize(presentation, error);
@@ -741,17 +728,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 				listener.colorize(presentation, error);
 			}
 		}
-	}
-
-	public void setLogger(ILogger logger) {
-		if (logger == null) {
-			return;
-		}
-		this.logger = logger;
-	}
-
-	public @NonNull ILogger getLogger() {
-		return logger;
 	}
 
 	public static TMPresentationReconciler getTMPresentationReconciler(IEditorPart editorPart) {

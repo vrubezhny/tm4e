@@ -17,16 +17,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.logger.ILogger;
-import org.eclipse.tm4e.core.logger.SystemLogger;
 
 /**
  * TextMate model class.
  *
  */
 public class TMModel implements ITMModel {
+
+	private static final Logger LOGGER = Logger.getLogger(TMModel.class.getName());
 
 	/**
 	 * The TextMate grammar to use to parse for each lines of the document the
@@ -37,8 +38,6 @@ public class TMModel implements ITMModel {
 	/** Listener when TextMate model tokens changed **/
 	private final List<IModelTokensChangedListener> listeners;
 
-	private final ILogger logger;
-
 	Tokenizer tokenizer;
 
 	/** The background thread. */
@@ -47,10 +46,9 @@ public class TMModel implements ITMModel {
 	private final IModelLines lines;
 	private PriorityBlockingQueue<Integer> invalidLines = new PriorityBlockingQueue<>();
 
-	public TMModel(IModelLines lines, ILogger logger) {
+	public TMModel(IModelLines lines) {
 		this.listeners = new ArrayList<>();
 		this.lines = lines;
-		this.logger = logger != null ? logger : SystemLogger.INSTANCE;
 		((AbstractLineList)lines).setModel(this);
 		lines.forEach(ModelLine::resetTokenizationState);
 		invalidateLine(0);
@@ -96,7 +94,7 @@ public class TMModel implements ITMModel {
 						try {
 							this.revalidateTokensNow(toProcess.intValue(), null);
 						} catch (Exception t) {
-							model.logger.log(t.getMessage(), t);
+							LOGGER.severe(t.getMessage());
 							if (toProcess < model.lines.getNumberOfLines()) {
 								model.invalidateLine(toProcess);
 							}
@@ -144,7 +142,7 @@ public class TMModel implements ITMModel {
 					try {
 						currentCharsToTokenize = model.lines.getLineLength(lineIndex);
 					} catch (Exception e) {
-						model.logger.log(e.getMessage(), e);
+						LOGGER.severe(e.getMessage());
 					}
 
 					if (tokenizedChars > 0) {
@@ -189,7 +187,7 @@ public class TMModel implements ITMModel {
 					// Tokenize only the first X characters
 					r = model.tokenizer.tokenize(text, modeLine.getState(), 0, stopLineTokenizationAfter);
 				} catch (Exception e) {
-					model.logger.log(e.getMessage(), e);
+					LOGGER.severe(e.getMessage());
 				}
 
 				if (r != null && r.tokens != null && !r.tokens.isEmpty()) {
