@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Abstract class for Model lines used by the TextMate model. Implementation
@@ -27,6 +29,8 @@ import java.util.function.Consumer;
  *
  */
 public abstract class AbstractLineList implements IModelLines {
+
+	private static final Logger LOGGER = Logger.getLogger(AbstractLineList.class.getName());
 
 	private final List<ModelLine> list = Collections.synchronizedList(new ArrayList<>());
 
@@ -58,7 +62,7 @@ public abstract class AbstractLineList implements IModelLines {
 		try {
 			// this.list.get(line).text = this.lineToTextResolver.apply(line);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
 		}
 	}
 

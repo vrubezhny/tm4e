@@ -22,15 +22,15 @@ import org.eclipse.tm4e.core.theme.IRawTheme;
 
 public class SyncThemeReader {
 
-	private InputStream in;
-	private IThemeParser _parser;
+	private final InputStream in;
+	private final IThemeParser parser;
 
 	SyncThemeReader(InputStream in, IThemeParser parser) {
 		this.in = in;
-		this._parser = parser;
+		this.parser = parser;
 	}
 
 	public IRawTheme load() throws Exception {
-		return this._parser.parse(in);
+		return this.parser.parse(in);
 	}
 }

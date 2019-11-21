@@ -20,12 +20,12 @@ import java.util.Collection;
 
 public class ICompilePatternsResult {
 
+	public final Integer[] patterns;
+	public final boolean hasMissingPatterns;
+
 	public ICompilePatternsResult(Collection<Integer> patterns, boolean hasMissingPatterns) {
 		this.hasMissingPatterns = hasMissingPatterns;
-		this.patterns = patterns.toArray(new Integer[0]);
+		this.patterns = patterns.toArray(new Integer[patterns.size()]);
 	}
 
-	public Integer[] patterns;
-
-	public boolean hasMissingPatterns;
 }

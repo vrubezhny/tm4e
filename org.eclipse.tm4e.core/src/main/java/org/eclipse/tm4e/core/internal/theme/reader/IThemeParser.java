@@ -24,6 +24,7 @@ import org.eclipse.tm4e.core.theme.IRawTheme;
  * TextMate Theme parser.
  *
  */
+@FunctionalInterface
 public interface IThemeParser {
 
 	IRawTheme parse(InputStream contents) throws Exception;

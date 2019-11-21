@@ -20,26 +20,28 @@ import java.util.List;
 
 public class MatchRule extends Rule {
 
-	private RegExpSource _match;
-	public List<CaptureRule> captures;
-	private RegExpSourceList _cachedCompiledPatterns;
+	private RegExpSource match;
+	public final List<CaptureRule> captures;
+	private RegExpSourceList cachedCompiledPatterns;
 
 	public MatchRule(int id, String name, String match, List<CaptureRule> captures) {
 		super(id, name, null);
-		this._match = new RegExpSource(match, this.id);
+		this.match = new RegExpSource(match, this.id);
 		this.captures = captures;
-		this._cachedCompiledPatterns = null;
+		this.cachedCompiledPatterns = null;
 	}
 
+	@Override
 	public void collectPatternsRecursive(IRuleRegistry grammar, RegExpSourceList out, boolean isFirst) {
-		out.push(this._match);
+		out.push(this.match);
 	}
 
+	@Override
 	public ICompiledRule compile(IRuleRegistry grammar, String endRegexSource, boolean allowA, boolean allowG) {
-		if (this._cachedCompiledPatterns == null) {
-			this._cachedCompiledPatterns = new RegExpSourceList();
-			this.collectPatternsRecursive(grammar, this._cachedCompiledPatterns, true);
+		if (this.cachedCompiledPatterns == null) {
+			this.cachedCompiledPatterns = new RegExpSourceList();
+			this.collectPatternsRecursive(grammar, this.cachedCompiledPatterns, true);
 		}
-		return this._cachedCompiledPatterns.compile(grammar, allowA, allowG);
+		return this.cachedCompiledPatterns.compile(grammar, allowA, allowG);
 	}
 }

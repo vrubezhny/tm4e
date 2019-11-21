@@ -25,4 +25,12 @@ public class CaptureRule extends Rule {
 		this.retokenizeCapturedWithRuleId = retokenizeCapturedWithRuleId;
 	}
 
+	@Override public void collectPatternsRecursive(IRuleRegistry grammar, RegExpSourceList out, boolean isFirst) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override public ICompiledRule compile(IRuleRegistry grammar, String endRegexSource, boolean allowA, boolean allowG) {
+		throw new UnsupportedOperationException();
+	}
+
 }

@@ -36,21 +36,6 @@ public class StackElementMetadata {
 		return null;
 	}
 
-	public static void printMetadata(int metadata) {
-		int languageId = StackElementMetadata.getLanguageId(metadata);
-		int tokenType = StackElementMetadata.getTokenType(metadata);
-		int fontStyle = StackElementMetadata.getFontStyle(metadata);
-		int foreground = StackElementMetadata.getForeground(metadata);
-		int background = StackElementMetadata.getBackground(metadata);
-
-		// TODO!!!
-		/*
-		 * console.log({ languageId: languageId, tokenType: tokenType,
-		 * fontStyle: fontStyle, foreground: foreground, background: background,
-		 * });
-		 */
-	}
-
 	public static int getLanguageId(int metadata) {
 		return (metadata & MetadataConsts.LANGUAGEID_MASK) >>> MetadataConsts.LANGUAGEID_OFFSET;
 	}

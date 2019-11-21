@@ -18,17 +18,9 @@ package org.eclipse.tm4e.core.internal.matcher;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface IMatchesName<T> {
-
-	class IntegerHolder {
-
-		public int value;
-
-		public IntegerHolder() {
-			this.value = 0;
-		}
-	}
 
 	public static final IMatchesName<List<String>> NAME_MATCHER = new IMatchesName<List<String>>() {
 
@@ -37,12 +29,12 @@ public interface IMatchesName<T> {
 			if (scopes.size() < identifers.size()) {
 				return false;
 			}
-			IntegerHolder lastIndex = new IntegerHolder();
+			AtomicInteger lastIndex = new AtomicInteger();
 			// every
 			return identifers.stream().allMatch(identifier -> {
-				for (int i = lastIndex.value; i < scopes.size(); i++) {
+				for (int i = lastIndex.get(); i < scopes.size(); i++) {
 					if (scopesAreMatching(scopes.get(i), identifier)) {
-						lastIndex.value = i + 1;
+						lastIndex.incrementAndGet();
 						return true;
 					}
 				}

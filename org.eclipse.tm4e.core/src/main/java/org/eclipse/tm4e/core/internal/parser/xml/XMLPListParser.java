@@ -12,16 +12,13 @@
 package org.eclipse.tm4e.core.internal.parser.xml;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.eclipse.tm4e.core.internal.parser.PList;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 public class XMLPListParser<T> {
@@ -37,14 +34,8 @@ public class XMLPListParser<T> {
 		spf.setNamespaceAware(true);
 		SAXParser saxParser = spf.newSAXParser();
 		XMLReader xmlReader = saxParser.getXMLReader();
-		xmlReader.setEntityResolver(new EntityResolver() {
-
-			@Override
-			public InputSource resolveEntity(String arg0, String arg1) throws SAXException, IOException {
-				return new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes()));
-			}
-		});
-		PList<T> result = new PList<T>(theme);
+		xmlReader.setEntityResolver((arg0, arg1) -> new InputSource(new ByteArrayInputStream("<?xml version='1.0' encoding='UTF-8'?>".getBytes())));
+		PList<T> result = new PList<>(theme);
 		xmlReader.setContentHandler(result);
 		xmlReader.parse(new InputSource(contents));
 		return result.getResult();

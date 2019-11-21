@@ -13,6 +13,7 @@ package org.eclipse.tm4e.core.theme;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ThemeTrieElementRule {
 
@@ -33,6 +34,7 @@ public class ThemeTrieElementRule {
 		this.background = background;
 	}
 
+	@Override
 	public ThemeTrieElementRule clone() {
 		return new ThemeTrieElementRule(this.scopeDepth, this.parentScopes, this.fontStyle, this.foreground,
 				this.background);
@@ -68,40 +70,24 @@ public class ThemeTrieElementRule {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + background;
-		result = prime * result + fontStyle;
-		result = prime * result + foreground;
-		result = prime * result + ((parentScopes == null) ? 0 : parentScopes.hashCode());
-		result = prime * result + scopeDepth;
-		return result;
+	  return Objects.hash(background, fontStyle, foreground, parentScopes, scopeDepth);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		ThemeTrieElementRule other = (ThemeTrieElementRule) obj;
-		if (background != other.background)
-			return false;
-		if (fontStyle != other.fontStyle)
-			return false;
-		if (foreground != other.foreground)
-			return false;
-		if (parentScopes == null) {
-			if (other.parentScopes != null)
-				return false;
-		} else if (!parentScopes.equals(other.parentScopes))
-			return false;
-		if (scopeDepth != other.scopeDepth)
-			return false;
-		return true;
+		return background == other.background && fontStyle == other.fontStyle && foreground == other.foreground &&
+		    Objects.equals(parentScopes, other.parentScopes) && scopeDepth == other.scopeDepth;
 	}
-	
-	
+
+
 }

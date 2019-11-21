@@ -18,36 +18,32 @@ package org.eclipse.tm4e.core.internal.rule;
 
 public class IncludeOnlyRule extends Rule {
 
-	public boolean hasMissingPatterns;
-	public Integer[] patterns;
-	private RegExpSourceList _cachedCompiledPatterns;
+	public final boolean hasMissingPatterns;
+	public final Integer[] patterns;
+	private RegExpSourceList cachedCompiledPatterns;
 
 	public IncludeOnlyRule(int id, String name, String contentName, ICompilePatternsResult patterns) {
 		super(id, name, contentName);
 		this.patterns = patterns.patterns;
 		this.hasMissingPatterns = patterns.hasMissingPatterns;
-		this._cachedCompiledPatterns = null;
+		this.cachedCompiledPatterns = null;
 	}
 
 	@Override
 	public void collectPatternsRecursive(IRuleRegistry grammar, RegExpSourceList out, boolean isFirst) {
-		int i;
-		int len;
-		Rule rule;
-
-		for (i = 0, len = this.patterns.length; i < len; i++) {
-			rule = grammar.getRule(this.patterns[i]);
+		for (Integer pattern : this.patterns) {
+			Rule rule = grammar.getRule(pattern);
 			rule.collectPatternsRecursive(grammar, out, false);
 		}
 	}
 
 	@Override
 	public ICompiledRule compile(IRuleRegistry grammar, String endRegexSource, boolean allowA, boolean allowG) {
-		if (this._cachedCompiledPatterns == null) {
-			this._cachedCompiledPatterns = new RegExpSourceList();
-			this.collectPatternsRecursive(grammar, this._cachedCompiledPatterns, true);
+		if (this.cachedCompiledPatterns == null) {
+			this.cachedCompiledPatterns = new RegExpSourceList();
+			this.collectPatternsRecursive(grammar, this.cachedCompiledPatterns, true);
 		}
-		return this._cachedCompiledPatterns.compile(grammar, allowA, allowG);
+		return this.cachedCompiledPatterns.compile(grammar, allowA, allowG);
 	}
 
 }

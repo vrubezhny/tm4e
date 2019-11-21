@@ -37,7 +37,7 @@ import org.eclipse.tm4e.core.internal.rule.Rule;
 
 class LineTokenizer {
 
-	private final static Logger LOGGER = Logger.getLogger(LineTokenizer.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(LineTokenizer.class.getName());
 
 	class WhileStack {
 
@@ -79,7 +79,7 @@ class LineTokenizer {
 			LineTokens lineTokens) {
 		this.grammar = grammar;
 		this.lineText = lineText;
-		this.lineLength = lineText.utf8_length();
+		this.lineLength = lineText.utf8_value.length;
 		this.isFirstLine = isFirstLine;
 		this.linePos = linePos;
 		this.stack = stack;
@@ -104,7 +104,7 @@ class LineTokenizer {
 	}
 
 	private void scanNext() {
-		LOGGER.finest("@@scanNext: |" + lineText.getString().replaceAll("\n", "\\n").substring(linePos) + '|');
+		LOGGER.finest("@@scanNext: |" + lineText.string.replaceAll("\n", "\\n").substring(linePos) + '|');
 
 		IMatchResult r = matchRuleOrInjections(grammar, lineText, isFirstLine, linePos, stack, anchorPosition);
 
@@ -161,7 +161,7 @@ class LineTokenizer {
 
 			StackElement beforePush = stack;
 			// push it on the stack rule
-			String scopeName = rule.getName(lineText.getString(), captureIndices);
+			String scopeName = rule.getName(lineText.string, captureIndices);
 			ScopeListElement nameScopesList = stack.contentNameScopesList.push(grammar, scopeName);
 			stack = stack.push(matchedRuleId, linePos, null, nameScopesList, nameScopesList);
 
@@ -178,13 +178,13 @@ class LineTokenizer {
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				anchorPosition = captureIndices[0].getEnd();
 
-				String contentName = pushedRule.getContentName(lineText.getString(), captureIndices);
+				String contentName = pushedRule.getContentName(lineText.string, captureIndices);
 				ScopeListElement contentNameScopesList = nameScopesList.push(grammar, contentName);
 				stack = stack.setContentNameScopesList(contentNameScopesList);
 
 				if (pushedRule.endHasBackReferences) {
 					stack = stack.setEndRule(
-							pushedRule.getEndWithResolvedBackReferences(lineText.getString(), captureIndices));
+							pushedRule.getEndWithResolvedBackReferences(lineText.string, captureIndices));
 				}
 
 				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
@@ -206,13 +206,13 @@ class LineTokenizer {
 				lineTokens.produce(stack, captureIndices[0].getEnd());
 				anchorPosition = captureIndices[0].getEnd();
 
-				String contentName = pushedRule.getContentName(lineText.getString(), captureIndices);
+				String contentName = pushedRule.getContentName(lineText.string, captureIndices);
 				ScopeListElement contentNameScopesList = nameScopesList.push(grammar, contentName);
 				stack = stack.setContentNameScopesList(contentNameScopesList);
 
 				if (pushedRule.whileHasBackReferences) {
 					stack = stack.setEndRule(
-							pushedRule.getWhileWithResolvedBackReferences(lineText.getString(), captureIndices));
+							pushedRule.getWhileWithResolvedBackReferences(lineText.string, captureIndices));
 				}
 
 				if (!hasAdvanced && beforePush.hasSameRuleAs(stack)) {
@@ -259,7 +259,7 @@ class LineTokenizer {
 			StackElement stack, int anchorPosition) {
 		Rule rule = stack.getRule(grammar);
 		final ICompiledRule ruleScanner = rule.compile(grammar, stack.endRule, isFirstLine, linePos == anchorPosition);
-		final IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
+		final IOnigNextMatchResult r = ruleScanner.scanner.findNextMatchSync(lineText, linePos);
 
 		if (r != null) {
 			return new IMatchResult() {
@@ -333,7 +333,7 @@ class LineTokenizer {
 
 			ICompiledRule ruleScanner = grammar.getRule(injection.ruleId).compile(grammar, null, isFirstLine,
 					linePos == anchorPosition);
-			IOnigNextMatchResult matchResult = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
+			IOnigNextMatchResult matchResult = ruleScanner.scanner.findNextMatchSync(lineText, linePos);
 
 			if (matchResult == null) {
 				continue;
@@ -431,22 +431,22 @@ class LineTokenizer {
 
 			if (captureRule.retokenizeCapturedWithRuleId != null) {
 				// the capture requires additional matching
-				String scopeName = captureRule.getName(lineText.getString(), captureIndices);
+				String scopeName = captureRule.getName(lineText.string, captureIndices);
 				ScopeListElement nameScopesList = stack.contentNameScopesList.push(grammar, scopeName);
-				String contentName = captureRule.getContentName(lineText.getString(), captureIndices);
+				String contentName = captureRule.getContentName(lineText.string, captureIndices);
 				ScopeListElement contentNameScopesList = nameScopesList.push(grammar, contentName);
 
 				// the capture requires additional matching
 				StackElement stackClone = stack.push(captureRule.retokenizeCapturedWithRuleId, captureIndex.getStart(),
 						null, nameScopesList, contentNameScopesList);
 				tokenizeString(grammar,
-						GrammarHelper.createOnigString(lineText.getString().substring(0, captureIndex.getEnd())),
+						GrammarHelper.createOnigString(lineText.string.substring(0, captureIndex.getEnd())),
 						(isFirstLine && captureIndex.getStart() == 0), captureIndex.getStart(), stackClone, lineTokens);
 				continue;
 			}
 
 			// push
-			String captureRuleScopeName = captureRule.getName(lineText.getString(), captureIndices);
+			String captureRuleScopeName = captureRule.getName(lineText.string, captureIndices);
 			if (captureRuleScopeName != null) {
 				// push
 				ScopeListElement base = localStack.isEmpty() ? stack.contentNameScopesList :
@@ -483,7 +483,7 @@ class LineTokenizer {
 			WhileStack whileRule = whileRules.get(i);
 			ICompiledRule ruleScanner = whileRule.rule.compileWhile(grammar, whileRule.stack.endRule, isFirstLine,
 					currentanchorPosition == linePos);
-			IOnigNextMatchResult r = ruleScanner.scanner._findNextMatchSync(lineText, linePos);
+			IOnigNextMatchResult r = ruleScanner.scanner.findNextMatchSync(lineText, linePos);
 			// if (IN_DEBUG_MODE) {
 			// console.log(' scanning for while rule');
 			// console.log(debugCompiledRuleToString(ruleScanner));

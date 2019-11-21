@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.IntFunction;
 
 import org.eclipse.tm4e.core.grammar.GrammarHelper;
 import org.eclipse.tm4e.core.grammar.IGrammar;
@@ -36,7 +37,6 @@ import org.eclipse.tm4e.core.internal.grammar.parser.Raw;
 import org.eclipse.tm4e.core.internal.matcher.Matcher;
 import org.eclipse.tm4e.core.internal.matcher.MatcherWithPriority;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigString;
-import org.eclipse.tm4e.core.internal.rule.IRuleFactory;
 import org.eclipse.tm4e.core.internal.rule.IRuleFactoryHelper;
 import org.eclipse.tm4e.core.internal.rule.Rule;
 import org.eclipse.tm4e.core.internal.rule.RuleFactory;
@@ -132,9 +132,9 @@ public class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	@Override
-	public Rule registerRule(IRuleFactory factory) {
+	public Rule registerRule(IntFunction<Rule> factory) {
 		int id = (++this.lastRuleId);
-		Rule result = factory.create(id);
+		Rule result = factory.apply(id);
 		this.ruleId2desc.put(id, result);
 		return result;
 	}

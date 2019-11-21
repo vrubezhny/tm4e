@@ -372,12 +372,12 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (document == null) {
 				return;
 			}
-			ITMModel model = event.getModel();
+			ITMModel model = event.model;
 			if (! (model instanceof TMDocumentModel)) {
 				return;
 			}
 			TMDocumentModel docModel = (TMDocumentModel) model;
-			for (Range range : event.getRanges()) {
+			for (Range range : event.ranges) {
 				try {
 					int length = document.getLineOffset(range.toLineNumber - 1) + document.getLineLength(range.toLineNumber - 1) - document.getLineOffset(range.fromLineNumber - 1);
 					IRegion region = new Region(document.getLineOffset(range.fromLineNumber -1), length);

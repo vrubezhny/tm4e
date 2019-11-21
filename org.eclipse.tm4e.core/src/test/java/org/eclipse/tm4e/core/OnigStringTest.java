@@ -9,11 +9,11 @@ public class OnigStringTest {
 	@Test
 	public void testUtf8Utf16Conversions() {
 		OnigString onigString = new OnigString("áé");
-		Assert.assertEquals(onigString.utf8_length(), 4);
-		Assert.assertEquals(onigString.getString().length(), 2);
+		Assert.assertEquals(onigString.utf8_value.length, 4);
+		Assert.assertEquals(onigString.string.length(), 2);
 		Assert.assertEquals(onigString.convertUtf8OffsetToUtf16(0), 0);
 	}
-	
+
 	@Test
 	public void testUtf8Utf16Conversions2() {
 

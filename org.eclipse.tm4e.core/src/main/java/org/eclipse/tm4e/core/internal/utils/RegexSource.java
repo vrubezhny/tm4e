@@ -23,6 +23,12 @@ import org.eclipse.tm4e.core.internal.oniguruma.IOnigCaptureIndex;
 
 public class RegexSource {
 
+	/**
+	 * Helper class, access members statically
+	 */
+	private RegexSource() {
+	}
+
 	private static final Pattern CAPTURING_REGEX_SOURCE = Pattern
 			.compile("\\$(\\d+)|\\$\\{(\\d+):\\/(downcase|upcase)}");
 
@@ -48,7 +54,7 @@ public class RegexSource {
 	private static String getReplacement(String match, String captureSource, IOnigCaptureIndex[] captureIndices) {
 		int index = -1;
 		String command = null;
-		int doublePointIndex = match.indexOf(":");
+		int doublePointIndex = match.indexOf(':');
 		if (doublePointIndex != -1) {
 			index = Integer.parseInt(match.substring(2, doublePointIndex));
 			command = match.substring(doublePointIndex + 2, match.length() - 1);

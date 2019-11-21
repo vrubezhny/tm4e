@@ -28,9 +28,15 @@ import org.eclipse.tm4e.core.theme.IRawTheme;
  */
 public class ThemeReader {
 
-	public final static IThemeParser XML_PARSER = new IThemeParser() {
+	/**
+	 * Helper class, use methods statically
+	 */
+	private ThemeReader() {
+	}
 
-		private XMLPListParser<IRawTheme> parser = new XMLPListParser<IRawTheme>(true);
+	public static final IThemeParser XML_PARSER = new IThemeParser() {
+
+		private final XMLPListParser<IRawTheme> parser = new XMLPListParser<>(true);
 
 		@Override
 		public IRawTheme parse(InputStream contents) throws Exception {
@@ -38,9 +44,9 @@ public class ThemeReader {
 		}
 	};
 
-	public final static IThemeParser JSON_PARSER = new IThemeParser() {
+	public static final IThemeParser JSON_PARSER = new IThemeParser() {
 
-		private JSONPListParser<IRawTheme> parser = new JSONPListParser<IRawTheme>(true);
+		private final JSONPListParser<IRawTheme> parser = new JSONPListParser<>(true);
 
 		@Override
 		public IRawTheme parse(InputStream contents) throws Exception {

@@ -16,10 +16,12 @@
  */
 package org.eclipse.tm4e.core.internal.rule;
 
+import java.util.function.IntFunction;
+
 public interface IRuleRegistry {
- 
+
 	Rule getRule(int patternId);
-	
-	Rule registerRule(IRuleFactory factory);
+
+	Rule registerRule(IntFunction<Rule> factory);
 
 }

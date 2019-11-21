@@ -13,13 +13,15 @@ package org.eclipse.tm4e.core.theme;
 
 /**
  * Font style definitions.
- * 
+ *
  * @see https://github.com/Microsoft/vscode-textmate/blob/master/src/theme.ts
  *
  */
 public class FontStyle {
 
 	public static final int NotSet = -1;
+
+	// This can are bit-flags, so it can be `Italic | Bold`
 	public static final int None = 0;
 	public static final int Italic = 1;
 	public static final int Bold = 2;

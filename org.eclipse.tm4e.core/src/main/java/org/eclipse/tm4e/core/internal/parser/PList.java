@@ -30,16 +30,16 @@ public class PList<T> extends DefaultHandler {
 
 	public PList(boolean theme) {
 		this.theme = theme;
-		this.errors = new ArrayList<String>();
+		this.errors = new ArrayList<>();
 		this.currObject = null;
 	}
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		if ("dict".equals(localName)) {
-			this.currObject = create(currObject, false, theme);
+			this.currObject = create(currObject, false);
 		} else if ("array".equals(localName)) {
-			this.currObject = create(currObject, true, theme);
+			this.currObject = create(currObject, true);
 		} else if ("key".equals(localName)) {
 			if (currObject != null) {
 				currObject.setLastKey(null);
@@ -49,13 +49,13 @@ public class PList<T> extends DefaultHandler {
 		super.startElement(uri, localName, qName, attributes);
 	}
 
-	private PListObject create(PListObject parent, boolean valueAsArray, boolean grammar) {
+	private PListObject create(PListObject parent, boolean valueAsArray) {
 		if (theme) {
 			return new PListTheme(parent, valueAsArray);
 		}
 		return new PListGrammar(parent, valueAsArray);
 	}
-	
+
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		endElement(localName);
@@ -78,7 +78,7 @@ public class PList<T> extends DefaultHandler {
 				return;
 			}
 			value = currObject.getValue();
-			currObject = currObject.getParent();
+			currObject = currObject.parent;
 		} else if ("string".equals(tagName) || "data".equals(tagName)) {
 			value = text;
 		} else if ("date".equals(tagName)) {

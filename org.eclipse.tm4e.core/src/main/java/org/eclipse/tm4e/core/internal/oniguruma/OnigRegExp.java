@@ -36,13 +36,13 @@ import org.joni.WarnCallback;
  */
 public class OnigRegExp {
 
-	private Object lastSearchStrUniqueId;
+	private OnigString lastSearchString;
 	private int lastSearchPosition;
 	private OnigResult lastSearchResult;
 	private Regex regex;
 
 	public OnigRegExp(String source) {
-		lastSearchStrUniqueId = null;
+		lastSearchString = null;
 		lastSearchPosition = -1;
 		lastSearchResult = null;
 		byte[] pattern = source.getBytes(StandardCharsets.UTF_8);
@@ -51,14 +51,14 @@ public class OnigRegExp {
 	}
 
 	public OnigResult search(OnigString str, int position) {
-		if (lastSearchStrUniqueId == str.uniqueId() && lastSearchPosition <= position &&
+		if (lastSearchString == str && lastSearchPosition <= position &&
 			(lastSearchResult == null || lastSearchResult.locationAt(0) >= position)) {
 			return lastSearchResult;
 		}
 
-		lastSearchStrUniqueId = str.uniqueId();
+		lastSearchString = str;
 		lastSearchPosition = position;
-		lastSearchResult = search(str.utf8_value(), position, str.utf8_length());
+		lastSearchResult = search(str.utf8_value, position, str.utf8_value.length);
 		return lastSearchResult;
 	}
 

@@ -20,6 +20,8 @@ import org.eclipse.tm4e.core.theme.IThemeSetting;
 
 public class ThemeRaw extends HashMap<String, Object> implements IRawTheme, IRawThemeSetting, IThemeSetting {
 
+	private static final long serialVersionUID = -3622927264735492387L;
+
 	@Override
 	public String getName() {
 		return (String) super.get("name");

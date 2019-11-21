@@ -25,8 +25,8 @@ import java.util.List;
  */
 public class ModelTokensChangedEvent {
 
-	private final List<Range> ranges;
-	private final ITMModel model;
+	public final List<Range> ranges;
+	public final ITMModel model;
 
 	public ModelTokensChangedEvent(Range range, ITMModel model) {
 		this(Arrays.asList(range), model);
@@ -37,15 +37,4 @@ public class ModelTokensChangedEvent {
 		this.model = model;
 	}
 
-	/**
-	 * Returns the list of range 
-	 * @return
-	 */
-	public List<Range> getRanges() {
-		return ranges;
-	}
-
-	public ITMModel getModel() {
-		return model;
-	}
 }

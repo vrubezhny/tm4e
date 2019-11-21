@@ -28,6 +28,7 @@ import org.eclipse.tm4e.core.grammar.GrammarHelper;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IGrammarRepository;
 import org.eclipse.tm4e.core.internal.grammar.Grammar;
+import org.eclipse.tm4e.core.internal.grammar.parser.Raw;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
@@ -174,8 +175,11 @@ public class SyncRegistry implements IGrammarRepository, IThemeProvider {
 	 * Fill in `result` all external included scopes in `repository`
 	 */
 	private static void extractIncludedScopesInRepository(Collection<String> result, IRawRepository repository) {
-		Map<String, Object> r = (Map<String, Object>) repository;
-		for (Entry<String, Object> entry : r.entrySet()) {
+		if (!(repository instanceof Raw)) {
+			return;
+		}
+		Raw rawRepository = (Raw)repository;
+		for (Entry<String, Object> entry : rawRepository.entrySet()) {
 			IRawRule rule = (IRawRule) entry.getValue();
 			if (rule.getPatterns() != null) {
 				extractIncludedScopesInPatterns(result, rule.getPatterns());

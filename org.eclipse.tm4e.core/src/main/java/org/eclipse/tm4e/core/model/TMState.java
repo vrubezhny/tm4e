@@ -16,15 +16,17 @@
  */
 package org.eclipse.tm4e.core.model;
 
+import java.util.Objects;
+
 import org.eclipse.tm4e.core.grammar.StackElement;
 
 public class TMState {
 
-	private TMState _parentEmbedderState;
+	private TMState parentEmbedderState;
 	private StackElement ruleStack;
 
 	public TMState(TMState parentEmbedderState, StackElement ruleStatck) {
-		this._parentEmbedderState = parentEmbedderState;
+		this.parentEmbedderState = parentEmbedderState;
 		this.ruleStack = ruleStatck;
 	}
 
@@ -36,53 +38,25 @@ public class TMState {
 		return ruleStack;
 	}
 
+	@Override
 	public TMState clone() {
-		TMState parentEmbedderStateClone = this._parentEmbedderState != null ? this._parentEmbedderState.clone() : null;
+		TMState parentEmbedderStateClone = this.parentEmbedderState != null ? this.parentEmbedderState.clone() : null;
 		return new TMState(parentEmbedderStateClone, this.ruleStack);
 	}
 
 	@Override
 	public boolean equals(Object other) {
-		if (other == null || !(other instanceof TMState)) {
+		if (!(other instanceof TMState)) {
 			return false;
 		}
 		TMState otherState = (TMState) other;
-
-		// Equals on `_parentEmbedderState`
-		if (!safeEquals(this._parentEmbedderState, otherState._parentEmbedderState)) {
-			return false;
-		}
-
-		// Equals on `_ruleStack`
-		if (this.ruleStack == null && otherState.ruleStack == null) {
-			return true;
-		}
-		if (this.ruleStack == null || otherState.ruleStack == null) {
-			return false;
-		}
-		return this.ruleStack.equals(otherState.ruleStack);
+		return Objects.equals(this.parentEmbedderState, otherState.parentEmbedderState) &&
+				Objects.equals(this.ruleStack, otherState.ruleStack);
 	}
-	
+
 	@Override
 	public int hashCode() {
-		int res = 0;
-		if (this._parentEmbedderState != null) {
-			res ^= this._parentEmbedderState.hashCode();
-		}
-		if (this.ruleStack != null) {
-			res ^= this.ruleStack.hashCode();
-		}
-		return super.hashCode();
-	}
-
-	public static boolean safeEquals(TMState a, TMState b) {
-		if (a == null && b == null) {
-			return true;
-		}
-		if (a == null || b == null) {
-			return false;
-		}
-		return a.equals(b);
+		return Objects.hash(this.parentEmbedderState, this.ruleStack);
 	}
 
 }

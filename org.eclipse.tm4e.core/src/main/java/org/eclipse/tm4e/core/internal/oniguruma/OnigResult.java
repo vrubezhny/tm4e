@@ -50,7 +50,7 @@ public class OnigResult {
 		return region.numRegs;
 	}
 
-	public int LengthAt(int index) {
+	public int lengthAt(int index) {
 		int bytes = region.end[index] - region.beg[index];
 		if (bytes > 0) {
 			return bytes;

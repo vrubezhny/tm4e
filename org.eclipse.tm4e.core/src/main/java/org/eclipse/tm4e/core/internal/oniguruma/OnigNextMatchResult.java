@@ -65,7 +65,7 @@ class OnigNextMatchResult implements IOnigNextMatchResult {
 		IOnigCaptureIndex[] captures = new IOnigCaptureIndex[resultCount];
 		for (int index = 0; index < resultCount; index++) {
 			int captureStart = source.convertUtf8OffsetToUtf16(result.locationAt(index));
-			int captureEnd = source.convertUtf8OffsetToUtf16(result.locationAt(index) + result.LengthAt(index));
+			int captureEnd = source.convertUtf8OffsetToUtf16(result.locationAt(index) + result.lengthAt(index));
 			captures[index] = new OnigCaptureIndex(index, captureStart, captureEnd);
 		}
 		return captures;

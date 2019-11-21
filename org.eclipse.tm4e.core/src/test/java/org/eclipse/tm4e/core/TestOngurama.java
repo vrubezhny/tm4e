@@ -19,11 +19,11 @@ public class TestOngurama {
 	public static void main(String[] args) {
 
 		OnigScanner scanner = new OnigScanner(new String[] { "c", "a(b)?" });
-		IOnigNextMatchResult result = scanner._findNextMatchSync("abc", 0);
+		IOnigNextMatchResult result = scanner.findNextMatchSync("abc", 0);
 		System.err.println(result);
 
 		scanner = new OnigScanner(new String[] { "a([b-d])c" });
-		result = scanner._findNextMatchSync("!abcdef", 0);
+		result = scanner.findNextMatchSync("!abcdef", 0);
 		System.err.println(result);
 	}
 }

@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class TMTokenDecodeData {
 
-	public String[] scopes;
-	public Map<Integer, Map<Integer, Boolean>> scopeTokensMaps;
+	public final String[] scopes;
+	public final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps;
 
 	TMTokenDecodeData(String[] scopes, Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
 		this.scopes = scopes;

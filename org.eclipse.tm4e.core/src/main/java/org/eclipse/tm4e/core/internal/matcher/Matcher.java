@@ -47,7 +47,7 @@ public class Matcher<T> implements Predicate<T> {
 
 	public Matcher(String expression, IMatchesName<T> matchesName) {
 		this.results = new ArrayList<>();
-		this.tokenizer = newTokenizer(expression);
+		this.tokenizer = new Tokenizer(expression);
 		this.matchesName = matchesName;
 
 		this.token = tokenizer.next();
@@ -176,10 +176,6 @@ public class Matcher<T> implements Predicate<T> {
 			}
 			return null;
 		}
-	}
-
-	private static Tokenizer newTokenizer(String input) {
-		return new Tokenizer(input);
 	}
 
 }

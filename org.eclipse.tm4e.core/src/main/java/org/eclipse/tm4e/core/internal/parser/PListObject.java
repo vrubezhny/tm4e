@@ -17,7 +17,7 @@ import java.util.Map;
 
 public abstract class PListObject {
 
-	private final PListObject parent;
+	public final PListObject parent;
 	private final List<Object> arrayValues;
 	private final Map<String, Object> mapValues;
 
@@ -26,16 +26,12 @@ public abstract class PListObject {
 	public PListObject(PListObject parent, boolean valueAsArray) {
 		this.parent = parent;
 		if (valueAsArray) {
-			this.arrayValues = new ArrayList<Object>();
+			this.arrayValues = new ArrayList<>();
 			this.mapValues = null;
 		} else {
 			this.arrayValues = null;
 			this.mapValues = createRaw();
 		}
-	}
-
-	public PListObject getParent() {
-		return parent;
 	}
 
 	public String getLastKey() {
@@ -53,7 +49,6 @@ public abstract class PListObject {
 			mapValues.put(getLastKey(), value);
 		}
 	}
-	// Object getValue();
 
 	public boolean isValueAsArray() {
 		return arrayValues != null;
@@ -65,6 +60,6 @@ public abstract class PListObject {
 		}
 		return mapValues;
 	}
-	
+
 	protected abstract Map<String, Object> createRaw();
 }
