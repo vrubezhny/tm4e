@@ -1,6 +1,10 @@
 pipeline {
 	agent {
-		label 'migration'
+		label 'centos-latest'
+	}
+	tools {
+		maven 'apache-maven-latest'
+		jdk 'openjdk-jdk11-latest'
 	}
 	options {
 		buildDiscarder(logRotator(numToKeepStr:'10'))
