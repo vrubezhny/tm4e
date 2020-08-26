@@ -11,6 +11,7 @@
  */
 package org.eclipse.tm4e.ui.internal.themes;
 
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -22,12 +23,15 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceHelper;
-import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.Theme;
 import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 import org.eclipse.tm4e.ui.utils.PreferenceUtils;
 import org.osgi.service.prefs.BackingStoreException;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 /**
  * Theme manager singleton.
@@ -79,11 +83,8 @@ public class ThemeManager extends AbstractThemeManager {
 		for (IConfigurationElement ce : cf) {
 			String name = ce.getName();
 			if (THEME_ELT.equals(name)) {
-				// theme
-				Theme theme = new Theme(ce);
-				super.registerTheme(theme);
+				super.registerTheme(new Theme(ce));
 			} else if (THEME_ASSOCIATION_ELT.equals(name)) {
-				// themeAssociation
 				super.registerThemeAssociation(new ThemeAssociation(ce));
 			}
 		}
@@ -98,9 +99,9 @@ public class ThemeManager extends AbstractThemeManager {
 		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
 		String json = prefs.get(PreferenceConstants.THEMES, null);
 		if (json != null) {
-			ITheme[] themes = PreferenceHelper.loadThemes(json);
-			for (ITheme theme : themes) {
-				super.registerTheme(theme);
+			for (JsonObject element : new Gson().fromJson(json, JsonObject[].class)) {
+				String name = element.get("id").getAsString();
+				super.registerTheme(new Theme(name, element.get("path").getAsString(), name, element.get("dark").getAsBoolean(), false));
 			}
 		}
 
@@ -115,16 +116,23 @@ public class ThemeManager extends AbstractThemeManager {
 
 	@Override
 	public void save() throws BackingStoreException {
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
 		// Save Themes in the
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
-		String json = PreferenceHelper.toJsonThemes(
-				Arrays.stream(getThemes()).filter(t -> t.getPluginId() == null).collect(Collectors.toList()));
-		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(TMUIPlugin.PLUGIN_ID);
-		prefs.put(PreferenceConstants.THEMES, json);
+		prefs.put(PreferenceConstants.THEMES, Arrays.stream(getThemes()) //
+			.filter(t -> t.getPluginId() == null) //
+			.map(theme -> {
+				JsonObject json = new JsonObject();
+				json.addProperty("id", theme.getId());
+				json.addProperty("path", theme.getPath());
+				json.addProperty("dark", theme.isDark());
+				return json;
+			}).collect(JsonArray::new, (JsonArray array, JsonObject object) -> array.add(object), (r,r1) -> {})
+			.toString());
 
 		// Save Theme associations in the
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.ui.prefs"
-		json = PreferenceHelper.toJsonThemeAssociations(Arrays.stream(getAllThemeAssociations())
+		String json = PreferenceHelper.toJsonThemeAssociations(Arrays.stream(getAllThemeAssociations())
 				.filter(t -> t.getPluginId() == null).collect(Collectors.toList()));
 		prefs.put(PreferenceConstants.THEME_ASSOCIATIONS, json);
 

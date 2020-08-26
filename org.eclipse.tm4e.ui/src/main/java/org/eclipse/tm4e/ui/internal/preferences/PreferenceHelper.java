@@ -32,25 +32,12 @@ public class PreferenceHelper {
 	private static final Gson DEFAULT_GSON;
 
 	static {
-		DEFAULT_GSON = new GsonBuilder().registerTypeAdapter(ITheme.class, new InstanceCreator<Theme>() {
-			@Override
-			public Theme createInstance(Type type) {
-				return new Theme();
-			}
-		}).registerTypeAdapter(IThemeAssociation.class, new InstanceCreator<ThemeAssociation>() {
+		DEFAULT_GSON = new GsonBuilder().registerTypeAdapter(IThemeAssociation.class, new InstanceCreator<ThemeAssociation>() {
 			@Override
 			public ThemeAssociation createInstance(Type type) {
 				return new ThemeAssociation();
 			}
 		}).create();
-	}
-
-	public static ITheme[] loadThemes(String json) {
-		return DEFAULT_GSON.fromJson(json, Theme[].class);
-	}
-
-	public static String toJsonThemes(Collection<ITheme> themes) {
-		return DEFAULT_GSON.toJson(themes);
 	}
 
 	public static IThemeAssociation[] loadThemeAssociations(String json) {
