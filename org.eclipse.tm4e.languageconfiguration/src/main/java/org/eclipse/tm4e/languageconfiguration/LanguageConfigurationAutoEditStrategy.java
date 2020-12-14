@@ -16,6 +16,7 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.DefaultIndentLineAutoEditStrategy;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
@@ -55,7 +56,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 
 		if (TextUtils.isEnter(document, command)) {
 			// key enter pressed
-			onEnter(document, command, false);
+			onEnter(document, command);
 			return;
 		}
 
@@ -120,7 +121,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 		return true;
 	}
 
-	private void onEnter(IDocument document, DocumentCommand command, boolean keepPosition) {
+	private void onEnter(IDocument document, DocumentCommand command) {
 		LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager.getInstance();
 		for (IContentType contentType : contentTypes) {
 			if (!registry.shouldEnterAction(document, command.offset, contentType)) {
@@ -139,12 +140,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 
 					command.text = typeText;
 					command.shiftsCaret = false;
-
-					if (keepPosition) {
-
-					} else {
-						command.caretOffset = command.offset + (delim + increasedIndent).length();
-					}
+					command.caretOffset = command.offset + (delim + increasedIndent).length();
 					break;
 				}
 				case Indent: {
@@ -154,12 +150,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 
 					command.text = typeText;
 					command.shiftsCaret = false;
-
-					if (keepPosition) {
-
-					} else {
-						command.caretOffset = command.offset + (delim + increasedIndent).length();
-					}
+					command.caretOffset = command.offset + (delim + increasedIndent).length();
 					break;
 				}
 				case IndentOutdent: {
@@ -170,12 +161,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 					String typeText = delim + increasedIndent + delim + normalIndent;
 					command.text = typeText;
 					command.shiftsCaret = false;
-
-					if (keepPosition) {
-
-					} else {
-						command.caretOffset = command.offset + (delim + increasedIndent).length();
-					}
+					command.caretOffset = command.offset + (delim + increasedIndent).length();
 					break;
 				}
 				case Outdent:
@@ -183,31 +169,15 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 							normalizeIndentation(indentation + enterAction.getAppendText()));
 					command.text = delim + outdentedText;
 					command.shiftsCaret = false;
-					if (keepPosition) {
-
-					} else {
-						command.caretOffset = command.offset + (delim + outdentedText).length();
-					}
+					command.caretOffset = command.offset + (delim + outdentedText).length();
 					break;
 				}
 				return;
 			}
 		}
 
-		// no enter rules applied, we should check indentation rules then.
-		String indentation = TextUtils.getLinePrefixingWhitespaceAtPosition(document, command.offset);
-		String increasedIndent = normalizeIndentation(indentation);
-		String delim = TextUtilities.getDefaultLineDelimiter(document);
-		String typeText = delim + increasedIndent;
-
-		command.text = typeText;
-		command.shiftsCaret = false;
-
-		if (keepPosition) {
-
-		} else {
-			command.caretOffset = command.offset + (delim + increasedIndent).length();
-		}
+		// fail back to default for indentation
+		new DefaultIndentLineAutoEditStrategy().customizeDocumentCommand(document, command);
 	}
 
 	private IContentType[] findContentTypes(IDocument document) {
