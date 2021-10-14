@@ -8,16 +8,4 @@
     <artifactId>org.eclipse.tm4e</artifactId>
     <version>0.3.2-SNAPSHOT</version>
   </parent>
-  
-  <!-- Repeat dependencies as Mvn artifacts to org.eclipse.tm4e.core
-   can be consumed as a Java lib with Mvn (without OSGi not p2).
-   Tycho's pomDependencies must NOT be set to "consider" -->
-  <dependencies>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.7.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 </project>
