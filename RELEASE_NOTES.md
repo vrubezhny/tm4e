@@ -4,12 +4,34 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Next release...
 
-## 0.4.3
-
-* 📅 Release Date (tentative): ?
-* All changes: https://github.com/eclipse/tm4e/compare/0.4.2...0.4.3
+### 0.4.4
 
 ### Latest release
+
+* 📅 Release Date (tentative): ?
+* All changes: https://github.com/eclipse/tm4e/compare/0.4.3...master
+
+## 0.4.3
+
+* 📅 Release Date: 19th November 2021
+* All changes: https://github.com/eclipse/tm4e/compare/0.4.2...0.4.3
+
+#### Support locations outside a local file system
+
+This allows to have syntax highlighting for buffers that are not backed by a filesystem locations.
+
+#### Compatible with viewers that are not IProjectionViewer
+
+Avoid an exception making TM4E incompatible with most simple ITextViewer in some case.
+
+#### Fix content-type detection
+
+Parent content-type are taken into account and allow to enable syntax highlighting for the children of content-types which are bound to a grammar/scope as well, without extra configuration.
+
+#### Choose default theme according to background color of the widget
+
+By default, TM4E now decides of the best theme to use according to the background color of the text widget. This allows to get a better text theme when mixing dark global them with light background or editor, or light global theme with dark background in editor.
+
 
 ## 0.4.2
 
