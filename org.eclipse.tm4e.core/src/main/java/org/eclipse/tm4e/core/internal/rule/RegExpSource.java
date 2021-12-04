@@ -36,9 +36,9 @@ public class RegExpSource {
 	private static final Pattern REGEXP_CHARACTERS = Pattern
 			.compile("[\\-\\\\\\{\\}\\*\\+\\?\\|\\^\\$\\.\\,\\[\\]\\(\\)\\#\\s]");
 
-	private int ruleId;
+	private final int ruleId;
 	private boolean _hasAnchor;
-	private boolean _hasBackReferences;
+	private final boolean _hasBackReferences;
 	private IRegExpSourceAnchorCache anchorCache;
 	private String source;
 
@@ -130,7 +130,7 @@ public class RegExpSource {
 		StringBuffer sb = new StringBuffer();
 		while (m.find()) {
 			String g1 = m.group();
-			int index = Integer.parseInt(g1.substring(1, g1.length()));
+			int index = Integer.parseInt(g1.substring(1));
 			String replacement = escapeRegExpCharacters(capturedValues.size() > index ? capturedValues.get(index) : "");
 			m.appendReplacement(sb, replacement);
 		}

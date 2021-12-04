@@ -29,7 +29,7 @@ import org.eclipse.tm4e.core.internal.oniguruma.OnigScanner;
  */
 public class RegExpSourceList {
 
-	private class RegExpSourceListAnchorCache {
+	private static class RegExpSourceListAnchorCache {
 
 		public ICompiledRule A0_G0;
 		public ICompiledRule A0_G1;
@@ -38,13 +38,13 @@ public class RegExpSourceList {
 
 	}
 
-	private List<RegExpSource> _items;
+	private final List<RegExpSource> _items;
 	private boolean _hasAnchors;
 	private ICompiledRule _cached;
 	private final RegExpSourceListAnchorCache _anchorCache;
 
 	public RegExpSourceList() {
-		this._items = new ArrayList<RegExpSource>();
+		this._items = new ArrayList<>();
 		this._hasAnchors = false;
 		this._cached = null;
 		this._anchorCache = new RegExpSourceListAnchorCache();
@@ -80,7 +80,7 @@ public class RegExpSourceList {
 	public ICompiledRule compile(IRuleRegistry grammar, boolean allowA, boolean allowG) {
 		if (!this._hasAnchors) {
 			if (this._cached == null) {
-				List<String> regexps = new ArrayList<String>();
+				List<String> regexps = new ArrayList<>();
 				for (RegExpSource regExpSource : _items) {
 					regexps.add(regExpSource.getSource());
 				}
@@ -122,7 +122,7 @@ public class RegExpSourceList {
 	}
 
 	private ICompiledRule _resolveAnchors(boolean allowA, boolean allowG) {
-		List<String> regexps = new ArrayList<String>();
+		List<String> regexps = new ArrayList<>();
 		for (RegExpSource regExpSource : _items) {
 			regexps.add(regExpSource.resolveAnchors(allowA, allowG));
 		}
@@ -134,7 +134,7 @@ public class RegExpSourceList {
 	}
 
 	private Integer[] getRules() {
-		Collection<Integer> ruleIds = new ArrayList<Integer>();
+		Collection<Integer> ruleIds = new ArrayList<>();
 		for (RegExpSource item : this._items) {
 			ruleIds.add(item.getRuleId());
 		}

@@ -39,7 +39,7 @@ class LineTokenizer {
 
 	private static final Logger LOGGER = Logger.getLogger(LineTokenizer.class.getName());
 
-	class WhileStack {
+	static class WhileStack {
 
 		public final StackElement stack;
 		public final BeginWhileRule rule;
@@ -50,7 +50,7 @@ class LineTokenizer {
 		}
 	}
 
-	class WhileCheckResult {
+	static class WhileCheckResult {
 
 		public final StackElement stack;
 		public final int linePos;
@@ -391,7 +391,7 @@ class LineTokenizer {
 		}
 
 		int len = Math.min(captures.size(), captureIndices.length);
-		List<LocalStackElement> localStack = new ArrayList<LocalStackElement>();
+		List<LocalStackElement> localStack = new ArrayList<>();
 		int maxEnd = captureIndices[0].getEnd();
 		IOnigCaptureIndex captureIndex;
 

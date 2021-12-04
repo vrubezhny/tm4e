@@ -37,7 +37,7 @@ public class Matcher<T> implements Predicate<T> {
 	}
 
 	private static <T> Collection<MatcherWithPriority<T>> createMatchers(String selector, IMatchesName<T> matchesName) {
-		return new Matcher<T>(selector, matchesName).results;
+		return new Matcher<>(selector, matchesName).results;
 	}
 
 	private final List<MatcherWithPriority<T>> results;
@@ -68,7 +68,7 @@ public class Matcher<T> implements Predicate<T> {
 			}
 			Predicate<T> matcher = parseConjunction();
 			if (matcher != null) {
-				results.add(new MatcherWithPriority<T>(matcher, priority));
+				results.add(new MatcherWithPriority<>(matcher, priority));
 			}
 			if (!",".equals(token)) {
 				break;
@@ -164,7 +164,7 @@ public class Matcher<T> implements Predicate<T> {
 
 		private static final Pattern REGEXP = Pattern.compile("([LR]:|[\\w\\.:]+|[\\,\\|\\-\\(\\)])");
 
-		private java.util.regex.Matcher regex;
+		private final java.util.regex.Matcher regex;
 
 		public Tokenizer(String input) {
 			this.regex = REGEXP.matcher(input);
