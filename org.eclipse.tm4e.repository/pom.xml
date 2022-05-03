@@ -25,6 +25,7 @@
 								</goals>
 								<configuration>
 									<keyname>27617A05E2DB057F</keyname>
+									<skipIfJarsigned>true</skipIfJarsigned>
 								</configuration>
 							</execution>
 						</executions>
