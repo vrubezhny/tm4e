@@ -13,8 +13,9 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ## 0.4.4
 
-* 📅 Release Date (tentative): May 17th 2022
+* 📅 Release Date: May 11th 2022
 * All changes: https://github.com/eclipse/tm4e/compare/0.4.3...0.4.4
+
 
 * Many many many... code improvements
 * Dependency updates
