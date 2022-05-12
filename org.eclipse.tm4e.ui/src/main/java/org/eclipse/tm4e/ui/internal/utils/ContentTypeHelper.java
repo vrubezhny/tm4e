@@ -14,7 +14,6 @@ package org.eclipse.tm4e.ui.internal.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import org.eclipse.core.filebuffers.FileBuffers;

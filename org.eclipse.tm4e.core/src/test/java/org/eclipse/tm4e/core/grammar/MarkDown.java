@@ -16,7 +16,6 @@ import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.tm4e.core.Data;
 import org.eclipse.tm4e.core.registry.Registry;

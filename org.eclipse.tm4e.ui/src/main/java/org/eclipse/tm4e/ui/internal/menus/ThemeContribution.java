@@ -12,7 +12,6 @@
 package org.eclipse.tm4e.ui.internal.menus;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.jdt.annotation.Nullable;
@@ -23,7 +22,6 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.text.TMPresentationReconciler;
 import org.eclipse.tm4e.ui.themes.ITheme;
-import org.eclipse.tm4e.ui.themes.IThemeAssociation;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ThemeAssociation;
 import org.eclipse.ui.IEditorPart;
