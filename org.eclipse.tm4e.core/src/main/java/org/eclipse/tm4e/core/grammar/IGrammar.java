@@ -75,27 +75,34 @@ public interface IGrammar {
 	/**
 	 * Tokenize `lineText` using previous line state `prevState`.
 	 * The result contains the tokens in binary format, resolved with the following information:
+	 *
+	 * <pre>
 	 * - language
 	 * - token type (regex, string, comment, other)
 	 * - font style
 	 * - foreground color
 	 * - background color
-	 * e.g. for getting the languageId: `(metadata & MetadataConsts.LANGUAGEID_MASK) >>>
-	 * MetadataConsts.LANGUAGEID_OFFSET`
+	 * </pre>
+	 *
+	 * e.g. for getting the languageId:
+	 * <code>(token & EncodedTokenDataConsts.LANGUAGEID_MASK) >>> EncodedTokenDataConsts.LANGUAGEID_OFFSET</code>
 	 */
 	ITokenizeLineResult2 tokenizeLine2(String lineText);
 
 	/**
-	 * Tokenize `lineText` using previous line state `prevState`.
+	 * Tokenize `lineText` using previous line state `prevState`. *
+	 *
+	 * <pre>
 	 * The result contains the tokens in binary format, resolved with the following information:
 	 * - language
 	 * - token type (regex, string, comment, other)
 	 * - font style
 	 * - foreground color
 	 * - background color
-	 * e.g. for getting the languageId: `(metadata & MetadataConsts.LANGUAGEID_MASK) >>>
-	 * MetadataConsts.LANGUAGEID_OFFSET`
+	 * </pre>
+	 *
+	 * e.g. for getting the languageId:
+	 * <code>(token & EncodedTokenDataConsts.LANGUAGEID_MASK) >>> EncodedTokenDataConsts.LANGUAGEID_OFFSET</code>
 	 */
 	ITokenizeLineResult2 tokenizeLine2(String lineText, @Nullable IStateStack prevState);
-
 }
