@@ -69,9 +69,13 @@ final class LineTokens {
 	@Nullable
 	private final BalancedBracketSelectors balancedBracketSelectors;
 
-	LineTokens(final boolean emitBinaryTokens, final String lineText, final List<TokenTypeMatcher> tokenTypeOverrides,
+	LineTokens(final boolean emitBinaryTokens,
+		final String lineText,
+		final List<TokenTypeMatcher> tokenTypeOverrides,
 		@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
+
 		this._emitBinaryTokens = emitBinaryTokens;
+		this._tokenTypeOverrides = tokenTypeOverrides;
 		this._lineText = LOGGER.isLoggable(TRACE) ? lineText : null; // store line only if it's logged
 		if (this._emitBinaryTokens) {
 			this._tokens = EMPTY_DEQUE;
@@ -80,7 +84,6 @@ final class LineTokens {
 			this._tokens = new ArrayDeque<>();
 			this._binaryTokens = Collections.emptyList();
 		}
-		this._tokenTypeOverrides = tokenTypeOverrides;
 		this.balancedBracketSelectors = balancedBracketSelectors;
 	}
 
@@ -101,8 +104,9 @@ final class LineTokens {
 				containsBalancedBrackets = true;
 			}
 
-			if (!_tokenTypeOverrides.isEmpty() || balancedBracketSelectors != null
-				&& !balancedBracketSelectors.matchesAlways() && !balancedBracketSelectors.matchesNever()) {
+			if (!_tokenTypeOverrides.isEmpty()
+				|| balancedBracketSelectors != null
+					&& !balancedBracketSelectors.matchesAlways() && !balancedBracketSelectors.matchesNever()) {
 				// Only generate scope array when required to improve performance
 				final var scopes = scopesList.getScopeNames();
 				for (final var tokenType : _tokenTypeOverrides) {
