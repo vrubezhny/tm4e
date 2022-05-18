@@ -28,7 +28,7 @@ import org.eclipse.tm4e.core.internal.types.IRawRule;
 import org.eclipse.tm4e.core.internal.utils.DeepCloneable;
 
 public class RawGrammar extends HashMap<String, @Nullable Object>
-		implements IRawGrammar, DeepCloneable, PropertySettable<Object> {
+	implements IRawGrammar, DeepCloneable, PropertySettable<Object> {
 
 	private static final String FILE_TYPES = "fileTypes";
 	private static final String FIRST_LINE_MATCH = "firstLineMatch";
@@ -118,7 +118,7 @@ public class RawGrammar extends HashMap<String, @Nullable Object>
 		@SuppressWarnings("unlikely-arg-type")
 		final var obj = get(key);
 		if (obj == null) {
-			throw new NoSuchElementException("Key '" + key + "' does not exit found");
+			throw new NoSuchElementException("Key '" + key + "' does not exit for grammar '" + getName() + '"');
 		}
 		return obj;
 	}
