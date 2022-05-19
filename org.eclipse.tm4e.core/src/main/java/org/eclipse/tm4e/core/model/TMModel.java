@@ -16,6 +16,7 @@ import static org.eclipse.tm4e.core.internal.utils.MoreCollections.*;
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
 
 import java.lang.System.Logger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -25,7 +26,6 @@ import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.internal.model.ModelTokensChangedEventBuilder;
 
 /**
  * TextMate model class.
@@ -96,7 +96,7 @@ public class TMModel implements ITMModel {
 		public void run() {
 			while (!isInterrupted() && model.fThread == this) {
 				try {
-					final int toProcess = model.invalidLines.take().intValue();
+					final int toProcess = model.invalidLines.take();
 					if (model.lines.get(toProcess).isInvalid) {
 						try {
 							revalidateTokensNow(toProcess, null);
@@ -155,7 +155,7 @@ public class TMModel implements ITMModel {
 					if (tokenizedChars > 0) {
 						// If we have enough history, estimate how long tokenizing this line would take
 						currentEstimatedTimeToTokenize = (long) ((double) elapsedTime / tokenizedChars)
-								* currentCharsToTokenize;
+							* currentCharsToTokenize;
 						if (elapsedTime + currentEstimatedTimeToTokenize > MAX_ALLOWED_TIME) {
 							// Tokenizing this line will go above MAX_ALLOWED_TIME
 							model.invalidateLine(lineIndex);
@@ -177,7 +177,7 @@ public class TMModel implements ITMModel {
 		 * @return the first line index (0-based) that was NOT processed by this operation
 		 */
 		private int updateTokensInRange(final ModelTokensChangedEventBuilder eventBuilder, final int startIndex,
-				final int endLineIndex) {
+			final int endLineIndex) {
 			final int stopLineTokenizationAfter = 1_000_000_000; // 1 billion, if a line is so long, you have other
 																 // trouble :)
 
@@ -225,8 +225,8 @@ public class TMModel implements ITMModel {
 							}
 							final var isLastLine = nextInvalidLineIndex + 1 >= model.lines.getNumberOfLines();
 							if (isLastLine
-									? lastState == null
-									: model.lines.get(nextInvalidLineIndex + 1).getState() == null) {
+								? lastState == null
+								: model.lines.get(nextInvalidLineIndex + 1).getState() == null) {
 								break;
 							}
 							nextInvalidLineIndex++;
@@ -346,5 +346,35 @@ public class TMModel implements ITMModel {
 	void invalidateLine(final int lineIndex) {
 		lines.get(lineIndex).isInvalid = true;
 		invalidLines.add(lineIndex);
+	}
+
+	private static final class ModelTokensChangedEventBuilder {
+
+		final ITMModel model;
+		final List<Range> ranges = new ArrayList<>();
+
+		ModelTokensChangedEventBuilder(final ITMModel model) {
+			this.model = model;
+		}
+
+		void registerChangedTokens(final int lineNumber) {
+			final Range previousRange = findLastElement(ranges);
+
+			if (previousRange != null && previousRange.toLineNumber == lineNumber - 1) {
+				// extend previous range
+				previousRange.toLineNumber++;
+			} else {
+				// insert new range
+				ranges.add(new Range(lineNumber));
+			}
+		}
+
+		@Nullable
+		ModelTokensChangedEvent build() {
+			if (this.ranges.isEmpty()) {
+				return null;
+			}
+			return new ModelTokensChangedEvent(ranges, model);
+		}
 	}
 }

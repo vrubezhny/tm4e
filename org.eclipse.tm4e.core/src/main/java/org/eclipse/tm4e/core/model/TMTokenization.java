@@ -22,8 +22,8 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.internal.model.DecodeMap;
-import org.eclipse.tm4e.core.internal.model.TMTokenDecodeData;
+
+import com.google.common.base.Splitter;
 
 /**
  * @see <a href=
@@ -119,5 +119,69 @@ public class TMTokenization implements ITokenizationSupport {
 
 		decodeMap.prevToken = new TMTokenDecodeData(scopes, scopeTokensMaps);
 		return decodeMap.getToken(prevScopeTokensMaps);
+	}
+
+	private static final class TMTokenDecodeData {
+
+		final String[] scopes;
+		final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps;
+
+		TMTokenDecodeData(final String[] scopes, final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
+			this.scopes = scopes;
+			this.scopeTokensMaps = scopeTokensMaps;
+		}
+	}
+
+	private static final class DecodeMap {
+
+		private static final String[] EMPTY_STRING_ARRAY = new String[0];
+		private static final Splitter BY_DOT_SPLITTER = Splitter.on('.');
+
+		private int lastAssignedId = 0;
+		private final Map<String /* scope */, int @Nullable [] /* ids */ > scopeToTokenIds = new LinkedHashMap<>();
+		private final Map<String /* token */, @Nullable Integer /* id */ > tokenToTokenId = new LinkedHashMap<>();
+		private final Map<Integer /* id */, String /* id */ > tokenIdToToken = new LinkedHashMap<>();
+		TMTokenDecodeData prevToken = new TMTokenDecodeData(EMPTY_STRING_ARRAY,
+			new LinkedHashMap<>());
+
+		int[] getTokenIds(final String scope) {
+			int[] tokens = this.scopeToTokenIds.get(scope);
+			if (tokens != null) {
+				return tokens;
+			}
+			final String[] tmpTokens = BY_DOT_SPLITTER.splitToStream(scope).toArray(String[]::new);
+
+			tokens = new int[tmpTokens.length];
+			for (int i = 0; i < tmpTokens.length; i++) {
+				final String token = tmpTokens[i];
+				Integer tokenId = this.tokenToTokenId.get(token);
+				if (tokenId == null) {
+					tokenId = ++this.lastAssignedId;
+					this.tokenToTokenId.put(token, tokenId);
+					this.tokenIdToToken.put(tokenId, token);
+				}
+				tokens[i] = tokenId;
+			}
+
+			this.scopeToTokenIds.put(scope, tokens);
+			return tokens;
+		}
+
+		String getToken(final Map<Integer, Boolean> tokenMap) {
+			final StringBuilder result = new StringBuilder();
+			boolean isFirst = true;
+			for (int i = 1; i <= this.lastAssignedId; i++) {
+				if (tokenMap.containsKey(i)) {
+					if (isFirst) {
+						isFirst = false;
+						result.append(this.tokenIdToToken.get(i));
+					} else {
+						result.append('.');
+						result.append(this.tokenIdToToken.get(i));
+					}
+				}
+			}
+			return result.toString();
+		}
 	}
 }
