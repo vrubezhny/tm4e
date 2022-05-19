@@ -18,7 +18,6 @@ package org.eclipse.tm4e.core.internal.grammar;
 
 import static java.lang.System.Logger.Level.*;
 import static org.eclipse.tm4e.core.internal.utils.MoreCollections.*;
-import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
 
 import java.lang.System.Logger;
 import java.util.ArrayDeque;
@@ -49,7 +48,6 @@ final class LineTokens {
 	/**
 	 * defined only if `LOGGER.isLoggable(TRACE)`.
 	 */
-	@Nullable
 	private final String _lineText;
 
 	/**
@@ -76,7 +74,7 @@ final class LineTokens {
 
 		this._emitBinaryTokens = emitBinaryTokens;
 		this._tokenTypeOverrides = tokenTypeOverrides;
-		this._lineText = LOGGER.isLoggable(TRACE) ? lineText : null; // store line only if it's logged
+		this._lineText = LOGGER.isLoggable(TRACE) ? lineText : ""; // store line only if it's logged
 		if (this._emitBinaryTokens) {
 			this._tokens = EMPTY_DEQUE;
 			this._binaryTokens = new ArrayList<>();
@@ -145,10 +143,9 @@ final class LineTokens {
 
 			if (LOGGER.isLoggable(TRACE)) {
 				final var scopes = scopesList.getScopeNames();
-				LOGGER.log(TRACE, "  token: |" +
-					castNonNull(this._lineText)
-						.substring(this._lastTokenEndIndex >= 0 ? this._lastTokenEndIndex : 0, endIndex)
-						.replace("\n", "\\n")
+				LOGGER.log(TRACE, "  token: |" + this._lineText
+					.substring(this._lastTokenEndIndex >= 0 ? this._lastTokenEndIndex : 0, endIndex)
+					.replace("\n", "\\n")
 					+ '|');
 				for (final String scope : scopes) {
 					LOGGER.log(TRACE, "      * " + scope);
@@ -165,8 +162,8 @@ final class LineTokens {
 		final List<String> scopes = scopesList.getScopeNames();
 
 		if (LOGGER.isLoggable(TRACE)) {
-			LOGGER.log(TRACE, "  token: |"
-				+ castNonNull(this._lineText).substring(this._lastTokenEndIndex, endIndex).replace("\n", "\\n") + '|');
+			LOGGER.log(TRACE, "  token: |" +
+				this._lineText.substring(this._lastTokenEndIndex, endIndex).replace("\n", "\\n") + '|');
 			for (final String scope : scopes) {
 				LOGGER.log(TRACE, "      * " + scope);
 			}
