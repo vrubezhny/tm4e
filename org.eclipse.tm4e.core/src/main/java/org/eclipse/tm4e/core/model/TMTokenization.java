@@ -118,9 +118,9 @@ public class TMTokenization implements ITokenizationSupport {
 				sameAsPrev = false;
 			}
 
-			final int[] tokens = decodeMap.getTokenIds(scope);
+			final Integer[] tokens = decodeMap.getTokenIds(scope);
 			prevScopeTokensMaps = new LinkedHashMap<>(prevScopeTokensMaps);
-			for (final int token : tokens) {
+			for (final Integer token : tokens) {
 				prevScopeTokensMaps.put(token, true);
 			}
 			scopeTokensMaps.put(level, prevScopeTokensMaps);
@@ -146,19 +146,19 @@ public class TMTokenization implements ITokenizationSupport {
 		private static final Splitter BY_DOT_SPLITTER = Splitter.on('.');
 
 		private int lastAssignedId = 0;
-		private final Map<String /* scope */, int @Nullable [] /* ids */ > scopeToTokenIds = new LinkedHashMap<>();
+		private final Map<String /* scope */, Integer @Nullable [] /* ids */ > scopeToTokenIds = new LinkedHashMap<>();
 		private final Map<String /* token */, @Nullable Integer /* id */ > tokenToTokenId = new LinkedHashMap<>();
 		private final Map<Integer /* id */, String /* id */ > tokenIdToToken = new LinkedHashMap<>();
 		TMTokenDecodeData prevToken = new TMTokenDecodeData(Collections.emptyList(), new LinkedHashMap<>());
 
-		int[] getTokenIds(final String scope) {
-			int[] tokens = this.scopeToTokenIds.get(scope);
+		Integer[] getTokenIds(final String scope) {
+			Integer[] tokens = this.scopeToTokenIds.get(scope);
 			if (tokens != null) {
 				return tokens;
 			}
 			final String[] tmpTokens = BY_DOT_SPLITTER.splitToStream(scope).toArray(String[]::new);
 
-			tokens = new int[tmpTokens.length];
+			tokens = new Integer[tmpTokens.length];
 			for (int i = 0; i < tmpTokens.length; i++) {
 				final String token = tmpTokens[i];
 				Integer tokenId = this.tokenToTokenId.get(token);
