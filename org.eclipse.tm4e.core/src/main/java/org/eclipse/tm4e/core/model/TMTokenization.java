@@ -25,13 +25,18 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.internal.model.DecodeMap;
 import org.eclipse.tm4e.core.internal.model.TMTokenDecodeData;
 
-public class Tokenizer implements ITokenizationSupport {
+/**
+ * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/main/src/vs/workbenc/services/textMate/common/TMTokenization.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/workbenc/services/textMate/common/TMTokenization.ts</a>
+ */
+public class TMTokenization implements ITokenizationSupport {
 
-	private final IGrammar grammar;
+	private final IGrammar _grammar;
 	private final DecodeMap decodeMap = new DecodeMap();
 
-	public Tokenizer(final IGrammar grammar) {
-		this.grammar = grammar;
+	public TMTokenization(final IGrammar grammar) {
+		this._grammar = grammar;
 	}
 
 	@Override
@@ -40,17 +45,18 @@ public class Tokenizer implements ITokenizationSupport {
 	}
 
 	@Override
-	public LineTokens tokenize(final String line, @Nullable final TMState state) {
+	public TokenizationResult tokenize(final String line, @Nullable final TMState state) {
 		return tokenize(line, state, null, null);
 	}
 
 	@Override
-	public LineTokens tokenize(final String line, @Nullable final TMState state, @Nullable final Integer offsetDeltaOrNull,
-			@Nullable final Integer stopAtOffset) {
+	public TokenizationResult tokenize(final String line, @Nullable final TMState state,
+		@Nullable final Integer offsetDeltaOrNull,
+		@Nullable final Integer stopAtOffset) {
 		/*
 		 Do not attempt to tokenize if a line has over 20k or
 		 if the rule stack contains more than 100 rules (indicator of broken grammar that forgets to pop rules)
-
+		
 		 if (line.length >= 20000 || depth(state.ruleStack) > 100) {
 		   return new RawLineTokens(
 		     [new Token(offsetDelta, '')],
@@ -62,7 +68,7 @@ public class Tokenizer implements ITokenizationSupport {
 		*/
 		final int offsetDelta = offsetDeltaOrNull == null ? 0 : offsetDeltaOrNull;
 		final var freshState = state != null ? state.clone() : getInitialState();
-		final var textMateResult = grammar.tokenizeLine(line, freshState.getRuleStack());
+		final var textMateResult = _grammar.tokenizeLine(line, freshState.getRuleStack());
 		freshState.setRuleStack(textMateResult.getRuleStack());
 
 		// Create the result early and fill in the tokens later
@@ -79,7 +85,7 @@ public class Tokenizer implements ITokenizationSupport {
 				lastTokenType = tokenType;
 			}
 		}
-		return new LineTokens(tokens, offsetDelta + line.length(), freshState);
+		return new TokenizationResult(tokens, offsetDelta + line.length(), freshState);
 
 	}
 

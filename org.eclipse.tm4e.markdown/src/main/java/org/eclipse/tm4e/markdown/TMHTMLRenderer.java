@@ -18,10 +18,9 @@ import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.model.ITokenizationSupport;
-import org.eclipse.tm4e.core.model.LineTokens;
 import org.eclipse.tm4e.core.model.TMState;
 import org.eclipse.tm4e.core.model.TMToken;
-import org.eclipse.tm4e.core.model.Tokenizer;
+import org.eclipse.tm4e.core.model.TMTokenization;
 import org.eclipse.tm4e.markdown.marked.HTMLRenderer;
 import org.eclipse.tm4e.markdown.marked.Helpers;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
@@ -40,7 +39,7 @@ public class TMHTMLRenderer extends HTMLRenderer {
 		if (grammar == null) {
 			super.code(code, lang, escaped);
 		} else {
-			final var tokenizationSupport = new Tokenizer(grammar);
+			final var tokenizationSupport = new TMTokenization(grammar);
 			html.append("<div style=\"white-space: pre-wrap;\">");
 			tokenizeLines(code, tokenizationSupport);
 			html.append("</div>");
@@ -66,9 +65,9 @@ public class TMHTMLRenderer extends HTMLRenderer {
 
 	@Nullable
 	private TMState tokenizeLine(final String line, final ITokenizationSupport tokenizationSupport, @Nullable final TMState startState) {
-		final LineTokens tokenized = tokenizationSupport.tokenize(line, startState);
-		final TMState endState = tokenized.getEndState();
-		final List<TMToken> tokens = tokenized.getTokens();
+		final var tokenized = tokenizationSupport.tokenize(line, startState);
+		final var endState = tokenized.getEndState();
+		final var tokens = tokenized.getTokens();
 		int offset = 0;
 		String tokenText;
 

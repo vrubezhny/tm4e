@@ -20,7 +20,11 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-public class LineTokens {
+/**
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor//common/languages.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor//common/languages.ts</a>
+ */
+public class TokenizationResult {
 
 	final List<TMToken> tokens;
 	int actualStopOffset;
@@ -28,7 +32,7 @@ public class LineTokens {
 	@Nullable
 	TMState endState;
 
-	public LineTokens(final List<TMToken> tokens, final int actualStopOffset, @Nullable final TMState endState) {
+	public TokenizationResult(final List<TMToken> tokens, final int actualStopOffset, @Nullable final TMState endState) {
 		this.tokens = tokens;
 		this.actualStopOffset = actualStopOffset;
 		this.endState = endState;

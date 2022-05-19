@@ -42,7 +42,7 @@ public class TMModel implements ITMModel {
 	private final Set<IModelTokensChangedListener> listeners = new CopyOnWriteArraySet<>();
 
 	@Nullable
-	private Tokenizer tokenizer;
+	private TMTokenization tokenizer;
 
 	/** The background thread. */
 	@Nullable
@@ -183,7 +183,7 @@ public class TMModel implements ITMModel {
 			int lineIndex = startIndex;
 			while (lineIndex <= endLineIndex && lineIndex < model.lines.getNumberOfLines()) {
 				final int endStateIndex = lineIndex + 1;
-				LineTokens r = null;
+				TokenizationResult r = null;
 				String text = null;
 				final ModelLine modeLine = model.lines.get(lineIndex);
 				try {
@@ -252,7 +252,7 @@ public class TMModel implements ITMModel {
 	public void setGrammar(final IGrammar grammar) {
 		if (!Objects.equals(grammar, this.grammar)) {
 			this.grammar = grammar;
-			final var tokenizer = this.tokenizer = new Tokenizer(grammar);
+			final var tokenizer = this.tokenizer = new TMTokenization(grammar);
 			lines.get(0).setState(tokenizer.getInitialState());
 		}
 	}

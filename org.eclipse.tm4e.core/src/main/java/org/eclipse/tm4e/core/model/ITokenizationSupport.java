@@ -22,11 +22,11 @@ public interface ITokenizationSupport {
 
 	TMState getInitialState();
 
-	LineTokens tokenize(String line, @Nullable TMState state);
+	TokenizationResult tokenize(String line, @Nullable TMState state);
 
 	// add offsetDelta to each of the returned indices
 	// stop tokenizing at absolute value stopAtOffset (i.e. stream.pos() +
 	// offsetDelta > stopAtOffset)
-	LineTokens tokenize(String line, @Nullable TMState state, Integer offsetDelta, Integer stopAtOffset);
+	TokenizationResult tokenize(String line, @Nullable TMState state, Integer offsetDelta, Integer stopAtOffset);
 
 }
