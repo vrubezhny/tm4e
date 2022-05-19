@@ -12,9 +12,11 @@
 package org.eclipse.tm4e.core.grammar;
 
 import static org.eclipse.tm4e.core.internal.utils.NullSafetyHelper.*;
+import static org.eclipse.tm4e.core.registry.IGrammarSource.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -69,10 +71,11 @@ class GrammarTest {
 		"Token from 14 to 15 with scopes [source.js, meta.function.js, meta.decl.block.js, meta.brace.curly.js]" };
 
 	@Test
-	void tokenizeSingleLineExpression() throws Exception {
+	void testTokenizeSingleLineExpression() throws Exception {
 		final var registry = new Registry();
-		final IGrammar grammar = registry.addGrammar(IGrammarSource.fromResource(Data.class, "JavaScript.tmLanguage"));
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
 		final var lineTokens = castNonNull(grammar).tokenizeLine("function add(a,b) { return a+b; }");
+		assertFalse(lineTokens.isStoppedEarly());
 		for (int i = 0; i < lineTokens.getTokens().length; i++) {
 			final IToken token = lineTokens.getTokens()[i];
 			final String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
@@ -82,9 +85,9 @@ class GrammarTest {
 	}
 
 	@Test
-	void tokenizeMultilineExpression() throws Exception {
+	void testTokenizeMultilineExpression() throws Exception {
 		final var registry = new Registry();
-		final IGrammar grammar = registry.addGrammar(IGrammarSource.fromResource(Data.class, "JavaScript.tmLanguage"));
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
 
 		IStateStack ruleStack = null;
 		int i = 0;
@@ -92,6 +95,7 @@ class GrammarTest {
 		final String[] lines = { "function add(a,b)", "{ return a+b; }" };
 		for (final String line : lines) {
 			final var lineTokens = castNonNull(grammar).tokenizeLine(line, ruleStack, null);
+			assertFalse(lineTokens.isStoppedEarly());
 			ruleStack = lineTokens.getRuleStack();
 			for (i = 0; i < lineTokens.getTokens().length; i++) {
 				final IToken token = lineTokens.getTokens()[i];
@@ -104,9 +108,9 @@ class GrammarTest {
 	}
 
 	@Test
-	void tokenizeMultilineYaml() throws Exception {
+	void testTokenizeMultilineYaml() throws Exception {
 		final var registry = new Registry();
-		final var grammar = registry.addGrammar(IGrammarSource.fromResource(Data.class, "yaml.tmLanguage.json"));
+		final var grammar = registry.addGrammar(fromResource(Data.class, "yaml.tmLanguage.json"));
 		final var lines = ">\n should.be.string.unquoted.block.yaml\n should.also.be.string.unquoted.block.yaml";
 		final var result = TokenizationUtils.tokenizeText(lines, grammar).iterator();
 		assertTrue(Arrays.stream(result.next().getTokens()).anyMatch(t -> t.getScopes().contains(
@@ -118,10 +122,8 @@ class GrammarTest {
 	}
 
 	@Test
-	void tokenizeTypeScriptFile() throws Exception {
-
-		final var grammar = new Registry()
-			.addGrammar(IGrammarSource.fromResource(Data.class, "TypeScript.tmLanguage.json"));
+	void testTokenizeTypeScriptFile() throws Exception {
+		final var grammar = new Registry().addGrammar(fromResource(Data.class, "TypeScript.tmLanguage.json"));
 
 		final List<String> expectedTokens;
 		try (var resource = Data.class.getResourceAsStream("raytracer_tokens.txt")) {
@@ -148,12 +150,30 @@ class GrammarTest {
 		}
 	}
 
+	@Test
+	void testTokenizeWithTimeout() throws IOException {
+		final var grammar = new Registry().addGrammar(fromResource(Data.class, "TypeScript.tmLanguage.json"));
+
+		try (var reader = new BufferedReader(new InputStreamReader(Data.class.getResourceAsStream("raytracer.ts")))) {
+			final String veryLongLine = reader.lines().collect(Collectors.joining());
+			final var result1 = grammar.tokenizeLine(veryLongLine);
+			assertFalse(result1.isStoppedEarly());
+			final var lastToken1 = result1.getTokens()[result1.getTokens().length - 1];
+
+			final var result2 = grammar.tokenizeLine(veryLongLine, null, 10 /*ms timeLimit*/);
+			assertTrue(result2.isStoppedEarly());
+			assertNotEquals(result1.getTokens().length, result2.getTokens().length);
+			final var lastToken2 = result2.getTokens()[result2.getTokens().length - 1];
+			assertTrue(lastToken2.getEndIndex() < lastToken1.getEndIndex());
+		}
+	}
+
 	// TODO see https://github.com/microsoft/vscode-textmate/issues/173
 	@Disabled
 	@Test
 	void testShadowedRulesAreResolvedCorrectly() {
 		final var registry = new Registry();
-		final var grammar = registry.addGrammar(IGrammarSource.fromString(IGrammarSource.ContentType.JSON, """
+		final var grammar = registry.addGrammar(fromString(IGrammarSource.ContentType.JSON, """
 			{
 				"scopeName": "source.test",
 				"repository": {
@@ -188,6 +208,7 @@ class GrammarTest {
 			"""));
 
 		final var result = grammar.tokenizeLine("bar1");
+		assertFalse(result.isStoppedEarly());
 		assertEquals("[{startIndex: 0, endIndex: 4, scopes: [source.test, outer]}]",
 			Arrays.toString(result.getTokens()));
 	}
