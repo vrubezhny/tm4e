@@ -17,7 +17,9 @@
 package org.eclipse.tm4e.core.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -84,7 +86,7 @@ public class TMTokenization implements ITokenizationSupport {
 		for (int tokenIndex = 0, len = tokenizationResult.getTokens().length; tokenIndex < len; tokenIndex++) {
 			final var token = tokenizationResult.getTokens()[tokenIndex];
 			final int tokenStartIndex = token.getStartIndex();
-			final var tokenType = decodeTextMateToken(this.decodeMap, token.getScopes().toArray(String[]::new));
+			final var tokenType = decodeTextMateToken(this.decodeMap, token.getScopes());
 
 			// do not push a new token if the type is exactly the same (also helps with ligatures)
 			if (!tokenType.equals(lastTokenType)) {
@@ -96,19 +98,19 @@ public class TMTokenization implements ITokenizationSupport {
 
 	}
 
-	private String decodeTextMateToken(final DecodeMap decodeMap, final String[] scopes) {
-		final String[] prevTokenScopes = decodeMap.prevToken.scopes;
-		final int prevTokenScopesLength = prevTokenScopes.length;
+	private String decodeTextMateToken(final DecodeMap decodeMap, final List<String> scopes) {
+		final var prevTokenScopes = decodeMap.prevToken.scopes;
+		final int prevTokenScopesLength = prevTokenScopes.size();
 		final var prevTokenScopeTokensMaps = decodeMap.prevToken.scopeTokensMaps;
 
 		final var scopeTokensMaps = new LinkedHashMap<Integer, Map<Integer, Boolean>>();
 		Map<Integer, Boolean> prevScopeTokensMaps = new LinkedHashMap<>();
 		boolean sameAsPrev = true;
-		for (int level = 1/* deliberately skip scope 0 */; level < scopes.length; level++) {
-			final String scope = scopes[level];
+		for (int level = 1/* deliberately skip scope 0 */; level < scopes.size(); level++) {
+			final String scope = scopes.get(level);
 
 			if (sameAsPrev) {
-				if (level < prevTokenScopesLength && prevTokenScopes[level].equals(scope)) {
+				if (level < prevTokenScopesLength && prevTokenScopes.get(level).equals(scope)) {
 					prevScopeTokensMaps = prevTokenScopeTokensMaps.get(level);
 					scopeTokensMaps.put(level, prevScopeTokensMaps);
 					continue;
@@ -130,10 +132,10 @@ public class TMTokenization implements ITokenizationSupport {
 
 	private static final class TMTokenDecodeData {
 
-		final String[] scopes;
+		final List<String> scopes;
 		final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps;
 
-		TMTokenDecodeData(final String[] scopes, final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
+		TMTokenDecodeData(final List<String> scopes, final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
 			this.scopes = scopes;
 			this.scopeTokensMaps = scopeTokensMaps;
 		}
@@ -141,15 +143,13 @@ public class TMTokenization implements ITokenizationSupport {
 
 	private static final class DecodeMap {
 
-		private static final String[] EMPTY_STRING_ARRAY = new String[0];
 		private static final Splitter BY_DOT_SPLITTER = Splitter.on('.');
 
 		private int lastAssignedId = 0;
 		private final Map<String /* scope */, int @Nullable [] /* ids */ > scopeToTokenIds = new LinkedHashMap<>();
 		private final Map<String /* token */, @Nullable Integer /* id */ > tokenToTokenId = new LinkedHashMap<>();
 		private final Map<Integer /* id */, String /* id */ > tokenIdToToken = new LinkedHashMap<>();
-		TMTokenDecodeData prevToken = new TMTokenDecodeData(EMPTY_STRING_ARRAY,
-			new LinkedHashMap<>());
+		TMTokenDecodeData prevToken = new TMTokenDecodeData(Collections.emptyList(), new LinkedHashMap<>());
 
 		int[] getTokenIds(final String scope) {
 			int[] tokens = this.scopeToTokenIds.get(scope);
