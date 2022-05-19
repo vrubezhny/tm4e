@@ -19,6 +19,7 @@ package org.eclipse.tm4e.core.model;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.tm4e.core.grammar.IStateStack;
 
 /**
  * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor//common/languages.ts">
@@ -30,16 +31,16 @@ public class TokenizationResult {
 	int actualStopOffset;
 
 	@Nullable
-	TMState endState;
+	IStateStack endState;
 
-	public TokenizationResult(final List<TMToken> tokens, final int actualStopOffset, @Nullable final TMState endState) {
+	public TokenizationResult(final List<TMToken> tokens, final int actualStopOffset, @Nullable final IStateStack endState) {
 		this.tokens = tokens;
 		this.actualStopOffset = actualStopOffset;
 		this.endState = endState;
 	}
 
 	@Nullable
-	public TMState getEndState() {
+	public IStateStack getEndState() {
 		return endState;
 	}
 

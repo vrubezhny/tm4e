@@ -1,13 +1,13 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Contributors:
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.markdown;
 
@@ -15,8 +15,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.grammar.IStateStack;
 import org.eclipse.tm4e.core.model.ITokenizationSupport;
-import org.eclipse.tm4e.core.model.TMState;
 import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.core.model.TMTokenization;
 import org.eclipse.tm4e.markdown.marked.HTMLRenderer;
@@ -46,7 +46,8 @@ public class TMHTMLRenderer extends HTMLRenderer {
 
 	private void tokenizeLines(final String text, final ITokenizationSupport tokenizationSupport) {
 		final String[] lines = text.split("\r\n|\r|\n");
-		TMState currentState = tokenizationSupport.getInitialState();
+		@Nullable
+		IStateStack currentState = tokenizationSupport.getInitialState();
 		for (int i = 0; i < lines.length; i++) {
 			currentState = tokenizeLine(lines[i], tokenizationSupport, currentState);
 
@@ -62,7 +63,8 @@ public class TMHTMLRenderer extends HTMLRenderer {
 	}
 
 	@Nullable
-	private TMState tokenizeLine(final String line, final ITokenizationSupport tokenizationSupport, @Nullable final TMState startState) {
+	private IStateStack tokenizeLine(final String line, final ITokenizationSupport tokenizationSupport,
+			@Nullable final IStateStack startState) {
 		final var tokenized = tokenizationSupport.tokenize(line, startState);
 		final var endState = tokenized.getEndState();
 		final var tokens = tokenized.getTokens();

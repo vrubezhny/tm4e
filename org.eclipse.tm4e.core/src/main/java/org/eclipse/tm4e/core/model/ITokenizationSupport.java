@@ -17,6 +17,7 @@
 package org.eclipse.tm4e.core.model;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.tm4e.core.grammar.IStateStack;
 
 /**
  * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages.ts">
@@ -24,13 +25,13 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public interface ITokenizationSupport {
 
-	TMState getInitialState();
+	IStateStack getInitialState();
 
-	TokenizationResult tokenize(String line, @Nullable TMState state);
+	TokenizationResult tokenize(String line, @Nullable IStateStack state);
 
 	// add offsetDelta to each of the returned indices
 	// stop tokenizing at absolute value stopAtOffset (i.e. stream.pos() +
 	// offsetDelta > stopAtOffset)
-	TokenizationResult tokenize(String line, @Nullable TMState state, Integer offsetDelta, Integer stopAtOffset);
+	TokenizationResult tokenize(String line, @Nullable IStateStack state, Integer offsetDelta, Integer stopAtOffset);
 
 }

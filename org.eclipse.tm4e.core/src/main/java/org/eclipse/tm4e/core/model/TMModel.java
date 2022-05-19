@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.grammar.IStateStack;
 
 /**
  * TextMate model class.
@@ -78,7 +79,7 @@ public class TMModel implements ITMModel {
 		private final TMModel model;
 
 		@Nullable
-		private TMState lastState;
+		private IStateStack lastState;
 
 		/**
 		 * Creates a new background thread. The thread runs with minimal priority.

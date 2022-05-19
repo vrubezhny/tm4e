@@ -22,6 +22,8 @@ import java.util.Map;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
+import org.eclipse.tm4e.core.grammar.IStateStack;
+import org.eclipse.tm4e.core.internal.grammar.StateStack;
 
 import com.google.common.base.Splitter;
 
@@ -33,24 +35,31 @@ import com.google.common.base.Splitter;
 public class TMTokenization implements ITokenizationSupport {
 
 	private final IGrammar _grammar;
+	private final IStateStack _initialState;
 	private final DecodeMap decodeMap = new DecodeMap();
 
 	public TMTokenization(final IGrammar grammar) {
+		this(grammar, StateStack.NULL);
+	}
+
+	public TMTokenization(final IGrammar grammar, final IStateStack initialState) {
 		this._grammar = grammar;
+		_initialState = initialState;
 	}
 
 	@Override
-	public TMState getInitialState() {
-		return new TMState(null, null);
+	public IStateStack getInitialState() {
+		return _initialState;
 	}
 
 	@Override
-	public TokenizationResult tokenize(final String line, @Nullable final TMState state) {
+	public TokenizationResult tokenize(final String line, @Nullable final IStateStack state) {
 		return tokenize(line, state, null, null);
 	}
 
 	@Override
-	public TokenizationResult tokenize(final String line, @Nullable final TMState state,
+	public TokenizationResult tokenize(final String line,
+		@Nullable final IStateStack state,
 		@Nullable final Integer offsetDeltaOrNull,
 		@Nullable final Integer stopAtOffset) {
 		/*
@@ -67,15 +76,13 @@ public class TMTokenization implements ITokenizationSupport {
 		 }
 		*/
 		final int offsetDelta = offsetDeltaOrNull == null ? 0 : offsetDeltaOrNull;
-		final var freshState = state != null ? state.clone() : getInitialState();
-		final var textMateResult = _grammar.tokenizeLine(line, freshState.getRuleStack());
-		freshState.setRuleStack(textMateResult.getRuleStack());
+		final var tokenizationResult = _grammar.tokenizeLine(line, state);
 
 		// Create the result early and fill in the tokens later
 		final var tokens = new ArrayList<TMToken>();
 		String lastTokenType = null;
-		for (int tokenIndex = 0, len = textMateResult.getTokens().length; tokenIndex < len; tokenIndex++) {
-			final var token = textMateResult.getTokens()[tokenIndex];
+		for (int tokenIndex = 0, len = tokenizationResult.getTokens().length; tokenIndex < len; tokenIndex++) {
+			final var token = tokenizationResult.getTokens()[tokenIndex];
 			final int tokenStartIndex = token.getStartIndex();
 			final var tokenType = decodeTextMateToken(this.decodeMap, token.getScopes().toArray(String[]::new));
 
@@ -85,7 +92,7 @@ public class TMTokenization implements ITokenizationSupport {
 				lastTokenType = tokenType;
 			}
 		}
-		return new TokenizationResult(tokens, offsetDelta + line.length(), freshState);
+		return new TokenizationResult(tokens, offsetDelta + line.length(), tokenizationResult.getRuleStack());
 
 	}
 
