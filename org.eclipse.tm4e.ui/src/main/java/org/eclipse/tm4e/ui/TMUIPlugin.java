@@ -122,7 +122,7 @@ public class TMUIPlugin extends AbstractUIPlugin {
 	 * @return the TextMate model manager.
 	 */
 	public static ITMModelManager getTMModelManager() {
-		return TMModelManager.getInstance();
+		return TMModelManager.INSTANCE;
 	}
 
 	/**

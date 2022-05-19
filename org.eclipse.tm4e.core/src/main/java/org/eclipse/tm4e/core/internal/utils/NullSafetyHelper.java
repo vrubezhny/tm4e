@@ -34,6 +34,14 @@ public final class NullSafetyHelper {
 		return value;
 	}
 
+	/**
+	 * Casts a non-null value as {@link Nullable}.
+	 */
+	@Nullable
+	public static <T> T castNullable(final T value) {
+		return value;
+	}
+
 	public static <T> T defaultIfNull(@Nullable final T object, final T defaultValue) {
 		if (object == null) {
 			return defaultValue;

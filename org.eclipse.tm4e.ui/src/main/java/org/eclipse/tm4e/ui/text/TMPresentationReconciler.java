@@ -66,6 +66,7 @@ import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.registry.TMEclipseRegistryPlugin;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.model.TMDocumentModel;
+import org.eclipse.tm4e.ui.internal.model.TMModelManager;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.internal.text.TMPresentationReconcilerTestGenerator;
 import org.eclipse.tm4e.ui.internal.themes.ThemeManager;
@@ -73,7 +74,6 @@ import org.eclipse.tm4e.ui.internal.utils.ClassHelper;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeHelper;
 import org.eclipse.tm4e.ui.internal.utils.ContentTypeInfo;
 import org.eclipse.tm4e.ui.internal.utils.PreferenceUtils;
-import org.eclipse.tm4e.ui.model.ITMModelManager;
 import org.eclipse.tm4e.ui.themes.ITheme;
 import org.eclipse.tm4e.ui.themes.IThemeManager;
 import org.eclipse.tm4e.ui.themes.ITokenProvider;
@@ -147,9 +147,9 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 
 		@Override
 		public void preferenceChange(@Nullable final PreferenceChangeEvent event) {
-		   if(event == null)
-		      return;
-		   final IThemeManager themeManager = TMUIPlugin.getThemeManager();
+			if (event == null)
+				return;
+			final IThemeManager themeManager = TMUIPlugin.getThemeManager();
 			switch (event.getKey()) {
 			case PreferenceConstants.E4_THEME_ID:
 				preferenceThemeChange((String) event.getNewValue(), themeManager);
@@ -207,13 +207,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		public void inputDocumentAboutToBeChanged(@Nullable final IDocument oldDocument,
 				@Nullable final IDocument newDocument) {
 			if (oldDocument == null)
-			   return;
+				return;
 
 			final var viewer = TMPresentationReconciler.this.viewer;
 			if (viewer != null) {
 				viewer.removeTextListener(this);
 			}
-			getTMModelManager().disconnect(oldDocument);
+			TMModelManager.INSTANCE.disconnect(oldDocument);
 			fireUninstall();
 		}
 
@@ -257,7 +257,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					final var enable = TMPresentationReconciler.this.enabled = tokenProvider != null;
 					if (enable) {
 						// Connect a TextModel to the new document.
-						final ITMModel model = getTMModelManager().connect(newDocument);
+						final ITMModel model = TMModelManager.INSTANCE.connect(newDocument);
 						model.setGrammar(localGrammar);
 
 						// Add model listener
@@ -324,7 +324,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			final IRegion region = computeRegionToRedraw(e, document);
 			if (enabled) {
 				// case where there is grammar & theme -> update text presentation with the grammar tokens
-				final ITMModel model = getTMModelManager().connect(document);
+				final ITMModel model = TMModelManager.INSTANCE.connect(document);
 
 				// It's possible that there are two or more SourceViewers opened for the same document,
 				// so when one of them is closed the existing TMModel is also "closed" and its TokenizerThread
@@ -482,13 +482,11 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			if (viewer == null)
 				return;
 			final IDocument document = viewer.getDocument();
-			final ITMModel model = getTMModelManager().connect(document);
-			if (model instanceof final TMDocumentModel docModel) {
-				try {
-					colorize(new Region(0, document.getLength()), docModel);
-				} catch (final BadLocationException e) {
-					TMUIPlugin.log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
-				}
+			final var docModel = TMModelManager.INSTANCE.connect(document);
+			try {
+				colorize(new Region(0, document.getLength()), docModel);
+			} catch (final BadLocationException e) {
+				TMUIPlugin.log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 			}
 		}
 	}
@@ -529,10 +527,6 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 	@Override
 	public IPresentationRepairer getRepairer(@Nullable final String contentType) {
 		return null;
-	}
-
-	private ITMModelManager getTMModelManager() {
-		return TMUIPlugin.getTMModelManager();
 	}
 
 	void colorize(final IRegion damage, final TMDocumentModel model) throws BadLocationException {
