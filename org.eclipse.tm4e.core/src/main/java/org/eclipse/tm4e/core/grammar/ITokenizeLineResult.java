@@ -22,9 +22,9 @@ package org.eclipse.tm4e.core.grammar;
  * @see <a href="https://github.com/microsoft/vscode-textmate/blob/main/src/main.ts">
  *      github.com/microsoft/vscode-textmate/blob/main/src/main.ts</a>
  */
-public interface ITokenizeLineResult {
+public interface ITokenizeLineResult<T> {
 
-	IToken[] getTokens();
+	T getTokens();
 
 	/**
 	 * Returns the `prevState` to be passed on to the next line tokenization.

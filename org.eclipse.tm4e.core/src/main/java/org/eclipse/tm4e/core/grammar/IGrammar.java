@@ -58,7 +58,7 @@ public interface IGrammar {
 	 *
 	 * @return the result of the tokenization.
 	 */
-	ITokenizeLineResult tokenizeLine(String lineText);
+	ITokenizeLineResult<IToken[]> tokenizeLine(String lineText);
 
 	/**
 	 * Tokenize `lineText` using previous line state `prevState`.
@@ -70,7 +70,7 @@ public interface IGrammar {
 	 *
 	 * @return the result of the tokenization.
 	 */
-	ITokenizeLineResult tokenizeLine(String lineText, @Nullable IStateStack prevState);
+	ITokenizeLineResult<IToken[]> tokenizeLine(String lineText, @Nullable IStateStack prevState);
 
 	/**
 	 * Tokenize `lineText` using previous line state `prevState`.
@@ -87,7 +87,7 @@ public interface IGrammar {
 	 * e.g. for getting the languageId:
 	 * <code>(token & EncodedTokenDataConsts.LANGUAGEID_MASK) >>> EncodedTokenDataConsts.LANGUAGEID_OFFSET</code>
 	 */
-	ITokenizeLineResult2 tokenizeLine2(String lineText);
+	ITokenizeLineResult<int[]> tokenizeLine2(String lineText);
 
 	/**
 	 * Tokenize `lineText` using previous line state `prevState`. *
@@ -104,5 +104,5 @@ public interface IGrammar {
 	 * e.g. for getting the languageId:
 	 * <code>(token & EncodedTokenDataConsts.LANGUAGEID_MASK) >>> EncodedTokenDataConsts.LANGUAGEID_OFFSET</code>
 	 */
-	ITokenizeLineResult2 tokenizeLine2(String lineText, @Nullable IStateStack prevState);
+	ITokenizeLineResult<int[]> tokenizeLine2(String lineText, @Nullable IStateStack prevState);
 }

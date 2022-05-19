@@ -16,10 +16,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-
-import org.eclipse.jdt.annotation.Nullable;
 
 import com.google.common.base.Splitter;
 
@@ -34,21 +32,16 @@ public class TokenizationUtils {
 	 *
 	 * @return The stream of {@link ITokenizeLineResult}, each item covering 1 line of the text
 	 */
-	public static Stream<ITokenizeLineResult> tokenizeText(final CharSequence text, final IGrammar grammar) {
+	public static Stream<ITokenizeLineResult<IToken[]>> tokenizeText(final CharSequence text, final IGrammar grammar) {
 		if (text.length() == 0) {
 			return Stream.empty();
 		}
 
-		return BY_LINE_SPLITTER.splitToStream(text).map(new Function<String, ITokenizeLineResult>() {
-			@Nullable
-			IStateStack prevStack;
-
-			@Override
-			public ITokenizeLineResult apply(final String line) {
-				final var tokenized = grammar.tokenizeLine(line, prevStack);
-				prevStack = tokenized.getRuleStack();
-				return tokenized;
-			}
+		final var prevStack = new AtomicReference<IStateStack>();
+		return BY_LINE_SPLITTER.splitToStream(text).map(line -> {
+			final var tokenized = grammar.tokenizeLine(line, prevStack.get());
+			prevStack.set(tokenized.getRuleStack());
+			return tokenized;
 		});
 	}
 
@@ -61,19 +54,15 @@ public class TokenizationUtils {
 	 *
 	 * @throws IOException
 	 */
-	public static Stream<ITokenizeLineResult> tokenizeText(final InputStream text, final IGrammar grammar)
-			throws IOException {
+	public static Stream<ITokenizeLineResult<IToken[]>> tokenizeText(final InputStream text, final IGrammar grammar)
+		throws IOException {
 		final var reader = new BufferedReader(new InputStreamReader(text));
-		return reader.lines().map(new Function<String, ITokenizeLineResult>() {
-			@Nullable
-			IStateStack prevStack;
 
-			@Override
-			public ITokenizeLineResult apply(final String line) {
-				final var tokenized = grammar.tokenizeLine(line, prevStack);
-				prevStack = tokenized.getRuleStack();
-				return tokenized;
-			}
+		final var prevStack = new AtomicReference<IStateStack>();
+		return reader.lines().map(line -> {
+			final var tokenized = grammar.tokenizeLine(line, prevStack.get());
+			prevStack.set(tokenized.getRuleStack());
+			return tokenized;
 		});
 	}
 

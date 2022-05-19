@@ -31,8 +31,8 @@ import java.util.function.Function;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IStateStack;
+import org.eclipse.tm4e.core.grammar.IToken;
 import org.eclipse.tm4e.core.grammar.ITokenizeLineResult;
-import org.eclipse.tm4e.core.grammar.ITokenizeLineResult2;
 import org.eclipse.tm4e.core.internal.grammar.tokenattrs.EncodedTokenAttributes;
 import org.eclipse.tm4e.core.internal.matcher.Matcher;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigString;
@@ -251,22 +251,22 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	@Override
-	public ITokenizeLineResult tokenizeLine(final String lineText) {
+	public ITokenizeLineResult<IToken[]> tokenizeLine(final String lineText) {
 		return tokenizeLine(lineText, null);
 	}
 
 	@Override
-	public ITokenizeLineResult tokenizeLine(final String lineText, @Nullable final IStateStack prevState) {
+	public ITokenizeLineResult<IToken[]> tokenizeLine(final String lineText, @Nullable final IStateStack prevState) {
 		return _tokenize(lineText, (StateStack) prevState, false);
 	}
 
 	@Override
-	public ITokenizeLineResult2 tokenizeLine2(final String lineText) {
+	public ITokenizeLineResult<int[]> tokenizeLine2(final String lineText) {
 		return tokenizeLine2(lineText, null);
 	}
 
 	@Override
-	public ITokenizeLineResult2 tokenizeLine2(final String lineText, @Nullable final IStateStack prevState) {
+	public ITokenizeLineResult<int[]> tokenizeLine2(final String lineText, @Nullable final IStateStack prevState) {
 		return _tokenize(lineText, (StateStack) prevState, true);
 	}
 
@@ -348,9 +348,9 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 			true);
 
 		if (emitBinaryTokens) {
-			return (T) new TokenizeLineResult2(lineTokens.getBinaryResult(nextState, lineLength), nextState);
+			return (T) new TokenizeLineResult<>(lineTokens.getBinaryResult(nextState, lineLength), nextState);
 		}
-		return (T) new TokenizeLineResult(lineTokens.getResult(nextState, lineLength), nextState);
+		return (T) new TokenizeLineResult<>(lineTokens.getResult(nextState, lineLength), nextState);
 	}
 
 	@Override
