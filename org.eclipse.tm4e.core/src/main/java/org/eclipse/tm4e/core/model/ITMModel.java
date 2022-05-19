@@ -19,6 +19,8 @@ import org.eclipse.tm4e.core.grammar.IGrammar;
 /**
  * TextMate model API.
  *
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/model/tokenizationTextModelPart.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/model/tokenizationTextModelPart.ts</a>
  */
 public interface ITMModel {
 
@@ -58,5 +60,4 @@ public interface ITMModel {
 	List<TMToken> getLineTokens(int line);
 
 	void forceTokenization(int lineNumber);
-
 }

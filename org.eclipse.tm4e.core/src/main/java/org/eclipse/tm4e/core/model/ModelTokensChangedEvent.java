@@ -21,6 +21,9 @@ import java.util.List;
 
 /**
  * Model tokens changed event.
+ *
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/textModelEvents.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/textModelEvents.ts</a>
  */
 public class ModelTokensChangedEvent {
 

@@ -29,6 +29,9 @@ import org.eclipse.tm4e.core.internal.model.ModelTokensChangedEventBuilder;
 
 /**
  * TextMate model class.
+ *
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/tokenizationTextModelPart.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/tokenizationTextModelPart.ts</a>
  */
 public class TMModel implements ITMModel {
 
