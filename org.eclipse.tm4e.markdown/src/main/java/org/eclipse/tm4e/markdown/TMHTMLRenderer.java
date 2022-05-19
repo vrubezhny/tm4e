@@ -11,8 +11,6 @@
  */
 package org.eclipse.tm4e.markdown;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.annotation.Nullable;
