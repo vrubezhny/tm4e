@@ -29,4 +29,9 @@ public class TMToken {
 		this.startIndex = startIndex;
 		this.type = type;
 	}
+
+	@Override
+	public String toString() {
+		return "(" + this.startIndex + ", " + this.type + ")";
+	}
 }
