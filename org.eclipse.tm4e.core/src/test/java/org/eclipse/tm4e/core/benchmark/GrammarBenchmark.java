@@ -59,7 +59,7 @@ public final class GrammarBenchmark implements Runnable {
 	public void run() {
 		IStateStack state = null;
 		for (final var line : sourceCode) {
-			state = grammar.tokenizeLine(line, state).getRuleStack();
+			state = grammar.tokenizeLine(line, state, null).getRuleStack();
 		}
 	}
 }

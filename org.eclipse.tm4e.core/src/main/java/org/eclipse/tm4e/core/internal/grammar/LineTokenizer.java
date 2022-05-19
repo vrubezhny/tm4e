@@ -82,6 +82,16 @@ final class LineTokenizer {
 		}
 	}
 
+	static final class TokenizeStringResult {
+		public final StateStack stack;
+		public final boolean stoppedEarly;
+
+		public TokenizeStringResult(final StateStack stack, final boolean stoppedEarly) {
+			this.stack = stack;
+			this.stoppedEarly = stoppedEarly;
+		}
+	}
+
 	private final Grammar grammar;
 	private final OnigString lineText;
 	private boolean isFirstLine;
@@ -101,7 +111,7 @@ final class LineTokenizer {
 		this.lineTokens = lineTokens;
 	}
 
-	private StateStack scan(final boolean checkWhileConditions) {
+	private TokenizeStringResult scan(final boolean checkWhileConditions, final int timeLimit) {
 		stop = false;
 
 		if (checkWhileConditions) {
@@ -113,11 +123,18 @@ final class LineTokenizer {
 			anchorPosition = whileCheckResult.anchorPosition;
 		}
 
+		final var startTime = System.currentTimeMillis();
 		while (!stop) {
+			if (timeLimit > 0) {
+				final var elapsedTime = System.currentTimeMillis() - startTime;
+				if (elapsedTime > timeLimit) {
+					return new TokenizeStringResult(stack, true);
+				}
+			}
 			scanNext(); // potentially modifies linePos && anchorPosition
 		}
 
-		return stack;
+		return new TokenizeStringResult(stack, false);
 	}
 
 	private void scanNext() {
@@ -481,7 +498,7 @@ final class LineTokenizer {
 					nameScopesList, contentNameScopesList);
 				final var onigSubStr = OnigString.of(lineTextContent.substring(0, captureIndex.end));
 				tokenizeString(grammar, onigSubStr, isFirstLine && captureIndex.start == 0,
-					captureIndex.start, stackClone, lineTokens, false);
+					captureIndex.start, stackClone, lineTokens, false, /* no time limit */0);
 				continue;
 			}
 
@@ -566,10 +583,12 @@ final class LineTokenizer {
 		return new WhileCheckResult(stack, linePos, anchorPosition, isFirstLine);
 	}
 
-	static StateStack tokenizeString(final Grammar grammar, final OnigString lineText, final boolean isFirstLine,
+	static TokenizeStringResult tokenizeString(final Grammar grammar, final OnigString lineText,
+		final boolean isFirstLine,
 		final int linePos, final StateStack stack, final LineTokens lineTokens,
-		final boolean checkWhileConditions) {
-		return new LineTokenizer(grammar, lineText, isFirstLine, linePos, stack, lineTokens).scan(checkWhileConditions);
+		final boolean checkWhileConditions, final int timeLimit) {
+		return new LineTokenizer(grammar, lineText, isFirstLine, linePos, stack, lineTokens)
+			.scan(checkWhileConditions, timeLimit);
 	}
 
 	static String debugCompiledRuleToString(final CompiledRule ruleScanner) {

@@ -109,7 +109,7 @@ public class RawTestImpl {
 	private static IStateStack assertLineTokenization(final IGrammar grammar, final RawTestLine testCase,
 		final IStateStack prevState) {
 		final var line = testCase.line;
-		final var actual = grammar.tokenizeLine(line, prevState);
+		final var actual = grammar.tokenizeLine(line, prevState, null);
 
 		final var actualTokens = Arrays.stream(actual.getTokens())
 			.map(token -> new RawToken(

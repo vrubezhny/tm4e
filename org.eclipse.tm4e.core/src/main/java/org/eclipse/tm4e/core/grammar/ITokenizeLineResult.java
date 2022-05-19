@@ -32,4 +32,9 @@ public interface ITokenizeLineResult<T> {
 	 * @return the `prevState` to be passed on to the next line tokenization.
 	 */
 	IStateStack getRuleStack();
+
+	/**
+	 * Did tokenization stop early due to reaching the time limit.
+	 */
+	boolean isStoppedEarly();
 }

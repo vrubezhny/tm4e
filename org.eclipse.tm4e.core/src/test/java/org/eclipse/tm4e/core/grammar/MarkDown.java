@@ -40,7 +40,7 @@ public class MarkDown {
 		IStateStack ruleStack = null;
 		int i = 0;
 		for (final String line : lines) {
-			final var lineTokens = grammar.tokenizeLine(line, ruleStack);
+			final var lineTokens = grammar.tokenizeLine(line, ruleStack, null);
 			ruleStack = lineTokens.getRuleStack();
 			for (i = 0; i < lineTokens.getTokens().length; i++) {
 				// IToken token = lineTokens.getTokens()[i];

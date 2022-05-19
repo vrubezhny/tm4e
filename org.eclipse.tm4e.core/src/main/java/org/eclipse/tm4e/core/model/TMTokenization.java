@@ -76,7 +76,7 @@ public class TMTokenization implements ITokenizationSupport {
 		 }
 		*/
 		final int offsetDelta = offsetDeltaOrNull == null ? 0 : offsetDeltaOrNull;
-		final var tokenizationResult = _grammar.tokenizeLine(line, state);
+		final var tokenizationResult = _grammar.tokenizeLine(line, state, null);
 
 		// Create the result early and fill in the tokens later
 		final var tokens = new ArrayList<TMToken>();

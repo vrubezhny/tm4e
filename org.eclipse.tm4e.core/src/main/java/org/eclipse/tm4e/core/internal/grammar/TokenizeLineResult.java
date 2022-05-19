@@ -25,10 +25,12 @@ final class TokenizeLineResult<T> implements ITokenizeLineResult<T> {
 
 	private final T tokens;
 	private final StateStack ruleStack;
+	private final boolean stoppedEarly;
 
-	TokenizeLineResult(final T tokens, final StateStack ruleStack) {
+	TokenizeLineResult(final T tokens, final StateStack ruleStack, final boolean stoppedEarly) {
 		this.tokens = tokens;
 		this.ruleStack = ruleStack;
+		this.stoppedEarly = stoppedEarly;
 	}
 
 	@Override
@@ -39,5 +41,10 @@ final class TokenizeLineResult<T> implements ITokenizeLineResult<T> {
 	@Override
 	public StateStack getRuleStack() {
 		return ruleStack;
+	}
+
+	@Override
+	public boolean isStoppedEarly() {
+		return stoppedEarly;
 	}
 }

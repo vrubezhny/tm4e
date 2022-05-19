@@ -39,7 +39,7 @@ public class TokenizationUtils {
 
 		final var prevStack = new AtomicReference<IStateStack>();
 		return BY_LINE_SPLITTER.splitToStream(text).map(line -> {
-			final var tokenized = grammar.tokenizeLine(line, prevStack.get());
+			final var tokenized = grammar.tokenizeLine(line, prevStack.get(), null);
 			prevStack.set(tokenized.getRuleStack());
 			return tokenized;
 		});
@@ -60,7 +60,7 @@ public class TokenizationUtils {
 
 		final var prevStack = new AtomicReference<IStateStack>();
 		return reader.lines().map(line -> {
-			final var tokenized = grammar.tokenizeLine(line, prevStack.get());
+			final var tokenized = grammar.tokenizeLine(line, prevStack.get(), null);
 			prevStack.set(tokenized.getRuleStack());
 			return tokenized;
 		});

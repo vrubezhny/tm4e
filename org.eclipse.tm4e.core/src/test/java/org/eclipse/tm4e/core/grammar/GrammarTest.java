@@ -91,7 +91,7 @@ class GrammarTest {
 		int j = 0;
 		final String[] lines = { "function add(a,b)", "{ return a+b; }" };
 		for (final String line : lines) {
-			final var lineTokens = castNonNull(grammar).tokenizeLine(line, ruleStack);
+			final var lineTokens = castNonNull(grammar).tokenizeLine(line, ruleStack, null);
 			ruleStack = lineTokens.getRuleStack();
 			for (i = 0; i < lineTokens.getTokens().length; i++) {
 				final IToken token = lineTokens.getTokens()[i];
@@ -134,7 +134,7 @@ class GrammarTest {
 		int tokenIndex = -1;
 		try (var reader = new BufferedReader(new InputStreamReader(Data.class.getResourceAsStream("raytracer.ts")))) {
 			while (reader.ready()) {
-				final var lineTokens = grammar.tokenizeLine(reader.readLine(), stateStack);
+				final var lineTokens = grammar.tokenizeLine(reader.readLine(), stateStack, null);
 				stateStack = lineTokens.getRuleStack();
 				for (int i = 0; i < lineTokens.getTokens().length; i++) {
 					tokenIndex++;

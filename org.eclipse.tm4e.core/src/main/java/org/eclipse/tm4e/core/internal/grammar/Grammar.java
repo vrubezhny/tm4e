@@ -252,29 +252,32 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 
 	@Override
 	public ITokenizeLineResult<IToken[]> tokenizeLine(final String lineText) {
-		return tokenizeLine(lineText, null);
+		return tokenizeLine(lineText, null, null);
 	}
 
 	@Override
-	public ITokenizeLineResult<IToken[]> tokenizeLine(final String lineText, @Nullable final IStateStack prevState) {
-		return _tokenize(lineText, (StateStack) prevState, false);
+	public ITokenizeLineResult<IToken[]> tokenizeLine(final String lineText, @Nullable final IStateStack prevState,
+		@Nullable final Integer timeLimit) {
+		return _tokenize(lineText, (StateStack) prevState, false, timeLimit);
 	}
 
 	@Override
 	public ITokenizeLineResult<int[]> tokenizeLine2(final String lineText) {
-		return tokenizeLine2(lineText, null);
+		return tokenizeLine2(lineText, null, null);
 	}
 
 	@Override
-	public ITokenizeLineResult<int[]> tokenizeLine2(final String lineText, @Nullable final IStateStack prevState) {
-		return _tokenize(lineText, (StateStack) prevState, true);
+	public ITokenizeLineResult<int[]> tokenizeLine2(final String lineText, @Nullable final IStateStack prevState,
+		@Nullable final Integer timeLimit) {
+		return _tokenize(lineText, (StateStack) prevState, true, timeLimit);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> T _tokenize(
 		String lineText,
 		@Nullable StateStack prevState,
-		final boolean emitBinaryTokens) {
+		final boolean emitBinaryTokens,
+		@Nullable final Integer timeLimit) {
 		var rootId = this._rootId;
 		if (rootId == null) {
 			rootId = this._rootId = RuleFactory.getCompiledRuleId(
@@ -338,19 +341,22 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 			lineText,
 			_tokenTypeMatchers,
 			balancedBracketSelectors);
-		final var nextState = LineTokenizer.tokenizeString(
+		final var tokenizeResult = LineTokenizer.tokenizeString(
 			this,
 			onigLineText,
 			isFirstLine,
 			0,
 			prevState,
 			lineTokens,
-			true);
+			true,
+			timeLimit == null ? 0 : timeLimit);
 
 		if (emitBinaryTokens) {
-			return (T) new TokenizeLineResult<>(lineTokens.getBinaryResult(nextState, lineLength), nextState);
+			return (T) new TokenizeLineResult<>(lineTokens.getBinaryResult(tokenizeResult.stack, lineLength),
+				tokenizeResult.stack, tokenizeResult.stoppedEarly);
 		}
-		return (T) new TokenizeLineResult<>(lineTokens.getResult(nextState, lineLength), nextState);
+		return (T) new TokenizeLineResult<>(lineTokens.getResult(tokenizeResult.stack, lineLength),
+			tokenizeResult.stack, tokenizeResult.stoppedEarly);
 	}
 
 	@Override
