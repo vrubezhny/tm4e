@@ -24,12 +24,17 @@ import java.util.List;
  */
 public interface IToken {
 
+	/**
+	 * 0-based start-index, inclusive
+	 */
 	int getStartIndex();
 
 	void setStartIndex(int startIndex);
 
+	/**
+	 * 0-based end-index, exclusive
+	 */
 	int getEndIndex();
 
 	List<String> getScopes();
-
 }
