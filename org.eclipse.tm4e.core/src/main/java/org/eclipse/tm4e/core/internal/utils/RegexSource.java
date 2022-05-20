@@ -47,7 +47,7 @@ public final class RegexSource {
 	 *
 	 * @return a string with the RegEx meta characters escaped
 	 */
-	public static String escapeRegExpCharacters(final String value) {
+	public static String escapeRegExpCharacters(final CharSequence value) {
 		final int valueLen = value.length();
 		final var sb = new StringBuilder(valueLen);
 		for (int i = 0; i < valueLen; i++) {
@@ -85,17 +85,17 @@ public final class RegexSource {
 		return sb.toString();
 	}
 
-	public static boolean hasCaptures(@Nullable final String regexSource) {
+	public static boolean hasCaptures(@Nullable final CharSequence regexSource) {
 		if (regexSource == null) {
 			return false;
 		}
 		return CAPTURING_REGEX_SOURCE.matcher(regexSource).find();
 	}
 
-	public static String replaceCaptures(final String regexSource, final String captureSource,
+	public static String replaceCaptures(final CharSequence regexSource, final CharSequence captureSource,
 		final OnigCaptureIndex[] captureIndices) {
 		final Matcher m = CAPTURING_REGEX_SOURCE.matcher(regexSource);
-		final StringBuilder result = new StringBuilder();
+		final var result = new StringBuilder();
 		while (m.find()) {
 			final String match = m.group();
 			final String replacement = getReplacement(match, captureSource, captureIndices);
@@ -105,7 +105,7 @@ public final class RegexSource {
 		return result.toString();
 	}
 
-	private static String getReplacement(final String match, final String captureSource,
+	private static String getReplacement(final String match, final CharSequence captureSource,
 		final OnigCaptureIndex[] captureIndices) {
 		final int index;
 		final String command;
@@ -119,18 +119,18 @@ public final class RegexSource {
 		}
 		final OnigCaptureIndex capture = captureIndices.length > index ? captureIndices[index] : null;
 		if (capture != null) {
-			String result = captureSource.substring(capture.start, capture.end);
+			var result = captureSource.subSequence(capture.start, capture.end);
 			// Remove leading dots that would make the selector invalid
 			while (!result.isEmpty() && result.charAt(0) == '.') {
-				result = result.substring(1);
+				result = result.subSequence(1, result.length());
 			}
 			if ("downcase".equals(command)) {
-				return result.toLowerCase();
+				return result.toString().toLowerCase();
 			}
 			if ("upcase".equals(command)) {
-				return result.toUpperCase();
+				return result.toString().toUpperCase();
 			}
-			return result;
+			return result.toString();
 		}
 		return match;
 	}

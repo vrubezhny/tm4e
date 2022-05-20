@@ -17,7 +17,7 @@ public final class StringUtils {
 	private static final Pattern RGB = Pattern.compile("^#[0-9a-f]{3}", Pattern.CASE_INSENSITIVE);
 	private static final Pattern RGBA = Pattern.compile("^#[0-9a-f]{4}", Pattern.CASE_INSENSITIVE);
 
-	public static boolean isValidHexColor(final String hex) {
+	public static boolean isValidHexColor(final CharSequence hex) {
 		if (hex.isEmpty()) {
 			return false;
 		}

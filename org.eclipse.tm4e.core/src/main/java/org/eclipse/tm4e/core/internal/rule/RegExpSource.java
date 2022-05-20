@@ -105,10 +105,10 @@ final class RegExpSource {
 	}
 
 	@SuppressWarnings("null")
-	String resolveBackReferences(final String lineText, final OnigCaptureIndex[] captureIndices) {
+	String resolveBackReferences(final CharSequence lineText, final OnigCaptureIndex[] captureIndices) {
 		final var capturedValues = new ArrayList<String>(captureIndices.length);
 		for (final var capture : captureIndices) {
-			capturedValues.add(lineText.substring(capture.start, capture.end));
+			capturedValues.add(lineText.subSequence(capture.start, capture.end).toString());
 		}
 		return BACK_REFERENCING_END.matcher(this.source).replaceAll(match -> {
 			try {

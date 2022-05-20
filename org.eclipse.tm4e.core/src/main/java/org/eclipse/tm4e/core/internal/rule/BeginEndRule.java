@@ -67,7 +67,8 @@ public final class BeginEndRule extends Rule {
 		return this.end.getSource();
 	}
 
-	public String getEndWithResolvedBackReferences(final String lineText, final OnigCaptureIndex[] captureIndices) {
+	public String getEndWithResolvedBackReferences(final CharSequence lineText,
+		final OnigCaptureIndex[] captureIndices) {
 		return this.end.resolveBackReferences(lineText, captureIndices);
 	}
 

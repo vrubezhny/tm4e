@@ -57,7 +57,8 @@ public final class BeginWhileRule extends Rule {
 		this.hasMissingPatterns = patterns.hasMissingPatterns;
 	}
 
-	public String getWhileWithResolvedBackReferences(final String lineText, final OnigCaptureIndex[] captureIndices) {
+	public String getWhileWithResolvedBackReferences(final CharSequence lineText,
+		final OnigCaptureIndex[] captureIndices) {
 		return this._while.resolveBackReferences(lineText, captureIndices);
 	}
 

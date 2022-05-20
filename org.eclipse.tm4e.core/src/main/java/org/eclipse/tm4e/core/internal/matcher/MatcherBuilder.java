@@ -42,7 +42,7 @@ final class MatcherBuilder<T> {
 	@Nullable
 	private String token;
 
-	MatcherBuilder(final String selector, final NameMatcher<T> matchesName) {
+	MatcherBuilder(final CharSequence selector, final NameMatcher<T> matchesName) {
 		tokenizer = new Tokenizer(selector);
 		this.matchesName = matchesName;
 
@@ -166,9 +166,9 @@ final class MatcherBuilder<T> {
 		for (int i = 0; i < token.length(); i++) {
 			final char ch = token.charAt(i);
 			if (ch == '.' || ch == ':' || ch == '_'
-					|| (ch >= 'a' && ch <= 'z')
-					|| (ch >= 'A' && ch <= 'Z')
-					|| (ch >= '0' && ch <= '9'))
+				|| ch >= 'a' && ch <= 'z'
+				|| ch >= 'A' && ch <= 'Z'
+				|| ch >= '0' && ch <= '9')
 				continue;
 			return false;
 		}
@@ -184,7 +184,7 @@ final class MatcherBuilder<T> {
 
 		final java.util.regex.Matcher regex;
 
-		Tokenizer(final String input) {
+		Tokenizer(final CharSequence input) {
 			regex = TOKEN_PATTERN.matcher(input);
 		}
 
