@@ -28,14 +28,17 @@ import org.eclipse.tm4e.core.registry.IGrammarSource;
 import org.eclipse.tm4e.core.registry.Registry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 
 /**
  * Test for grammar tokenizer.
  */
+@TestMethodOrder(MethodOrderer.DisplayName.class)
 class GrammarTest {
 
-	private static final String[] EXPECTED_TOKENS = {
+	private static final String[] EXPECTED_SINGLE_LINE_TOKENS = {
 		"Token from 0 to 8 with scopes [source.js, meta.function.js, storage.type.function.js]",
 		"Token from 8 to 9 with scopes [source.js, meta.function.js]",
 		"Token from 9 to 12 with scopes [source.js, meta.function.js, entity.name.function.js]",
@@ -80,7 +83,7 @@ class GrammarTest {
 			final IToken token = lineTokens.getTokens()[i];
 			final String s = "Token from " + token.getStartIndex() + " to " + token.getEndIndex() + " with scopes "
 				+ token.getScopes();
-			Assertions.assertEquals(EXPECTED_TOKENS[i], s);
+			Assertions.assertEquals(EXPECTED_SINGLE_LINE_TOKENS[i], s);
 		}
 	}
 
@@ -105,6 +108,89 @@ class GrammarTest {
 			}
 			j = i;
 		}
+	}
+
+	@Test
+	void testTokenize0Tokens() throws Exception {
+		final var registry = new Registry();
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
+		final String lineText = "";
+		final var lineTokens = castNonNull(grammar).tokenizeLine(lineText);
+		assertFalse(lineTokens.isStoppedEarly());
+
+		final var endIndexOffset = 1; // IToken's end-indexes are exclusive
+
+		final var tokens = lineTokens.getTokens();
+		assertEquals(1, tokens.length);
+		assertEquals(0, tokens[0].getStartIndex());
+		assertEquals(0 + endIndexOffset, tokens[0].getEndIndex());
+	}
+
+	@Test
+	void testTokenize1Token() throws Exception {
+		final var registry = new Registry();
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
+		final String lineText = "true";
+		final var lineTokens = castNonNull(grammar).tokenizeLine(lineText);
+		assertFalse(lineTokens.isStoppedEarly());
+
+		final var endIndexOffset = 1; // IToken's end-indexes are exclusive
+
+		final var tokens = lineTokens.getTokens();
+		assertEquals(1, tokens.length);
+		assertEquals(0, tokens[0].getStartIndex());
+		assertEquals(3 + endIndexOffset, tokens[0].getEndIndex());
+	}
+
+	@Test
+	void testTokenize1TokenWithNewLine() throws Exception {
+		final var registry = new Registry();
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
+		final String lineText = "true\n";
+		final var lineTokens = castNonNull(grammar).tokenizeLine(lineText);
+		assertFalse(lineTokens.isStoppedEarly());
+
+		final var endIndexOffset = 1; // IToken's end-indexes are exclusive
+
+		System.out.println(Arrays.toString(lineTokens.getTokens()));
+		final var tokens = lineTokens.getTokens();
+		assertEquals(1, tokens.length); // TODO why is only 1 token returned? The token for \n is missing
+		assertEquals(0, tokens[0].getStartIndex());
+		assertEquals(3 + endIndexOffset, tokens[0].getEndIndex());
+	}
+
+	@Test
+	void testTokenize1IllegalToken() throws Exception {
+		final var registry = new Registry();
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
+		final String lineText = "@"; // Uncaught SyntaxError: illegal character U+0040
+		final var lineTokens = castNonNull(grammar).tokenizeLine(lineText);
+		assertFalse(lineTokens.isStoppedEarly());
+		final var endIndexOffset = 1; // IToken's end-indexes are exclusive
+
+		final var tokens = lineTokens.getTokens();
+		assertEquals(1, tokens.length);
+		assertEquals(0, tokens[0].getStartIndex());
+		assertEquals(0 + endIndexOffset + 1, tokens[0].getEndIndex()); // TODO why does end-index have extra +1 offset?
+	}
+
+	@Test
+	void testTokenize2Tokens() throws Exception {
+		final var registry = new Registry();
+		final IGrammar grammar = registry.addGrammar(fromResource(Data.class, "JavaScript.tmLanguage"));
+
+		final String lineText = "{}";
+		final var lineTokens = castNonNull(grammar).tokenizeLine(lineText);
+		assertFalse(lineTokens.isStoppedEarly());
+
+		final var endIndexOffset = 1; // IToken's end-indexes are exclusive
+
+		final var tokens = lineTokens.getTokens();
+		assertEquals(2, tokens.length);
+		assertEquals(0, tokens[0].getStartIndex());
+		assertEquals(0 + endIndexOffset, tokens[0].getEndIndex());
+		assertEquals(1, tokens[1].getStartIndex());
+		assertEquals(1 + endIndexOffset, tokens[1].getEndIndex());
 	}
 
 	@Test
