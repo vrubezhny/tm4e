@@ -66,19 +66,17 @@ public class TMModel implements ITMModel {
 	}
 
 	/**
-	 * The {@link TokenizerThread} takes as input an {@link TMModel} and continuously runs tokenizing in background on
-	 * the lines found in {@link TMModel#modelLines}.
+	 * The {@link TokenizerThread} continuously runs tokenizing in background on the lines found in
+	 * {@link TMModel#modelLines}.
 	 *
-	 * The {@link TMModel#modelLines} are expected to be accessed through {@link TMModel#getLines()} and manipulated by the
-	 * UI part to inform of needs to (re)tokenize area, then the {@link TokenizerThread} processes them and emits events
-	 * through the model.
+	 * The {@link TMModel#modelLines} are expected to be accessed through {@link TMModel#getLines()} and manipulated by
+	 * the UI part to inform of needs to (re)tokenize area, then the {@link TokenizerThread} processes them and emits
+	 * events through the model.
 	 *
 	 * UI elements are supposed to subscribe and react to the events with
 	 * {@link TMModel#addModelTokensChangedListener(IModelTokensChangedListener)}.
 	 */
-	private static final class TokenizerThread extends Thread {
-		private final TMModel model;
-
+	private final class TokenizerThread extends Thread {
 		@Nullable
 		private IStateStack lastState;
 
@@ -87,25 +85,24 @@ public class TMModel implements ITMModel {
 		 *
 		 * @param name the thread's name
 		 */
-		TokenizerThread(final String name, final TMModel model) {
+		TokenizerThread(final String name) {
 			super(name);
-			this.model = model;
 			setPriority(Thread.MIN_PRIORITY);
 			setDaemon(true);
 		}
 
 		@Override
 		public void run() {
-			while (!isInterrupted() && model.fThread == this) {
+			while (!isInterrupted() && fThread == this) {
 				try {
-					final int toProcess = model.invalidLines.take();
-					if (model.modelLines.get(toProcess).isInvalid) {
+					final int toProcess = invalidLines.take();
+					if (modelLines.get(toProcess).isInvalid) {
 						try {
 							revalidateTokensNow(toProcess, null);
 						} catch (final Exception ex) {
 							LOGGER.log(ERROR, ex.getMessage());
-							if (toProcess < model.modelLines.getNumberOfLines()) {
-								model.invalidateLine(toProcess);
+							if (toProcess < modelLines.getNumberOfLines()) {
+								invalidateLine(toProcess);
 							}
 						}
 					}
@@ -120,10 +117,10 @@ public class TMModel implements ITMModel {
 		 * @param toLineIndexOrNull 0-based
 		 */
 		private void revalidateTokensNow(final int startLine, @Nullable final Integer toLineIndexOrNull) {
-			model.buildAndEmitEvent(eventBuilder -> {
+			buildAndEmitEvent(eventBuilder -> {
 				final int toLineIndex;
-				if (toLineIndexOrNull == null || toLineIndexOrNull >= model.modelLines.getNumberOfLines()) {
-					toLineIndex = model.modelLines.getNumberOfLines() - 1;
+				if (toLineIndexOrNull == null || toLineIndexOrNull >= modelLines.getNumberOfLines()) {
+					toLineIndex = modelLines.getNumberOfLines() - 1;
 				} else {
 					toLineIndex = toLineIndexOrNull;
 				}
@@ -139,17 +136,17 @@ public class TMModel implements ITMModel {
 				// - tokenizing the next line would go above MAX_ALLOWED_TIME
 
 				int lineIndex = startLine;
-				while (lineIndex <= toLineIndex && lineIndex < model.modelLines.getNumberOfLines()) {
+				while (lineIndex <= toLineIndex && lineIndex < modelLines.getNumberOfLines()) {
 					elapsedTime = System.currentTimeMillis() - startTime;
 					if (elapsedTime > MAX_ALLOWED_TIME) {
 						// Stop if MAX_ALLOWED_TIME is reached
-						model.invalidateLine(lineIndex);
+						invalidateLine(lineIndex);
 						return;
 					}
 
 					// Compute how many characters will be tokenized for this line
 					try {
-						currentCharsToTokenize = model.modelLines.getLineLength(lineIndex);
+						currentCharsToTokenize = modelLines.getLineLength(lineIndex);
 					} catch (final Exception ex) {
 						LOGGER.log(ERROR, ex.getMessage());
 					}
@@ -160,7 +157,7 @@ public class TMModel implements ITMModel {
 							* currentCharsToTokenize;
 						if (elapsedTime + currentEstimatedTimeToTokenize > MAX_ALLOWED_TIME) {
 							// Tokenizing this line will go above MAX_ALLOWED_TIME
-							model.invalidateLine(lineIndex);
+							invalidateLine(lineIndex);
 							return;
 						}
 					}
@@ -186,15 +183,15 @@ public class TMModel implements ITMModel {
 			// Validate all states up to and including endLineIndex
 			int nextInvalidLineIndex = startIndex;
 			int lineIndex = startIndex;
-			while (lineIndex <= endLineIndex && lineIndex < model.modelLines.getNumberOfLines()) {
+			while (lineIndex <= endLineIndex && lineIndex < modelLines.getNumberOfLines()) {
 				final int endStateIndex = lineIndex + 1;
 				TokenizationResult r = null;
 				String text = null;
-				final ModelLine modeLine = model.modelLines.get(lineIndex);
+				final ModelLine modeLine = modelLines.get(lineIndex);
 				try {
-					text = model.modelLines.getLineText(lineIndex);
+					text = modelLines.getLineText(lineIndex);
 					// Tokenize only the first X characters
-					r = castNonNull(model.tokenizer).tokenize(text, modeLine.state, 0, stopLineTokenizationAfter);
+					r = castNonNull(tokenizer).tokenize(text, modeLine.state, 0, stopLineTokenizationAfter);
 				} catch (final Exception ex) {
 					LOGGER.log(ERROR, ex.toString());
 					return nextInvalidLineIndex;
@@ -216,19 +213,19 @@ public class TMModel implements ITMModel {
 				eventBuilder.registerChangedTokens(lineIndex + 1);
 				modeLine.isInvalid = false;
 
-				if (endStateIndex < model.modelLines.getNumberOfLines()) {
-					final ModelLine endStateLine = castNonNull(model.modelLines.get(endStateIndex));
+				if (endStateIndex < modelLines.getNumberOfLines()) {
+					final ModelLine endStateLine = castNonNull(modelLines.get(endStateIndex));
 					if (endStateLine.getState() != null && Objects.equals(endStateLine.getState(), r.endState)) {
 						// The end state of this line remains the same
 						nextInvalidLineIndex = lineIndex + 1;
-						while (nextInvalidLineIndex < model.modelLines.getNumberOfLines()) {
-							if (model.modelLines.get(nextInvalidLineIndex).isInvalid) {
+						while (nextInvalidLineIndex < modelLines.getNumberOfLines()) {
+							if (modelLines.get(nextInvalidLineIndex).isInvalid) {
 								break;
 							}
-							final var isLastLine = nextInvalidLineIndex + 1 >= model.modelLines.getNumberOfLines();
+							final var isLastLine = nextInvalidLineIndex + 1 >= modelLines.getNumberOfLines();
 							if (isLastLine
 								? lastState == null
-								: model.modelLines.get(nextInvalidLineIndex + 1).getState() == null) {
+								: modelLines.get(nextInvalidLineIndex + 1).getState() == null) {
 								break;
 							}
 							nextInvalidLineIndex++;
@@ -268,7 +265,7 @@ public class TMModel implements ITMModel {
 
 		var fThread = this.fThread;
 		if (fThread == null || fThread.isInterrupted()) {
-			fThread = this.fThread = new TokenizerThread(getClass().getName(), this);
+			fThread = this.fThread = new TokenizerThread(getClass().getName());
 		}
 		if (!fThread.isAlive()) {
 			fThread.start();
