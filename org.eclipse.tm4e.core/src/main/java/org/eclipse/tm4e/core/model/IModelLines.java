@@ -1,20 +1,20 @@
 /**
- *  Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2017 Angelo ZERR.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
+ * Contributors:
+ * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
 package org.eclipse.tm4e.core.model;
 
 import java.util.function.Consumer;
 
 /**
- * Mode lines API which must be initalize with a document and changed of document.
+ * Model lines API which must be initalized with a document and changed of document.
  */
 public interface IModelLines {
 
@@ -41,6 +41,7 @@ public interface IModelLines {
 
 	/**
 	 * @param lineIndex (0-based)
+	 *
 	 * @throws IndexOutOfBoundsException
 	 */
 	ModelLine get(int lineIndex);
