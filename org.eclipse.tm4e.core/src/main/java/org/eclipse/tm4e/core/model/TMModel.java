@@ -212,7 +212,7 @@ public class TMModel implements ITMModel {
 					r.endState = modeLine.getState();
 				}
 
-				modeLine.setTokens(r.tokens);
+				modeLine.tokens = r.tokens;
 				eventBuilder.registerChangedTokens(lineIndex + 1);
 				modeLine.isInvalid = false;
 
@@ -235,7 +235,7 @@ public class TMModel implements ITMModel {
 						}
 						lineIndex = nextInvalidLineIndex;
 					} else {
-						endStateLine.setState(r.endState);
+						endStateLine.state = r.endState;
 						lineIndex++;
 					}
 				} else {
@@ -258,7 +258,7 @@ public class TMModel implements ITMModel {
 		if (!Objects.equals(grammar, this.grammar)) {
 			this.grammar = grammar;
 			final var tokenizer = this.tokenizer = new TMTokenization(grammar);
-			lines.get(0).setState(tokenizer.getInitialState());
+			lines.get(0).state = tokenizer.getInitialState();
 		}
 	}
 

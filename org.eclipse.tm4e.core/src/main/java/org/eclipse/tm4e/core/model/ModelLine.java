@@ -18,13 +18,13 @@ import org.eclipse.tm4e.core.grammar.IStateStack;
 
 public class ModelLine {
 
-	boolean isInvalid;
+	protected boolean isInvalid;
 
 	@Nullable
-	IStateStack state;
+	protected IStateStack state;
 
 	@Nullable
-	List<TMToken> tokens;
+	protected List<TMToken> tokens;
 
 	public void resetTokenizationState() {
 		this.state = null;
@@ -34,14 +34,6 @@ public class ModelLine {
 	@Nullable
 	public IStateStack getState() {
 		return state;
-	}
-
-	public void setState(@Nullable final IStateStack state) {
-		this.state = state;
-	}
-
-	public void setTokens(@Nullable final List<TMToken> tokens) {
-		this.tokens = tokens;
 	}
 
 	@Nullable
