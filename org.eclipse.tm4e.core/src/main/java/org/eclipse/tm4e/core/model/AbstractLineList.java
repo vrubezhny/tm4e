@@ -14,8 +14,8 @@ package org.eclipse.tm4e.core.model;
 import static java.lang.System.Logger.Level.*;
 
 import java.lang.System.Logger;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -34,7 +34,7 @@ public abstract class AbstractLineList implements IModelLines {
 
 	private static final Logger LOGGER = System.getLogger(AbstractLineList.class.getName());
 
-	private final List<ModelLine> list = Collections.synchronizedList(new ArrayList<>());
+	private final List<ModelLine> list = Collections.synchronizedList(new LinkedList<>());
 
 	@Nullable
 	private TMModel model;
