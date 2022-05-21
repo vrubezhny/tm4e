@@ -26,7 +26,7 @@ public class ModelLine {
 	@Nullable
 	protected List<TMToken> tokens;
 
-	public void resetTokenizationState() {
+	void resetTokenizationState() {
 		this.state = null;
 		this.tokens = null;
 	}
