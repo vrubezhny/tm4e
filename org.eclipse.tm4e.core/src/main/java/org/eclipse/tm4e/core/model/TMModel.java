@@ -77,8 +77,6 @@ public class TMModel implements ITMModel {
 	 * {@link TMModel#addModelTokensChangedListener(IModelTokensChangedListener)}.
 	 */
 	private final class TokenizerThread extends Thread {
-		@Nullable
-		private IStateStack lastState;
 
 		/**
 		 * Creates a new background thread. The thread runs with minimal priority.
@@ -168,80 +166,83 @@ public class TMModel implements ITMModel {
 			});
 
 		}
+	}
 
-		/**
-		 * @param startIndex 0-based
-		 * @param endLineIndex 0-based
-		 *
-		 * @return the first line index (0-based) that was NOT processed by this operation
-		 */
-		private int updateTokensInRange(final ModelTokensChangedEventBuilder eventBuilder, final int startIndex,
-			final int endLineIndex) {
-			final var stopLineTokenizationAfter = Duration.ofMillis(1_000_000_000); // 1 billion, if a line is so long,
-																					 // you have other trouble :)
+	@Nullable
+	private IStateStack lastState;
 
-			// Validate all states up to and including endLineIndex
-			int nextInvalidLineIndex = startIndex;
-			int lineIndex = startIndex;
-			while (lineIndex <= endLineIndex && lineIndex < modelLines.getNumberOfLines()) {
-				final int endStateIndex = lineIndex + 1;
-				TokenizationResult r = null;
-				String text = null;
-				final ModelLine modeLine = modelLines.get(lineIndex);
-				try {
-					text = modelLines.getLineText(lineIndex);
-					// Tokenize only the first X characters
-					r = castNonNull(tokenizer).tokenize(text, modeLine.state, 0, stopLineTokenizationAfter);
-				} catch (final Exception ex) {
-					LOGGER.log(ERROR, ex.toString());
-					return nextInvalidLineIndex;
-				}
+	/**
+	 * @param startIndex 0-based
+	 * @param endLineIndex 0-based
+	 *
+	 * @return the first line index (0-based) that was NOT processed by this operation
+	 */
+	private int updateTokensInRange(final ModelTokensChangedEventBuilder eventBuilder, final int startIndex,
+		final int endLineIndex) {
+		final var stopLineTokenizationAfter = Duration.ofMillis(1_000_000_000); // 1 billion, if a line is so long,
+																				 // you have other trouble :)
 
-				if (!r.tokens.isEmpty()) {
-					// Cannot have a stop offset before the last token
-					r.actualStopOffset = Math.max(r.actualStopOffset, getLastElement(r.tokens).startIndex + 1);
-				}
+		// Validate all states up to and including endLineIndex
+		int nextInvalidLineIndex = startIndex;
+		int lineIndex = startIndex;
+		while (lineIndex <= endLineIndex && lineIndex < modelLines.getNumberOfLines()) {
+			final int endStateIndex = lineIndex + 1;
+			TokenizationResult r = null;
+			String text = null;
+			final ModelLine modeLine = modelLines.get(lineIndex);
+			try {
+				text = modelLines.getLineText(lineIndex);
+				// Tokenize only the first X characters
+				r = castNonNull(tokenizer).tokenize(text, modeLine.state, 0, stopLineTokenizationAfter);
+			} catch (final Exception ex) {
+				LOGGER.log(ERROR, ex.toString());
+				return nextInvalidLineIndex;
+			}
 
-				if (r.actualStopOffset < text.length()) {
-					// Treat the rest of the line (if above limit) as one default token
-					r.tokens.add(new TMToken(r.actualStopOffset, ""));
-					// Use as end state the starting state
-					r.endState = modeLine.getState();
-				}
+			if (!r.tokens.isEmpty()) {
+				// Cannot have a stop offset before the last token
+				r.actualStopOffset = Math.max(r.actualStopOffset, getLastElement(r.tokens).startIndex + 1);
+			}
 
-				modeLine.tokens = r.tokens;
-				eventBuilder.registerChangedTokens(lineIndex + 1);
-				modeLine.isInvalid = false;
+			if (r.actualStopOffset < text.length()) {
+				// Treat the rest of the line (if above limit) as one default token
+				r.tokens.add(new TMToken(r.actualStopOffset, ""));
+				// Use as end state the starting state
+				r.endState = modeLine.getState();
+			}
 
-				if (endStateIndex < modelLines.getNumberOfLines()) {
-					final ModelLine endStateLine = castNonNull(modelLines.get(endStateIndex));
-					if (endStateLine.getState() != null && Objects.equals(endStateLine.getState(), r.endState)) {
-						// The end state of this line remains the same
-						nextInvalidLineIndex = lineIndex + 1;
-						while (nextInvalidLineIndex < modelLines.getNumberOfLines()) {
-							if (modelLines.get(nextInvalidLineIndex).isInvalid) {
-								break;
-							}
-							final var isLastLine = nextInvalidLineIndex + 1 >= modelLines.getNumberOfLines();
-							if (isLastLine
-								? lastState == null
-								: modelLines.get(nextInvalidLineIndex + 1).getState() == null) {
-								break;
-							}
-							nextInvalidLineIndex++;
+			modeLine.tokens = r.tokens;
+			eventBuilder.registerChangedTokens(lineIndex + 1);
+			modeLine.isInvalid = false;
+
+			if (endStateIndex < modelLines.getNumberOfLines()) {
+				final ModelLine endStateLine = castNonNull(modelLines.get(endStateIndex));
+				if (endStateLine.getState() != null && Objects.equals(endStateLine.getState(), r.endState)) {
+					// The end state of this line remains the same
+					nextInvalidLineIndex = lineIndex + 1;
+					while (nextInvalidLineIndex < modelLines.getNumberOfLines()) {
+						if (modelLines.get(nextInvalidLineIndex).isInvalid) {
+							break;
 						}
-						lineIndex = nextInvalidLineIndex;
-					} else {
-						endStateLine.state = r.endState;
-						lineIndex++;
+						final var isLastLine = nextInvalidLineIndex + 1 >= modelLines.getNumberOfLines();
+						if (isLastLine
+							? lastState == null
+							: modelLines.get(nextInvalidLineIndex + 1).getState() == null) {
+							break;
+						}
+						nextInvalidLineIndex++;
 					}
+					lineIndex = nextInvalidLineIndex;
 				} else {
-					lastState = r.endState;
+					endStateLine.state = r.endState;
 					lineIndex++;
 				}
+			} else {
+				lastState = r.endState;
+				lineIndex++;
 			}
-			return nextInvalidLineIndex;
 		}
+		return nextInvalidLineIndex;
 	}
 
 	@Nullable
@@ -319,11 +320,7 @@ public class TMModel implements ITMModel {
 
 	@Override
 	public void forceTokenization(final int lineNumber) {
-		final var tokenizerThread = this.fThread;
-		if (tokenizerThread == null) {
-			return;
-		}
-		buildAndEmitEvent(eventBuilder -> tokenizerThread.updateTokensInRange(eventBuilder, lineNumber, lineNumber));
+		buildAndEmitEvent(eventBuilder -> updateTokensInRange(eventBuilder, lineNumber, lineNumber));
 	}
 
 	@Override
