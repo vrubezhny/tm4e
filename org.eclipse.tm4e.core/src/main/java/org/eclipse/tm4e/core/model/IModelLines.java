@@ -33,7 +33,7 @@ public interface IModelLines {
 	void removeLine(int lineIndex);
 
 	/**
-	 * Mark as line is updated.
+	 * Mark a line as updated.
 	 *
 	 * @param line (0-based)
 	 */
