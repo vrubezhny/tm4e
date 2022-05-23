@@ -71,6 +71,16 @@ public abstract class AbstractModelLines implements IModelLines {
 		return this.list.get(index);
 	}
 
+	@Nullable
+	@Override
+	public ModelLine getOrNull(final int index) {
+		try {
+			return this.list.get(index);
+		} catch (final IndexOutOfBoundsException ex) {
+			return null;
+		}
+	}
+
 	@Override
 	public void forEach(final Consumer<ModelLine> consumer) {
 		this.list.forEach(consumer);

@@ -319,7 +319,8 @@ public class TMModel implements ITMModel {
 	@Override
 	@Nullable
 	public List<TMToken> getLineTokens(final int lineNumber) {
-		return modelLines.get(lineNumber).tokens;
+		final var modelLine = modelLines.getOrNull(lineNumber);
+		return modelLine == null ? null : modelLine.getTokens();
 	}
 
 	/**
@@ -329,12 +330,12 @@ public class TMModel implements ITMModel {
 		return modelLines.get(lineNumber).isInvalid;
 	}
 
-	/**
-	 * @throws IndexOutOfBoundsException
-	 */
 	void invalidateLine(final int lineIndex) {
-		modelLines.get(lineIndex).isInvalid = true;
-		invalidLines.add(lineIndex);
+		final var modelLine = modelLines.getOrNull(lineIndex);
+		if (modelLine != null) {
+			modelLine.isInvalid = true;
+			invalidLines.add(lineIndex);
+		}
 	}
 
 	private static final class ModelTokensChangedEventBuilder {
