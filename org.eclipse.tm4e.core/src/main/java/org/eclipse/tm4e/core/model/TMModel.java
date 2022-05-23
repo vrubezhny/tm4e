@@ -96,7 +96,7 @@ public class TMModel implements ITMModel {
 					final int toProcess = invalidLines.take();
 					if (modelLines.get(toProcess).isInvalid) {
 						try {
-							revalidateTokensNow(toProcess, null);
+							revalidateTokensNow(toProcess);
 						} catch (final Exception ex) {
 							LOGGER.log(ERROR, ex.getMessage());
 							if (toProcess < modelLines.getNumberOfLines()) {
@@ -114,15 +114,8 @@ public class TMModel implements ITMModel {
 		 * @param startLine 0-based
 		 * @param toLineIndexOrNull 0-based
 		 */
-		private void revalidateTokensNow(final int startLine, @Nullable final Integer toLineIndexOrNull) {
+		private void revalidateTokensNow(final int startLine) {
 			buildAndEmitEvent(eventBuilder -> {
-				final int toLineIndex;
-				if (toLineIndexOrNull == null || toLineIndexOrNull >= modelLines.getNumberOfLines()) {
-					toLineIndex = modelLines.getNumberOfLines() - 1;
-				} else {
-					toLineIndex = toLineIndexOrNull;
-				}
-
 				long tokenizedChars = 0;
 				long currentCharsToTokenize = 0;
 				final long MAX_ALLOWED_TIME = 20;
@@ -134,7 +127,7 @@ public class TMModel implements ITMModel {
 				// - tokenizing the next line would go above MAX_ALLOWED_TIME
 
 				int lineIndex = startLine;
-				while (lineIndex <= toLineIndex && lineIndex < modelLines.getNumberOfLines()) {
+				while (lineIndex < modelLines.getNumberOfLines()) {
 					elapsedTime = System.currentTimeMillis() - startTime;
 					if (elapsedTime > MAX_ALLOWED_TIME) {
 						// Stop if MAX_ALLOWED_TIME is reached
