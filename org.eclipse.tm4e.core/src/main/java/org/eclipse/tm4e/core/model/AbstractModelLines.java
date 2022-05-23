@@ -27,12 +27,12 @@ import org.eclipse.jdt.annotation.Nullable;
  * Implementation class must:
  * <ul>
  * <li>synchronizes lines with the lines of the editor content when it changed.</li>
- * <li>call {@link AbstractLineList#invalidateLine(int)} with the first changed line.</li>
+ * <li>call {@link AbstractModelLines#invalidateLine(int)} with the first changed line.</li>
  * </ul>
  */
-public abstract class AbstractLineList implements IModelLines {
+public abstract class AbstractModelLines implements IModelLines {
 
-	private static final Logger LOGGER = System.getLogger(AbstractLineList.class.getName());
+	private static final Logger LOGGER = System.getLogger(AbstractModelLines.class.getName());
 
 	private final List<ModelLine> list = Collections.synchronizedList(new LinkedList<>());
 

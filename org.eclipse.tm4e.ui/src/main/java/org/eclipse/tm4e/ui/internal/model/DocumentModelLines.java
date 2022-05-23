@@ -18,23 +18,23 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.tm4e.core.model.AbstractLineList;
+import org.eclipse.tm4e.core.model.AbstractModelLines;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 
 /**
- * TextMate {@link AbstractLineList} implementation with Eclipse
+ * TextMate {@link AbstractModelLines} implementation with Eclipse
  * {@link IDocument}.
  *
  * Goal of this class is to synchronize Eclipse {@link DocumentEvent} with
  * TextMate model lines.
  *
  */
-final class DocumentLineList extends AbstractLineList {
+final class DocumentModelLines extends AbstractModelLines {
 
 	private final IDocument document;
 	private final InternalListener listener = new InternalListener();
 
-	DocumentLineList(final IDocument document) {
+	DocumentModelLines(final IDocument document) {
 		this.document = document;
 		document.addDocumentListener(listener);
 		for (int i = 0; i < document.getNumberOfLines(); i++) {
@@ -62,7 +62,7 @@ final class DocumentLineList extends AbstractLineList {
 			final int startLine = DocumentHelper.getStartLine(event);
 			final int endLine = DocumentHelper.getEndLine(event, true);
 			for (int i = endLine; i > startLine; i--) {
-				DocumentLineList.this.removeLine(i);
+				DocumentModelLines.this.removeLine(i);
 			}
 		}
 
@@ -76,14 +76,14 @@ final class DocumentLineList extends AbstractLineList {
 					final int endLine = DocumentHelper.getEndLine(event, false);
 					// Insert new lines
 					for (int i = startLine; i < endLine; i++) {
-						DocumentLineList.this.addLine(i + 1);
+						DocumentModelLines.this.addLine(i + 1);
 					}
 					if (startLine == endLine) {
-						DocumentLineList.this.updateLine(startLine);
+						DocumentModelLines.this.updateLine(startLine);
 					}
 				} else {
 					// Update line
-					DocumentLineList.this.updateLine(startLine);
+					DocumentModelLines.this.updateLine(startLine);
 				}
 				invalidateLine(startLine);
 			} catch (final BadLocationException e) {

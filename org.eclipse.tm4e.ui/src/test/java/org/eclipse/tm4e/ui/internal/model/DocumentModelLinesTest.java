@@ -17,19 +17,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.eclipse.jface.text.Document;
 import org.junit.jupiter.api.Test;
 
-class DocumentLineListTest {
+class DocumentModelLinesTest {
 
 	@Test
 	void testMultiLineChange() {
 		final var document = new Document();
-		final var lineList = new DocumentLineList(document);
+		final var lines = new DocumentModelLines(document);
 
 		document.set("a\nb\nc\nd");
-		assertEquals(4, lineList.getNumberOfLines());
-		assertNotNull(lineList.get(3));
+		assertEquals(4, lines.getNumberOfLines());
+		assertNotNull(lines.get(3));
 
 		document.set("a\nb");
-		assertEquals(2, lineList.getNumberOfLines());
+		assertEquals(2, lines.getNumberOfLines());
 	}
 
 }
