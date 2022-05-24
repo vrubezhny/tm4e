@@ -93,16 +93,17 @@ public class TMModel implements ITMModel {
 		public void run() {
 			while (!isInterrupted() && fThread == this) {
 				try {
-					final int toProcess = invalidLines.take();
-					if (modelLines.get(toProcess).isInvalid()) {
-						try {
-							revalidateTokensNow(toProcess);
-						} catch (final Exception ex) {
-							LOGGER.log(ERROR, ex.getMessage());
-							if (toProcess < modelLines.getNumberOfLines()) {
-								invalidateLine(toProcess);
-							}
-						}
+					final int lineIndexToProcess = invalidLines.take();
+
+					// skip if the queued line is not invalid anymore
+					if (!modelLines.get(lineIndexToProcess).isInvalid())
+						continue;
+
+					try {
+						revalidateTokensNow(lineIndexToProcess);
+					} catch (final Exception ex) {
+						LOGGER.log(ERROR, ex.getMessage());
+						invalidateLine(lineIndexToProcess);
 					}
 				} catch (final InterruptedException e) {
 					interrupt();
