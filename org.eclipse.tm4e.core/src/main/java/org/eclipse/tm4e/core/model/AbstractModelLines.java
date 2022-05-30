@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IStateStack;
+import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
  * Abstract class for Model lines used by the TextMate model.
@@ -91,6 +92,11 @@ public abstract class AbstractModelLines implements IModelLines {
 	}
 
 	@Override
+	public int getNumberOfLines() {
+		return list.size();
+	}
+
+	@Override
 	public boolean hasLine(final int lineIndex) {
 		return lineIndex > -1 && lineIndex < list.size();
 	}
@@ -99,5 +105,20 @@ public abstract class AbstractModelLines implements IModelLines {
 		if (model != null) {
 			model.invalidateLine(lineIndex);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return StringUtils.toString(this, sb -> {
+			if (!list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					sb.append(i)
+						.append(": isInvalid=")
+						.append(list.get(i).isInvalid)
+						.append(", ");
+				}
+				sb.setLength(sb.length() - 2);
+			}
+		});
 	}
 }

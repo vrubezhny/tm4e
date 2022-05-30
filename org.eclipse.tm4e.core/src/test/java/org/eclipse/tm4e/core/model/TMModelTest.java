@@ -33,11 +33,6 @@ class TMModelTest {
 
 		final var modelLines = new AbstractModelLines() {
 			@Override
-			public int getNumberOfLines() {
-				return lines.length;
-			}
-
-			@Override
 			public String getLineText(final int lineIndex) throws Exception {
 				return lines[lineIndex];
 			}
