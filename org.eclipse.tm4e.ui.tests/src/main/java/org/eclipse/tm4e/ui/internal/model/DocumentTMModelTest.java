@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.opentest4j.AssertionFailedError;
 
 @TestMethodOrder(value = MethodOrderer.MethodName.class)
 class DocumentTMModelTest {
@@ -116,10 +117,14 @@ class DocumentTMModelTest {
 			assertEquals(String.join(LF, lines), document.get());
 		});
 
-		if ("true".equals(System.getenv("GITHUB_ACTIONS"))) {
-			assertRange(e, 2, 4 /* TODO no idea why */);
-		} else {
+		try {
 			assertRange(e, 2, 3 /* TODO nice to have: if DocumentModelLines would only invalidate the inserted line */);
+		} catch (AssertionFailedError ex) {
+			if ("true".equals(System.getenv("GITHUB_ACTIONS"))) {
+				assertRange(e, 2, 4 /* TODO no idea why */);
+			} else {
+				throw ex;
+			}
 		}
 	}
 
