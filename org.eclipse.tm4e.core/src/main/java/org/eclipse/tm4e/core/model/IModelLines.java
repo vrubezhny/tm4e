@@ -11,10 +11,6 @@
  */
 package org.eclipse.tm4e.core.model;
 
-import java.util.function.Consumer;
-
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * Model lines API which must be initalized with a document and changed of document.
  */
@@ -41,20 +37,7 @@ public interface IModelLines {
 	 */
 	void updateLine(int lineIndex);
 
-	/**
-	 * @param lineIndex (0-based)
-	 *
-	 * @throws IndexOutOfBoundsException
-	 */
-	ModelLine get(int lineIndex);
-
-	/**
-	 * @param lineIndex (0-based)
-	 */
-	@Nullable
-	ModelLine getOrNull(int lineIndex);
-
-	void forEach(Consumer<ModelLine> consumer);
+	boolean hasLine(int lineIndex);
 
 	int getNumberOfLines();
 

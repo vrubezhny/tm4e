@@ -11,8 +11,7 @@
  */
 package org.eclipse.tm4e.ui.internal.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.eclipse.jface.text.Document;
 import org.junit.jupiter.api.Test;
@@ -24,12 +23,12 @@ class DocumentModelLinesTest {
 		final var document = new Document();
 		final var lines = new DocumentModelLines(document);
 
+		assertFalse(lines.hasLine(3));
 		document.set("a\nb\nc\nd");
 		assertEquals(4, lines.getNumberOfLines());
-		assertNotNull(lines.get(3));
+		assertTrue(lines.hasLine(3));
 
 		document.set("a\nb");
 		assertEquals(2, lines.getNumberOfLines());
 	}
-
 }

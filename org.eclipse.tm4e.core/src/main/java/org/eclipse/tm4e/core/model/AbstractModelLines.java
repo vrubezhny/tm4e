@@ -17,9 +17,9 @@ import java.lang.System.Logger;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.tm4e.core.grammar.IStateStack;
 
 /**
  * Abstract class for Model lines used by the TextMate model.
@@ -32,6 +32,16 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public abstract class AbstractModelLines implements IModelLines {
 
+	static final class ModelLine {
+		/**
+		 * specifies if the tokens are out-of-date and do not represent the content of the related line in the editor
+		 */
+		volatile boolean isInvalid = true;
+		@Nullable
+		IStateStack startState;
+		List<TMToken> tokens = Collections.emptyList();
+	}
+
 	private static final Logger LOGGER = System.getLogger(AbstractModelLines.class.getName());
 
 	private final List<ModelLine> list = Collections.synchronizedList(new LinkedList<>());
@@ -41,6 +51,7 @@ public abstract class AbstractModelLines implements IModelLines {
 
 	protected void setModel(@Nullable final TMModel model) {
 		this.model = model;
+		list.forEach(line -> line.isInvalid = true);
 	}
 
 	@Override
@@ -66,24 +77,22 @@ public abstract class AbstractModelLines implements IModelLines {
 		}
 	}
 
-	@Override
-	public ModelLine get(final int index) {
-		return this.list.get(index);
+	ModelLine get(final int index) {
+		return list.get(index);
 	}
 
 	@Nullable
-	@Override
-	public ModelLine getOrNull(final int index) {
+	ModelLine getOrNull(final int index) {
 		try {
-			return this.list.get(index);
+			return list.get(index);
 		} catch (final IndexOutOfBoundsException ex) {
 			return null;
 		}
 	}
 
 	@Override
-	public void forEach(final Consumer<ModelLine> consumer) {
-		this.list.forEach(consumer);
+	public boolean hasLine(final int lineIndex) {
+		return lineIndex > -1 && lineIndex < list.size();
 	}
 
 	protected void invalidateLine(final int lineIndex) {

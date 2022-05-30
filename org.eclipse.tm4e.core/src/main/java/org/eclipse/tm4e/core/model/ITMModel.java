@@ -58,6 +58,4 @@ public interface ITMModel {
 	 */
 	@Nullable
 	List<TMToken> getLineTokens(int line);
-
-	void forceTokenization(int lineNumber);
 }

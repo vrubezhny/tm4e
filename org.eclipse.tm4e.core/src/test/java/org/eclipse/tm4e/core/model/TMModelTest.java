@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class TMModelTest {
 
 	@Test
-	void testTokenizeWithTimeout() {
+	void testTokenizeWithTimeout() throws InterruptedException {
 		final var grammar = new Registry().addGrammar(fromResource(Data.class, "TypeScript.tmLanguage.json"));
 
 		final var lines = """
@@ -58,11 +58,18 @@ class TMModelTest {
 		final var tmModel = new TMModel(modelLines);
 		try {
 			tmModel.setGrammar(grammar);
-			assertTrue(tmModel.isLineInvalid(0), "First line is expected to be invalid");
 
 			for (int i = 0; i < lines.length; i++) {
-				tmModel.forceTokenization(i);
-				assertFalse(tmModel.isLineInvalid(i), "Line " + i + " is expected to be valid");
+				assertTrue(modelLines.get(i).isInvalid, "Line " + i + " is expected to be outdated");
+			}
+
+			// adding a listener will spawn the TokenizerThread
+			tmModel.addModelTokensChangedListener(event -> {
+			});
+
+			Thread.sleep(2000);
+			for (int i = 0; i < lines.length; i++) {
+				assertFalse(modelLines.get(i).isInvalid, "Line " + i + " is expected to be current");
 			}
 		} finally {
 			tmModel.dispose();
