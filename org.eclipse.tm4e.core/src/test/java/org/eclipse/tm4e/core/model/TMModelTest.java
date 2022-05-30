@@ -64,7 +64,7 @@ class TMModelTest {
 
 			Thread.sleep(2000);
 			for (int i = 0; i < lines.length; i++) {
-				assertFalse(modelLines.get(i).isInvalid, "Line " + i + " is expected to be current");
+				assertFalse(modelLines.get(i).isInvalid, "Line " + i + " is expected to be up-to-date");
 			}
 		} finally {
 			tmModel.dispose();

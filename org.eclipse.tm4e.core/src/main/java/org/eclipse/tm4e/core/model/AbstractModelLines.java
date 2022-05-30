@@ -35,7 +35,8 @@ public abstract class AbstractModelLines implements IModelLines {
 
 	static final class ModelLine {
 		/**
-		 * specifies if the tokens are out-of-date and do not represent the content of the related line in the editor
+		 * specifies if the {@link ModelLine#tokens} and/or the {@link ModelLine#startState} are out-of-date and do not
+		 * represent the current content of the related line in the editor
 		 */
 		volatile boolean isInvalid = true;
 		@Nullable
@@ -101,6 +102,9 @@ public abstract class AbstractModelLines implements IModelLines {
 		return lineIndex > -1 && lineIndex < list.size();
 	}
 
+	/**
+	 * Marks the given line as out-of-date resulting in async re-parsing
+	 */
 	protected void invalidateLine(final int lineIndex) {
 		if (model != null) {
 			model.invalidateLine(lineIndex);

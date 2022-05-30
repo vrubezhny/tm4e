@@ -325,6 +325,9 @@ public class TMModel implements ITMModel {
 		return modelLines.get(lineNumber).isInvalid;
 	}
 
+	/**
+	 * Marks the given line as out-of-date resulting in async re-parsing
+	 */
 	void invalidateLine(final int lineIndex) {
 		final var modelLine = modelLines.getOrNull(lineIndex);
 		if (modelLine != null) {
