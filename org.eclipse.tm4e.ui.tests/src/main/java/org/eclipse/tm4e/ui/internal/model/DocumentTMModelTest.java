@@ -14,6 +14,8 @@ package org.eclipse.tm4e.ui.internal.model;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.tm4e.core.grammar.IGrammar;
-import org.eclipse.tm4e.core.internal.utils.MoreCollections;
 import org.eclipse.tm4e.core.model.IModelTokensChangedListener;
 import org.eclipse.tm4e.core.model.ModelTokensChangedEvent;
 import org.eclipse.tm4e.core.model.Range;
@@ -39,30 +40,30 @@ import org.opentest4j.AssertionFailedError;
 @TestMethodOrder(value = MethodOrderer.MethodName.class)
 class DocumentTMModelTest {
 
-	static final String LF = "\n";
-	static IGrammar grammar;
+	private static final String LF = "\n";
+	private static IGrammar grammar;
 
 	@BeforeAll
 	static void beforeAll() {
 		final var grammarPath = "/grammars/TypeScript.tmLanguage.json";
-		IGrammarSource grammarSource;
-		if (DocumentTMModelTest.class.getResource(grammarPath) != null) {
-			grammarSource = IGrammarSource.fromResource(DocumentTMModelTest.class, grammarPath);
-		} else {
-			grammarSource = IGrammarSource.fromFile(Path.of("." + grammarPath));
-		}
+		final var grammarSource = DocumentTMModelTest.class.getResource(grammarPath) != null
+				? IGrammarSource.fromResource(DocumentTMModelTest.class, grammarPath)
+				: IGrammarSource.fromFile(Path.of("." + grammarPath));
 		grammar = new Registry().addGrammar(grammarSource);
 	}
 
-	final Document document = new Document();
+	private final Document doc = new Document();
+	private final TMDocumentModel model = new TMDocumentModel(doc);
 
-	final TMDocumentModel model = new TMDocumentModel(document);
+	private void assertDocHasLines(final Iterable<String> lines) {
+		assertEquals(String.join(LF, lines), doc.get());
+	}
 
-	void assertRange(final ModelTokensChangedEvent e, final int startLineNumber, final int endLineNumber) {
+	private void assertRange(final ModelTokensChangedEvent e, final int startLineNumber, final int endLineNumber) {
 		assertEquals(List.of(new Range(startLineNumber, endLineNumber)), e.ranges);
 	}
 
-	ModelTokensChangedEvent awaitModelChangedEvent(final TMDocumentModel model, final String initialText,
+	private ModelTokensChangedEvent awaitModelChangedEvent(final TMDocumentModel model, final List<String> initialLines,
 			final ThrowingRunnable action) throws Throwable {
 
 		// prepare document
@@ -70,13 +71,12 @@ class DocumentTMModelTest {
 			final var signal = new CountDownLatch(1);
 			final IModelTokensChangedListener listener = e -> signal.countDown();
 			model.addModelTokensChangedListener(listener);
-			model.getDocument().set(initialText);
+			model.getDocument().set(String.join(LF, initialLines));
 			assertTrue(signal.await(2, TimeUnit.SECONDS));
 			model.removeModelTokensChangedListener(listener);
 		}
 
 		// test
-
 		final var event = new AtomicReference<ModelTokensChangedEvent>();
 		final var signal = new CountDownLatch(1);
 		final IModelTokensChangedListener listener = e -> {
@@ -88,7 +88,6 @@ class DocumentTMModelTest {
 		assertTrue(signal.await(2, TimeUnit.SECONDS));
 		model.removeModelTokensChangedListener(listener);
 		return event.get();
-
 	}
 
 	@BeforeEach
@@ -106,22 +105,24 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testInsert1Line() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment3", "//comment4");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					0,
-					"//comment2" + LF);
-			lines.add(1, "//comment2");
-			assertEquals(String.join(LF, lines), document.get());
-		});
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1), 0, "//commentX" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add(1, "//commentX");
+		assertDocHasLines(expectedLines);
 
 		try {
-			assertRange(e, 2, 3 /* TODO nice to have: if DocumentModelLines would only invalidate the inserted line */);
+			assertRange(event, 2,
+					3 /* TODO nice to have: if DocumentModelLines would only invalidate the inserted line */);
 		} catch (AssertionFailedError ex) {
 			if ("true".equals(System.getenv("GITHUB_ACTIONS"))) {
-				assertRange(e, 2, 4 /* TODO no idea why */);
+				assertRange(event, 2, 4 /* TODO no idea why */);
 			} else {
 				throw ex;
 			}
@@ -133,18 +134,21 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testInsert2Lines() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment4", "//comment5");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					0,
-					"//comment2" + LF + "//comment3" + LF);
-			lines.add(1, "//comment2");
-			lines.add(2, "//comment3");
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, 4 /* TODO nice to have: if DocumentModelLines would only invalidate the inserted lines */);
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1), 0, "//commentX" + LF + "//commentY" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add(1, "//commentX");
+		expectedLines.add(2, "//commentY");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2,
+				4 /* TODO nice to have: if DocumentModelLines would only invalidate the inserted lines */);
 	}
 
 	/**
@@ -152,17 +156,20 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testInsertMultiLineCommentStartToken() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3", "//comment4");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					0,
-					"/*");
-			lines.set(1, "/*" + lines.get(1));
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, document.getNumberOfLines());
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1), 0, "/*"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "/*" + initialLines.get(1));
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, doc.getNumberOfLines());
 	}
 
 	/**
@@ -170,17 +177,22 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testRemove1Line() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					lines.get(1).length() + LF.length(), // length to remove
-					null);
-			lines.remove(1);
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, 2);
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(
+						doc.getLineOffset(1),
+						initialLines.get(1).length() + LF.length(), // length to remove
+						null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.remove(1);
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
 	}
 
 	/**
@@ -188,18 +200,23 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testRemove2Lines() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3", "//comment4");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					lines.get(1).length() + LF.length() + lines.get(2).length() + LF.length(), // length to remove
-					null);
-			lines.remove(2);
-			lines.remove(1);
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, 2);
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1),
+						2 * (initialLines.get(1).length() + LF.length()), // length to remove
+						null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.remove(2);
+		expectedLines.remove(1);
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
 	}
 
 	/**
@@ -207,17 +224,22 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testReplace1Line() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3", "//comment4");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					lines.get(1).length() + LF.length(),
-					"//commentX" + LF);
-			lines.set(1, "//commentX");
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, 3 /* TODO nice to have: if DocumentModelLines would only invalidate the replaced line */);
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1),
+						initialLines.get(1).length() + LF.length(), // length to replace
+						"//commentX" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//commentX");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3 /* TODO nice to have: if DocumentModelLines would only invalidate the replaced line */);
 	}
 
 	/**
@@ -225,17 +247,22 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testReplace1LineWithMultilineComment() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3", "//comment4");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					lines.get(1).length() + LF.length(),
-					"/*commentX" + LF);
-			lines.set(1, "/*commentX");
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, document.getNumberOfLines());
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1),
+						initialLines.get(1).length() + LF.length(), // length to replace
+						"/*commentX" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "/*commentX");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, doc.getNumberOfLines());
 	}
 
 	/**
@@ -243,50 +270,60 @@ class DocumentTMModelTest {
 	 */
 	@Test
 	void testReplace2LinesWith1Line() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3", "//comment4",
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4",
 				"//comment5");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1),
-					lines.get(1).length() + LF.length() + lines.get(2).length() + LF.length(),
-					"//commentX" + LF);
-			lines.set(1, "//commentX");
-			lines.remove(2);
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, 3 /* TODO nice to have: if DocumentModelLines would only invalidate the replaced line */);
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1),
+						2 * (initialLines.get(1).length() + LF.length()), // length to replace
+						"//commentX" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//commentX");
+		expectedLines.remove(2);
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3 /* TODO nice to have: if DocumentModelLines would only invalidate the replaced line */);
 	}
 
 	@Test
 	void testReplace2LinesPartially() throws Throwable {
-		final var lines = MoreCollections.asArrayList("//comment1", "//comment2", "//comment3", "//comment4",
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4",
 				"//comment5");
-		final var initialText = String.join(LF, lines);
-		final var e = awaitModelChangedEvent(model, initialText, () -> {
-			document.replace(
-					document.getLineOffset(1) + "//comm".length(),
-					("XXX" + LF + "//YYY").length(),
-					"XXX" + LF + "//YYY");
-			lines.set(1, "//commXXX");
-			lines.set(2, "//YYYmment3");
-			assertEquals(String.join(LF, lines), document.get());
-		});
-		assertRange(e, 2, 3);
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1) + "//comm".length(),
+						("XXX" + LF + "//YYY").length(),
+						"XXX" + LF + "//YYY"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//commXXX");
+		expectedLines.set(2, "//YYYmment3");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
 	}
 
 	@Test
 	void testSetDocumentContent() throws Throwable {
-		final var e1 = awaitModelChangedEvent(model, "", () -> document.set("a"));
-		assertRange(e1, 1, document.getNumberOfLines());
-		assertRange(e1, 1, 1);
+		final var event1 = awaitModelChangedEvent(model, Collections.emptyList(), () -> doc.set("a"));
+		assertRange(event1, 1, doc.getNumberOfLines());
+		assertRange(event1, 1, 1);
 
-		final var e2 = awaitModelChangedEvent(model, "", () -> document.set("a\nb"));
-		assertRange(e2, 1, document.getNumberOfLines());
-		assertRange(e2, 1, 2);
+		final var event2 = awaitModelChangedEvent(model, Collections.emptyList(), () -> doc.set("a\nb"));
+		assertRange(event2, 1, doc.getNumberOfLines());
+		assertRange(event2, 1, 2);
 
-		final var e3 = awaitModelChangedEvent(model, "", () -> document.set("a\nb\nc"));
-		assertRange(e3, 1, document.getNumberOfLines());
-		assertRange(e3, 1, 3);
+		final var event3 = awaitModelChangedEvent(model, Collections.emptyList(), () -> doc.set("a\nb\nc"));
+		assertRange(event3, 1, doc.getNumberOfLines());
+		assertRange(event3, 1, 3);
 	}
 }
