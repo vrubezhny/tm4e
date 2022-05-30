@@ -26,14 +26,14 @@ public interface IModelLines {
 	/**
 	 * Remove the line at specified index line.
 	 *
-	 * @param line (0-based)
+	 * @param lineIndex (0-based)
 	 */
 	void removeLine(int lineIndex);
 
 	/**
 	 * Mark a line as updated.
 	 *
-	 * @param line (0-based)
+	 * @param lineIndex (0-based)
 	 */
 	void updateLine(int lineIndex);
 
@@ -42,7 +42,7 @@ public interface IModelLines {
 	int getNumberOfLines();
 
 	/**
-	 * @param line (0-based)
+	 * @param lineIndex (0-based)
 	 */
 	String getLineText(int lineIndex) throws Exception;
 
