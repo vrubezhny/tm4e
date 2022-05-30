@@ -1,6 +1,7 @@
 package org.eclipse.tm4e.core.internal.utils;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -77,6 +78,19 @@ public final class StringUtils {
 			return 0;
 		}
 		return len1 - len2;
+	}
+
+	/**
+	 * @return "{SimpleClassName}{...fields...}"
+	 */
+	public static String toString(@Nullable final Object object, final Consumer<StringBuilder> fieldsBuilder) {
+		if (object == null)
+			return "null";
+		final var sb = new StringBuilder(object.getClass().getSimpleName());
+		sb.append('{');
+		fieldsBuilder.accept(sb);
+		sb.append('}');
+		return sb.toString();
 	}
 
 	private StringUtils() {
