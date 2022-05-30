@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IStateStack;
+import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
  * TextMate model class.
@@ -367,5 +368,11 @@ public class TMModel implements ITMModel {
 			}
 			return new ModelTokensChangedEvent(ranges, model);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return StringUtils.toString(this, sb -> sb
+			.append("grammar=").append(grammar));
 	}
 }

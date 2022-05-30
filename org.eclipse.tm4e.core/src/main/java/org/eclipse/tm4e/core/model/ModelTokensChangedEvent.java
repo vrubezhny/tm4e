@@ -16,8 +16,9 @@
  */
 package org.eclipse.tm4e.core.model;
 
-import java.util.Arrays;
 import java.util.List;
+
+import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
  * Model tokens changed event.
@@ -31,11 +32,19 @@ public class ModelTokensChangedEvent {
 	public final ITMModel model;
 
 	public ModelTokensChangedEvent(final Range range, final ITMModel model) {
-		this(Arrays.asList(range), model);
+		this(List.of(range), model);
 	}
 
 	public ModelTokensChangedEvent(final List<Range> ranges, final ITMModel model) {
 		this.ranges = ranges;
 		this.model = model;
+	}
+
+	@Override
+	public String toString() {
+		return StringUtils.toString(this, sb -> {
+			sb.append("ranges=").append(ranges).append(", ");
+			sb.append("model=").append(model);
+		});
 	}
 }

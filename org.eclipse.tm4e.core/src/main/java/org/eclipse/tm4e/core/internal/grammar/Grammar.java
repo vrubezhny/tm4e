@@ -46,6 +46,7 @@ import org.eclipse.tm4e.core.internal.rule.RuleId;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
+import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
  * TextMate grammar implementation.
@@ -375,5 +376,12 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	@Override
 	public Collection<String> getFileTypes() {
 		return _grammar.getFileTypes();
+	}
+
+	@Override
+	public String toString() {
+		return StringUtils.toString(this, sb -> sb
+			.append("name=").append(getName()).append(", ")
+			.append("scopeName=").append(getScopeName()));
 	}
 }
