@@ -22,73 +22,62 @@ import org.eclipse.tm4e.core.model.AbstractModelLines;
 import org.eclipse.tm4e.ui.TMUIPlugin;
 
 /**
- * TextMate {@link AbstractModelLines} implementation with Eclipse
- * {@link IDocument}.
+ * TextMate {@link AbstractModelLines} implementation with Eclipse {@link IDocument}.
  *
- * Goal of this class is to synchronize Eclipse {@link DocumentEvent} with
- * TextMate model lines.
- *
+ * Goal of this class is to synchronize Eclipse {@link DocumentEvent} with TextMate model lines.
  */
-final class DocumentModelLines extends AbstractModelLines {
+final class DocumentModelLines extends AbstractModelLines implements IDocumentListener {
 
 	private final IDocument document;
-	private final InternalListener listener = new InternalListener();
 
 	DocumentModelLines(final IDocument document) {
 		this.document = document;
-		document.addDocumentListener(listener);
+		document.addDocumentListener(this);
 		for (int i = 0; i < document.getNumberOfLines(); i++) {
 			addLine(i);
 		}
 	}
 
-	private final class InternalListener implements IDocumentListener {
-
-		@Override
-		public void documentAboutToBeChanged(@Nullable final DocumentEvent event) {
-			if (event == null)
-				return;
-			try {
-				if (!DocumentHelper.isInsert(event)) {
-					// Remove or Replace (Remove + Insert)
-					removeLine(event);
-				}
-			} catch (final BadLocationException e) {
-				e.printStackTrace();
-			}
-		}
-
-		private void removeLine(final DocumentEvent event) throws BadLocationException {
-			final int startLine = DocumentHelper.getStartLine(event);
-			final int endLine = DocumentHelper.getEndLine(event, true);
-			for (int i = endLine; i > startLine; i--) {
-				DocumentModelLines.this.removeLine(i);
-			}
-		}
-
-		@Override
-		public void documentChanged(@Nullable final DocumentEvent event) {
-			if (event == null)
-				return;
-			try {
+	@Override
+	public void documentAboutToBeChanged(@Nullable final DocumentEvent event) {
+		if (event == null)
+			return;
+		try {
+			if (!DocumentHelper.isInsert(event)) {
+				// Remove or Replace (Remove + Insert)
 				final int startLine = DocumentHelper.getStartLine(event);
-				if (!DocumentHelper.isRemove(event)) {
-					final int endLine = DocumentHelper.getEndLine(event, false);
-					// Insert new lines
-					for (int i = startLine; i < endLine; i++) {
-						DocumentModelLines.this.addLine(i + 1);
-					}
-					if (startLine == endLine) {
-						DocumentModelLines.this.updateLine(startLine);
-					}
-				} else {
-					// Update line
+				final int endLine = DocumentHelper.getEndLine(event, true);
+				for (int i = endLine; i > startLine; i--) {
+					DocumentModelLines.this.removeLine(i);
+				}
+			}
+		} catch (final BadLocationException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void documentChanged(@Nullable final DocumentEvent event) {
+		if (event == null)
+			return;
+		try {
+			final int startLine = DocumentHelper.getStartLine(event);
+			if (!DocumentHelper.isRemove(event)) {
+				final int endLine = DocumentHelper.getEndLine(event, false);
+				// Insert new lines
+				for (int i = startLine; i < endLine; i++) {
+					DocumentModelLines.this.addLine(i + 1);
+				}
+				if (startLine == endLine) {
 					DocumentModelLines.this.updateLine(startLine);
 				}
-				invalidateLine(startLine);
-			} catch (final BadLocationException e) {
-				TMUIPlugin.log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
+			} else {
+				// Update line
+				DocumentModelLines.this.updateLine(startLine);
 			}
+			invalidateLine(startLine);
+		} catch (final BadLocationException e) {
+			TMUIPlugin.log(new Status(IStatus.ERROR, TMUIPlugin.PLUGIN_ID, e.getMessage(), e));
 		}
 	}
 
@@ -109,6 +98,6 @@ final class DocumentModelLines extends AbstractModelLines {
 
 	@Override
 	public void dispose() {
-		document.removeDocumentListener(listener);
+		document.removeDocumentListener(this);
 	}
 }
