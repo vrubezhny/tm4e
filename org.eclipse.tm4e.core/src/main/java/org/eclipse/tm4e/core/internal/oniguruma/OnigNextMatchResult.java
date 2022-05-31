@@ -20,6 +20,10 @@ import java.util.Arrays;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+/**
+ * @see <a href="https://github.com/atom/node-oniguruma/blob/master/src/onig-scanner.cc">
+ *      github.com/atom/node-oniguruma/blob/master/src/onig-scanner.cc</a>
+ */
 public final class OnigNextMatchResult {
 
 	private final int index;

@@ -18,6 +18,10 @@ package org.eclipse.tm4e.core.internal.oniguruma;
 
 import org.joni.Region;
 
+/**
+ * @see <a href="https://github.com/atom/node-oniguruma/blob/master/src/onig-result.cc">
+ *      github.com/atom/node-oniguruma/blob/master/src/onig-result.cc</a>
+ */
 final class OnigResult {
 
 	private int indexInScanner;

@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+/**
+ * @see <a href="https://github.com/atom/node-oniguruma/blob/master/src/onig-searcher.cc">
+ *      github.com/atom/node-oniguruma/blob/master/src/onig-searcher.cc</a>
+ */
 final class OnigSearcher {
 
 	private final List<OnigRegExp> regExps;
@@ -31,8 +35,8 @@ final class OnigSearcher {
 	}
 
 	@Nullable
-	OnigResult search(final OnigString source, final int startPosition) {
-		final int byteOffset = source.getByteIndexOfChar(startPosition);
+	OnigResult search(final OnigString source, final int charOffset) {
+		final int byteOffset = source.getByteIndexOfChar(charOffset);
 
 		int bestLocation = 0;
 		OnigResult bestResult = null;
