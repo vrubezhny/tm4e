@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.tm4e.core.grammar.internal.MatcherTestImpl;
 import org.eclipse.tm4e.core.grammar.internal.RawTestImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
@@ -71,22 +70,6 @@ public class GrammarSuiteTest {
 					test.setTestLocation(testLocation);
 					dynamicTests.add(DynamicTest.dynamicTest(test.getDesc(), test::executeTest));
 				}
-			}
-			return dynamicTests;
-		}
-	}
-
-	@TestFactory
-	@DisplayName("Matcher tests")
-	Collection<DynamicTest> dynamicTestsWithCollection() throws Exception {
-		try (var fileReader = new FileReader(new File(REPO_ROOT, "matcher-tests.json"))) {
-			final Type listType = new TypeToken<ArrayList<MatcherTestImpl>>() {
-			}.getType();
-			final List<MatcherTestImpl> tests = new GsonBuilder().create().fromJson(fileReader, listType);
-			final var dynamicTests = new ArrayList<DynamicTest>();
-			int i = 0;
-			for (final MatcherTestImpl test : tests) {
-				dynamicTests.add(DynamicTest.dynamicTest("Test #" + (i++), test::executeTest));
 			}
 			return dynamicTests;
 		}
