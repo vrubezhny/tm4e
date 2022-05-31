@@ -33,9 +33,8 @@ import org.joni.WarnCallback;
 import org.joni.exception.SyntaxException;
 
 /**
- *
- * @see <a href="https://github.com/atom/node-oniguruma/blob/main/src/onig-reg-exp.cc">
- *      github.com/atom/node-oniguruma/blob/main/src/onig-reg-exp.cc</a> *
+ * @see <a href="https://github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc">
+ *      github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc</a>
  */
 final class OnigRegExp {
 
@@ -49,35 +48,44 @@ final class OnigRegExp {
 
 	private final Regex regex;
 
+	private final boolean hasGAnchor;
+
 	OnigRegExp(final String source) {
+		hasGAnchor = source.contains("\\G");
 		final byte[] pattern = source.getBytes(StandardCharsets.UTF_8);
 		try {
 			regex = new Regex(pattern, 0, pattern.length, Option.CAPTURE_GROUP, UTF8Encoding.INSTANCE, Syntax.DEFAULT,
-					WarnCallback.DEFAULT);
+				WarnCallback.DEFAULT);
 		} catch (final SyntaxException ex) {
 			throw new TMException("Parsing regex pattern \"" + source + "\" failed with " + ex, ex);
 		}
 	}
 
 	@Nullable
-	OnigResult search(final OnigString str, final int position) {
-		final OnigResult theLastSearchResult = lastSearchResult;
+	OnigResult search(final OnigString str, final int startPosition) {
+		if (hasGAnchor) {
+			// Should not use caching, because the regular expression
+			// targets the current search position (\G)
+			return search(str.bytesUTF8, startPosition, str.bytesCount);
+		}
+
+		final var lastSearchResult0 = this.lastSearchResult;
 		if (lastSearchString == str
-				&& lastSearchPosition <= position
-				&& (theLastSearchResult == null || theLastSearchResult.locationAt(0) >= position)) {
-			return theLastSearchResult;
+			&& lastSearchPosition <= startPosition
+			&& (lastSearchResult0 == null || lastSearchResult0.locationAt(0) >= startPosition)) {
+			return lastSearchResult0;
 		}
 
 		lastSearchString = str;
-		lastSearchPosition = position;
-		lastSearchResult = search(str.bytesUTF8, position, str.bytesCount);
+		lastSearchPosition = startPosition;
+		lastSearchResult = search(str.bytesUTF8, startPosition, str.bytesCount);
 		return lastSearchResult;
 	}
 
 	@Nullable
-	private OnigResult search(final byte[] data, final int position, final int end) {
+	private OnigResult search(final byte[] data, final int startPosition, final int end) {
 		final Matcher matcher = regex.matcher(data);
-		final int status = matcher.search(position, end, Option.DEFAULT);
+		final int status = matcher.search(startPosition, end, Option.DEFAULT);
 		if (status != Matcher.FAILED) {
 			final Region region = matcher.getEagerRegion();
 			return new OnigResult(region, -1);
