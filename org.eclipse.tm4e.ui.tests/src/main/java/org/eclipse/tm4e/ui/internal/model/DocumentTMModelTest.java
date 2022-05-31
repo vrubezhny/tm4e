@@ -73,6 +73,7 @@ class DocumentTMModelTest {
 			model.getDocument().set(String.join(LF, initialLines));
 			assertTrue(signal.await(2, TimeUnit.SECONDS));
 			model.removeModelTokensChangedListener(listener);
+			Thread.sleep(500);
 		}
 
 		// test
