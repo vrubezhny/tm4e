@@ -94,11 +94,11 @@ final class SelectLanguageConfigurationWizardPage extends WizardPage implements 
 
 	@Override
 	public void handleEvent(@Nullable final Event event) {
-		validateAndUpdateStatus(event);
+		validateAndUpdateStatus();
 	}
 
-	private void validateAndUpdateStatus(@Nullable final Event event) {
-		final IStatus status = validatePage(event);
+	private void validateAndUpdateStatus() {
+		final IStatus status = validatePage();
 		statusChanged(status == null ? Status.OK_STATUS : status);
 	}
 
@@ -273,7 +273,7 @@ final class SelectLanguageConfigurationWizardPage extends WizardPage implements 
 	}
 
 	@Nullable
-	private IStatus validatePage(@Nullable final Event event) {
+	private IStatus validatePage() {
 		final var infoWidget = this.infoWidget;
 		assert infoWidget != null;
 		infoWidget.refresh(null);
