@@ -78,21 +78,21 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 			}
 			command.caretOffset = command.offset + command.text.length();
 			command.shiftsCaret = false;
-			if (command.text.equals(autoClosingPair.getKey())
-					&& isFollowedBy(document, command.offset, autoClosingPair.getKey())) {
+			if (command.text.equals(autoClosingPair.open)
+					&& isFollowedBy(document, command.offset, autoClosingPair.open)) {
 				command.text = "";
-			} else if (command.text.equals(autoClosingPair.getValue())
-					&& isFollowedBy(document, command.offset, autoClosingPair.getValue())) {
+			} else if (command.text.equals(autoClosingPair.close)
+					&& isFollowedBy(document, command.offset, autoClosingPair.close)) {
 				command.text = "";
 			} else {
-				command.text += autoClosingPair.getValue();
+				command.text += autoClosingPair.close;
 			}
 			return;
 		}
 
 		Arrays.stream(contentTypes)
 				.flatMap(contentType -> registry.getEnabledAutoClosingPairs(contentType).stream())
-				.map(CharacterPair::getValue)
+				.map(cp -> cp.close)
 				.filter(command.text::equals)
 				.filter(closing -> isFollowedBy(document, command.offset, closing))
 				.findFirst()
@@ -141,14 +141,14 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 				}
 				final var enterIndent = registry.getEnterAction(document, command.offset, contentType);
 				if (enterIndent != null) {
-					final EnterAction enterAction = enterIndent.getEnterAction();
-					final String indentation = TextUtils.getIndentationFromWhitespace(enterIndent.getIndentation(),
+					final EnterAction enterAction = enterIndent.enterAction;
+					final String indentation = TextUtils.getIndentationFromWhitespace(enterIndent.indentation,
 							getTabSpaces());
 					final String delim = command.text;
-					switch (enterAction.getIndentAction()) {
+					switch (enterAction.indentAction) {
 					case None: {
 						// Nothing special
-						final String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
+						final String increasedIndent = normalizeIndentation(indentation + enterAction.appendText);
 						final String typeText = delim + increasedIndent;
 
 						command.text = typeText;
@@ -158,7 +158,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 					}
 					case Indent: {
 						// Indent once
-						final String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
+						final String increasedIndent = normalizeIndentation(indentation + enterAction.appendText);
 						final String typeText = delim + increasedIndent;
 
 						command.text = typeText;
@@ -169,7 +169,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 					case IndentOutdent: {
 						// Ultra special
 						final String normalIndent = normalizeIndentation(indentation);
-						final String increasedIndent = normalizeIndentation(indentation + enterAction.getAppendText());
+						final String increasedIndent = normalizeIndentation(indentation + enterAction.appendText);
 						final String typeText = delim + increasedIndent + delim + normalIndent;
 
 						command.text = typeText;
@@ -179,7 +179,7 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 					}
 					case Outdent:
 						final String outdentedText = outdentString(
-								normalizeIndentation(indentation + enterAction.getAppendText()));
+								normalizeIndentation(indentation + enterAction.appendText));
 
 						command.text = delim + outdentedText;
 						command.shiftsCaret = false;

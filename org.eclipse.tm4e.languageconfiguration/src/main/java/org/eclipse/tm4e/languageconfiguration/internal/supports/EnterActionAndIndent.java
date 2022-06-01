@@ -13,24 +13,11 @@ package org.eclipse.tm4e.languageconfiguration.internal.supports;
 
 public final class EnterActionAndIndent {
 
-	private final EnterAction enterAction;
+	public final EnterAction enterAction;
+	public final String indentation;
 
-	private final String indentation;
-
-	/**
-	 * @param enterAction
-	 * @param indentation
-	 */
 	public EnterActionAndIndent(final EnterAction enterAction, final String indentation) {
 		this.enterAction = enterAction;
 		this.indentation = indentation;
-	}
-
-	public EnterAction getEnterAction() {
-		return enterAction;
-	}
-
-	public String getIndentation() {
-		return indentation;
 	}
 }

@@ -23,19 +23,19 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public final class CharacterPairSupport {
 
-	private List<CharacterPair> autoClosingPairs;
-	private final List<CharacterPair> surroundingPairs;
+	public final List<CharacterPair> autoClosingPairs;
+	public final List<CharacterPair> surroundingPairs;
 
 	public CharacterPairSupport(@Nullable final List<CharacterPair> brackets,
 			@Nullable final List<AutoClosingPairConditional> autoClosingPairs,
 			@Nullable final List<CharacterPair> surroundingPairs) {
 		if (autoClosingPairs != null) {
 			this.autoClosingPairs = autoClosingPairs.stream().filter(Objects::nonNull)
-					.map(el -> new AutoClosingPairConditional(el.getKey(), el.getValue(), el.getNotIn()))
+					.map(el -> new AutoClosingPairConditional(el.open, el.close, el.notIn))
 					.collect(Collectors.toList());
 		} else if (brackets != null) {
 			this.autoClosingPairs = brackets.stream().filter(Objects::nonNull)
-					.map(el -> new AutoClosingPairConditional(el.getKey(), el.getValue(), null))
+					.map(el -> new AutoClosingPairConditional(el.open, el.close, null))
 					.collect(Collectors.toList());
 		} else {
 			this.autoClosingPairs = new ArrayList<>();
@@ -53,7 +53,7 @@ public final class CharacterPairSupport {
 			return null;
 		}
 		for (final CharacterPair autoClosingPair : autoClosingPairs) {
-			final String opening = autoClosingPair.getKey();
+			final String opening = autoClosingPair.open;
 			if (!opening.endsWith(newCharacter)) {
 				continue;
 			}
@@ -66,13 +66,5 @@ public final class CharacterPairSupport {
 			return autoClosingPair;
 		}
 		return null;
-	}
-
-	public List<CharacterPair> getAutoClosingPairs() {
-		return autoClosingPairs;
-	}
-
-	public List<CharacterPair> getSurroundingPairs() {
-		return surroundingPairs;
 	}
 }

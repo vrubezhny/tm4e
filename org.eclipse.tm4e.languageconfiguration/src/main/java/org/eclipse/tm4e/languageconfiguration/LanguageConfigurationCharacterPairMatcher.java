@@ -145,8 +145,8 @@ public class LanguageConfigurationCharacterPairMatcher
 					}
 					final List<CharacterPair> surroundingPairs = registry.getSurroundingPairs(contentType);
 					for (final CharacterPair surroundingPair : surroundingPairs) {
-						sb.append(surroundingPair.getKey());
-						sb.append(surroundingPair.getValue());
+						sb.append(surroundingPair.open);
+						sb.append(surroundingPair.close);
 					}
 				}
 			}

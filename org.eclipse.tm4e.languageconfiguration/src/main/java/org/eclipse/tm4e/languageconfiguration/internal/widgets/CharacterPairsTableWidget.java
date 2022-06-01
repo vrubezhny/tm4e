@@ -105,11 +105,9 @@ class CharacterPairsTableWidget extends TableViewer {
 			if (element == null)
 				return null;
 
-			final CharacterPair pair = (CharacterPair) element;
-
 			return switch (columnIndex) {
-			case 0 -> pair.getKey();
-			case 1 -> pair.getValue();
+			case 0 -> ((CharacterPair) element).open;
+			case 1 -> ((CharacterPair) element).close;
 			default -> ""; //$NON-NLS-1$
 			};
 		}

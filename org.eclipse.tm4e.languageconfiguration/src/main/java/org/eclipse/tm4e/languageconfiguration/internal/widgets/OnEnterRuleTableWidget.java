@@ -125,14 +125,17 @@ final class OnEnterRuleTableWidget extends TableViewer {
 				return "";
 
 			final OnEnterRule rule = (OnEnterRule) element;
-			final EnterAction action = rule.getAction();
+			final EnterAction action = rule.action;
 
 			return switch (columnIndex) {
-			case 0 -> Optional.ofNullable(rule.getBeforeText()).map(OnEnterRuleTableWidget::nonNull).map(Pattern::pattern).orElse("");
-			case 1 -> Optional.ofNullable(rule.getAfterText()).map(OnEnterRuleTableWidget::nonNull).map(Pattern::pattern).orElse("");
-			case 2 -> action.getIndentAction().toString();
-			case 3 -> Optional.ofNullable(action.getAppendText()).orElse("");
-			case 4 -> Optional.ofNullable(action.getRemoveText()).map(OnEnterRuleTableWidget::nonNull).map(Object::toString).orElse("");
+			case 0 -> Optional.ofNullable(rule.beforeText).map(OnEnterRuleTableWidget::nonNull)
+					.map(Pattern::pattern).orElse("");
+			case 1 -> Optional.ofNullable(rule.afterText).map(OnEnterRuleTableWidget::nonNull)
+					.map(Pattern::pattern).orElse("");
+			case 2 -> action.indentAction.toString();
+			case 3 -> Optional.ofNullable(action.appendText).orElse("");
+			case 4 -> Optional.ofNullable(action.removeText).map(OnEnterRuleTableWidget::nonNull).map(Object::toString)
+					.orElse("");
 			default -> ""; //$NON-NLS-1$
 			};
 		}

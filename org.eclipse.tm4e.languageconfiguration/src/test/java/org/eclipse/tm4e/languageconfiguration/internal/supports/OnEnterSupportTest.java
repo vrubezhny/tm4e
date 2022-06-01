@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * {@link OnEnterSupport} tests.
- *
  */
 public class OnEnterSupportTest {
 
@@ -62,7 +61,7 @@ public class OnEnterSupportTest {
 				assertNull(actual);
 			} else {
 				assertNotNull(actual);
-				assertEquals(expected, actual.getIndentAction());
+				assertEquals(expected, actual.indentAction);
 			}
 		}
 	}
@@ -110,41 +109,41 @@ public class OnEnterSupportTest {
 				IndentAction.None, null, 1);
 	}
 
-	private class RegExpRulesTest extends OnEnterSupport {
+	private static final class RegExpRulesTest extends OnEnterSupport {
 
-		public RegExpRulesTest() {
-			super(null,
-					List.of(
-							new OnEnterRule("^\\s*\\/\\*\\*(?!\\/)([^\\*]|\\*(?!\\/))*$", "^\\s*\\*\\/$",
-									new EnterAction(IndentAction.IndentOutdent).setAppendText(" * ")),
-							new OnEnterRule("^\\s*\\/\\*\\*(?!\\/)([^\\*]|\\*(?!\\/))*$", null,
-									new EnterAction(IndentAction.None).setAppendText(" * ")),
-							new OnEnterRule("^(\\t|(\\ \\ ))*\\ \\*(\\ ([^\\*]|\\*(?!\\/))*)?$", null,
-									new EnterAction(IndentAction.None).setAppendText("* ")),
-							new OnEnterRule("^(\\t|(\\ \\ ))*\\ \\*\\/\\s*$", null,
-									new EnterAction(IndentAction.None).setRemoveText(1)),
-							new OnEnterRule("^(\\t|(\\ \\ ))*\\ \\*[^/]*\\*\\/\\s*$", null,
-									new EnterAction(IndentAction.None).setRemoveText(1))));
+		RegExpRulesTest() {
+			super(null, List.of(
+					new OnEnterRule("^\\s*\\/\\*\\*(?!\\/)([^\\*]|\\*(?!\\/))*$", "^\\s*\\*\\/$",
+							new EnterAction(IndentAction.IndentOutdent).withAppendText(" * ")),
+					new OnEnterRule("^\\s*\\/\\*\\*(?!\\/)([^\\*]|\\*(?!\\/))*$", null,
+							new EnterAction(IndentAction.None).withAppendText(" * ")),
+					new OnEnterRule("^(\\t|(\\ \\ ))*\\ \\*(\\ ([^\\*]|\\*(?!\\/))*)?$", null,
+							new EnterAction(IndentAction.None).withAppendText("* ")),
+					new OnEnterRule("^(\\t|(\\ \\ ))*\\ \\*\\/\\s*$", null,
+							new EnterAction(IndentAction.None).withRemoveText(1)),
+					new OnEnterRule("^(\\t|(\\ \\ ))*\\ \\*[^/]*\\*\\/\\s*$", null,
+							new EnterAction(IndentAction.None).withRemoveText(1))));
 		}
 
-		public void testIndentAction(final String beforeText, final String afterText, @Nullable final IndentAction expectedIndentAction,
-				@Nullable final String expectedAppendText) {
+		void testIndentAction(final String beforeText, final String afterText,
+				@Nullable final IndentAction expectedIndentAction, @Nullable final String expectedAppendText) {
 			testIndentAction(beforeText, afterText, expectedIndentAction, expectedAppendText, 0);
 		}
 
-		public void testIndentAction(final String beforeText, final String afterText, @Nullable final IndentAction expectedIndentAction,
-				@Nullable final String expectedAppendText, final int removeText) {
+		void testIndentAction(final String beforeText, final String afterText,
+				@Nullable final IndentAction expectedIndentAction, @Nullable final String expectedAppendText,
+				final int removeText) {
 			final EnterAction actual = super.onEnter("", beforeText, afterText);
 			if (expectedIndentAction == null) {
 				assertNull(actual, "isNull:" + beforeText);
 			} else {
 				assertNotNull(actual, "isNotNull:" + beforeText);
-				assertEquals(expectedIndentAction, actual.getIndentAction(), "indentAction:" + beforeText);
+				assertEquals(expectedIndentAction, actual.indentAction, "indentAction:" + beforeText);
 				if (expectedAppendText != null) {
-					assertEquals(expectedAppendText, actual.getAppendText(), "appendText:" + beforeText);
+					assertEquals(expectedAppendText, actual.appendText, "appendText:" + beforeText);
 				}
 				if (removeText != 0) {
-					assertEquals(removeText, actual.getRemoveText(), "removeText:" + beforeText);
+					assertEquals(removeText, actual.removeText, "removeText:" + beforeText);
 				}
 			}
 		}

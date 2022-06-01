@@ -108,11 +108,11 @@ public class LanguageConfigurationInfoWidget extends Composite {
 
 		final Comments comments = configuration.getComments();
 		if (comments != null) {
-			lineCommentText.setText(comments.getLineComment() == null ? "" : comments.getLineComment());
-			final CharacterPair blockComment = comments.getBlockComment();
+			lineCommentText.setText(comments.lineComment == null ? "" : comments.lineComment);
+			final CharacterPair blockComment = comments.blockComment;
 			if (blockComment != null) {
-				blockCommentStartText.setText(blockComment.getKey());
-				blockCommentEndText.setText(blockComment.getValue());
+				blockCommentStartText.setText(blockComment.open);
+				blockCommentEndText.setText(blockComment.close);
 			}
 		}
 
@@ -122,9 +122,9 @@ public class LanguageConfigurationInfoWidget extends Composite {
 
 		final Folding folding = configuration.getFolding();
 		if (folding != null) {
-			offsideText.setText(folding.getOffSide().toString());
-			markersStartText.setText(folding.getMarkersStart());
-			markersEndText.setText(folding.getMarkersEnd());
+			offsideText.setText(Boolean.toString(folding.offSide));
+			markersStartText.setText(folding.markersStart);
+			markersEndText.setText(folding.markersEnd);
 		}
 
 		final String wordPattern = configuration.getWordPattern();

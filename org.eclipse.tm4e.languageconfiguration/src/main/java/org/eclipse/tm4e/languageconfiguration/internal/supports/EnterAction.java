@@ -43,80 +43,50 @@ public final class EnterAction {
 	/**
 	 * Describe what to do with the indentation.
 	 */
-	private final IndentAction indentAction;
+	public final IndentAction indentAction;
 
 	/**
 	 * Describe whether to outdent current line.
 	 */
 	@Nullable
-	private Boolean outdentCurrentLine;
+	public Boolean outdentCurrentLine;
 
 	/**
 	 * Describes text to be appended after the new line and after the indentation.
 	 */
 	@Nullable
-	private String appendText;
+	public String appendText;
 
 	/**
 	 * Describes the number of characters to remove from the new line's indentation.
 	 */
 	@Nullable
-	private Integer removeText;
+	public Integer removeText;
 
 	public EnterAction(final IndentAction indentAction) {
 		this.indentAction = indentAction;
 	}
 
-	public IndentAction getIndentAction() {
-		return indentAction;
-	}
-
 	/**
-	 * @return the outdentCurrentLine
+	 * @param outdentCurrentLine the outdentCurrentLine to set
 	 */
-	@Nullable
-	private Boolean getOutdentCurrentLine() {
-		return outdentCurrentLine;
-	}
-
-	/**
-	 * @param outdentCurrentLine
-	 *            the outdentCurrentLine to set
-	 * @return
-	 */
-	private EnterAction setOutdentCurrentLine(final Boolean outdentCurrentLine) {
+	EnterAction withOutdentCurrentLine(final Boolean outdentCurrentLine) {
 		this.outdentCurrentLine = outdentCurrentLine;
 		return this;
 	}
 
 	/**
-	 * @return the appendText
-	 */
-	@Nullable
-	public String getAppendText() {
-		return appendText;
-	}
-
-	/**
 	 * @param appendText the appendText to set
 	 */
-	public EnterAction setAppendText(@Nullable final String appendText) {
+	EnterAction withAppendText(@Nullable final String appendText) {
 		this.appendText = appendText;
 		return this;
 	}
 
 	/**
-	 * @return the removeText
-	 */
-	@Nullable
-	public Integer getRemoveText() {
-		return removeText;
-	}
-
-	/**
 	 * @param removeText the removeText to set
 	 */
-	public EnterAction setRemoveText(@Nullable final Integer removeText) {
+	EnterAction withRemoveText(@Nullable final Integer removeText) {
 		this.removeText = removeText;
 		return this;
 	}

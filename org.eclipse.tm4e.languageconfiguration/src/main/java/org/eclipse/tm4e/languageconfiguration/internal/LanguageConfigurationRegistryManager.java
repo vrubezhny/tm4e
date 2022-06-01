@@ -128,7 +128,7 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 		if (characterPairSupport == null) {
 			return Collections.emptyList();
 		}
-		return characterPairSupport.getAutoClosingPairs();
+		return characterPairSupport.autoClosingPairs;
 	}
 
 	public List<CharacterPair> getSurroundingPairs(final IContentType contentType) {
@@ -136,7 +136,7 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 		if (characterPairSupport == null) {
 			return Collections.emptyList();
 		}
-		return characterPairSupport.getSurroundingPairs();
+		return characterPairSupport.surroundingPairs;
 	}
 
 	@Nullable
@@ -194,16 +194,16 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 
 			// Here we add `\t` to appendText first because enterAction is leveraging
 			// appendText and removeText to change indentation.
-			if (enterResult.getAppendText() == null) {
-				if ((enterResult.getIndentAction() == IndentAction.Indent)
-						|| (enterResult.getIndentAction() == IndentAction.IndentOutdent)) {
-					enterResult.setAppendText("\t"); //$NON-NLS-1$
+			if (enterResult.appendText == null) {
+				if ((enterResult.indentAction == IndentAction.Indent)
+						|| (enterResult.indentAction == IndentAction.IndentOutdent)) {
+					enterResult.appendText = "\t"; //$NON-NLS-1$
 				} else {
-					enterResult.setAppendText(""); //$NON-NLS-1$
+					enterResult.appendText = ""; //$NON-NLS-1$
 				}
 			}
 
-			final var removeText = enterResult.getRemoveText();
+			final var removeText = enterResult.removeText;
 			if (removeText != null) {
 				indentation = indentation.substring(0, indentation.length() - removeText);
 			}

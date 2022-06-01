@@ -11,7 +11,6 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.supports;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -24,22 +23,23 @@ import org.eclipse.tm4e.languageconfiguration.internal.utils.RegExpUtils;
 
 /**
  * On enter support.
- *
  */
 public class OnEnterSupport {
 
-	private static final List<CharacterPair> DEFAULT_BRACKETS = Arrays.asList(
+	private static final List<CharacterPair> DEFAULT_BRACKETS = List.of(
 			new CharacterPair("(", ")"), //$NON-NLS-1$ //$NON-NLS-2$
 			new CharacterPair("{", "}"), //$NON-NLS-1$ //$NON-NLS-2$
 			new CharacterPair("[", "]")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private final List<ProcessedBracketPair> brackets;
-
 	private final List<OnEnterRule> regExpRules;
 
 	public OnEnterSupport(@Nullable final List<CharacterPair> brackets, @Nullable final List<OnEnterRule> regExpRules) {
-		this.brackets = (brackets != null ? brackets : DEFAULT_BRACKETS).stream().filter(Objects::nonNull)
-				.map(ProcessedBracketPair::new).collect(Collectors.toList());
+		this.brackets = (brackets != null ? brackets : DEFAULT_BRACKETS)
+				.stream()
+				.filter(Objects::nonNull)
+				.map(ProcessedBracketPair::new)
+				.collect(Collectors.toList());
 
 		this.regExpRules = regExpRules != null ? regExpRules : Collections.emptyList();
 	}
@@ -49,15 +49,15 @@ public class OnEnterSupport {
 			final String afterEnterText) {
 		// (1): `regExpRules`
 		for (final OnEnterRule rule : regExpRules) {
-			final var beforeText = rule.getBeforeText();
+			final var beforeText = rule.beforeText;
 			if (beforeText != null && beforeText.matcher(beforeEnterText).find()) {
-				final var afterText = rule.getAfterText();
+				final var afterText = rule.afterText;
 				if (afterText != null) {
 					if (afterText.matcher(afterEnterText).find()) {
-						return rule.getAction();
+						return rule.action;
 					}
 				} else {
-					return rule.getAction();
+					return rule.action;
 				}
 			}
 		}
@@ -93,8 +93,8 @@ public class OnEnterSupport {
 		private final Pattern closeRegExp;
 
 		private ProcessedBracketPair(final CharacterPair charPair) {
-			openRegExp = createOpenBracketRegExp(charPair.getKey());
-			closeRegExp = createCloseBracketRegExp(charPair.getValue());
+			openRegExp = createOpenBracketRegExp(charPair.open);
+			closeRegExp = createCloseBracketRegExp(charPair.close);
 		}
 
 		private boolean matchOpen(final String beforeEnterText) {

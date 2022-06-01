@@ -16,23 +16,13 @@ import org.eclipse.jdt.annotation.Nullable;
 public final class Comments {
 
 	@Nullable
-	private final String lineComment;
+	public final String lineComment;
 
 	@Nullable
-	private final CharacterPair blockComment;
+	public final CharacterPair blockComment;
 
 	public Comments(@Nullable final String lineComment, @Nullable final CharacterPair blockComment) {
 		this.lineComment = lineComment;
 		this.blockComment = blockComment;
-	}
-
-	@Nullable
-	public String getLineComment() {
-		return lineComment;
-	}
-
-	@Nullable
-	public CharacterPair getBlockComment() {
-		return blockComment;
 	}
 }

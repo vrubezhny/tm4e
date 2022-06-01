@@ -196,8 +196,8 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		// check if block comment is valid
 		final var blockComment = commentSupport.getBlockComment();
 		return blockComment != null
-				&& !"".equals(blockComment.getKey())
-				&& !"".equals(blockComment.getValue());
+				&& !"".equals(blockComment.open)
+				&& !"".equals(blockComment.close);
 	}
 
 	/**
@@ -255,8 +255,8 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 			return null;
 		}
 		final String text = document.get();
-		final String open = blockComment.getKey();
-		final String close = blockComment.getValue();
+		final String open = blockComment.open;
+		final String close = blockComment.close;
 		final int selectionStart = selection.getOffset();
 		final int selectionEnd = selectionStart + selection.getLength();
 		int openOffset = TextUtils.startIndexOfOffsetTouchingString(text, selectionStart, open);
@@ -332,9 +332,9 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 			final IRegion existingBlock, final CharacterPair blockComment, final ITextEditor editor)
 			throws BadLocationException {
 		final int openOffset = existingBlock.getOffset();
-		final int openLength = blockComment.getKey().length();
+		final int openLength = blockComment.open.length();
 		final int closeOffset = existingBlock.getOffset() + existingBlock.getLength();
-		final int closeLength = blockComment.getValue().length();
+		final int closeLength = blockComment.close.length();
 		document.replace(openOffset, openLength, "");
 		document.replace(closeOffset - openLength, closeLength, "");
 
@@ -354,10 +354,10 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 
 	private void addBlockComment(final IDocument document, final ITextSelection selection,
 			final CharacterPair blockComment, final ITextEditor editor) throws BadLocationException {
-		document.replace(selection.getOffset(), 0, blockComment.getKey());
-		document.replace(selection.getOffset() + selection.getLength() + blockComment.getKey().length(), 0,
-				blockComment.getValue());
-		final var newSelection = new TextSelection(selection.getOffset() + blockComment.getKey().length(),
+		document.replace(selection.getOffset(), 0, blockComment.open);
+		document.replace(selection.getOffset() + selection.getLength() + blockComment.open.length(), 0,
+				blockComment.close);
+		final var newSelection = new TextSelection(selection.getOffset() + blockComment.close.length(),
 				selection.getLength());
 		editor.selectAndReveal(newSelection.getOffset(), newSelection.getLength());
 	}

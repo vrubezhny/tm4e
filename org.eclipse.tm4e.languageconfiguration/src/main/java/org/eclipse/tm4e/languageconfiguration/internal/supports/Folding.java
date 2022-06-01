@@ -13,27 +13,13 @@ package org.eclipse.tm4e.languageconfiguration.internal.supports;
 
 public final class Folding {
 
-	private final Boolean offSide;
+	public final boolean offSide;
+	public final String markersStart;
+	public final String markersEnd;
 
-	private final String markersStart;
-
-	private final String markersEnd;
-
-	public Folding(final Boolean offSide, final String markersStart, final String markersEnd) {
+	public Folding(final boolean offSide, final String markersStart, final String markersEnd) {
 		this.offSide = offSide;
 		this.markersStart = markersStart;
 		this.markersEnd = markersEnd;
-	}
-
-	public Boolean getOffSide() {
-		return offSide;
-	}
-
-	public String getMarkersStart() {
-		return markersStart;
-	}
-
-	public String getMarkersEnd() {
-		return markersEnd;
 	}
 }

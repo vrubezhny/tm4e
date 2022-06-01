@@ -39,12 +39,9 @@ import com.google.gson.JsonObject;
  */
 public final class LanguageConfiguration implements ILanguageConfiguration {
 
-
 	/**
 	 * Returns an instance of {@link LanguageConfiguration} loaded from the VSCode
 	 * language-configuration.json file reader.
-	 *
-	 * @param reader
 	 *
 	 * @return an instance of {@link LanguageConfiguration} loaded from the VSCode
 	 *         language-configuration.json file reader.
@@ -52,72 +49,87 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 	@Nullable
 	public static LanguageConfiguration load(final Reader reader) {
 		return new GsonBuilder()
-				.registerTypeAdapter(OnEnterRule.class, (JsonDeserializer<@Nullable OnEnterRule>) (json, typeOfT, context) -> {
-					String beforeText = null;
-					String afterText = null;
-					EnterAction action = null;
-					if (json.isJsonObject()) {
-						final JsonObject object = json.getAsJsonObject();
-						beforeText = getAsString(object.get("beforeText")); //$NON-NLS-1$
-						afterText = getAsString(object.get("afterText")); //$NON-NLS-1$
-						final JsonElement actionElement = object.get("action"); //$NON-NLS-1$
-						if (actionElement != null && actionElement.isJsonObject()) {
-							final JsonObject actionObject = actionElement.getAsJsonObject();
-							final String indentActionString = getAsString(actionObject.get("indentAction")); //$NON-NLS-1$
-							if (indentActionString != null) {
-								final IndentAction indentAction = IndentAction.valueOf(indentActionString);
-								final Integer removeText = getAsInteger(actionObject.get("removeText")); //$NON-NLS-1$
-								final String appendText = getAsString(actionObject.get("appendText")); //$NON-NLS-1$
-								action = new EnterAction(indentAction);
-								action.setAppendText(appendText);
-								action.setRemoveText(removeText);
-							}
-						}
-					}
-					if (beforeText == null || action == null) {
-						return null;
-					}
-					return new OnEnterRule(beforeText, afterText, action);
-				}).registerTypeAdapter(Comments.class, (JsonDeserializer<@Nullable Comments>) (json, typeOfT, context) -> {
-					// ex: {"lineComment": "//","blockComment": [ "/*", "*/" ]}
-					String lineComment = null;
-					CharacterPair blockComment = null;
-					if (json.isJsonObject()) {
-						final JsonObject object = json.getAsJsonObject();
-						lineComment = getAsString(object.get("lineComment")); //$NON-NLS-1$
-						final JsonElement blockCommentElement = object.get("blockComment"); //$NON-NLS-1$
-						if (blockCommentElement != null && blockCommentElement.isJsonArray()) {
-							final JsonArray blockCommentArray = blockCommentElement.getAsJsonArray();
-							if (blockCommentArray.size() == 2) {
-								final String blockCommentStart = getAsString(blockCommentArray.get(0));
-								final String blockCommentEnd = getAsString(blockCommentArray.get(1));
-								if (blockCommentStart != null && blockCommentEnd != null) {
-									blockComment = new CharacterPair(blockCommentStart, blockCommentEnd);
-								}
-							}
-						}
-					}
-					if (lineComment == null && blockComment == null) {
-						return null;
-					}
-					return new Comments(lineComment, blockComment);
-				}).registerTypeAdapter(CharacterPair.class,
-						(JsonDeserializer<@Nullable CharacterPair>) (json, typeOfT, context) -> {
-							String open = null;
-							String close = null;
-							if (json.isJsonArray()) {
-								// ex: ["{","}"]
-								final JsonArray characterPairs = json.getAsJsonArray();
-								if (characterPairs.size() == 2) {
-									open = getAsString(characterPairs.get(0));
-									close = getAsString(characterPairs.get(1));
-								}
-							}
-							if (open == null || close == null) {
+
+				.registerTypeAdapter(OnEnterRule.class,
+						(JsonDeserializer<@Nullable OnEnterRule>) (json, typeOfT, context) -> {
+							if (!json.isJsonObject()) {
 								return null;
 							}
-							return new CharacterPair(open, close);
+
+							final JsonObject object = json.getAsJsonObject();
+							final var beforeText = getAsString(object.get("beforeText")); //$NON-NLS-1$
+							if (beforeText == null) {
+								return null;
+							}
+							final var afterText = getAsString(object.get("afterText")); //$NON-NLS-1$
+
+							EnterAction action = null;
+							final JsonElement actionElement = object.get("action"); //$NON-NLS-1$
+							if (actionElement != null && actionElement.isJsonObject()) {
+								final JsonObject actionObject = actionElement.getAsJsonObject();
+								final String indentActionString = getAsString(actionObject.get("indentAction")); //$NON-NLS-1$
+								if (indentActionString != null) {
+									final IndentAction indentAction = IndentAction.valueOf(indentActionString);
+									final Integer removeText = getAsInteger(actionObject.get("removeText")); //$NON-NLS-1$
+									final String appendText = getAsString(actionObject.get("appendText")); //$NON-NLS-1$
+									action = new EnterAction(indentAction);
+									action.appendText = appendText;
+									action.removeText = removeText;
+								}
+							}
+
+							return action == null
+									? null
+									: new OnEnterRule(beforeText, afterText, action);
 						})
+
+				.registerTypeAdapter(Comments.class,
+						(JsonDeserializer<@Nullable Comments>) (json, typeOfT, context) -> {
+							if (!json.isJsonObject()) {
+								return null;
+							}
+
+							// ex: {"lineComment": "//","blockComment": [ "/*", "*/" ]}
+							final JsonObject object = json.getAsJsonObject();
+							final String lineComment = getAsString(object.get("lineComment")); //$NON-NLS-1$
+							final JsonElement blockCommentElement = object.get("blockComment"); //$NON-NLS-1$
+							CharacterPair blockComment = null;
+							if (blockCommentElement != null && blockCommentElement.isJsonArray()) {
+								final JsonArray blockCommentArray = blockCommentElement.getAsJsonArray();
+								if (blockCommentArray.size() == 2) {
+									final String blockCommentStart = getAsString(blockCommentArray.get(0));
+									final String blockCommentEnd = getAsString(blockCommentArray.get(1));
+									if (blockCommentStart != null && blockCommentEnd != null) {
+										blockComment = new CharacterPair(blockCommentStart, blockCommentEnd);
+									}
+								}
+							}
+
+							return lineComment == null && blockComment == null
+									? null
+									: new Comments(lineComment, blockComment);
+						})
+
+				.registerTypeAdapter(CharacterPair.class,
+						(JsonDeserializer<@Nullable CharacterPair>) (json, typeOfT, context) -> {
+							if (!json.isJsonArray()) {
+								return null;
+							}
+
+							// ex: ["{","}"]
+							final JsonArray characterPairs = json.getAsJsonArray();
+							if (characterPairs.size() != 2) {
+								return null;
+							}
+
+							final String open = getAsString(characterPairs.get(0));
+							final String close = getAsString(characterPairs.get(1));
+
+							return open == null || close == null
+									? null
+									: new CharacterPair(open, close);
+						})
+
 				.registerTypeAdapter(AutoClosingPairConditional.class,
 						(JsonDeserializer<@Nullable AutoClosingPairConditional>) (json, typeOfT, context) -> {
 							final var notInList = new ArrayList<String>();
@@ -137,8 +149,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 								close = getAsString(object.get("close")); //$NON-NLS-1$
 								final JsonElement notInElement = object.get("notIn"); //$NON-NLS-1$
 								if (notInElement != null && notInElement.isJsonArray()) {
-									final JsonArray notInArray = notInElement.getAsJsonArray();
-									notInArray.forEach(element -> {
+									notInElement.getAsJsonArray().forEach(element -> {
 										final String string = getAsString(element);
 										if (string != null) {
 											notInList.add(string);
@@ -146,31 +157,33 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 									});
 								}
 							}
-							if (open == null || close == null) {
-								return null;
-							}
-							return new AutoClosingPairConditional(open, close, notInList);
+
+							return open == null || close == null
+									? null
+									: new AutoClosingPairConditional(open, close, notInList);
 						})
+
 				.registerTypeAdapter(Folding.class, (JsonDeserializer<@Nullable Folding>) (json, typeOfT, context) -> {
-					// ex: {"offSide": true, "markers": {"start": "^\\s*/", "end": "^\\s*"}}
-					boolean offSide = false;
-					String startMarker = null;
-					String endMarker = null;
-					if (json.isJsonObject()) {
-						final JsonObject object = json.getAsJsonObject();
-						offSide = getAsBoolean(object.get("offSide"), offSide); //$NON-NLS-1$
-						final JsonElement markersElement = object.get("markers"); //$NON-NLS-1$
-						if (markersElement != null && markersElement.isJsonObject()) {
-							final JsonObject markersObject = markersElement.getAsJsonObject();
-							startMarker = getAsString(markersObject.get("start")); //$NON-NLS-1$
-							endMarker = getAsString(markersObject.get("end")); //$NON-NLS-1$
-						}
-					}
-					if (startMarker == null || endMarker == null) {
+					if (!json.isJsonObject()) {
 						return null;
 					}
-					return new Folding(offSide, startMarker, endMarker);
-				}).create().fromJson(reader, LanguageConfiguration.class);
+
+					// ex: {"offSide": true, "markers": {"start": "^\\s*/", "end": "^\\s*"}}
+					final JsonObject object = json.getAsJsonObject();
+					final JsonElement markersElement = object.get("markers"); //$NON-NLS-1$
+					if (markersElement != null && markersElement.isJsonObject()) {
+						final boolean offSide = getAsBoolean(object.get("offSide"), false); //$NON-NLS-1$
+						final JsonObject markersObject = markersElement.getAsJsonObject();
+						final String startMarker = getAsString(markersObject.get("start")); //$NON-NLS-1$
+						final String endMarker = getAsString(markersObject.get("end")); //$NON-NLS-1$
+						if (startMarker != null && endMarker != null) {
+							return new Folding(offSide, startMarker, endMarker);
+						}
+					}
+					return null;
+				})
+				.create()
+				.fromJson(reader, LanguageConfiguration.class);
 	}
 
 	@Nullable

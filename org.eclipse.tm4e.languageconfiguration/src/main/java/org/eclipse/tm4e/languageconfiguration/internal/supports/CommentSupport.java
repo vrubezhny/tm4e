@@ -40,20 +40,20 @@ public final class CommentSupport {
 	@Nullable
 	public String getLineComment() {
 		final var comments = this.comments;
-		return comments == null ? null : comments.getLineComment();
+		return comments == null ? null : comments.lineComment;
 	}
 
 	@Nullable
 	public CharacterPair getBlockComment() {
 		final var comments = this.comments;
-		return comments == null ? null : comments.getBlockComment();
+		return comments == null ? null : comments.blockComment;
 	}
 
 	private boolean isInLineComment(final String indexLinePrefix) {
 		final var comments = this.comments;
 		if (comments == null)
 			return false;
-		return indexLinePrefix.indexOf(comments.getLineComment()) != -1;
+		return indexLinePrefix.indexOf(comments.lineComment) != -1;
 	}
 
 	private boolean isInBlockComment(final String indexPrefix) {
@@ -61,12 +61,12 @@ public final class CommentSupport {
 		if (comments == null)
 			return false;
 
-		final var blockComment = comments.getBlockComment();
+		final var blockComment = comments.blockComment;
 		if (blockComment == null)
 			return false;
 
-		final String commentOpen = blockComment.getKey();
-		final String commentClose = blockComment.getValue();
+		final String commentOpen = blockComment.open;
+		final String commentClose = blockComment.close;
 		int index = indexPrefix.indexOf(commentOpen);
 		while (index != -1 && index < indexPrefix.length()) {
 			final int closeIndex = indexPrefix.indexOf(commentClose, index + commentOpen.length());
