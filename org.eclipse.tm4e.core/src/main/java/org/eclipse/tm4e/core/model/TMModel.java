@@ -100,7 +100,7 @@ public class TMModel implements ITMModel {
 					try {
 						revalidateTokens(lineIndexToProcess);
 					} catch (final Exception ex) {
-						LOGGER.log(ERROR, ex.getMessage());
+						LOGGER.log(ERROR, ex.getMessage(), ex);
 						invalidateLine(lineIndexToProcess);
 					}
 				} catch (final InterruptedException e) {
@@ -211,20 +211,14 @@ public class TMModel implements ITMModel {
 			this.grammar = grammar;
 			final var tokenizer = this.tokenizer = new TMTokenization(grammar);
 			modelLines.get(0).startState = tokenizer.getInitialState();
+			startTokenizerThread();
 		}
 	}
 
 	@Override
 	public synchronized void addModelTokensChangedListener(final IModelTokensChangedListener listener) {
 		listeners.add(listener);
-
-		var fThread = this.fThread;
-		if (fThread == null || fThread.isInterrupted()) {
-			fThread = this.fThread = new TokenizerThread(getClass().getName());
-		}
-		if (!fThread.isAlive()) {
-			fThread.start();
-		}
+		startTokenizerThread();
 	}
 
 	@Override
@@ -233,20 +227,32 @@ public class TMModel implements ITMModel {
 
 		if (listeners.isEmpty()) {
 			// no need to keep tokenizing if no-one cares
-			stop();
+			stopTokenizerThread();
 		}
 	}
 
 	@Override
 	public void dispose() {
-		stop();
+		stopTokenizerThread();
 		modelLines.dispose();
 	}
 
+	private synchronized void startTokenizerThread() {
+		if (tokenizer != null && !listeners.isEmpty()) {
+			var fThread = this.fThread;
+			if (fThread == null || fThread.isInterrupted()) {
+				fThread = this.fThread = new TokenizerThread(getClass().getName());
+			}
+			if (!fThread.isAlive()) {
+				fThread.start();
+			}
+		}
+	}
+
 	/**
-	 * Interrupt the thread.
+	 * Interrupt the thread if running.
 	 */
-	private synchronized void stop() {
+	private synchronized void stopTokenizerThread() {
 		final var fThread = this.fThread;
 		if (fThread == null) {
 			return;
