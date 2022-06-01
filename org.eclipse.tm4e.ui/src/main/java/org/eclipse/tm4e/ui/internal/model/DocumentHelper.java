@@ -64,21 +64,28 @@ final class DocumentHelper {
 		return event.getDocument().getLineOfOffset(event.getOffset() + event.getLength());
 	}
 
-	static String getLineText(final IDocument document, final int line, final boolean withLineDelimiter)
+	/**
+	 * @param lineIndex 0-based
+	 */
+	static String getLineText(final IDocument document, final int lineIndex, final boolean withLineDelimiter)
 			throws BadLocationException {
-		final int lo = document.getLineOffset(line);
-		int ll = document.getLineLength(line);
+		final int lo = document.getLineOffset(lineIndex);
+		int ll = document.getLineLength(lineIndex);
 		if (!withLineDelimiter) {
-			final String delim = document.getLineDelimiter(line);
+			final String delim = document.getLineDelimiter(lineIndex);
 			ll = ll - (delim != null ? delim.length() : 0);
 		}
 		return document.get(lo, ll);
 	}
 
-	private static IRegion getRegion(final IDocument document, final int fromLine, final int toLine)
+	/**
+	 * @param fromLineIndex 0-based
+	 * @param toLineIndex 0-based
+	 */
+	private static IRegion getRegion(final IDocument document, final int fromLineIndex, final int toLineIndex)
 			throws BadLocationException {
-		final int startOffset = document.getLineOffset(fromLine);
-		final int endOffset = document.getLineOffset(toLine) + document.getLineLength(toLine);
+		final int startOffset = document.getLineOffset(fromLineIndex);
+		final int endOffset = document.getLineOffset(toLineIndex) + document.getLineLength(toLineIndex);
 		return new Region(startOffset, endOffset - startOffset);
 	}
 }

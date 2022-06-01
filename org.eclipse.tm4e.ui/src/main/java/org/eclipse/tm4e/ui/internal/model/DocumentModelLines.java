@@ -89,8 +89,8 @@ final class DocumentModelLines extends AbstractModelLines implements IDocumentLi
 	}
 
 	@Override
-	public String getLineText(final int line) throws Exception {
-		return DocumentHelper.getLineText(document, line, false);
+	public String getLineText(final int lineIndex) throws Exception {
+		return DocumentHelper.getLineText(document, lineIndex, false);
 	}
 
 	@Override
