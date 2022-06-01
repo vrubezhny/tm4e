@@ -73,11 +73,12 @@ public abstract class AbstractModelLines {
 	 *
 	 * @throws IndexOutOfBoundsException if <code>lineIndex < 0 || lineIndex >= {@link #getNumberOfLines()}</code>
 	 */
-	protected void removeLines(final int lineIndex, final int count) {
+	protected void removeLines(final int lineIndex, int count) {
 		if (count < 1)
 			return;
 
 		synchronized (list) {
+			count = Math.min(count, getNumberOfLines() - lineIndex);
 			for (int i = 0; i < count; i++) {
 				list.remove(lineIndex);
 			}
@@ -94,7 +95,7 @@ public abstract class AbstractModelLines {
 	 *
 	 * @throws IndexOutOfBoundsException if <code>lineIndex < 0 || lineIndex >= {@link #getNumberOfLines()}</code>
 	 */
-	protected void replaceLines(final int lineIndex, final int linesReplaced, final int linesAdded) {
+	protected void replaceLines(final int lineIndex, int linesReplaced, final int linesAdded) {
 		if (linesReplaced == 0 && linesAdded == 0)
 			return;
 
@@ -106,6 +107,7 @@ public abstract class AbstractModelLines {
 
 		synchronized (list) {
 			final var firstLine = getOrNull(lineIndex);
+			linesReplaced = Math.min(linesReplaced, getNumberOfLines() - lineIndex);
 			for (int i = 0; i < linesReplaced; i++) {
 				list.remove(lineIndex);
 			}
