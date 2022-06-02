@@ -73,7 +73,8 @@ class DocumentTMModelTest {
 			model.getDocument().set(String.join(LF, initialLines));
 			assertTrue(signal.await(2, TimeUnit.SECONDS));
 			model.removeModelTokensChangedListener(listener);
-			Thread.sleep(500);
+			if ("true".equals(System.getenv("CI")))
+				Thread.sleep(1000);
 		}
 
 		// test
@@ -98,6 +99,64 @@ class DocumentTMModelTest {
 	@AfterEach
 	void tearDown() {
 		model.dispose();
+	}
+
+	/**
+	 * Tests appending a new line char to the end of the document
+	 */
+	@Test
+	void testAppendNewLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLength(), 0, LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add("");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
+	 * Tests appending a few new lines to the end of the document
+	 */
+	@Test
+	void testAppendNewLines() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLength(), 0, LF + "//comment3" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add("//comment3");
+		expectedLines.add("");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 4);
+	}
+
+	/**
+	 * Tests appending a some chars to the end of the document
+	 */
+	@Test
+	void testAppendText() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLength(), 0, "XY"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//comment2XY");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
 	}
 
 	/**

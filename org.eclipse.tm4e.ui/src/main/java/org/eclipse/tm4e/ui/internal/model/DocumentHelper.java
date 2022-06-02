@@ -52,7 +52,13 @@ final class DocumentHelper {
 	}
 
 	static int getEndLineIndexOfAddedText(final DocumentEvent event) throws BadLocationException {
-		return event.getDocument().getLineOfOffset(event.getOffset() + event.getText().length() - 1);
+		final var doc = event.getDocument();
+		final var textLen = event.getText().length();
+		final var isAppendToDocumentEnd = (event.getOffset() + textLen) == doc.getLength();
+		if (isAppendToDocumentEnd) {
+			return doc.getNumberOfLines() - 1;
+		}
+		return doc.getLineOfOffset(event.getOffset() + textLen - 1);
 	}
 
 	/**
