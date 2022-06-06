@@ -515,13 +515,13 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 		return null;
 	}
 
-	void colorize(final IRegion damage, final TMDocumentModel model) throws BadLocationException {
+	private void colorize(final IRegion damage, final TMDocumentModel model) throws BadLocationException {
 		final IDocument doc = model.getDocument();
-		final int fromLineNumber = doc.getLineOfOffset(damage.getOffset());
-		final int toLineNumber = doc.getLineOfOffset(damage.getOffset() + damage.getLength());
+		final int fromLineIndex = doc.getLineOfOffset(damage.getOffset());
+		final int toLineIndex = doc.getLineOfOffset(damage.getOffset() + damage.getLength());
 		applyThemeEditorIfNeeded();
 		// Refresh the UI Presentation
-		TMUIPlugin.trace("Render from: " + fromLineNumber + " to: " + toLineNumber);
+		TMUIPlugin.trace("Render from: " + fromLineIndex + " to: " + toLineIndex);
 		final var presentation = new TextPresentation(damage, 1000);
 		Exception error = null;
 		try {
@@ -532,17 +532,17 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 			TextAttribute lastAttribute = getTokenTextAttribute(lastToken);
 
 			List<TMToken> tokens = null;
-			for (int line = fromLineNumber; line <= toLineNumber; line++) {
-				tokens = model.getLineTokens(line);
+			for (int lineIndex = fromLineIndex; lineIndex <= toLineIndex; lineIndex++) {
+				tokens = model.getLineTokens(lineIndex);
 				if (tokens == null) {
 					// TextMate tokens was not computed for this line.
 					// This case comes from when the viewer is invalidated (by
 					// validation for instance) and textChanged is called.
 					// see https://github.com/eclipse/tm4e/issues/78
-					TMUIPlugin.trace("TextMate tokens not available for line " + line);
+					TMUIPlugin.trace("TextMate tokens not available for line " + lineIndex);
 					break;
 				}
-				final int startLineOffset = doc.getLineOffset(line);
+				final int startLineOffset = doc.getLineOffset(lineIndex);
 				for (int i = 0; i < tokens.size(); i++) {
 					final TMToken currentToken = tokens.get(i);
 					final TMToken nextToken = (i + 1 < tokens.size()) ? tokens.get(i + 1) : null;
@@ -559,7 +559,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 							tokenStartIndex = damage.getOffset() - startLineOffset;
 							final IToken token = toToken(currentToken);
 							lastAttribute = getTokenTextAttribute(token);
-							length += getTokenLengh(tokenStartIndex, nextToken, line, doc);
+							length += getTokenLengh(tokenStartIndex, nextToken, lineIndex, doc);
 							firstToken = false;
 							// ignore it
 							continue;
@@ -572,7 +572,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 					final IToken token = toToken(currentToken);
 					final TextAttribute attribute = getTokenTextAttribute(token);
 					if (lastAttribute.equals(attribute)) {
-						length += getTokenLengh(tokenStartIndex, nextToken, line, doc);
+						length += getTokenLengh(tokenStartIndex, nextToken, lineIndex, doc);
 						firstToken = false;
 					} else {
 						if (!firstToken) {
@@ -582,7 +582,7 @@ public class TMPresentationReconciler implements IPresentationReconciler {
 						lastToken = token;
 						lastAttribute = attribute;
 						lastStart = tokenStartIndex + startLineOffset;
-						length = getTokenLengh(tokenStartIndex, nextToken, line, doc);
+						length = getTokenLengh(tokenStartIndex, nextToken, lineIndex, doc);
 					}
 				}
 			}
