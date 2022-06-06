@@ -53,12 +53,12 @@ final class DocumentHelper {
 
 	static int getEndLineIndexOfAddedText(final DocumentEvent event) throws BadLocationException {
 		final var doc = event.getDocument();
-		final var textLen = event.getText().length();
-		final var isAppendToDocumentEnd = (event.getOffset() + textLen) == doc.getLength();
+		final var offsetAfterAddedText = event.getOffset() + event.getText().length();
+		final var isAppendToDocumentEnd = offsetAfterAddedText == doc.getLength();
 		if (isAppendToDocumentEnd) {
 			return doc.getNumberOfLines() - 1;
 		}
-		return doc.getLineOfOffset(event.getOffset() + textLen - 1);
+		return doc.getLineOfOffset(offsetAfterAddedText - 1);
 	}
 
 	/**
