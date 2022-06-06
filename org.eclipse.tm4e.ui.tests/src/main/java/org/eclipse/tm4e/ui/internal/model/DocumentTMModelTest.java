@@ -72,9 +72,9 @@ class DocumentTMModelTest {
 			model.addModelTokensChangedListener(listener);
 			model.getDocument().set(String.join(LF, initialLines));
 			assertTrue(signal.await(2, TimeUnit.SECONDS));
-			model.removeModelTokensChangedListener(listener);
 			if ("true".equals(System.getenv("CI")))
 				Thread.sleep(1000);
+			model.removeModelTokensChangedListener(listener);
 		}
 
 		// test
