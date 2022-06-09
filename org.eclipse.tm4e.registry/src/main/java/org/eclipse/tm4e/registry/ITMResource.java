@@ -14,8 +14,6 @@ package org.eclipse.tm4e.registry;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * TextMate resource definition API.
  *
@@ -27,7 +25,6 @@ public interface ITMResource extends ITMDefinition {
 	 *
 	 * @return the TextMate resource path.
 	 */
-	@Nullable
 	String getPath();
 
 	/**
@@ -36,6 +33,5 @@ public interface ITMResource extends ITMDefinition {
 	 * @return the stream of the TextMate resource.
 	 * @throws IOException
 	 */
-	@Nullable
 	InputStream getInputStream() throws IOException;
 }
