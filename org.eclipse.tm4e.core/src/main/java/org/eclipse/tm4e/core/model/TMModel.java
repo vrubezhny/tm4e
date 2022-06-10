@@ -280,8 +280,8 @@ public class TMModel implements ITMModel {
 
 	@Override
 	@Nullable
-	public List<TMToken> getLineTokens(final int lineNumber) {
-		final var modelLine = modelLines.getOrNull(lineNumber);
+	public List<TMToken> getLineTokens(final int lineIndex) {
+		final var modelLine = modelLines.getOrNull(lineIndex);
 		return modelLine == null ? null : modelLine.tokens;
 	}
 

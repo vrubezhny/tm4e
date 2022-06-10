@@ -54,8 +54,10 @@ public interface ITMModel {
 	void dispose();
 
 	/**
+	 * @param lineIndex 0-based
+	 *
 	 * @throws IndexOutOfBoundsException
 	 */
 	@Nullable
-	List<TMToken> getLineTokens(int line);
+	List<TMToken> getLineTokens(int lineIndex);
 }
