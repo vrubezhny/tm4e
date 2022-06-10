@@ -120,11 +120,12 @@ public final class StateStack implements IStateStack {
 		this.contentNameScopesList = contentNameScopesList;
 	}
 
-	public boolean equals(@Nullable final StateStack other) {
-		if (other == null) {
-			return false;
+	@Override
+	public boolean equals(@Nullable final Object other) {
+		if (other instanceof final StateStack otherState) {
+			return _equals(this, otherState);
 		}
-		return _equals(this, other);
+		return false;
 	}
 
 	private static boolean _equals(final StateStack a, final StateStack b) {

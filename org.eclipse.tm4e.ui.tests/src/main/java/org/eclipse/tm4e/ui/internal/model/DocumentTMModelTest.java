@@ -56,6 +56,7 @@ class DocumentTMModelTest {
 
 	private void assertDocHasLines(final Iterable<String> lines) {
 		assertEquals(String.join(LF, lines), doc.get());
+		assertEquals(model.getDocument().getNumberOfLines(), model.getNumberOfLines());
 	}
 
 	private void assertRange(final ModelTokensChangedEvent e, final int startLineNumber, final int endLineNumber) {
@@ -72,10 +73,11 @@ class DocumentTMModelTest {
 			model.addModelTokensChangedListener(listener);
 			model.getDocument().set(String.join(LF, initialLines));
 			assertTrue(signal.await(2, TimeUnit.SECONDS));
-			if ("true".equals(System.getenv("CI")))
-				Thread.sleep(1000);
+			Thread.sleep("true".equals(System.getenv("CI")) ? 500 : 50);
 			model.removeModelTokensChangedListener(listener);
 		}
+
+		assertEquals(model.getDocument().getNumberOfLines(), model.getNumberOfLines());
 
 		// test
 		final var event = new AtomicReference<ModelTokensChangedEvent>();
@@ -102,29 +104,11 @@ class DocumentTMModelTest {
 	}
 
 	/**
-	 * Tests appending a new line char to the end of the document
-	 */
-	@Test
-	void testAppendNewLine() throws Throwable {
-		final var initialLines = List.of(
-				"//comment1",
-				"//comment2");
-
-		final var event = awaitModelChangedEvent(model, initialLines,
-				() -> doc.replace(doc.getLength(), 0, LF));
-
-		final var expectedLines = new ArrayList<>(initialLines);
-		expectedLines.add("");
-		assertDocHasLines(expectedLines);
-
-		assertRange(event, 2, 3);
-	}
-
-	/**
 	 * Tests appending a few new lines to the end of the document
 	 */
+	// @Disabled
 	@Test
-	void testAppendNewLines() throws Throwable {
+	void testAppend2Lines() throws Throwable {
 		final var initialLines = List.of(
 				"//comment1",
 				"//comment2");
@@ -141,8 +125,29 @@ class DocumentTMModelTest {
 	}
 
 	/**
+	 * Tests appending a new line char to the end of the document
+	 */
+	// @Disabled
+	@Test
+	void testAppendEmptyLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLength(), 0, LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add("");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
 	 * Tests appending a some chars to the end of the document
 	 */
+	// @Disabled
 	@Test
 	void testAppendText() throws Throwable {
 		final var initialLines = List.of(
@@ -160,8 +165,158 @@ class DocumentTMModelTest {
 	}
 
 	/**
+	 * Tests appending a new text line to the end of the document
+	 */
+	// @Disabled
+	@Test
+	void testAppendTextLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLength(), 0, LF + "//comment3"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add("//comment3");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
+	 * Tests appending a some chars to the end of a line
+	 */
+	@Test
+	void testAppendTextToLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(initialLines.get(0).length(), 0, "X"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(0, "//comment1X");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 1, 1);
+	}
+
+	/**
+	 * Tests inserting/pasting two line after the first line
+	 */
+	// @Disabled
+	@Test
+	void testInsert2Lines() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1), 0, "//commentX" + LF + "//commentY" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add(1, "//commentX");
+		expectedLines.add(2, "//commentY");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
+	 * Tests inserting/pasting some text with new line chars that spawns two lines
+	 */
+	// @Disabled
+	@Test
+	void testInsert2LinesPartially() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1) + 2, 0, "X" + LF + "//Y"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.add(1, "//X");
+		expectedLines.set(2, "//Ycomment2");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
+	 * Tests inserting a line break in the middle of a line
+	 */
+	// @Disabled
+	@Test
+	void testInsertEmptyLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1) + 4, 0, LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//co");
+		expectedLines.add(2, "mment2");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
+	 * Tests inserting '/*' at the beginning of the second line which invalidates all following lines
+	 */
+	// @Disabled
+	@Test
+	void testInsertMultiLineCommentStartToken() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1), 0, "/*"));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "/*" + initialLines.get(1));
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, doc.getNumberOfLines());
+	}
+
+	/**
+	 * Tests splitting a line
+	 */
+	// @Disabled
+	@Test
+	void testInsertNewLineCharInLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1) + 4, 0, LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//co");
+		expectedLines.add(2, "mment2");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 3);
+	}
+
+	/**
 	 * Tests inserting some chars into a line
 	 */
+	// @Disabled
 	@Test
 	void testInsertText() throws Throwable {
 		final var initialLines = List.of(
@@ -182,8 +337,9 @@ class DocumentTMModelTest {
 	/**
 	 * Tests inserting a line after the first line
 	 */
+	// @Disabled
 	@Test
-	void testInsert1Line() throws Throwable {
+	void testInsertTextLine() throws Throwable {
 		final var initialLines = List.of(
 				"//comment1",
 				"//comment2",
@@ -200,96 +356,71 @@ class DocumentTMModelTest {
 	}
 
 	/**
-	 * Tests inserting a line after the first line
+	 * Tests inserting a new line char at the beginning of the document.
 	 */
+	// @Disabled
 	@Test
-	void testInsert2Lines() throws Throwable {
+	void testPrefixEmptyLine() throws Throwable {
 		final var initialLines = List.of(
 				"//comment1",
-				"//comment2",
-				"//comment3");
+				"//comment2");
 
 		final var event = awaitModelChangedEvent(model, initialLines,
-				() -> doc.replace(doc.getLineOffset(1), 0, "//commentX" + LF + "//commentY" + LF));
+				() -> doc.replace(0, 0, LF));
 
 		final var expectedLines = new ArrayList<>(initialLines);
-		expectedLines.add(1, "//commentX");
-		expectedLines.add(2, "//commentY");
+		expectedLines.add(0, "");
 		assertDocHasLines(expectedLines);
 
-		assertRange(event, 2, 3);
+		assertRange(event, 1, 2); // second line is part of changed range as it's startState changed
 	}
 
 	/**
-	 * Tests inserting a line after the first line
+	 * Tests inserting a new line at the beginning of the document.
 	 */
+	// @Disabled
 	@Test
-	void testInsert2LinesPartially() throws Throwable {
+	void testPrefixText() throws Throwable {
 		final var initialLines = List.of(
 				"//comment1",
-				"//comment2",
-				"//comment3");
+				"//comment2");
 
 		final var event = awaitModelChangedEvent(model, initialLines,
-				() -> doc.replace(doc.getLineOffset(1) + 2, 0, "X" + LF + "//Y"));
+				() -> doc.replace(0, 0, "//"));
 
 		final var expectedLines = new ArrayList<>(initialLines);
-		expectedLines.add(1, "//X");
-		expectedLines.set(2, "//Ycomment2");
+		expectedLines.set(0, "////comment1");
 		assertDocHasLines(expectedLines);
 
-		assertRange(event, 2, 3);
+		assertRange(event, 1, 1);
 	}
 
 	/**
-	 * Tests inserting '/*' at the beginning of the second line which invalidates all following lines
+	 * Tests inserting a new line at the beginning of the document.
 	 */
+	// @Disabled
 	@Test
-	void testInsertMultiLineCommentStartToken() throws Throwable {
+	void testPrefixTextLine() throws Throwable {
 		final var initialLines = List.of(
 				"//comment1",
-				"//comment2",
-				"//comment3",
-				"//comment4");
+				"//comment2");
 
 		final var event = awaitModelChangedEvent(model, initialLines,
-				() -> doc.replace(doc.getLineOffset(1), 0, "/*"));
+				() -> doc.replace(0, 0, "//comment0" + LF));
 
 		final var expectedLines = new ArrayList<>(initialLines);
-		expectedLines.set(1, "/*" + initialLines.get(1));
+		expectedLines.add(0, "//comment0");
 		assertDocHasLines(expectedLines);
 
-		assertRange(event, 2, doc.getNumberOfLines());
-	}
-
-	/**
-	 * Tests removing the second line
-	 */
-	@Test
-	void testRemove1Line() throws Throwable {
-		final var initialLines = List.of(
-				"//comment1",
-				"//comment2",
-				"//comment3");
-
-		final var event = awaitModelChangedEvent(model, initialLines,
-				() -> doc.replace(
-						doc.getLineOffset(1),
-						initialLines.get(1).length() + LF.length(), // length to remove
-						null));
-
-		final var expectedLines = new ArrayList<>(initialLines);
-		expectedLines.remove(1);
-		assertDocHasLines(expectedLines);
-
-		assertRange(event, 2, 2);
+		assertRange(event, 1, 2); // second line is part of changed range as it's startState changed
 	}
 
 	/**
 	 * Tests removing the second and the third line
 	 */
+	// @Disabled
 	@Test
-	void testRemove2Lines() throws Throwable {
+	void testRemove2TextLines() throws Throwable {
 		final var initialLines = List.of(
 				"//comment1",
 				"//comment2",
@@ -303,6 +434,110 @@ class DocumentTMModelTest {
 
 		final var expectedLines = new ArrayList<>(initialLines);
 		expectedLines.remove(2);
+		expectedLines.remove(1);
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
+	}
+
+	// @Disabled
+	@Test
+	void testRemoveLastChar() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLength() - 1, 1, null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//comment");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
+	}
+
+	// @Disabled
+	@Test
+	void testRemoveLastCharOfLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(initialLines.get(0).length() - 1, 1, null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(0, "//comment");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 1, 1);
+	}
+
+	/**
+	 * Tests joining two lines
+	 */
+	// @Disabled
+	@Test
+	void testRemoveNewLineChar() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(
+						doc.getLineOffset(2) - 1,
+						LF.length(), // length to remove
+						null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, expectedLines.get(1) + expectedLines.get(2));
+		expectedLines.remove(2);
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
+	}
+
+	/**
+	 * Tests removing some chars of a line
+	 */
+	// @Disabled
+	@Test
+	void testRemoveText() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1) + 2, 2, null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//mment2");
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
+	}
+
+	/**
+	 * Tests removing the second line
+	 */
+	// @Disabled
+	@Test
+	void testRemoveTextLine() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(
+						doc.getLineOffset(1),
+						initialLines.get(1).length() + LF.length(), // length to remove
+						null));
+
+		final var expectedLines = new ArrayList<>(initialLines);
 		expectedLines.remove(1);
 		assertDocHasLines(expectedLines);
 
@@ -333,7 +568,7 @@ class DocumentTMModelTest {
 	}
 
 	/**
-	 * Tests replacing the second single comment line
+	 * Tests replacing the second single comment line with a multi-line comment which invalidates following lines
 	 */
 	@Test
 	void testReplace1LineWithMultilineComment() throws Throwable {
@@ -352,32 +587,7 @@ class DocumentTMModelTest {
 		expectedLines.set(1, "/*commentX");
 		assertDocHasLines(expectedLines);
 
-		assertRange(event, 2, 3);
-	}
-
-	/**
-	 * Tests replacing the second and third single comment lines
-	 */
-	@Test
-	void testReplace2LinesWith1Line() throws Throwable {
-		final var initialLines = List.of(
-				"//comment1",
-				"//comment2",
-				"//comment3",
-				"//comment4",
-				"//comment5");
-
-		final var event = awaitModelChangedEvent(model, initialLines,
-				() -> doc.replace(doc.getLineOffset(1),
-						2 * (initialLines.get(1).length() + LF.length()), // length to replace
-						"//commentX" + LF));
-
-		final var expectedLines = new ArrayList<>(initialLines);
-		expectedLines.set(1, "//commentX");
-		expectedLines.remove(2);
-		assertDocHasLines(expectedLines);
-
-		assertRange(event, 2, 2);
+		assertRange(event, 2, 4);
 	}
 
 	@Test
@@ -402,6 +612,32 @@ class DocumentTMModelTest {
 		assertRange(event, 2, 3);
 	}
 
+	/**
+	 * Tests replacing the second and third single comment lines with a one line
+	 */
+	@Test
+	void testReplace2LinesWith1Line() throws Throwable {
+		final var initialLines = List.of(
+				"//comment1",
+				"//comment2",
+				"//comment3",
+				"//comment4",
+				"//comment5");
+
+		final var event = awaitModelChangedEvent(model, initialLines,
+				() -> doc.replace(doc.getLineOffset(1),
+						2 * (initialLines.get(1).length() + LF.length()), // length to replace
+						"//commentX" + LF));
+
+		final var expectedLines = new ArrayList<>(initialLines);
+		expectedLines.set(1, "//commentX");
+		expectedLines.remove(2);
+		assertDocHasLines(expectedLines);
+
+		assertRange(event, 2, 2);
+	}
+
+	// @Disabled
 	@Test
 	void testSetDocumentContent() throws Throwable {
 		final var event1 = awaitModelChangedEvent(model, Collections.emptyList(), () -> doc.set("a"));

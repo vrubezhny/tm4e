@@ -11,9 +11,6 @@
  */
 package org.eclipse.tm4e.ui.internal.model;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.annotation.Nullable;
@@ -32,7 +29,7 @@ import org.eclipse.tm4e.ui.TMUIPlugin;
 final class DocumentModelLines extends AbstractModelLines implements IDocumentListener {
 
 	private final IDocument document;
-	private final Map<DocumentEvent, Integer> removeEndLineIndexes = new ConcurrentHashMap<>();
+	private int endLineIndexOfRemovedText = -1;
 
 	DocumentModelLines(final IDocument document) {
 		this.document = document;
@@ -47,7 +44,7 @@ final class DocumentModelLines extends AbstractModelLines implements IDocumentLi
 		try {
 			switch (DocumentHelper.getEventType(event)) {
 			case REMOVE, REPLACE /*= Remove + Insert */:
-				removeEndLineIndexes.put(event, DocumentHelper.getEndLineIndexOfRemovedText(event));
+				endLineIndexOfRemovedText = DocumentHelper.getEndLineIndexOfRemovedText(event);
 				// => cannot be calculated in documentChanged() where it will result in BadLocationException
 				break;
 			default:
@@ -65,21 +62,26 @@ final class DocumentModelLines extends AbstractModelLines implements IDocumentLi
 			final int startLineIndex = DocumentHelper.getStartLineIndex(event);
 			switch (DocumentHelper.getEventType(event)) {
 			case INSERT: {
-				final var endLineIndex = DocumentHelper.getEndLineIndexOfAddedText(event);
-				replaceLines(startLineIndex, 1, 1 + (endLineIndex - startLineIndex));
+				final var endLineIndexOfAddedText = DocumentHelper.getEndLineIndexOfAddedText(event);
+				final var isFullLineInsert = DocumentHelper.getStartLineCharIndex(event) == 0
+						&& event.getText().endsWith("\n");
+
+				final var linesAdded = (isFullLineInsert ? 0 : 1) + (endLineIndexOfAddedText - startLineIndex);
+				replaceLines(startLineIndex, isFullLineInsert ? 0 : 1, linesAdded);
 				break;
 			}
 			case REMOVE: {
-				final var endLineIndex = removeEndLineIndexes.remove(event).intValue();
-				replaceLines(startLineIndex, 1 + (endLineIndex - startLineIndex), 1);
+				replaceLines(startLineIndex, 1 + (endLineIndexOfRemovedText - startLineIndex), 1);
 				break;
 			}
 			case REPLACE: {
-				final var endLineRemovedIndex = removeEndLineIndexes.remove(event).intValue();
-				final var endLineAddedIndex = DocumentHelper.getEndLineIndexOfAddedText(event);
+				final var endLineIndexOfAddedText = DocumentHelper.getEndLineIndexOfAddedText(event);
+				final var isFullLineInsert = DocumentHelper.getStartLineCharIndex(event) == 0
+						&& event.getText().endsWith("\n");
+
 				replaceLines(startLineIndex,
-						1 + (endLineRemovedIndex - startLineIndex),
-						1 + (endLineAddedIndex - startLineIndex));
+						(isFullLineInsert ? 0 : 1) + (endLineIndexOfRemovedText - startLineIndex),
+						(isFullLineInsert ? 0 : 1) + (endLineIndexOfAddedText - startLineIndex));
 				break;
 			}
 			}

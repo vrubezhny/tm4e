@@ -58,7 +58,7 @@ final class DocumentHelper {
 		if (isAppendToDocumentEnd) {
 			return doc.getNumberOfLines() - 1;
 		}
-		return doc.getLineOfOffset(offsetAfterAddedText - 1);
+		return doc.getLineOfOffset(offsetAfterAddedText);
 	}
 
 	/**

@@ -90,25 +90,25 @@ public abstract class AbstractModelLines {
 	 * Replaces lines at the given index
 	 *
 	 * @param lineIndex (0-based)
-	 * @param linesReplaced number of lines that are replaced
+	 * @param linesRemoved number of lines that are replaced
 	 * @param linesAdded number of lines that are replacing the replaced lines
 	 *
 	 * @throws IndexOutOfBoundsException if <code>lineIndex < 0 || lineIndex >= {@link #getNumberOfLines()}</code>
 	 */
-	protected void replaceLines(final int lineIndex, int linesReplaced, final int linesAdded) {
-		if (linesReplaced == 0 && linesAdded == 0)
+	protected void replaceLines(final int lineIndex, int linesRemoved, final int linesAdded) {
+		if (linesRemoved == 0 && linesAdded == 0)
 			return;
 
 		// check if operation single line update
-		if (linesReplaced == 1 && linesAdded == 1) {
+		if (linesRemoved == 1 && linesAdded == 1) {
 			updateLine(lineIndex);
 			return;
 		}
 
 		synchronized (list) {
 			final var firstLine = getOrNull(lineIndex);
-			linesReplaced = Math.min(linesReplaced, getNumberOfLines() - lineIndex);
-			for (int i = 0; i < linesReplaced; i++) {
+			linesRemoved = Math.min(linesRemoved, getNumberOfLines() - lineIndex);
+			for (int i = 0; i < linesRemoved; i++) {
 				list.remove(lineIndex);
 			}
 			for (int i = 0; i < linesAdded; i++) {

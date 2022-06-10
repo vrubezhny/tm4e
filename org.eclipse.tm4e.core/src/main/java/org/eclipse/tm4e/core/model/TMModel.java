@@ -285,6 +285,10 @@ public class TMModel implements ITMModel {
 		return modelLine == null ? null : modelLine.tokens;
 	}
 
+	public int getNumberOfLines() {
+		return modelLines.getNumberOfLines();
+	}
+
 	/**
 	 * Marks the given line as out-of-date resulting in async re-parsing
 	 */
