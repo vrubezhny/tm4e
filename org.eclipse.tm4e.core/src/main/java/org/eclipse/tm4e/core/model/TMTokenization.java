@@ -23,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.grammar.IGrammar;
 import org.eclipse.tm4e.core.grammar.IStateStack;
@@ -130,15 +132,10 @@ public class TMTokenization implements ITokenizationSupport {
 		return decodeMap.getToken(prevScopeTokensMaps);
 	}
 
-	private static final class TMTokenDecodeData {
-
-		final List<String> scopes;
-		final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps;
-
-		TMTokenDecodeData(final List<String> scopes, final Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
-			this.scopes = scopes;
-			this.scopeTokensMaps = scopeTokensMaps;
-		}
+	@NonNullByDefault({})
+	private record TMTokenDecodeData(
+		@NonNull List<String> scopes,
+		@NonNull Map<Integer, Map<Integer, Boolean>> scopeTokensMaps) {
 	}
 
 	private static final class DecodeMap {

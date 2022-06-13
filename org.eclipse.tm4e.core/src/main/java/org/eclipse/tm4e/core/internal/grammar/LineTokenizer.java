@@ -26,6 +26,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigCaptureIndex;
 import org.eclipse.tm4e.core.internal.oniguruma.OnigNextMatchResult;
@@ -67,20 +69,12 @@ final class LineTokenizer {
 		}
 	}
 
-	private static final class WhileCheckResult {
-
-		private final StateStack stack;
-		private final int linePos;
-		private final int anchorPosition;
-		private final boolean isFirstLine;
-
-		private WhileCheckResult(final StateStack stack, final int linePos, final int anchorPosition,
-			final boolean isFirstLine) {
-			this.stack = stack;
-			this.linePos = linePos;
-			this.anchorPosition = anchorPosition;
-			this.isFirstLine = isFirstLine;
-		}
+	@NonNullByDefault({})
+	private record WhileCheckResult(
+		@NonNull StateStack stack,
+		int linePos,
+		int anchorPosition,
+		boolean isFirstLine) {
 	}
 
 	static final class TokenizeStringResult {
