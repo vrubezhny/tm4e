@@ -1,57 +1,59 @@
 /**
- *  Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018 Red Hat Inc. and others.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Lucas Bullen (Red Hat Inc.) - initial API and implementation
+ * Contributors:
+ * Lucas Bullen (Red Hat Inc.) - initial API and implementation
  */
 package org.eclipse.tm4e.languageconfiguration;
 
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.AutoClosingPairConditional;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.StandardAutoClosingPairConditional;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPair;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.Comments;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.Folding;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.CommentRule;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.FoldingRule;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.OnEnterRule;
 
+/**
+ * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/e568a31f82680cde0949d7e07dac913565134c93/src/vs/editor/common/languages/languageConfiguration.ts#L28">
+ *      https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts#L28</a>
+ */
 public interface ILanguageConfiguration {
+
 	/**
-	 * Returns the language's comments. The comments are used by
-	 * {@link AutoClosingPairConditional} when <code>notIn</code> contains
-	 * <code>comment</code>
+	 * Returns the language's comments. The comments are used by {@link StandardAutoClosingPairConditional} when
+	 * <code>notIn</code> contains <code>comment</code>
 	 *
 	 * @return the language's comments or <code>null</code> if not set
 	 */
 	@Nullable
-	Comments getComments();
+	CommentRule getComments();
 
 	/**
-	 * Returns the language's brackets. This configuration implicitly affects
-	 * pressing Enter around these brackets.
+	 * Returns the language's brackets. This configuration implicitly affects pressing Enter around these brackets.
 	 *
-	 * @return the language's brackets. This configuration implicitly affects
-	 *         pressing Enter around these brackets.
+	 * @return the language's brackets. This configuration implicitly affects pressing Enter around these brackets.
 	 */
 	@Nullable
 	List<CharacterPair> getBrackets();
 
 	/**
-	 * Returns the language's auto closing pairs. The 'close' character is
-	 * automatically inserted with the 'open' character is typed. If not set, the
-	 * configured brackets will be used.
+	 * Returns the language's auto closing pairs. The 'close' character is automatically inserted with the 'open'
+	 * character is typed. If not set, the configured brackets will be used.
 	 *
 	 * @return the language's auto closing pairs. The 'close' character is
 	 *         automatically inserted with the 'open' character is typed. If not
 	 *         set, the configured brackets will be used.
 	 */
 	@Nullable
-	List<AutoClosingPairConditional> getAutoClosingPairs();
+	List<StandardAutoClosingPairConditional> getAutoClosingPairs();
 
 	/**
 	 * Returns the language's rules to be evaluated when pressing Enter.
@@ -62,14 +64,11 @@ public interface ILanguageConfiguration {
 	List<OnEnterRule> getOnEnterRules();
 
 	/**
-	 * Returns the language's surrounding pairs. When the 'open' character is typed
-	 * on a selection, the selected string is surrounded by the open and close
-	 * characters. If not set, the autoclosing pairs settings will be used.
+	 * Returns the language's surrounding pairs. When the 'open' character is typed on a selection, the selected string
+	 * is surrounded by the open and close characters. If not set, the autoclosing pairs settings will be used.
 	 *
-	 * @return the language's surrounding pairs. When the 'open' character is typed
-	 *         on a selection, the selected string is surrounded by the open and
-	 *         close characters. If not set, the autoclosing pairs settings will be
-	 *         used.
+	 * @return the language's surrounding pairs. When the 'open' character is typed on a selection, the selected string
+	 *         is surrounded by the open and close characters. If not set, the autoclosing pairs settings will be used.
 	 */
 	@Nullable
 	List<CharacterPair> getSurroundingPairs();
@@ -80,11 +79,10 @@ public interface ILanguageConfiguration {
 	 * @return the language's folding or <code>null</code> if not set
 	 */
 	@Nullable
-	Folding getFolding();
+	FoldingRule getFolding();
 
 	/**
-	 * Returns the language's definition of a word. This is the regex used when
-	 * referring to a word.
+	 * Returns the language's definition of a word. This is the regex used when referring to a word.
 	 *
 	 * @return the language's word pattern or <code>null</code> if not set
 	 */

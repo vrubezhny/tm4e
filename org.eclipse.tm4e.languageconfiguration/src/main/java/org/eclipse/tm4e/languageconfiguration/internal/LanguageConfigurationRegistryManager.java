@@ -27,7 +27,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.tm4e.languageconfiguration.ILanguageConfigurationDefinition;
 import org.eclipse.tm4e.languageconfiguration.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.languageconfiguration.internal.preferences.PreferenceHelper;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.AutoClosingPairConditional;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.StandardAutoClosingPairConditional;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPair;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPairSupport;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CommentSupport;
@@ -80,7 +80,7 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 	}
 
 	@Nullable
-	public AutoClosingPairConditional getAutoClosePair(final String text, final int offset, final String newCharacter,
+	public StandardAutoClosingPairConditional getAutoClosePair(final String text, final int offset, final String newCharacter,
 			final IContentType contentType) {
 		final var definition = getDefinition(contentType);
 		if (definition == null || !definition.isBracketAutoClosingEnabled()) {
@@ -120,7 +120,7 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 		return true;
 	}
 
-	public List<AutoClosingPairConditional> getEnabledAutoClosingPairs(final IContentType contentType) {
+	public List<StandardAutoClosingPairConditional> getEnabledAutoClosingPairs(final IContentType contentType) {
 		final var definition = getDefinition(contentType);
 		if (definition == null || !definition.isBracketAutoClosingEnabled()) {
 			return Collections.emptyList();

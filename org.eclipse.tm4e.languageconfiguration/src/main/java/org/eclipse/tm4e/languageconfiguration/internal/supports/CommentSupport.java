@@ -18,9 +18,9 @@ import org.eclipse.jface.text.IDocument;
 public final class CommentSupport {
 
 	@Nullable
-	private final Comments comments;
+	private final CommentRule comments;
 
-	public CommentSupport(@Nullable final Comments comments) {
+	public CommentSupport(@Nullable final CommentRule comments) {
 		this.comments = comments;
 	}
 

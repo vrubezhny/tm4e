@@ -18,7 +18,7 @@ import org.eclipse.jdt.annotation.Nullable;
  *      "https://github.com/microsoft/vscode/blob/d79132281222cdab77abeacca1af700e34c2f30b/src/vs/editor/common/languages/languageConfiguration.ts#L13">
  *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts#L13</a>
  */
-public final class Comments {
+public final class CommentRule {
 
 	@Nullable
 	public final String lineComment;
@@ -26,7 +26,7 @@ public final class Comments {
 	@Nullable
 	public final CharacterPair blockComment;
 
-	public Comments(@Nullable final String lineComment, @Nullable final CharacterPair blockComment) {
+	public CommentRule(@Nullable final String lineComment, @Nullable final CharacterPair blockComment) {
 		this.lineComment = lineComment;
 		this.blockComment = blockComment;
 	}

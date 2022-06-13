@@ -24,7 +24,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.tm4e.core.model.TMToken;
 import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationRegistryManager;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.AutoClosingPairConditional;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.StandardAutoClosingPairConditional;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction;
 import org.eclipse.tm4e.languageconfiguration.internal.utils.TabSpacesInfo;
 import org.eclipse.tm4e.languageconfiguration.internal.utils.TextUtils;
@@ -105,10 +105,10 @@ public class LanguageConfigurationAutoEditStrategy implements IAutoEditStrategy 
 	}
 
 	/**
-	 * @return true if auto closing is enabled for the given {@link AutoClosingPairConditional} at the given offset
+	 * @return true if auto closing is enabled for the given {@link StandardAutoClosingPairConditional} at the given offset
 	 */
 	private boolean isAutoClosingAllowed(final IDocument document, final int offset,
-			final AutoClosingPairConditional pair) {
+			final StandardAutoClosingPairConditional pair) {
 		if (!pair.notIn.isEmpty()) {
 			final var docModel = TMModelManager.INSTANCE.connect(document);
 			try {

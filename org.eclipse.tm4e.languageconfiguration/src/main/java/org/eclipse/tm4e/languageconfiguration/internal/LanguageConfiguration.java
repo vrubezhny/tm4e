@@ -17,12 +17,12 @@ import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.languageconfiguration.ILanguageConfiguration;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.AutoClosingPairConditional;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.StandardAutoClosingPairConditional;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPair;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.Comments;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.CommentRule;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction.IndentAction;
-import org.eclipse.tm4e.languageconfiguration.internal.supports.Folding;
+import org.eclipse.tm4e.languageconfiguration.internal.supports.FoldingRule;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.OnEnterRule;
 
 import com.google.gson.GsonBuilder;
@@ -83,8 +83,8 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 									: new OnEnterRule(beforeText, afterText, action);
 						})
 
-				.registerTypeAdapter(Comments.class,
-						(JsonDeserializer<@Nullable Comments>) (json, typeOfT, context) -> {
+				.registerTypeAdapter(CommentRule.class,
+						(JsonDeserializer<@Nullable CommentRule>) (json, typeOfT, context) -> {
 							if (!json.isJsonObject()) {
 								return null;
 							}
@@ -107,7 +107,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 
 							return lineComment == null && blockComment == null
 									? null
-									: new Comments(lineComment, blockComment);
+									: new CommentRule(lineComment, blockComment);
 						})
 
 				.registerTypeAdapter(CharacterPair.class,
@@ -130,8 +130,8 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 									: new CharacterPair(open, close);
 						})
 
-				.registerTypeAdapter(AutoClosingPairConditional.class,
-						(JsonDeserializer<@Nullable AutoClosingPairConditional>) (json, typeOfT, context) -> {
+				.registerTypeAdapter(StandardAutoClosingPairConditional.class,
+						(JsonDeserializer<@Nullable StandardAutoClosingPairConditional>) (json, typeOfT, context) -> {
 							final var notInList = new ArrayList<String>();
 							String open = null;
 							String close = null;
@@ -160,10 +160,10 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 
 							return open == null || close == null
 									? null
-									: new AutoClosingPairConditional(open, close, notInList);
+									: new StandardAutoClosingPairConditional(open, close, notInList);
 						})
 
-				.registerTypeAdapter(Folding.class, (JsonDeserializer<@Nullable Folding>) (json, typeOfT, context) -> {
+				.registerTypeAdapter(FoldingRule.class, (JsonDeserializer<@Nullable FoldingRule>) (json, typeOfT, context) -> {
 					if (!json.isJsonObject()) {
 						return null;
 					}
@@ -177,7 +177,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 						final String startMarker = getAsString(markersObject.get("start")); //$NON-NLS-1$
 						final String endMarker = getAsString(markersObject.get("end")); //$NON-NLS-1$
 						if (startMarker != null && endMarker != null) {
-							return new Folding(offSide, startMarker, endMarker);
+							return new FoldingRule(offSide, startMarker, endMarker);
 						}
 					}
 					return null;
@@ -225,7 +225,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 	 * Defines the comment symbols
 	 */
 	@Nullable
-	private Comments comments;
+	private CommentRule comments;
 
 	/**
 	 * The language's brackets. This configuration implicitly affects pressing Enter around these brackets.
@@ -245,7 +245,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 	 * brackets will be used.
 	 */
 	@Nullable
-	private List<AutoClosingPairConditional> autoClosingPairs;
+	private List<StandardAutoClosingPairConditional> autoClosingPairs;
 
 	/**
 	 * The language's surrounding pairs. When the 'open' character is typed on a
@@ -259,7 +259,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 	 * Defines when and how code should be folded in the editor
 	 */
 	@Nullable
-	private Folding folding;
+	private FoldingRule folding;
 
 	/**
 	 * Regex which defines what is considered to be a word in the programming language.
@@ -269,7 +269,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 
 	@Nullable
 	@Override
-	public Comments getComments() {
+	public CommentRule getComments() {
 		return comments;
 	}
 
@@ -281,7 +281,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 
 	@Nullable
 	@Override
-	public List<AutoClosingPairConditional> getAutoClosingPairs() {
+	public List<StandardAutoClosingPairConditional> getAutoClosingPairs() {
 		return autoClosingPairs;
 	}
 
@@ -299,7 +299,7 @@ public final class LanguageConfiguration implements ILanguageConfiguration {
 
 	@Nullable
 	@Override
-	public Folding getFolding() {
+	public FoldingRule getFolding() {
 		return folding;
 	}
 
