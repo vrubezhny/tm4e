@@ -43,24 +43,18 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 	private static final String EXTENSION_LANGUAGE_CONFIGURATIONS = "languageConfigurations"; //$NON-NLS-1$
 	private static final String LANGUAGE_CONFIGURATION_ELT = "languageConfiguration"; //$NON-NLS-1$
 
-	@Nullable
-	private static LanguageConfigurationRegistryManager INSTANCE;
-
-	public static LanguageConfigurationRegistryManager getInstance() {
-		if (INSTANCE != null) {
-			return INSTANCE;
+	/**
+	 * see https://en.wikipedia.org/wiki/Double-checked_locking#Usage_in_Java
+	 */
+	private static final class InstanceHolder {
+		static final LanguageConfigurationRegistryManager INSTANCE = new LanguageConfigurationRegistryManager();
+		static {
+			INSTANCE.load();
 		}
-		INSTANCE = createInstance();
-		return INSTANCE;
 	}
 
-	private static synchronized LanguageConfigurationRegistryManager createInstance() {
-		if (INSTANCE != null) {
-			return INSTANCE;
-		}
-		final var manager = new LanguageConfigurationRegistryManager();
-		manager.load();
-		return manager;
+	public static LanguageConfigurationRegistryManager getInstance() {
+		return InstanceHolder.INSTANCE;
 	}
 
 	@Nullable
