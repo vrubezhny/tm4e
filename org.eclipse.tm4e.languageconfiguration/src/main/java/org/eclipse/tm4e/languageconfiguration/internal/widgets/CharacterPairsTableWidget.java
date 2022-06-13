@@ -11,6 +11,8 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
+import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages.*;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -28,7 +30,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.CharacterPair;
 
 class CharacterPairsTableWidget extends TableViewer {
@@ -43,13 +44,13 @@ class CharacterPairsTableWidget extends TableViewer {
 		final var columnLayout = new TableColumnLayout();
 
 		final var column1 = new TableColumn(table, SWT.NONE);
-		column1.setText(LanguageConfigurationMessages.CharacterPairsTableWidget_start);
-		int minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.CharacterPairsTableWidget_start);
+		column1.setText(CharacterPairsTableWidget_start);
+		int minWidth = computeMinimumColumnWidth(gc, CharacterPairsTableWidget_start);
 		columnLayout.setColumnData(column1, new ColumnWeightData(2, minWidth, true));
 
 		final var column2 = new TableColumn(table, SWT.NONE);
-		column2.setText(LanguageConfigurationMessages.CharacterPairsTableWidget_end);
-		minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.CharacterPairsTableWidget_end);
+		column2.setText(CharacterPairsTableWidget_end);
+		minWidth = computeMinimumColumnWidth(gc, CharacterPairsTableWidget_end);
 		columnLayout.setColumnData(column2, new ColumnWeightData(2, minWidth, true));
 
 		gc.dispose();

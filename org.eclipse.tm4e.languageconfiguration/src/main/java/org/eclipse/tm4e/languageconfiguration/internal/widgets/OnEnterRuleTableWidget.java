@@ -11,6 +11,8 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
+import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages.*;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +33,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.EnterAction;
 import org.eclipse.tm4e.languageconfiguration.internal.supports.OnEnterRule;
 
@@ -47,28 +48,28 @@ final class OnEnterRuleTableWidget extends TableViewer {
 		final var columnLayout = new TableColumnLayout();
 
 		final var column1 = new TableColumn(table, SWT.NONE);
-		column1.setText(LanguageConfigurationMessages.OnEnterRuleTableWidget_beforeText);
-		int minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.OnEnterRuleTableWidget_beforeText);
+		column1.setText(OnEnterRuleTableWidget_beforeText);
+		int minWidth = computeMinimumColumnWidth(gc, OnEnterRuleTableWidget_beforeText);
 		columnLayout.setColumnData(column1, new ColumnWeightData(2, minWidth, true));
 
 		final var column2 = new TableColumn(table, SWT.NONE);
-		column2.setText(LanguageConfigurationMessages.OnEnterRuleTableWidget_afterText);
-		minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.OnEnterRuleTableWidget_afterText);
+		column2.setText(OnEnterRuleTableWidget_afterText);
+		minWidth = computeMinimumColumnWidth(gc, OnEnterRuleTableWidget_afterText);
 		columnLayout.setColumnData(column2, new ColumnWeightData(2, minWidth, true));
 
 		final var column3 = new TableColumn(table, SWT.NONE);
-		column3.setText(LanguageConfigurationMessages.OnEnterRuleTableWidget_indentAction);
-		minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.OnEnterRuleTableWidget_indentAction);
+		column3.setText(OnEnterRuleTableWidget_indentAction);
+		minWidth = computeMinimumColumnWidth(gc, OnEnterRuleTableWidget_indentAction);
 		columnLayout.setColumnData(column3, new ColumnWeightData(1, minWidth, true));
 
 		final var column4 = new TableColumn(table, SWT.NONE);
-		column4.setText(LanguageConfigurationMessages.OnEnterRuleTableWidget_appendText);
-		minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.OnEnterRuleTableWidget_appendText);
+		column4.setText(OnEnterRuleTableWidget_appendText);
+		minWidth = computeMinimumColumnWidth(gc, OnEnterRuleTableWidget_appendText);
 		columnLayout.setColumnData(column4, new ColumnWeightData(1, minWidth, true));
 
 		final var column5 = new TableColumn(table, SWT.NONE);
-		column5.setText(LanguageConfigurationMessages.OnEnterRuleTableWidget_removeText);
-		minWidth = computeMinimumColumnWidth(gc, LanguageConfigurationMessages.OnEnterRuleTableWidget_removeText);
+		column5.setText(OnEnterRuleTableWidget_removeText);
+		minWidth = computeMinimumColumnWidth(gc, OnEnterRuleTableWidget_removeText);
 		columnLayout.setColumnData(column5, new ColumnWeightData(1, minWidth, true));
 
 		gc.dispose();

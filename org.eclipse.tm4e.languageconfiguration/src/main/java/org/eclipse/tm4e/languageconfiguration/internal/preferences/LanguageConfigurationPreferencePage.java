@@ -12,6 +12,8 @@
  */
 package org.eclipse.tm4e.languageconfiguration.internal.preferences;
 
+import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages.*;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -44,7 +46,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.tm4e.languageconfiguration.ILanguageConfigurationDefinition;
 import org.eclipse.tm4e.languageconfiguration.ILanguageConfigurationRegistryManager;
 import org.eclipse.tm4e.languageconfiguration.WorkingCopyLanguageConfigurationRegistryManager;
-import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages;
 import org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationRegistryManager;
 import org.eclipse.tm4e.languageconfiguration.internal.widgets.ColumnSelectionAdapter;
 import org.eclipse.tm4e.languageconfiguration.internal.widgets.ColumnViewerComparator;
@@ -73,7 +74,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 	private LanguageConfigurationPreferencesWidget infoWidget;
 
 	public LanguageConfigurationPreferencePage() {
-		setDescription(LanguageConfigurationMessages.LanguageConfigurationPreferencePage_description);
+		setDescription(LanguageConfigurationPreferencePage_description);
 	}
 
 	@Override
@@ -121,7 +122,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 	 */
 	private void createDefinitionsListContent(final Composite parent) {
 		final var description = new Label(parent, SWT.NONE);
-		description.setText(LanguageConfigurationMessages.LanguageConfigurationPreferencePage_description2);
+		description.setText(LanguageConfigurationPreferencePage_description2);
 		description.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		final var tableComposite = new Composite(parent, SWT.NONE);
 		final var data = new GridData(GridData.FILL_BOTH);
@@ -148,10 +149,10 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 		for (int i = 0; i < 4; i++) {
 			final var column = new TableColumn(table, SWT.NONE);
 			final String label = switch (i) {
-			case 0 -> LanguageConfigurationMessages.LanguageConfigurationPreferencePage_contentTypeName;
-			case 1 -> LanguageConfigurationMessages.LanguageConfigurationPreferencePage_contentTypeId;
-			case 2 -> LanguageConfigurationMessages.LanguageConfigurationPreferencePage_pluginId;
-			case 3 -> LanguageConfigurationMessages.LanguageConfigurationPreferencePage_path;
+			case 0 -> LanguageConfigurationPreferencePage_contentTypeName;
+			case 1 -> LanguageConfigurationPreferencePage_contentTypeId;
+			case 2 -> LanguageConfigurationPreferencePage_pluginId;
+			case 3 -> LanguageConfigurationPreferencePage_path;
 			default -> throw new IllegalArgumentException("Unexpected value: " + i);
 			};
 
@@ -183,7 +184,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 		buttons.setLayout(layout);
 
 		final var definitionNewButton = new Button(buttons, SWT.PUSH);
-		definitionNewButton.setText(LanguageConfigurationMessages.LanguageConfigurationPreferencePage_new);
+		definitionNewButton.setText(LanguageConfigurationPreferencePage_new);
 		definitionNewButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		definitionNewButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -205,7 +206,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 		});
 
 		final var definitionRemoveButton = new Button(buttons, SWT.PUSH);
-		definitionRemoveButton.setText(LanguageConfigurationMessages.LanguageConfigurationPreferencePage_remove);
+		definitionRemoveButton.setText(LanguageConfigurationPreferencePage_remove);
 		definitionRemoveButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		definitionRemoveButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -270,7 +271,7 @@ public final class LanguageConfigurationPreferencePage extends PreferencePage im
 	public void setVisible(final boolean visible) {
 		super.setVisible(visible);
 		if (visible) {
-			setTitle(LanguageConfigurationMessages.LanguageConfigurationPreferencePage_title);
+			setTitle(LanguageConfigurationPreferencePage_title);
 		}
 	}
 
