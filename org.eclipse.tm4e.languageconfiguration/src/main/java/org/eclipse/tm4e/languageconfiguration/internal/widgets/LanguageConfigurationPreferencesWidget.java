@@ -1,17 +1,18 @@
 /**
- *  Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018 Red Hat Inc. and others.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *  Contributors:
- *  Lucas Bullen (Red Hat Inc.) - initial API and implementation
+ * Contributors:
+ * Lucas Bullen (Red Hat Inc.) - initial API and implementation
  */
 package org.eclipse.tm4e.languageconfiguration.internal.widgets;
 
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurationMessages.*;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -37,7 +38,8 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 		super(parent, style);
 	}
 
-	public void refresh(@Nullable final ILanguageConfigurationDefinition definition, final ILanguageConfigurationRegistryManager manager) {
+	public void refresh(@Nullable final ILanguageConfigurationDefinition definition,
+			final ILanguageConfigurationRegistryManager manager) {
 		super.refresh(definition == null ? null : definition.getLanguageConfiguration());
 		if (definition == null) {
 			toggleOnEnterButton.setEnabled(false);
@@ -63,7 +65,7 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 		super.createOnEnterRulesTab(folder);
 		final Composite parent = (Composite) onEnterRulesTab.getControl();
 		toggleOnEnterButton = new Button(parent, SWT.CHECK);
-		toggleOnEnterButton.setText("Enable on enter actions");
+		toggleOnEnterButton.setText(LanguageConfigurationPreferencesWidget_enableOnEnterActions);
 		toggleOnEnterButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		toggleOnEnterButton.setEnabled(false);
 		toggleOnEnterButton.addSelectionListener(widgetSelectedAdapter(e -> {
@@ -78,7 +80,7 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 		super.createAutoClosingPairsTab(folder);
 		final Composite parent = (Composite) autoClosingPairsTab.getControl();
 		toggleBracketAutoClosingButton = new Button(parent, SWT.CHECK);
-		toggleBracketAutoClosingButton.setText("Enable auto closing brackets");
+		toggleBracketAutoClosingButton.setText(LanguageConfigurationPreferencesWidget_enableAutoClosing);
 		toggleBracketAutoClosingButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		toggleBracketAutoClosingButton.setEnabled(false);
 		toggleBracketAutoClosingButton.addSelectionListener(widgetSelectedAdapter(e -> {
@@ -93,7 +95,7 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 		super.createSurroundingPairsTab(folder);
 		final Composite parent = (Composite) surroundingPairsTab.getControl();
 		toggleMatchingPairsButton = new Button(parent, SWT.CHECK);
-		toggleMatchingPairsButton.setText("Enable matching brackets");
+		toggleMatchingPairsButton.setText(LanguageConfigurationPreferencesWidget_enableMatchingBrackets);
 		toggleMatchingPairsButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		toggleMatchingPairsButton.setEnabled(false);
 		toggleMatchingPairsButton.addSelectionListener(widgetSelectedAdapter(e -> {
