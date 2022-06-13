@@ -20,6 +20,10 @@ import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The "character pair" support.
+ *
+ * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/characterPair.ts">
+ *      https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/characterPair.ts</a>
  */
 public final class CharacterPairSupport {
 

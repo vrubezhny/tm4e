@@ -140,6 +140,10 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 		return characterPairSupport.surroundingPairs;
 	}
 
+	/**
+	 * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/enterAction.ts">
+	 *      https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/enterAction.ts</a>
+	 */
 	@Nullable
 	public EnterActionAndIndent getEnterAction(final IDocument document, final int offset,
 			final IContentType contentType) {

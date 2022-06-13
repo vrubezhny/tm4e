@@ -13,6 +13,11 @@ package org.eclipse.tm4e.languageconfiguration.internal.supports;
 
 import java.util.List;
 
+/**
+ * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/d79132281222cdab77abeacca1af700e34c2f30b/src/vs/editor/common/languages/languageConfiguration.ts#L201">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts#L201</a>
+ */
 public final class AutoClosingPairConditional extends CharacterPair {
 
 	public final List<String> notIn;

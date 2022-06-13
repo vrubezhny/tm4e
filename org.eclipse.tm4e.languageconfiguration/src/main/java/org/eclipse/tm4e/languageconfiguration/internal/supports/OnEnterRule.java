@@ -18,6 +18,10 @@ import org.eclipse.tm4e.languageconfiguration.internal.utils.RegExpUtils;
 
 /**
  * Describes a rule to be evaluated when pressing Enter.
+ *
+ * @see <a href=
+ *      "https://github.com/microsoft/vscode/blob/d79132281222cdab77abeacca1af700e34c2f30b/src/vs/editor/common/languages/languageConfiguration.ts#L157">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts#L157</a>
  */
 public final class OnEnterRule {
 

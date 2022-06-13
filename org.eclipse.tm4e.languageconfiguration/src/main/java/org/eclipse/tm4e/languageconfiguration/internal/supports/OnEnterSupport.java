@@ -23,6 +23,9 @@ import org.eclipse.tm4e.languageconfiguration.internal.utils.RegExpUtils;
 
 /**
  * On enter support.
+ *
+ * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/onEnter.ts">
+ *      https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/onEnter.ts</a>
  */
 public class OnEnterSupport {
 
