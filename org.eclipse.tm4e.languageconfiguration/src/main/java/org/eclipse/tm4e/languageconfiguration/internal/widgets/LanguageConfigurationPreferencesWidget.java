@@ -73,14 +73,6 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 		}));
 	}
 
-	private boolean getToggleOnEnter() {
-		return toggleOnEnterButton.getSelection();
-	}
-
-	private void setToggleOnEnter(final Boolean selection) {
-		toggleOnEnterButton.setSelection(selection);
-	}
-
 	@Override
 	protected void createAutoClosingPairsTab(final TabFolder folder) {
 		super.createAutoClosingPairsTab(folder);
@@ -94,14 +86,6 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 			definition.setBracketAutoClosingEnabled(toggleBracketAutoClosingButton.getSelection());
 			manager.registerLanguageConfigurationDefinition(definition);
 		}));
-	}
-
-	private boolean getBracketAutoClosing() {
-		return toggleBracketAutoClosingButton.getSelection();
-	}
-
-	private void setBracketAutoClosing(final Boolean selection) {
-		toggleBracketAutoClosingButton.setSelection(selection);
 	}
 
 	@Override
@@ -118,13 +102,4 @@ public final class LanguageConfigurationPreferencesWidget extends LanguageConfig
 			manager.registerLanguageConfigurationDefinition(definition);
 		}));
 	}
-
-	private boolean getMatchingPairs() {
-		return toggleMatchingPairsButton.getSelection();
-	}
-
-	private void setMatchingPairs(final Boolean selection) {
-		toggleMatchingPairsButton.setSelection(selection);
-	}
-
 }
