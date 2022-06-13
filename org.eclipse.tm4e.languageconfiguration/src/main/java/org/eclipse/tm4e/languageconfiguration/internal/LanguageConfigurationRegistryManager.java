@@ -68,14 +68,13 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 					bestFit = definition;
 				}
 			}
-
 		}
 		return bestFit;
 	}
 
 	@Nullable
-	public StandardAutoClosingPairConditional getAutoClosePair(final String text, final int offset, final String newCharacter,
-			final IContentType contentType) {
+	public StandardAutoClosingPairConditional getAutoClosePair(final String text, final int offset,
+			final String newCharacter, final IContentType contentType) {
 		final var definition = getDefinition(contentType);
 		if (definition == null || !definition.isBracketAutoClosingEnabled()) {
 			return null;
@@ -108,10 +107,7 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 			return false;
 		}
 		final var commentSupport = this.getCommentSupport(contentType);
-		if (commentSupport == null) {
-			return false;
-		}
-		return true;
+		return commentSupport != null;
 	}
 
 	public List<StandardAutoClosingPairConditional> getEnabledAutoClosingPairs(final IContentType contentType) {
@@ -120,18 +116,16 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 			return Collections.emptyList();
 		}
 		final var characterPairSupport = this._getCharacterPairSupport(contentType);
-		if (characterPairSupport == null) {
-			return Collections.emptyList();
-		}
-		return characterPairSupport.autoClosingPairs;
+		return characterPairSupport == null
+				? Collections.emptyList()
+				: characterPairSupport.autoClosingPairs;
 	}
 
 	public List<CharacterPair> getSurroundingPairs(final IContentType contentType) {
 		final var characterPairSupport = this._getCharacterPairSupport(contentType);
-		if (characterPairSupport == null) {
-			return Collections.emptyList();
-		}
-		return characterPairSupport.surroundingPairs;
+		return characterPairSupport == null
+				? Collections.emptyList()
+				: characterPairSupport.surroundingPairs;
 	}
 
 	/**
@@ -208,7 +202,6 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 			}
 
 			return new EnterActionAndIndent(enterResult, indentation);
-
 		} catch (final BadLocationException e1) {
 		}
 		return null;
@@ -217,29 +210,20 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 	@Nullable
 	public CommentSupport getCommentSupport(final IContentType contentType) {
 		final var definition = this.getDefinition(contentType);
-		if (definition == null) {
-			return null;
-		}
-		return definition.getCommentSupport();
+		return definition == null ? null : definition.getCommentSupport();
 	}
 
 	@Nullable
 	private OnEnterSupport _getOnEnterSupport(final IContentType contentType) {
 		final var definition = this.getDefinition(contentType);
-		if (definition == null) {
-			return null;
-		}
-		return definition.getOnEnter();
+		return definition == null ? null : definition.getOnEnter();
 
 	}
 
 	@Nullable
 	private CharacterPairSupport _getCharacterPairSupport(final IContentType contentType) {
 		final var definition = this.getDefinition(contentType);
-		if (definition == null) {
-			return null;
-		}
-		return definition.getCharacterPair();
+		return definition == null ? null : definition.getCharacterPair();
 	}
 
 	private void load() {
@@ -253,14 +237,11 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 		for (final var configElem : config) {
 			final String name = configElem.getName();
 			if (LANGUAGE_CONFIGURATION_ELT.equals(name)) {
-				final LanguageConfigurationDefinition delegate;
 				try {
-					delegate = new LanguageConfigurationDefinition(configElem);
+					registerLanguageConfigurationDefinition(new LanguageConfigurationDefinition(configElem));
 				} catch (final CoreException ex) {
 					LanguageConfigurationPlugin.log(ex.getStatus());
-					continue;
 				}
-				registerLanguageConfigurationDefinition(delegate);
 			}
 		}
 
@@ -285,10 +266,9 @@ public final class LanguageConfigurationRegistryManager extends AbstractLanguage
 		// "${workspace_loc}/metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.tm4e.languageconfiguration.prefs"
 		final var definitions = new ArrayList<ILanguageConfigurationDefinition>();
 		userDefinitions.values().forEach(definitions::add);
-		pluginDefinitions.values().forEach(definition -> {
-			if (!(definition.isBracketAutoClosingEnabled() && definition.isMatchingPairsEnabled()
-					&& definition.isOnEnterEnabled())) {
-				definitions.add(definition);
+		pluginDefinitions.values().forEach(def -> {
+			if (!(def.isBracketAutoClosingEnabled() && def.isMatchingPairsEnabled() && def.isOnEnterEnabled())) {
+				definitions.add(def);
 			}
 		});
 		final var json = PreferenceHelper.toJson(definitions);

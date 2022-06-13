@@ -43,10 +43,7 @@ public class LanguageConfigurationCharacterPairMatcher
 	public IRegion match(@Nullable final IDocument document, final int offset) {
 		if (document == null)
 			return null;
-		final var matcher = getMatcher(document);
-		return matcher != null
-				? matcher.match(document, offset)
-				: null;
+		return getMatcher(document).match(document, offset);
 	}
 
 	@Nullable
@@ -54,10 +51,7 @@ public class LanguageConfigurationCharacterPairMatcher
 	public IRegion match(@Nullable final IDocument document, final int offset, final int length) {
 		if (document == null)
 			return null;
-		final var matcher = getMatcher(document);
-		return matcher != null
-				? matcher.match(document, offset, length)
-				: null;
+		return getMatcher(document).match(document, offset, length);
 	}
 
 	@Override
@@ -70,10 +64,7 @@ public class LanguageConfigurationCharacterPairMatcher
 	public IRegion findEnclosingPeerCharacters(@Nullable final IDocument document, final int offset, final int length) {
 		if (document == null)
 			return null;
-		final var matcher = getMatcher(document);
-		return matcher != null
-				? matcher.findEnclosingPeerCharacters(document, offset, length)
-				: null;
+		return getMatcher(document).findEnclosingPeerCharacters(document, offset, length);
 	}
 
 	@Override
@@ -81,20 +72,14 @@ public class LanguageConfigurationCharacterPairMatcher
 		final var document = this.document;
 		if (document == null)
 			return false;
-		final var matcher = getMatcher(document);
-		return matcher != null
-				? matcher.isMatchedChar(ch)
-				: false;
+		return getMatcher(document).isMatchedChar(ch);
 	}
 
 	@Override
 	public boolean isMatchedChar(final char ch, @Nullable final IDocument document, final int offset) {
 		if (document == null)
 			return false;
-		final var matcher = getMatcher(document);
-		return matcher != null
-				? matcher.isMatchedChar(ch, document, offset)
-				: false;
+		return getMatcher(document).isMatchedChar(ch, document, offset);
 	}
 
 	@Override
@@ -102,10 +87,8 @@ public class LanguageConfigurationCharacterPairMatcher
 			@Nullable final IRegion currentSelection, @Nullable final IRegion previousSelection) {
 		if (document == null)
 			return false;
-		final var matcher = getMatcher(document);
-		return matcher != null
-				? matcher.isRecomputationOfEnclosingPairRequired(document, currentSelection, previousSelection)
-				: false;
+		return getMatcher(document)
+				.isRecomputationOfEnclosingPairRequired(document, currentSelection, previousSelection);
 	}
 
 	@Override
@@ -124,21 +107,18 @@ public class LanguageConfigurationCharacterPairMatcher
 	}
 
 	/**
-	 * Returns the matcher from the document.
+	 * @return the matcher for the document.
 	 */
-	@Nullable
 	private DefaultCharacterPairMatcher getMatcher(final IDocument document) {
-		if (!document.equals(this.document)) {
-			matcher = null;
-		}
-		if (matcher == null) {
+		var matcher = this.matcher;
+		if (matcher == null || !document.equals(this.document)) {
+			this.document = document;
+
 			// initialize a DefaultCharacterPairMatcher by using character pairs of the language configuration.
 			final var sb = new StringBuilder();
-			this.document = document;
 			final IContentType[] contentTypes = findContentTypes(document);
 			if (contentTypes != null) {
-				final LanguageConfigurationRegistryManager registry = LanguageConfigurationRegistryManager
-						.getInstance();
+				final var registry = LanguageConfigurationRegistryManager.getInstance();
 				for (final IContentType contentType : contentTypes) {
 					if (!registry.shouldSurroundingPairs(document, -1, contentType)) {
 						continue;
@@ -152,7 +132,7 @@ public class LanguageConfigurationCharacterPairMatcher
 			}
 			final var chars = new char[sb.length()];
 			sb.getChars(0, sb.length(), chars, 0);
-			matcher = new DefaultCharacterPairMatcher(chars);
+			this.matcher = matcher = new DefaultCharacterPairMatcher(chars);
 		}
 		return matcher;
 	}
@@ -163,8 +143,8 @@ public class LanguageConfigurationCharacterPairMatcher
 			if (info != null) {
 				return info.getContentTypes();
 			}
-		} catch (final CoreException e) {
-			e.printStackTrace();
+		} catch (final CoreException ex) {
+			ex.printStackTrace();
 		}
 		return null;
 	}
