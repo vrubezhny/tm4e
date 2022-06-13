@@ -84,7 +84,7 @@ public interface ILanguageConfiguration {
 
 	/**
 	 * Returns the language's definition of a word. This is the regex used when
-	 * refering to a word.
+	 * referring to a word.
 	 *
 	 * @return the language's word pattern or <code>null</code> if not set
 	 */
