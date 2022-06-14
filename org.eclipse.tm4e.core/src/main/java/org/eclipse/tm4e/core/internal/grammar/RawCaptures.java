@@ -14,20 +14,11 @@ import java.util.HashMap;
 import org.eclipse.tm4e.core.internal.parser.PropertySettable;
 import org.eclipse.tm4e.core.internal.types.IRawCaptures;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
-import org.eclipse.tm4e.core.internal.utils.DeepCloneable;
 
-public class RawCaptures extends HashMap<String, IRawRule> implements IRawCaptures, DeepCloneable, PropertySettable<IRawRule> {
+public class RawCaptures extends HashMap<String, IRawRule>
+	implements IRawCaptures, PropertySettable<IRawRule> {
 
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	public RawCaptures deepClone() {
-		final var clone = new RawCaptures();
-		for (final var entry : entrySet()) {
-			clone.put(entry.getKey(), DeepCloneable.deepClone(entry.getValue()));
-		}
-		return clone;
-	}
 
 	@Override
 	public IRawRule getCapture(final String captureId) {

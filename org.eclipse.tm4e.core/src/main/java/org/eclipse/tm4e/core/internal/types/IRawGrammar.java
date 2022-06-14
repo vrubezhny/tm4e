@@ -28,8 +28,6 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public interface IRawGrammar {
 
-	IRawGrammar deepClone();
-
 	boolean isRepositorySet();
 
 	IRawRepository getRepository();

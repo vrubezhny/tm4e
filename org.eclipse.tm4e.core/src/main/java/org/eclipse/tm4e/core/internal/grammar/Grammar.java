@@ -46,6 +46,7 @@ import org.eclipse.tm4e.core.internal.rule.RuleId;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
+import org.eclipse.tm4e.core.internal.utils.ObjectCloner;
 import org.eclipse.tm4e.core.internal.utils.StringUtils;
 
 /**
@@ -238,7 +239,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	}
 
 	private IRawGrammar initGrammar(IRawGrammar grammar, @Nullable final IRawRule base) {
-		grammar = grammar.deepClone();
+		grammar = ObjectCloner.deepClone(grammar);
 
 		final var repo = grammar.isRepositorySet()
 			? grammar.getRepository()

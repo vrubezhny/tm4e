@@ -18,24 +18,14 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.internal.parser.PropertySettable;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
-import org.eclipse.tm4e.core.internal.utils.DeepCloneable;
 
 public class RawRepository extends HashMap<String, IRawRule>
-		implements IRawRepository, DeepCloneable, PropertySettable<IRawRule> {
+	implements IRawRepository, PropertySettable<IRawRule> {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final String DOLLAR_BASE = "$base";
 	public static final String DOLLAR_SELF = "$self";
-
-	@Override
-	public RawRepository deepClone() {
-		final var clone = new RawRepository();
-		for (final var entry : entrySet()) {
-			clone.put(entry.getKey(), DeepCloneable.deepClone(entry.getValue()));
-		}
-		return clone;
-	}
 
 	@SuppressWarnings({ "null", "unused" })
 	private IRawRule getSafe(final String key) {

@@ -25,10 +25,9 @@ import org.eclipse.tm4e.core.internal.parser.PropertySettable;
 import org.eclipse.tm4e.core.internal.types.IRawGrammar;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
-import org.eclipse.tm4e.core.internal.utils.DeepCloneable;
 
 public class RawGrammar extends HashMap<String, @Nullable Object>
-	implements IRawGrammar, DeepCloneable, PropertySettable<Object> {
+	implements IRawGrammar, PropertySettable<Object> {
 
 	private static final String FILE_TYPES = "fileTypes";
 	private static final String FIRST_LINE_MATCH = "firstLineMatch";
@@ -42,15 +41,6 @@ public class RawGrammar extends HashMap<String, @Nullable Object>
 
 	@Nullable
 	private transient List<String> fileTypes;
-
-	@Override
-	public RawGrammar deepClone() {
-		final var clone = new RawGrammar();
-		for (final var entry : entrySet()) {
-			clone.put(entry.getKey(), DeepCloneable.deepClone(entry.getValue()));
-		}
-		return clone;
-	}
 
 	@Override
 	public Collection<String> getFileTypes() {

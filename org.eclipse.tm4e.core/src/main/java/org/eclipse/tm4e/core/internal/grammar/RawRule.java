@@ -21,10 +21,9 @@ import org.eclipse.tm4e.core.internal.rule.RuleId;
 import org.eclipse.tm4e.core.internal.types.IRawCaptures;
 import org.eclipse.tm4e.core.internal.types.IRawRepository;
 import org.eclipse.tm4e.core.internal.types.IRawRule;
-import org.eclipse.tm4e.core.internal.utils.DeepCloneable;
 
 public class RawRule extends HashMap<String, @Nullable Object>
-	implements IRawRule, DeepCloneable, PropertySettable<Object> {
+	implements IRawRule, PropertySettable<Object> {
 
 	private static final String APPLY_END_PATTERN_LAST = "applyEndPatternLast";
 	private static final String BEGIN = "begin";
@@ -43,15 +42,6 @@ public class RawRule extends HashMap<String, @Nullable Object>
 	public static final String WHILE_CAPTURES = "whileCaptures";
 
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	public RawRule deepClone() {
-		final var clone = new RawRule();
-		for (final var entry : entrySet()) {
-			clone.put(entry.getKey(), DeepCloneable.deepClone(entry.getValue()));
-		}
-		return clone;
-	}
 
 	@Nullable
 	@Override
