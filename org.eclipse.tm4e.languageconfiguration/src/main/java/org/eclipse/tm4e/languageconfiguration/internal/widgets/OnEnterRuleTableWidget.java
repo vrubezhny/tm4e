@@ -15,10 +15,7 @@ import static org.eclipse.tm4e.languageconfiguration.internal.LanguageConfigurat
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.JFaceResources;
@@ -85,7 +82,6 @@ final class OnEnterRuleTableWidget extends TableViewer {
 
 		@Override
 		public Object[] getElements(@Nullable final Object input) {
-			assert onEnterRulesList != null;
 			return onEnterRulesList.toArray(OnEnterRule[]::new);
 		}
 
@@ -129,23 +125,13 @@ final class OnEnterRuleTableWidget extends TableViewer {
 			final EnterAction action = rule.action;
 
 			return switch (columnIndex) {
-			case 0 -> Optional.ofNullable(rule.beforeText).map(OnEnterRuleTableWidget::nonNull)
-					.map(Pattern::pattern).orElse("");
-			case 1 -> Optional.ofNullable(rule.afterText).map(OnEnterRuleTableWidget::nonNull)
-					.map(Pattern::pattern).orElse("");
+			case 0 -> rule.beforeText.pattern();
+			case 1 -> rule.afterText != null ? rule.afterText.pattern() : "";
 			case 2 -> action.indentAction.toString();
-			case 3 -> Optional.ofNullable(action.appendText).orElse("");
-			case 4 -> Optional.ofNullable(action.removeText).map(OnEnterRuleTableWidget::nonNull).map(Object::toString)
-					.orElse("");
+			case 3 -> action.appendText != null ? action.appendText : "";
+			case 4 -> action.removeText != null ? action.removeText.toString() : "";
 			default -> ""; //$NON-NLS-1$
 			};
 		}
-	}
-
-	private static <T> @NonNull T nonNull(final @Nullable T obj) {
-		if (obj != null) {
-			return obj;
-		}
-		throw new IllegalArgumentException("argument mustn't be null");
 	}
 }

@@ -59,7 +59,7 @@ public class OnEnterSupport {
 		// (1): `regExpRules`
 		for (final OnEnterRule rule : regExpRules) {
 			final var beforeText = rule.beforeText;
-			if (beforeText != null && beforeText.matcher(beforeEnterText).find()) {
+			if (beforeText.matcher(beforeEnterText).find()) {
 				final var afterText = rule.afterText;
 				if (afterText != null) {
 					if (afterText.matcher(afterEnterText).find()) {
@@ -88,6 +88,7 @@ public class OnEnterSupport {
 				}
 			}
 		}
+
 		return null;
 	}
 

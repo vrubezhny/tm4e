@@ -14,7 +14,6 @@ package org.eclipse.tm4e.languageconfiguration.internal.model;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.tm4e.languageconfiguration.internal.utils.RegExpUtils;
 
 /**
  * Describes a rule to be evaluated when pressing Enter.
@@ -28,7 +27,6 @@ public final class OnEnterRule {
 	/**
 	 * This rule will only execute if the text before the cursor matches this regular expression.
 	 */
-	@Nullable
 	public final Pattern beforeText;
 
 	/**
@@ -44,9 +42,20 @@ public final class OnEnterRule {
 	 */
 	public final EnterAction action;
 
-	public OnEnterRule(final String beforeText, @Nullable final String afterText, final EnterAction action) {
-		this.beforeText = RegExpUtils.create(beforeText);
-		this.afterText = afterText != null ? RegExpUtils.create(afterText) : null;
+	public OnEnterRule(final Pattern beforeText, @Nullable final Pattern afterText, final EnterAction action) {
+		this.beforeText = beforeText;
+		this.afterText = afterText;
+		this.action = action;
+	}
+
+	/**
+	 * Only for unit tests
+	 *
+	 * @throws PatternSyntaxException if beforeText or afterText contain invalid regex pattern
+	 */
+	OnEnterRule(final String beforeText, @Nullable final String afterText, final EnterAction action) {
+		this.beforeText = Pattern.compile(beforeText);
+		this.afterText = afterText == null ? null : Pattern.compile(afterText);
 		this.action = action;
 	}
 }

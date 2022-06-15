@@ -49,7 +49,7 @@ public final class LanguageConfigurationPlugin extends AbstractUIPlugin {
 	}
 
 	public static void logError(final Exception ex) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, ex.getMessage(), ex));
+		log(new Status(IStatus.ERROR, PLUGIN_ID, null, ex));
 	}
 
 	public static void logError(final String message, @Nullable final Exception ex) {

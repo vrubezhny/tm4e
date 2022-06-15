@@ -15,11 +15,13 @@ import java.io.BufferedReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.languageconfiguration.internal.model.EnterAction.IndentAction;
+import org.eclipse.tm4e.languageconfiguration.internal.utils.RegExpUtils;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
@@ -30,12 +32,14 @@ import com.google.gson.JsonElement;
  * automatic bracket insertion, automatic indentation etc.
  *
  * @see <a href=
- *      "https://github.com/microsoft/vscode/blob/e568a31f82680cde0949d7e07dac913565134c93/src/vs/editor/common/languages/languageConfiguration.ts#L28">
- *      https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts#L28</a>
+ *      "https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts">
+ *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts</a>
  */
 public class LanguageConfiguration {
 
 	/**
+	 * See JSON format at https://code.visualstudio.com/api/language-extensions/language-configuration-guide
+	 *
 	 * @return an instance of {@link LanguageConfiguration} loaded from the VSCode language-configuration.json file
 	 *         reader.
 	 */
@@ -50,17 +54,17 @@ public class LanguageConfiguration {
 					}
 
 					final var jsonObj = json.getAsJsonObject();
-					final var beforeText = getAsString(jsonObj.get("beforeText")); //$NON-NLS-1$
+					final var beforeText = getAsPattern(jsonObj.get("beforeText")); //$NON-NLS-1$
 					if (beforeText == null) {
 						return null;
 					}
 
-					final var afterText = getAsString(jsonObj.get("afterText")); //$NON-NLS-1$
 					final var actionElem = jsonObj.get("action"); //$NON-NLS-1$
 					if (actionElem != null && actionElem.isJsonObject()) {
 						final var actionJsonObj = actionElem.getAsJsonObject();
 						final var indentActionString = getAsString(actionJsonObj.get("indentAction")); //$NON-NLS-1$
 						if (indentActionString != null) {
+							final var afterText = getAsPattern(jsonObj.get("afterText")); //$NON-NLS-1$
 							final var indentAction = IndentAction.valueOf(indentActionString);
 							final var removeText = getAsInteger(actionJsonObj.get("removeText")); //$NON-NLS-1$
 							final var appendText = getAsString(actionJsonObj.get("appendText")); //$NON-NLS-1$
@@ -188,8 +192,8 @@ public class LanguageConfiguration {
 					if (markersElem != null && markersElem.isJsonObject()) {
 						final var offSide = getAsBoolean(jsonObj.get("offSide"), false); //$NON-NLS-1$
 						final var markersObj = markersElem.getAsJsonObject();
-						final var startMarker = getAsString(markersObj.get("start")); //$NON-NLS-1$
-						final var endMarker = getAsString(markersObj.get("end")); //$NON-NLS-1$
+						final var startMarker = getAsPattern(markersObj.get("start")); //$NON-NLS-1$
+						final var endMarker = getAsPattern(markersObj.get("end")); //$NON-NLS-1$
 						if (startMarker != null && endMarker != null) {
 							return new FoldingRules(offSide, startMarker, endMarker);
 						}
@@ -198,6 +202,12 @@ public class LanguageConfiguration {
 				})
 				.create()
 				.fromJson(new BufferedReader(reader), LanguageConfiguration.class);
+	}
+
+	@Nullable
+	private static Pattern getAsPattern(@Nullable final JsonElement element) {
+		final var pattern = getAsString(element);
+		return pattern == null ? null : RegExpUtils.create(pattern);
 	}
 
 	@Nullable
