@@ -13,7 +13,7 @@ package org.eclipse.tm4e.languageconfiguration.internal.model;
 
 /**
  * @see <a href=
- *      "https://github.com/microsoft/vscode/blob/d79132281222cdab77abeacca1af700e34c2f30b/src/vs/editor/common/languages/languageConfiguration.ts#L250">
+ *      "https://github.com/microsoft/vscode/blob/8e2ec5a7ee1ae5500c645c05145359f2a814611c/src/vs/editor/common/languages/languageConfiguration.ts#L250">
  *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts#L250</a>
  */
 public final class CompleteEnterAction extends EnterAction {
