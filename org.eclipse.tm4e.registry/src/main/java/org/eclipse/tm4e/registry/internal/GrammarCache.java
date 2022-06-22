@@ -66,9 +66,9 @@ final class GrammarCache {
 	}
 
 	/**
-	 * Returns list of scope names to inject for the given <code>scopeName</code> and null otheriwse.
+	 * Returns list of scope names to inject for the given <code>scopeName</code> and null otherwise.
 	 *
-	 * @return list of scope names to inject for the given <code>scopeName</code> and null otheriwse.
+	 * @return list of scope names to inject for the given <code>scopeName</code> and null otherwise.
 	 */
 	@Nullable
 	Collection<String> getInjections(final String scopeName) {
