@@ -20,6 +20,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.tm4e.registry.TMResource;
 import org.eclipse.tm4e.registry.XMLConstants;
+import org.eclipse.tm4e.ui.TMUIPlugin;
 import org.eclipse.tm4e.ui.internal.preferences.PreferenceConstants;
 import org.eclipse.tm4e.ui.themes.css.CSSTokenProvider;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -138,12 +139,10 @@ public class Theme extends TMResource implements ITheme {
 	private ITokenProvider getTokenProvider() {
 		if (tokenProvider == null) {
 			try (InputStream in = super.getInputStream()) {
-				if (in == null) {
-					return null;
-				}
 				tokenProvider = new CSSTokenProvider(in);
-			} catch (final Exception e) {
-				e.printStackTrace();
+			} catch (final Exception ex) {
+				TMUIPlugin.logError(ex);
+				return null;
 			}
 		}
 		return tokenProvider;
