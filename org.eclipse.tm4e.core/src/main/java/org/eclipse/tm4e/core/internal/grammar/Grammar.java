@@ -53,8 +53,8 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  * TextMate grammar implementation.
  *
  * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/e8d1fc5d04b2fc91384c7a895f6c9ff296a38ac8/src/grammar.ts#L99">
- *      github.com/microsoft/vscode-textmate/blob/main/src/grammar.ts</a>
+ *      "https://github.com/microsoft/vscode-textmate/blob/e8d1fc5d04b2fc91384c7a895f6c9ff296a38ac8/src/grammar/grammar.ts#L99">
+ *      github.com/microsoft/vscode-textmate/blob/main/src/grammar/grammar.ts</a>
  */
 public final class Grammar implements IGrammar, IRuleFactoryHelper {
 
@@ -241,11 +241,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	private IRawGrammar initGrammar(IRawGrammar grammar, @Nullable final IRawRule base) {
 		grammar = ObjectCloner.deepClone(grammar);
 
-		final var repo = grammar.isRepositorySet()
-			? grammar.getRepository()
-			: new RawRepository();
-		grammar.setRepository(repo);
-
+		final var repo = grammar.getRepository();
 		repo.setSelf(new RawRule()
 			.setName(grammar.getScopeName())
 			.setPatterns(grammar.getPatterns()));

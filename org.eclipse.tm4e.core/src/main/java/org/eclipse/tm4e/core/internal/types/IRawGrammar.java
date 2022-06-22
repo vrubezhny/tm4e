@@ -28,8 +28,6 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public interface IRawGrammar {
 
-	boolean isRepositorySet();
-
 	IRawRepository getRepository();
 
 	String getScopeName();

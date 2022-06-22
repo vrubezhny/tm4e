@@ -95,13 +95,13 @@ public class RawGrammar extends HashMap<String, @Nullable Object>
 	}
 
 	@Override
-	public boolean isRepositorySet() {
-		return containsKey(RawRule.REPOSITORY);
-	}
-
-	@Override
 	public IRawRepository getRepository() {
-		return (IRawRepository) getSafe(RawRule.REPOSITORY);
+		var repo = (IRawRepository) get(RawRule.REPOSITORY);
+		if (repo == null) {
+			repo = new RawRepository();
+			setRepository(repo);
+		}
+		return repo;
 	}
 
 	private Object getSafe(@Nullable final Object key) {
@@ -162,7 +162,7 @@ public class RawGrammar extends HashMap<String, @Nullable Object>
 
 			@Override
 			public @Nullable IRawRepository getRepository() {
-				return isRepositorySet() ? RawGrammar.this.getRepository() : null;
+				return RawGrammar.this.getRepository();
 			}
 		};
 	}
