@@ -4,10 +4,19 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Latest release
 
+## 0.6.1
+
+* 📅 Release Date: Setember 14th 2022
+* All changes: https://github.com/eclipse/tm4e/compare/0.6.0...0.6.1
+
+#### Support for onEnterRules
+
+The `onEnterRule` directive of language-configuration files is now honored, so new lines can be pre-edited according to previous one (comments, indentations... are propagated).
+
 ## 0.6.0
 
 * 📅 Release Date: June 23th 2022
-* All changes: https://github.com/eclipse/tm4e/compare/0.4.5...master
+* All changes: https://github.com/eclipse/tm4e/compare/0.4.5...0.6.0
 
 #### Move to Java 17
 
