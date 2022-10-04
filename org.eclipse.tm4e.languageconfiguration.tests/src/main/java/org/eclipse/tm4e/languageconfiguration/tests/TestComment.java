@@ -35,7 +35,7 @@ public class TestComment {
 	}
 
 	@Test
-	public void testToggleLineComment() throws Exception {
+	public void testToggleLineCommentUseBlockComment() throws Exception {
 		final var now = System.currentTimeMillis();
 		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
 		proj.create(null);
@@ -57,5 +57,34 @@ public class TestComment {
 		editor.getSelectionProvider().setSelection(new TextSelection(0,text.length()));
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
 		assertEquals("a\n\nb\n\nc", doc.get());
+	}
+	
+	/**
+	 * Test case for https://github.com/eclipse/wildwebdeveloper/issues/909
+	 * @throws Exception
+	 */
+	@Test
+	public void testToggleLineCommentUseBlockCommentAndWindowsEOL() throws Exception {
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noLineComment");
+		file.create(new ByteArrayInputStream("a\r\n\r\nb\r\n\r\nc".getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		String text = doc.get();
+		editor.getSelectionProvider().setSelection(new TextSelection(0, 0)); // No matter the selection length
+		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
+		assertEquals("/*a*/\r\n\r\nb\r\n\r\nc", doc.get());
+		
+		// Repeatedly executed toggle comment command should remove the comments inserted previously
+		text = doc.get();
+		editor.getSelectionProvider().setSelection(new TextSelection(0, 0)); // No matter the selection length
+		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
+		assertEquals("a\r\n\r\nb\r\n\r\nc", doc.get());
 	}
 }
