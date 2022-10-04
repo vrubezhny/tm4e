@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-2017 Angelo ZERR.
+ * Copyright (c) 2015-2022 Angelo ZERR and others.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -182,4 +182,28 @@ public final class TextUtils {
 		return new TabSpacesInfo(4, false);
 	}
 
+	/**
+	 * Determines if all the characters at any offset of the specified document range are space or tab characters.
+	 *
+	 * @param document the document to search in
+	 * @param line zero-based document line number
+	 *
+	 * @return  <code>true</code>  if all the characters of the specified document range are the whitespace 
+	 * 				characters, otherwise returns <code>false</code>
+	 */
+	public static boolean isBlankLine(final IDocument document, int line) {
+		try {
+			int offset = document.getLineOffset(line);
+			final int lineEnd = offset + document.getLineLength(line);
+			while (offset < lineEnd) {
+				if (!Character.isWhitespace(document.getChar(offset))) {
+					return false;
+				}
+				offset++;
+			}
+		} catch (BadLocationException e) {
+			// Ignore,  forcing a positive result
+		}
+		return true;
+	}
 }

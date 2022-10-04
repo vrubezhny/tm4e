@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018 Red Hat Inc. and others.
+ * Copyright (c) 2018, 2022 Red Hat Inc. and others.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -13,6 +13,7 @@ package org.eclipse.tm4e.languageconfiguration.internal;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.Command;
@@ -106,13 +107,38 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 					} else {
 						final var blockComment = commentSupport.getBlockComment();
 						if (blockComment != null) {
-							final Set<Integer> lines = computeLines(textSelection, document);
+							Set<Integer> lines = computeLines(textSelection, document);
+							
+							// As toggleBlockComment() method performs changes on the document,
+							// we need to preserve some values here
+							final int selectionStartLine = textSelection.getStartLine();
+							final int selectionEndLine = textSelection.getEndLine();
+
+							// Filter out the blank lines and lines that are outside of the text selection
+							lines = lines.stream().filter(l -> 
+										(l >= selectionStartLine && l <= selectionEndLine &&
+											!TextUtils.isBlankLine(document, l)))
+									.collect(Collectors.toSet());
+
+							boolean isFirstLine = true;
+							boolean isToAdd = false;
 							for (final int line : lines) {
 								final int lineOffset = document.getLineOffset(line);
 								final int lineLength = document.getLineLength(line);
-								final var range = new TextSelection(lineOffset,
+								final var range = new TextSelection(document, lineOffset,
 										line == document.getNumberOfLines() - 1 ? lineLength : lineLength - 1);
-								toggleBlockComment(document, range, commentSupport, editor);
+								final var existingBlock = getBlockComment(document, range, commentSupport);
+
+								if (isFirstLine) {
+									isFirstLine = false;
+									isToAdd = (existingBlock == null);
+								}
+
+								if (isToAdd && existingBlock == null) {
+									addBlockComment(document, range, blockComment, editor);
+								} else if (!isToAdd && existingBlock != null) {
+									removeBlockComment(document, range, existingBlock, blockComment, editor);
+								}
 							}
 						}
 					}
@@ -162,20 +188,6 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 			}
 		}
 		return lines;
-	}
-
-	private void toggleBlockComment(final IDocument document, final ITextSelection textSelection,
-			final CommentSupport commentSupport, final ITextEditor editor) throws BadLocationException {
-		final var existingBlock = getBlockComment(document, textSelection, commentSupport);
-		final var blockComment = commentSupport.getBlockComment();
-		if (blockComment == null) {
-			return;
-		}
-		if (existingBlock == null) {
-			addBlockComment(document, textSelection, blockComment, editor);
-		} else {
-			removeBlockComment(document, textSelection, existingBlock, blockComment, editor);
-		}
 	}
 
 	/**
@@ -286,36 +298,48 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 
 	private void removeLineComments(final IDocument document, final ITextSelection selection, final String comment,
 			final ITextEditor editor) throws BadLocationException {
-		int lineNumber = selection.getStartLine();
-		final int endLineNumber = selection.getEndLine();
 		final String oldText = document.get();
 		int deletedChars = 0;
 		boolean isStartBeforeComment = false;
 
-		while (lineNumber <= endLineNumber) {
+		// Filter out the blank lines and lines that are outside of the text selection
+		Set<Integer> lines = computeLines(selection, document).stream().filter(l -> 
+					(l >= selection.getStartLine() && l <= selection.getEndLine()))
+				.collect(Collectors.toSet());
+
+		boolean isFirstLineUpdated = false;
+		for (final int lineNumber : lines){
 			final int commentOffset = oldText.indexOf(comment, document.getLineOffset(lineNumber) + deletedChars);
 			document.replace(commentOffset - deletedChars, comment.length(), "");
-			if (deletedChars == 0) {
-				isStartBeforeComment = commentOffset > selection.getOffset();
+			deletedChars += comment.length();
+			if (!isFirstLineUpdated) {
+				isFirstLineUpdated = true;
+				isStartBeforeComment = commentOffset >= selection.getOffset();
 			}
-			if (lineNumber != endLineNumber) {
-				deletedChars += comment.length();
-			}
-			lineNumber++;
 		}
 		final var newSelection = new TextSelection(
 				selection.getOffset() - (isStartBeforeComment ? 0 : comment.length()),
-				selection.getLength() - deletedChars);
+				selection.getLength() - deletedChars + (isStartBeforeComment ? 0 : comment.length()));
 		editor.selectAndReveal(newSelection.getOffset(), newSelection.getLength());
 	}
 
 	private void addLineComments(final IDocument document, final ITextSelection selection, final String comment,
 			final ITextEditor editor) throws BadLocationException {
 		int insertedChars = 0;
+		
+		// Filter out the blank lines and lines that are outside of the text selection
+		Set<Integer> lines = computeLines(selection, document).stream().filter(l -> 
+					(l >= selection.getStartLine() && l <= selection.getEndLine()))
+				.collect(Collectors.toSet());
 
-		for (final int lineNumber : computeLines(selection, document)) {
+		boolean isFirstLineUpdated = false;
+		for (final int lineNumber : lines) {
 			document.replace(document.getLineOffset(lineNumber), 0, comment);
-			insertedChars += comment.length();
+			if (isFirstLineUpdated) {
+				insertedChars += comment.length();
+			} else {
+				isFirstLineUpdated = true;
+			}
 		}
 		final var newSelection = new TextSelection(selection.getOffset() + comment.length(),
 				selection.getLength() + insertedChars);
@@ -351,7 +375,7 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 		document.replace(selection.getOffset(), 0, blockComment.open);
 		document.replace(selection.getOffset() + selection.getLength() + blockComment.open.length(), 0,
 				blockComment.close);
-		final var newSelection = new TextSelection(selection.getOffset() + blockComment.close.length(),
+		final var newSelection = new TextSelection(selection.getOffset() + blockComment.open.length(),
 				selection.getLength());
 		editor.selectAndReveal(newSelection.getOffset(), newSelection.getLength());
 	}

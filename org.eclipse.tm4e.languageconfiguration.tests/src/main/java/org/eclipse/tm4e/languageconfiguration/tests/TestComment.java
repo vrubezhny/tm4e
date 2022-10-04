@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2021 Red Hat Inc. and others.
+ * Copyright (c) 2021, 2022 Red Hat Inc. and others.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -35,20 +35,27 @@ public class TestComment {
 	}
 
 	@Test
-	public void testIndentOnNewLine() throws Exception {
+	public void testToggleLineComment() throws Exception {
 		final var now = System.currentTimeMillis();
 		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
 		proj.create(null);
 		proj.open(null);
 		final var file = proj.getFile("whatever.noLineComment");
-		file.create(new ByteArrayInputStream("a\nb\nc".getBytes()), true, null);
+		file.create(new ByteArrayInputStream("a\n\nb\n\nc".getBytes()), true, null);
 		final var editor = (ITextEditor) IDE.openEditor(
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
 				"org.eclipse.ui.genericeditor.GenericEditor");
 		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
 		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
-		editor.getSelectionProvider().setSelection(new TextSelection(0, 5));
+		String text = doc.get();
+		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length()));
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
-		assertEquals("/*a*/\n/*b*/\n/*c*/", doc.get());
+		assertEquals("/*a*/\n\n/*b*/\n\n/*c*/", doc.get());
+		
+		// Repeatedly executed toggle comment command should remove the comments inserted previously
+		text = doc.get();
+		editor.getSelectionProvider().setSelection(new TextSelection(0,text.length()));
+		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
+		assertEquals("a\n\nb\n\nc", doc.get());
 	}
 }
