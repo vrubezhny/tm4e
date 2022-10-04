@@ -184,12 +184,12 @@ public final class TextUtils {
 	}
 
 	/**
-	 * Determines if all the characters at any offset of the specified document range are space or tab characters.
+	 * Determines if all the characters at any offset of the specified document line are the whitespace characters.
 	 *
 	 * @param document the document to search in
 	 * @param line zero-based document line number
 	 *
-	 * @return  <code>true</code>  if all the characters of the specified document range are the whitespace
+	 * @return  <code>true</code>  if all the characters of the specified document line are the whitespace
 	 * 				characters, otherwise returns <code>false</code>
 	 */
 	public static boolean isBlankLine(final IDocument document, int line) {
