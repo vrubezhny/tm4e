@@ -230,7 +230,7 @@
 		</dict>
 	</dict>
 	<key>scopeName</key>
-	<string>source.js.regexp</string>
+	<string>lngpck.source.js.regexp</string>
 	<key>uuid</key>
 	<string>AC8679DE-3AC7-4056-84F9-69A7ADC29DDD</string>
 </dict>
