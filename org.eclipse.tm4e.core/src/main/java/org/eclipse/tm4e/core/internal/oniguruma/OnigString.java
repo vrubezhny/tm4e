@@ -55,7 +55,7 @@ public abstract class OnigString {
 		int getByteIndexOfChar(final int charIndex) {
 			if (charIndex == lastCharIndex + 1) {
 				// One off can happen when finding the end of a regexp (it's the right boundary).
-				return lastCharIndex + 1;
+				return bytesCount;
 			}
 
 			if (charIndex < 0 || charIndex > lastCharIndex) {

@@ -82,6 +82,7 @@ class OnigStringTest {
 		 * getByteIndexOfChar tests
 		 */
 		assertEquals(2, onigString.getByteIndexOfChar(1));
+		assertEquals(4, onigString.getByteIndexOfChar(2)); // this is an internal workaround
 
 		/*
 		 * getCharIndexOfByte tests
@@ -89,7 +90,7 @@ class OnigStringTest {
 		assertEquals(0, onigString.getCharIndexOfByte(1)); // á
 		assertEquals(1, onigString.getCharIndexOfByte(2)); // é
 		assertEquals(1, onigString.getCharIndexOfByte(3)); // é
-		assertEquals(2, onigString.getCharIndexOfByte(4)); // this is an internal workaround
+		assertEquals(2, onigString.getCharIndexOfByte(4)); // explicit test for an internal workaround
 		assertThrows(ArrayIndexOutOfBoundsException.class, () -> onigString.getCharIndexOfByte(5));
 
 	}
@@ -111,6 +112,7 @@ class OnigStringTest {
 		assertEquals(8, onigString.getByteIndexOfChar(5));
 		assertEquals(10, onigString.getByteIndexOfChar(6));
 		assertEquals(12, onigString.getByteIndexOfChar(7));
+		assertEquals(19, onigString.getByteIndexOfChar(12)); // this is an internal workaround
 
 		/*
 		 * getCharIndexOfByte tests
@@ -128,7 +130,7 @@ class OnigStringTest {
 		assertEquals(10, onigString.getCharIndexOfByte(17)); // a
 		assertEquals(11, onigString.getCharIndexOfByte(18)); // b
 
-		assertEquals(12, onigString.getCharIndexOfByte(19)); // this is an internal workaround
+		assertEquals(12, onigString.getCharIndexOfByte(19)); // explicit test for an internal workaround
 		assertThrows(ArrayIndexOutOfBoundsException.class, () -> onigString.getCharIndexOfByte(20));
 	}
 }

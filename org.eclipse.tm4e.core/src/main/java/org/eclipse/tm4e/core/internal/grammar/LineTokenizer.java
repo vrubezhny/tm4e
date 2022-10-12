@@ -140,7 +140,7 @@ final class LineTokenizer {
 		if (r == null) {
 			LOGGER.log(TRACE, " no more matches.");
 			// No match
-			lineTokens.produce(stack, lineText.bytesCount);
+			lineTokens.produce(stack, lineText.content.length());
 			stop = true;
 			return;
 		}
@@ -179,7 +179,7 @@ final class LineTokenizer {
 				// intent was to continue in this state
 				stack = popped;
 
-				lineTokens.produce(stack, lineText.bytesCount);
+				lineTokens.produce(stack, lineText.content.length());
 				stop = true;
 				return;
 			}
@@ -199,7 +199,7 @@ final class LineTokenizer {
 				matchedRuleId,
 				linePos,
 				anchorPosition,
-				captureIndices[0].end == lineText.bytesCount,
+				captureIndices[0].end == lineText.content.length(),
 				null,
 				nameScopesList,
 				nameScopesList);
@@ -240,7 +240,7 @@ final class LineTokenizer {
 					LOGGER.log(INFO,
 						"[2] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = castNonNull(stack.pop());
-					lineTokens.produce(stack, lineText.bytesCount);
+					lineTokens.produce(stack, lineText.content.length());
 					stop = true;
 					return;
 				}
@@ -279,7 +279,7 @@ final class LineTokenizer {
 					LOGGER.log(INFO,
 						"[3] - Grammar is in an endless loop - Grammar pushed the same rule without advancing");
 					stack = castNonNull(stack.pop());
-					lineTokens.produce(stack, lineText.bytesCount);
+					lineTokens.produce(stack, lineText.content.length());
 					stop = true;
 					return;
 				}
@@ -308,7 +308,7 @@ final class LineTokenizer {
 					LOGGER.log(INFO,
 						"[4] - Grammar is in an endless loop - Grammar is not advancing, nor is it pushing/popping");
 					stack = stack.safePop();
-					lineTokens.produce(stack, lineText.bytesCount);
+					lineTokens.produce(stack, lineText.content.length());
 					stop = true;
 					return;
 				}
