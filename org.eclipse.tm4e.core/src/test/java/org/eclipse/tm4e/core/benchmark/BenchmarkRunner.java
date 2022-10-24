@@ -18,7 +18,7 @@ public final class BenchmarkRunner {
 	private static final String SEPARATOR = "--------------------------------";
 
 	public static void run(final int warmUpRounds, final int benchmarkRounds, final int opsPerBenchmarkRound,
-			final Runnable benchmark) throws InterruptedException {
+		final Runnable benchmark) throws InterruptedException {
 		Locale.setDefault(Locale.ENGLISH);
 		System.out.println("JVM Vendor: " + System.getProperty("java.vendor"));
 		System.out.println("JVM Version: " + System.getProperty("java.version"));
@@ -35,9 +35,9 @@ public final class BenchmarkRunner {
 		// warmup
 		for (int r = 1; r <= warmUpRounds; r++) {
 			runRound("warm-up", r, warmUpRounds,
-					5 * opsPerBenchmarkRound, // use more iterations to force JIT to kick in
-					false, // don't try to measure heap usage as warm-up rounds will trigger gc
-					benchmark);
+				5 * opsPerBenchmarkRound, // use more iterations to force JIT to kick in
+				false, // don't try to measure heap usage as warm-up rounds will trigger gc
+				benchmark);
 		}
 
 		System.out.println(SEPARATOR);
@@ -45,16 +45,16 @@ public final class BenchmarkRunner {
 		// benchmark
 		for (int r = 1; r <= benchmarkRounds; r++) {
 			runRound("benchmark", r, benchmarkRounds,
-					opsPerBenchmarkRound,
-					true,
-					benchmark);
+				opsPerBenchmarkRound,
+				true,
+				benchmark);
 		}
 		System.out.println("DONE.");
 	}
 
 	private static void runRound(final String label, final int round, final int totalRounds, final int iterations,
-			final boolean measureHeapUsage,
-			final Runnable benchmark) throws InterruptedException {
+		final boolean measureHeapUsage,
+		final Runnable benchmark) throws InterruptedException {
 		// spinning up a thread so the JVM hopefully runs the benchmark on different cores each round
 		final var t = new Thread(() -> {
 			System.out.println(label + " " + round + "/" + totalRounds + "...");
@@ -83,23 +83,23 @@ public final class BenchmarkRunner {
 
 			if (measureHeapUsage) {
 				final var heapBytesPerIteration = (startFreeMem - RUNTIME.freeMemory())
-						/ (float) iterations;
+					/ (float) iterations;
 				System.out.println(String.format(
-						" -> result: %,5d ms/round | %,7.2f ops/s | %,5.2f ms/op | %,6.3f MB/op",
-						durationMS,
-						iterationsPerSecond,
-						durationMSPerIteration,
-						heapBytesPerIteration / 1024 / 1024));
+					" -> result: %,5d ms/round | %,7.2f ops/s | %,5.2f ms/op | %,6.3f MB/op",
+					durationMS,
+					iterationsPerSecond,
+					durationMSPerIteration,
+					heapBytesPerIteration / 1024 / 1024));
 			} else {
 				System.out.println(String.format(
-						" -> result: %,5d ms/round | %,7.2f ops/s | %,5.2f ms/op",
-						durationMS,
-						iterationsPerSecond,
-						durationMSPerIteration));
+					" -> result: %,5d ms/round | %,7.2f ops/s | %,5.2f ms/op",
+					durationMS,
+					iterationsPerSecond,
+					durationMSPerIteration));
 			}
 		});
 		t.setPriority(Thread.MAX_PRIORITY);
-		t.run();
+		t.start();
 		t.join();
 	}
 }
