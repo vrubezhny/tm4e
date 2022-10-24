@@ -63,7 +63,7 @@ public final class Grammar implements IGrammar, IRuleFactoryHelper {
 	private final String rootScopeName;
 
 	@Nullable
-	private RuleId _rootId = null;
+	private RuleId _rootId;
 	private int _lastRuleId = 0;
 	private final Map<RuleId, @Nullable Rule> _ruleId2desc = new HashMap<>();
 	private final Map<String /*scopeName*/, IRawGrammar> includedGrammars = new HashMap<>();
