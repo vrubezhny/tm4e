@@ -105,137 +105,154 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 			try {
 				switch (command.getId()) {
 				case TOGGLE_LINE_COMMENT_COMMAND_ID: {
-					final var lineComment = commentSupport.getLineComment();
-					if (lineComment != null && !lineComment.isEmpty()) {
-						updateLineComment(document, textSelection, lineComment, editor);
-					} else {
-						final var blockComment = commentSupport.getBlockComment();
-						if (blockComment != null) {
-							Set<Integer> lines = computeLines(textSelection, document);
-							
-							// Filter out the blank lines and lines that are outside of the text selection
-							final int selectionStartLine = textSelection.getStartLine();
-							final int selectionEndLine = textSelection.getEndLine();
-							final int lineRange[] = {-1, -1};
-							lines = lines.stream().filter(l -> 
-										(l >= selectionStartLine && l <= selectionEndLine &&
-											!TextUtils.isBlankLine(document, l)))
-									.map(l -> {
-										lineRange[0] = lineRange[0] == - 1 || lineRange[0] >  l ? l : lineRange[0] ;
-										lineRange[1] = lineRange[1] < l ? l : lineRange[1] ;
-										return l;
-									}).collect(Collectors.toSet());
-
-							final int first = lineRange[0];
-							final int last = lineRange[1];
-							boolean isToAdd = false;
-							int shiftOffset = 0;
-							int shiftLength = 0;
-							for (final int line : lines) {
-								final Set<ITypedRegion> existingBlocks = getBlockCommentPartsForLine(document, line, commentSupport);
-								if (line == first) {
-									isToAdd = existingBlocks.isEmpty();
-								}
-
-								// Remove existing comments block parts
-								int deletedChars = 0;
-								for (ITypedRegion existingBlock : existingBlocks) {
-									existingBlock = new TypedRegion(existingBlock.getOffset() - deletedChars, existingBlock.getLength(), existingBlock.getType());
-									document.replace(existingBlock.getOffset(), existingBlock.getLength(), "");
-									deletedChars += existingBlock.getLength();
-									
-									final int selectionStart = textSelection.getOffset() + shiftOffset;
-									final int selectionLength = textSelection.getLength() + shiftLength;
-									final int selectionEnd = selectionStart + selectionLength;
-									if (isBeforeSelection(existingBlock, selectionStart)) {
-										shiftOffset -= existingBlock.getLength();
-									} else if (isInsideSelection(existingBlock, selectionStart, selectionEnd)) {
-										shiftLength -= existingBlock.getLength();
-									} else if (blockComment.open.equals(existingBlock.getType()) && isSelectioinStartOverlaps(existingBlock, selectionStart)) {
-										final int diff = selectionStart - existingBlock.getOffset();
-										shiftOffset -= diff;
-										final int lengthDiff = existingBlock.getLength()- diff;
-										shiftLength -= lengthDiff <= selectionLength ? lengthDiff : selectionLength;
-									} else if (isSelectioinEndOverlaps(existingBlock, selectionEnd)) {
-										final int lengthDiff = selectionEnd - existingBlock.getOffset();
-										if (isSelectioinEndOverlaps(existingBlock, selectionStart)) {
-											shiftOffset -= lengthDiff;
-										}
-										shiftLength -= lengthDiff <= selectionLength ? lengthDiff : selectionLength;
-									} else if (isSelectionInside(existingBlock, selectionStart, selectionEnd)) {
-										shiftLength -= selectionLength;
-										shiftOffset -= selectionStart -  existingBlock.getOffset();
-									}
-								}
-							}
-
-							// Calculate the updated text selection
-							textSelection = new TextSelection(textSelection.getOffset() + shiftOffset , textSelection.getLength() + shiftLength);
-							shiftOffset = shiftLength = 0;
-				
-							// Add new block comments in case we need it
-							if (isToAdd) {
-								for (final int line : lines) {
-									final int lineOffset = document.getLineOffset(line);
-									final int lineLength = document.getLineLength(line);
-									final String lineDelimiter = document.getLineDelimiter(line);
-									final var range = new TextSelection(document, lineOffset,
-											lineDelimiter != null ? lineLength - lineDelimiter.length() : lineLength);
-
-									addBlockComment(document, range, blockComment, true,  editor);
-
-									if (line == first){
-										if (range.getOffset() <= textSelection.getOffset()) {
-											shiftOffset += blockComment.open.length();
-										}
-										if (range.getOffset() + range.getLength() 
-												< textSelection.getOffset() + textSelection.getLength()) {
-											shiftLength += blockComment.close.length();
-										}
-									} 
-									if (line == last && line != first){
-										final int thisShiftLength = shiftLength;
-										if (range.getOffset() 
-												<= textSelection.getOffset() + shiftOffset  + textSelection.getLength() + thisShiftLength) {
-											shiftLength += blockComment.open.length();
-										}
-										if (range.getOffset() + range.getLength() 
-												< textSelection.getOffset() + shiftOffset + textSelection.getLength() + thisShiftLength) {
-											shiftLength += blockComment.close.length();
-										}
-									} 
-									if (line != first && line != last) {
-										shiftLength += blockComment.open.length() + blockComment.close.length();
-									}
-								}
+						final var lineComment = commentSupport.getLineComment();
+						if (lineComment != null && !lineComment.isEmpty()) {
+							updateLineComment(document, textSelection, lineComment, editor);
+						} else {
+							final var blockComment = commentSupport.getBlockComment();
+							if (blockComment != null) {
+								Set<Integer> lines = computeLines(textSelection, document);
 								
+								// Filter out the blank lines and lines that are outside of the text selection
+								final int selectionStartLine = textSelection.getStartLine();
+								final int selectionEndLine = textSelection.getEndLine();
+								final int lineRange[] = {-1, -1};
+								lines = lines.stream().filter(l -> 
+											(l >= selectionStartLine && l <= selectionEndLine &&
+												!TextUtils.isBlankLine(document, l)))
+										.map(l -> {
+											lineRange[0] = lineRange[0] == - 1 || lineRange[0] >  l ? l : lineRange[0] ;
+											lineRange[1] = lineRange[1] < l ? l : lineRange[1] ;
+											return l;
+										}).collect(Collectors.toSet());
+	
+								final int first = lineRange[0];
+								final int last = lineRange[1];
+								boolean isToAdd = false;
+								int shiftOffset = 0;
+								int shiftLength = 0;
+								for (final int line : lines) {
+									final Set<ITypedRegion> existingBlocks = getBlockCommentPartsForLine(document, line, commentSupport);
+									if (line == first) {
+										isToAdd = existingBlocks.isEmpty();
+									}
+	
+									// Remove existing comments block parts
+									int deletedChars = 0;
+									for (ITypedRegion existingBlock : existingBlocks) {
+										existingBlock = new TypedRegion(existingBlock.getOffset() - deletedChars, existingBlock.getLength(), existingBlock.getType());
+										document.replace(existingBlock.getOffset(), existingBlock.getLength(), "");
+										deletedChars += existingBlock.getLength();
+										
+										final int selectionStart = textSelection.getOffset() + shiftOffset;
+										final int selectionLength = textSelection.getLength() + shiftLength;
+										final int selectionEnd = selectionStart + selectionLength;
+										if (isBeforeSelection(existingBlock, selectionStart)) {
+											shiftOffset -= existingBlock.getLength();
+										} else if (isInsideSelection(existingBlock, selectionStart, selectionEnd)) {
+											shiftLength -= existingBlock.getLength();
+										} else if (blockComment.open.equals(existingBlock.getType()) && isSelectioinStartOverlaps(existingBlock, selectionStart)) {
+											final int diff = selectionStart - existingBlock.getOffset();
+											shiftOffset -= diff;
+											final int lengthDiff = existingBlock.getLength()- diff;
+											shiftLength -= lengthDiff <= selectionLength ? lengthDiff : selectionLength;
+										} else if (isSelectioinEndOverlaps(existingBlock, selectionEnd)) {
+											final int lengthDiff = selectionEnd - existingBlock.getOffset();
+											if (isSelectioinEndOverlaps(existingBlock, selectionStart)) {
+												shiftOffset -= lengthDiff;
+											}
+											shiftLength -= lengthDiff <= selectionLength ? lengthDiff : selectionLength;
+										} else if (isSelectionInside(existingBlock, selectionStart, selectionEnd)) {
+											shiftLength -= selectionLength;
+											shiftOffset -= selectionStart -  existingBlock.getOffset();
+										}
+									}
+								}
+	
 								// Calculate the updated text selection
 								textSelection = new TextSelection(textSelection.getOffset() + shiftOffset , textSelection.getLength() + shiftLength);
+								shiftOffset = shiftLength = 0;
+					
+								// Add new block comments in case we need it
+								if (isToAdd) {
+									for (final int line : lines) {
+										final int lineOffset = document.getLineOffset(line);
+										final int lineLength = document.getLineLength(line);
+										final String lineDelimiter = document.getLineDelimiter(line);
+										final var range = new TextSelection(document, lineOffset,
+												lineDelimiter != null ? lineLength - lineDelimiter.length() : lineLength);
+	
+										addBlockComment(document, range, blockComment, true,  editor);
+	
+										if (line == first){
+											if (range.getOffset() <= textSelection.getOffset()) {
+												shiftOffset += blockComment.open.length();
+											}
+											if (range.getOffset() + range.getLength() 
+													< textSelection.getOffset() + textSelection.getLength()) {
+												shiftLength += blockComment.close.length();
+											}
+										} 
+										if (line == last && line != first){
+											final int thisShiftLength = shiftLength;
+											if (range.getOffset() 
+													<= textSelection.getOffset() + shiftOffset  + textSelection.getLength() + thisShiftLength) {
+												shiftLength += blockComment.open.length();
+											}
+											if (range.getOffset() + range.getLength() 
+													< textSelection.getOffset() + shiftOffset + textSelection.getLength() + thisShiftLength) {
+												shiftLength += blockComment.close.length();
+											}
+										} 
+										if (line != first && line != last) {
+											shiftLength += blockComment.open.length() + blockComment.close.length();
+										}
+									}
+									
+									// Calculate the updated text selection
+									textSelection = new TextSelection(textSelection.getOffset() + shiftOffset , textSelection.getLength() + shiftLength);
+								}
+	
+								editor.selectAndReveal(textSelection.getOffset(), textSelection.getLength());
 							}
-
-							editor.selectAndReveal(textSelection.getOffset(), textSelection.getLength());
 						}
+						break;
 					}
-					break;
-				}
 
 				case ADD_BLOCK_COMMENT_COMMAND_ID: {
-					final IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
-					final var blockComment = commentSupport.getBlockComment();
-					if (existingBlock != null && blockComment != null) {
-						addBlockComment(document, textSelection, blockComment, false, editor);
+						final var blockComment = commentSupport.getBlockComment();
+						if (blockComment != null && !blockComment.open.isEmpty() && !blockComment.close.isEmpty()) {
+							final IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
+							if (existingBlock != null && blockComment != null) {
+								addBlockComment(document, textSelection, blockComment, false, editor);
+							}
+						}  else {
+							// Fallback to using line comment
+							final var lineComment = commentSupport.getLineComment();
+							if (lineComment != null && !lineComment.isEmpty()) {
+								updateLineComment(document, textSelection, lineComment, editor);
+							}
+						}
+						
+						break;
 					}
-					break;
-				}
 
 				case REMOVE_BLOCK_COMMENT_COMMAND_ID: {
-					final IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
-					final var blockComment = commentSupport.getBlockComment();
-					if (existingBlock != null && blockComment != null) {
-						removeBlockComment(document, textSelection, existingBlock, blockComment, editor);
+						final var blockComment = commentSupport.getBlockComment();
+						if (blockComment != null && !blockComment.open.isEmpty() && !blockComment.close.isEmpty()) {
+							final IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
+							if (existingBlock != null && blockComment != null) {
+								removeBlockComment(document, textSelection, existingBlock, blockComment, editor);
+							}
+						}  else {
+							// Fallback to using line comment
+							final var lineComment = commentSupport.getLineComment();
+							if (lineComment != null && !lineComment.isEmpty()) {
+								updateLineComment(document, textSelection, lineComment, editor);
+							}
+						}
+						break;
 					}
-					break;
-				}
 				}
 			} catch (final BadLocationException e) {
 				// Caught by making no changes
@@ -300,16 +317,17 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 	 * @return true if comment support is valid according the command to do and false otherwise.
 	 */
 	private boolean isValid(final CommentSupport commentSupport, final Command command) {
+		// At least one of line or block comment is to be enabled by the language configuration
 		final var lineComment = commentSupport.getLineComment();
-		if (TOGGLE_LINE_COMMENT_COMMAND_ID.equals(command.getId()) && lineComment != null
-				&& !lineComment.isEmpty()) {
-			return true;
-		}
-		// check if block comment is valid
 		final var blockComment = commentSupport.getBlockComment();
-		return blockComment != null
-				&& !"".equals(blockComment.open)
-				&& !"".equals(blockComment.close);
+		if ((lineComment == null || lineComment.isEmpty())  
+				&& (blockComment == null ||blockComment.open.isEmpty() || blockComment.close.isEmpty())) {
+			return false;
+		}
+		// A command should to be either Toggle Line comment or Add/Remove Block comment
+		return (TOGGLE_LINE_COMMENT_COMMAND_ID.equals(command.getId())
+				|| ADD_BLOCK_COMMENT_COMMAND_ID.equals(command.getId())
+				|| REMOVE_BLOCK_COMMENT_COMMAND_ID.equals(command.getId()));
 	}
 
 	/**
