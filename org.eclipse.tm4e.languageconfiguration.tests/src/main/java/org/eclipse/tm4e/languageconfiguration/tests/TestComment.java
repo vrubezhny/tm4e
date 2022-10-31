@@ -87,4 +87,29 @@ public class TestComment {
 		service.executeCommand(ToggleLineCommentHandler.TOGGLE_LINE_COMMENT_COMMAND_ID, null);
 		assertEquals("a\r\n\r\nb\r\n\r\nc", doc.get());
 	}
+	
+	@Test
+	public void testToggleBlockCommentUseLineComment() throws Exception {
+		final var now = System.currentTimeMillis();
+		final var proj = ResourcesPlugin.getWorkspace().getRoot().getProject(getClass().getName() + now);
+		proj.create(null);
+		proj.open(null);
+		final var file = proj.getFile("whatever.noBlockComment");
+		file.create(new ByteArrayInputStream("a\n\nb\n\nc".getBytes()), true, null);
+		final var editor = (ITextEditor) IDE.openEditor(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage(), file,
+				"org.eclipse.ui.genericeditor.GenericEditor");
+		final var doc = editor.getDocumentProvider().getDocument(editor.getEditorInput());
+		final var service = PlatformUI.getWorkbench().getService(IHandlerService.class);
+		String text = doc.get();
+		editor.getSelectionProvider().setSelection(new TextSelection(0, text.length()));
+		service.executeCommand(ToggleLineCommentHandler.ADD_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals("//a\n//\n//b\n//\n//c", doc.get());
+		
+		// Repeatedly executed toggle comment command should remove the comments inserted previously
+		text = doc.get();
+		editor.getSelectionProvider().setSelection(new TextSelection(0,text.length()));
+		service.executeCommand(ToggleLineCommentHandler.REMOVE_BLOCK_COMMENT_COMMAND_ID, null);
+		assertEquals("a\n\nb\n\nc", doc.get());
+	}
 }
