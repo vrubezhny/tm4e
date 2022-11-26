@@ -4,9 +4,16 @@ This page describes the noteworthy improvements provided by each release of Ecli
 
 ### Latest release
 
+## 0.6.2
+
+* 📅 Release Date: November 26th 2022
+* All changes: https://github.com/eclipse/tm4e/compare/0.6.1...0.6.2
+
+Many bugfixes and dependency updates.
+
 ## 0.6.1
 
-* 📅 Release Date: Setember 14th 2022
+* 📅 Release Date: September 14th 2022
 * All changes: https://github.com/eclipse/tm4e/compare/0.6.0...0.6.1
 
 #### Support for onEnterRules
