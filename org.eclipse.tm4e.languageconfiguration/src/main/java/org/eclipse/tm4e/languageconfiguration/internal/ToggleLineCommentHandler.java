@@ -223,7 +223,7 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 						final var blockComment = commentSupport.getBlockComment();
 						if (blockComment != null && !blockComment.open.isEmpty() && !blockComment.close.isEmpty()) {
 							final IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
-							if (existingBlock != null && blockComment != null) {
+							if (existingBlock == null) {
 								addBlockComment(document, textSelection, blockComment, false, editor);
 							}
 						}  else {
@@ -241,7 +241,7 @@ public class ToggleLineCommentHandler extends AbstractHandler {
 						final var blockComment = commentSupport.getBlockComment();
 						if (blockComment != null && !blockComment.open.isEmpty() && !blockComment.close.isEmpty()) {
 							final IRegion existingBlock = getBlockComment(document, textSelection, commentSupport);
-							if (existingBlock != null && blockComment != null) {
+							if (existingBlock != null) {
 								removeBlockComment(document, textSelection, existingBlock, blockComment, editor);
 							}
 						}  else {
